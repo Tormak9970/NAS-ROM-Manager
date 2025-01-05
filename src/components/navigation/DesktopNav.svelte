@@ -4,17 +4,19 @@
   import { views } from "$lib/routes";
 
   import { page } from '$app/state';  
+  import { goto } from "$app/navigation";
 
   let { condenseNav = false } = $props();
 </script>
 
 <NavList type="rail">
   {#each views as view}
+    {@const selected = view.path === page.url.pathname}
     <NavListButton
       type="rail"
-      icon={view.icon}
-      selected={view.path === page.url.pathname}
-      on:click={() => {}}
+      icon={selected ? view.selectedIcon : view.icon}
+      selected={selected}
+      on:click={() => goto(view.path)}
     >
       {#if !condenseNav}
         {view.label}

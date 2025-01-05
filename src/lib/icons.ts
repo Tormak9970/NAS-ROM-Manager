@@ -1,5 +1,20 @@
-export { default as Settings } from "@ktibow/iconset-material-symbols/settings";
+// ! Nav icons
+export { default as Settings } from "@ktibow/iconset-material-symbols/settings-rounded";
+export { default as SettingsOutline } from "@ktibow/iconset-material-symbols/settings-outline-rounded";
 
+export { default as Dashboard } from "@ktibow/iconset-material-symbols/dashboard-rounded";
+export { default as DashboardOutline } from "@ktibow/iconset-material-symbols/dashboard-outline-rounded";
+
+export { default as GameAsset } from "@ktibow/iconset-material-symbols/videogame-asset-rounded";
+export { default as GameAssetOutline } from "@ktibow/iconset-material-symbols/videogame-asset-outline-rounded";
+
+export { default as Library } from "@ktibow/iconset-material-symbols/video-library-rounded";
+export { default as LibraryOutline } from "@ktibow/iconset-material-symbols/video-library-outline-rounded";
+
+export { default as Assignment } from "@ktibow/iconset-material-symbols/assignment-rounded";
+export { default as AssignmentOutline } from "@ktibow/iconset-material-symbols/assignment-outline-rounded";
+
+// ! Other Icons
 export { default as Close } from "@ktibow/iconset-material-symbols/close-rounded";
 export { default as Pause } from "@ktibow/iconset-material-symbols/pause-rounded";
 export { default as Play } from "@ktibow/iconset-material-symbols/play-arrow-rounded";
@@ -38,8 +53,3 @@ export { default as Person } from "@ktibow/iconset-material-symbols/person-round
 export { default as Star } from "@ktibow/iconset-material-symbols/star-rounded";
 
 export { default as Sort } from "@ktibow/iconset-material-symbols/sort-rounded";
-export { default as Monitoring } from "@ktibow/iconset-material-symbols/monitoring-rounded";
-
-export { default as Home } from "@ktibow/iconset-material-symbols/home-rounded";
-export { default as VideoLibrary } from "@ktibow/iconset-material-symbols/video-library-rounded";
-export { default as History } from "@ktibow/iconset-material-symbols/history-rounded";

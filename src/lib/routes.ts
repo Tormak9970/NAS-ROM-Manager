@@ -1,16 +1,17 @@
 import type { IconifyIcon } from "@iconify/types"
-import { History, Home, Monitoring, Settings, VideoLibrary } from "./icons";
+import { Dashboard, Settings, Library, Assignment, DashboardOutline, LibraryOutline, AssignmentOutline, SettingsOutline, GameAsset, GameAssetOutline } from "./icons";
 
 export type View = {
   icon: IconifyIcon;
+  selectedIcon: IconifyIcon;
   label: string;
   path: string;
 }
 
 export const views: View[] = [
-  { label: "Home", path: "/", icon: Home },
-  { label: "Library", path: "/library", icon: VideoLibrary },
-  { label: "Stats", path: "/stats", icon: Monitoring },
-  { label: "Logs", path: "/logs", icon: History },
-  { label: "Settings", path: "/settings", icon: Settings },
+  { label: "Dashboard", path: "/dashboard", selectedIcon: Dashboard, icon: DashboardOutline },
+  { label: "Library", path: "/library", selectedIcon: Library, icon: LibraryOutline },
+  { label: "Systems", path: "/systems", selectedIcon: GameAsset, icon: GameAssetOutline },
+  { label: "Logs", path: "/logs", selectedIcon: Assignment, icon: AssignmentOutline },
+  { label: "Settings", path: "/settings", selectedIcon: Settings, icon: SettingsOutline },
 ]

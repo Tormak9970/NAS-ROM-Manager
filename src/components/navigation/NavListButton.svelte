@@ -52,6 +52,7 @@
   .type-rail {
     flex-direction: row;
     align-items: center;
+    padding: 0.25rem;
   }
 
   .m3-container::before {

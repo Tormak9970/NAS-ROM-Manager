@@ -1,20 +1,36 @@
 <script>
   import "../app.css";
+  import { onDestroy, onMount } from "svelte";
   import MediaQuery from "@component-utils/MediaQuery.svelte";
   import Theme from "../components/theme/Theme.svelte";
   import { isLandscape } from "@stores/State";
   import { DesktopNav } from "@navigation";
   import MobileNav from "@navigation/MobileNav.svelte";
+  import { AppController, RustInterop } from "@controllers";
 
 	let { children } = $props();
 
   let condenseDesktopNav = $state(false);
+
+  onMount(() => {
+    AppController.init();
+    RustInterop.init();
+
+    RustInterop.authenticate("Admin", "test");
+  });
+
+  onDestroy(() => {
+    AppController.destroy();
+  });
 </script>
 
 <MediaQuery query="(orientation:landscape)" bind:matches={$isLandscape} />
 <MediaQuery query="(max-width: 1200px)" bind:matches={condenseDesktopNav} />
 <Theme>
   <div class="layout" class:mobile={!$isLandscape}>
+    {#if $isLandscape}
+      
+    {/if}
     <div class="nav" style:width={$isLandscape ? (condenseDesktopNav ? "3.5rem" : "10rem") : "100%"}>
       {#if $isLandscape}
         <DesktopNav condenseNav={condenseDesktopNav} />
@@ -30,8 +46,10 @@
 
 <style>
   .layout {
-    width: 100%;
-    height: 100%;
+    width: calc(100% - 1rem);
+    height: calc(100% - 1rem);
+
+    padding: 0.5rem;
 
     display: flex;
     flex-direction: row;

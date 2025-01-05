@@ -29,6 +29,15 @@ export enum LogLevel {
  * ! Should do no logging here.
  */
 export class RustInterop {
+  private static ws: WebSocket;
+
+  static init() {
+    RustInterop.ws = new WebSocket("ws://localhost:1500");
+
+    RustInterop.ws.addEventListener("open", () => {
+      RustInterop.ws.send("Hello World!");
+    });
+  }
 
   /**
    * Cleans the app's log file.
@@ -44,5 +53,30 @@ export class RustInterop {
    */
   static async logToFile(message: string, level: LogLevel): Promise<void> {
     // await invoke("log_to_file", { message: message, level: level });
+  }
+
+  /**
+   * Authenticates the user.
+   * @param username The username to authenticate with.
+   * @param passwordHash The hash of the user's password.
+   * @returns The backend's response.
+   */
+  static async authenticate(username: string, passwordHash: string): Promise<boolean> {
+    const result = new Promise<boolean>((resolve, reject) => {
+      const handler = (event: MessageEvent<string>) => {
+        if (event.data.startsWith("user_auth")) {
+          const result = event.data.substring(10) === "true";
+          RustInterop.ws.removeEventListener("message", handler);
+
+          resolve(result);
+        }
+      }
+
+      RustInterop.ws.addEventListener("message", handler);
+    });
+
+    this.ws.send(`user_auth ${username} ${passwordHash}`);
+
+    return await result;
   }
 }

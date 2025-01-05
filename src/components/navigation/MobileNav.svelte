@@ -4,16 +4,18 @@
   import { views } from "$lib/routes";
     
   import { page } from '$app/state';  
+  import { goto } from "$app/navigation";
 </script>
 
 <div class="view-nav">
   <NavList type="bar" extraOptions={{ style: "padding: 0.75rem 0.5rem; height: 56px;" }}>
     {#each views as view}
+      {@const selected = view.path === page.url.pathname}
       <NavListButton
         type="bar"
-        icon={view.icon}
-        selected={view.path === page.url.pathname}
-        on:click={() => {}}
+        icon={selected ? view.selectedIcon : view.icon}
+        selected={selected}
+        on:click={() => goto(view.path)}
       />
     {/each}
   </NavList>

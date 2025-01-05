@@ -4,11 +4,14 @@ use tokio::sync::broadcast;
 
 mod ws_handler;
 mod manager;
+mod auth;
 mod types;
 
 /// The main function
 #[tokio::main]
 async fn main() {
+  pretty_env_logger::init_timed();
+
   let tx = Arc::new(Mutex::new(broadcast::channel(100).0));
   let tx_ws = tx.clone();
 
@@ -21,6 +24,6 @@ async fn main() {
     });
 
   warp::serve(ws_route)
-    .run(([127, 0, 0, 1], 8080))
+    .run(([127, 0, 0, 1], 1500))
     .await;
 }
