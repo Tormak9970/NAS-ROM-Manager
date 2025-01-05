@@ -32,11 +32,35 @@ export class RustInterop {
   private static ws: WebSocket;
 
   static init() {
-    RustInterop.ws = new WebSocket("ws://localhost:1500");
+    RustInterop.ws = new WebSocket("ws://127.0.0.1:1500/ws");
 
     RustInterop.ws.addEventListener("open", () => {
       RustInterop.ws.send("Hello World!");
     });
+
+    // TODO: initialize global listeners, such as token_expired
+    RustInterop.ws.addEventListener("message", (event) => {
+
+    });
+  }
+
+  private static async invoke(message: string, ...args: string[]): Promise<string[]> {
+    const result = new Promise<string[]>((resolve, reject) => {
+      const handler = (event: MessageEvent<string>) => {
+        if (event.data.startsWith(message)) {
+          const parts = event.data.split(" ");
+          RustInterop.ws.removeEventListener("message", handler);
+
+          resolve(parts);
+        }
+      }
+
+      RustInterop.ws.addEventListener("message", handler);
+    });
+
+    RustInterop.ws.send(`${message} ${args.join(" ")}`);
+
+    return await result;
   }
 
   /**
@@ -62,21 +86,11 @@ export class RustInterop {
    * @returns The backend's response.
    */
   static async authenticate(username: string, passwordHash: string): Promise<boolean> {
-    const result = new Promise<boolean>((resolve, reject) => {
-      const handler = (event: MessageEvent<string>) => {
-        if (event.data.startsWith("user_auth")) {
-          const result = event.data.substring(10) === "true";
-          RustInterop.ws.removeEventListener("message", handler);
+    const parts = await RustInterop.invoke("user_auth", username, passwordHash);
+    const success = parts[2] === "true";
 
-          resolve(result);
-        }
-      }
+    if (success) sessionStorage.setItem("jwt", parts[3]);
 
-      RustInterop.ws.addEventListener("message", handler);
-    });
-
-    this.ws.send(`user_auth ${username} ${passwordHash}`);
-
-    return await result;
+    return success;
   }
 }

@@ -8,6 +8,10 @@
   import MobileNav from "@navigation/MobileNav.svelte";
   import { AppController, RustInterop } from "@controllers";
 
+  import jsSHA from "jssha";
+
+  export const ssr = false;
+
 	let { children } = $props();
 
   let condenseDesktopNav = $state(false);
@@ -16,7 +20,17 @@
     AppController.init();
     RustInterop.init();
 
-    RustInterop.authenticate("Admin", "test");
+    setTimeout(async () => {
+
+      const shaObj = new jsSHA("SHA-256", "TEXT", { encoding: "UTF8" });
+      shaObj.update("test123");
+
+      const hash = shaObj.getHash("HEX");
+
+      const result = await RustInterop.authenticate("Admin", hash);
+
+      console.log("Authenticated:", result);
+    }, 1000);
   });
 
   onDestroy(() => {
