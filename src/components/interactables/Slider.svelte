@@ -51,8 +51,8 @@
     {disabled}
     {...extraOptions}
   />
-  <div class="track" />
-  <div class="thumb" />
+  <div class="track"></div>
+  <div class="thumb"></div>
 </div>
 
 <style>

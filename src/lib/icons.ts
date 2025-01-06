@@ -53,3 +53,8 @@ export { default as Person } from "@ktibow/iconset-material-symbols/person-round
 export { default as Star } from "@ktibow/iconset-material-symbols/star-rounded";
 
 export { default as Sort } from "@ktibow/iconset-material-symbols/sort-rounded";
+
+export { default as Checkmark } from "@ktibow/iconset-material-symbols/check";
+
+export { default as Visibility } from "@ktibow/iconset-material-symbols/visibility";
+export { default as VisibiityOff } from "@ktibow/iconset-material-symbols/visibility-off";

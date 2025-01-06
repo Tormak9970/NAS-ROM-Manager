@@ -30,7 +30,7 @@
   {#if clickable}
     <!-- svelte-ignore a11y-click-events-have-key-events -->
     <!-- svelte-ignore a11y-no-static-element-interactions -->
-    <div class="click-container" on:click={() => dispatch("click")} />
+    <div class="click-container" on:click={() => dispatch("click")}></div>
   {/if}
   {#if showPlaceholder}
     <div class="placeholder-container">

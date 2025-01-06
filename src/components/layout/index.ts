@@ -1,4 +1,3 @@
-export { default as HomeLoadingAnimation } from "./loading-animations/HomeLoadingAnimation.svelte";
 export { default as LoadingSpinner } from "./loading-animations/LoadingSpinner.svelte";
 
 export { default as BottomSheet } from "./BottomSheet.svelte";

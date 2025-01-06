@@ -31,8 +31,8 @@
 			on:mousedown|preventDefault={noop}
 			aria-haspopup="dialog"
 		/>
-		<div class="alpha" />
-		<div class="color" style:background={hex} />
+		<div class="alpha"></div>
+		<div class="color" style:background={hex}></div>
 	</div>
 	{label}
 </label>

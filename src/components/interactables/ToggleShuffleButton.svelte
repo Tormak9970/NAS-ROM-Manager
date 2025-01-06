@@ -14,7 +14,7 @@
     </div>
   </Button>
   {#if shuffle}
-    <div class="indicator" in:fade={{ duration: 200 }} />
+    <div class="indicator" in:fade={{ duration: 200 }}></div>
   {/if}
 </div>
 

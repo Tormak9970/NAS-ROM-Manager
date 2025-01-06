@@ -30,13 +30,11 @@
     transition: background-color 200ms;
     height: 3.5rem;
   }
-  .leading,
-  .trailing {
+  .leading {
     display: contents;
     color: rgb(var(--m3-scheme-on-surface-variant));
   }
-  .leading > :global(svg),
-  .trailing > :global(svg) {
+  .leading > :global(svg) {
     width: 1.5rem;
     height: 1.5rem;
     flex-shrink: 0;
@@ -44,10 +42,6 @@
 
   p {
     margin: 0;
-  }
-  .supporting,
-  .overline {
-    color: rgb(var(--m3-scheme-on-surface-variant));
   }
   .headline {
     color: rgb(var(--m3-scheme-on-surface));

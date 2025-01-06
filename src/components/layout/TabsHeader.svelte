@@ -76,7 +76,7 @@
   {...extraWrapperOptions}
 >
   <div class="items">
-    <div class="divider" />
+    <div class="divider"></div>
     {#each items as item}
       {@const id = name + item.value}
       <input
@@ -95,7 +95,7 @@
         <span class="m3-font-title-small font-label">{item.label}</span>
       </label>
     {/each}
-    <div class="bar" />
+    <div class="bar"></div>
   </div>
 </div>
 

@@ -3,34 +3,44 @@
   import { onDestroy, onMount } from "svelte";
   import MediaQuery from "@component-utils/MediaQuery.svelte";
   import Theme from "../components/theme/Theme.svelte";
-  import { isLandscape } from "@stores/State";
+  import { isLandscape, showErrorSnackbar, showInfoSnackbar } from "@stores/State";
   import { DesktopNav } from "@navigation";
   import MobileNav from "@navigation/MobileNav.svelte";
   import { AppController, RustInterop } from "@controllers";
-
-  import jsSHA from "jssha";
-
-  export const ssr = false;
+  import { isSignedIn } from "@stores/Auth";
+  import { page } from '$app/state';
+  import { goto } from "$app/navigation";
+  import InfoSnackbar from "../components/snackbars/InfoSnackbar.svelte";
+  import ErrorSnackbar from "../components/snackbars/ErrorSnackbar.svelte";
 
 	let { children } = $props();
 
   let condenseDesktopNav = $state(false);
 
+  let validatingCredentials = $state(true);
+
+  $effect(() => {
+    if (!$isSignedIn && page.url.pathname !== '/') {
+      goto('/');
+    } else if (!validatingCredentials && $isSignedIn && page.url.pathname === '/') {
+      goto('/dashboard');
+    }
+  });
+
   onMount(() => {
     AppController.init();
-    RustInterop.init();
+    RustInterop.init(async () => {
+      const user = sessionStorage.getItem("user");
+      const hash = sessionStorage.getItem("hash");
 
-    setTimeout(async () => {
-
-      const shaObj = new jsSHA("SHA-256", "TEXT", { encoding: "UTF8" });
-      shaObj.update("test123");
-
-      const hash = shaObj.getHash("HEX");
-
-      const result = await RustInterop.authenticate("Admin", hash);
-
-      console.log("Authenticated:", result);
-    }, 1000);
+      if (user && hash) {
+        RustInterop.authenticate(user, hash).then(() => {
+          validatingCredentials = false;
+        });
+      } else {
+        validatingCredentials = false;
+      }
+    });
   });
 
   onDestroy(() => {
@@ -42,21 +52,25 @@
 <MediaQuery query="(max-width: 1200px)" bind:matches={condenseDesktopNav} />
 <Theme>
   <div class="layout" class:mobile={!$isLandscape}>
-    {#if $isLandscape}
-      
+    {#if $isSignedIn}
+      <!-- {#if $isLandscape}
+        
+      {/if} -->
+      <div class="nav" style:width={$isLandscape ? (condenseDesktopNav ? "3.5rem" : "10rem") : "100%"}>
+        {#if $isLandscape}
+          <DesktopNav condenseNav={condenseDesktopNav} />
+        {:else}
+          <MobileNav />
+        {/if}
+      </div>
     {/if}
-    <div class="nav" style:width={$isLandscape ? (condenseDesktopNav ? "3.5rem" : "10rem") : "100%"}>
-      {#if $isLandscape}
-        <DesktopNav condenseNav={condenseDesktopNav} />
-      {:else}
-        <MobileNav />
-      {/if}
-    </div>
     <div class="content" style:width={condenseDesktopNav ? "calc(100% - 3.5rem)" : "calc(100% - 10rem)"}>
       {@render children()}
     </div>
   </div>
 </Theme>
+<InfoSnackbar bind:show={$showInfoSnackbar} />
+<ErrorSnackbar bind:show={$showErrorSnackbar} />
 
 <style>
   .layout {
@@ -74,6 +88,10 @@
   .mobile {
     flex-direction: column-reverse;
     align-items: center;
+
+    padding: 0;
+    width: 100%;
+    height: 100%;
   }
 
   .mobile .nav {

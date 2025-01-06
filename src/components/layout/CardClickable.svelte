@@ -27,7 +27,7 @@
   class="m3-container type-{type}"
   {...extraOptions}
 >
-  <div class="layer" class:highlight />
+  <div class="layer" class:highlight></div>
   <slot />
 </button>
 

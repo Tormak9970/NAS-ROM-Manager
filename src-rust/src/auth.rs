@@ -2,6 +2,7 @@ use std::env::var;
 
 use crypto::{digest::Digest, sha2::Sha256};
 use log::warn;
+use tokio::sync::broadcast;
 
 /// Hashes a string using SHA256.
 fn hash(text: String) -> String {
@@ -14,11 +15,26 @@ fn hash(text: String) -> String {
   return result;
 }
 
+pub fn validate_hash(password_hash: String, tx: broadcast::Sender<String>) -> bool {
+  let env_password_res = var("ROM_MANAGER_PASSWORD");
+  if env_password_res.is_err() {
+    warn!("No password variable \"ROM_MANAGER_PASSWORD\" was found!");
+    tx.send(format!("missing_env_variable ROM_MANAGER_PASSWORD")).expect("Failed to broadcast message");
+    return false;
+  }
+
+  let env_password = env_password_res.unwrap();
+  let env_password_hash = hash(env_password);
+
+  return password_hash == env_password_hash;
+}
+
 /// password is already hashed with SHA2
-pub fn authenticate_user(username: String, password_hash: String) -> bool {
+pub fn authenticate_user(username: String, password_hash: String, tx: broadcast::Sender<String>) -> bool {
   let env_username_res = var("ROM_MANAGER_USERNAME");
   if env_username_res.is_err() {
     warn!("No environment variable \"ROM_MANAGER_USERNAME\" was found!");
+    tx.send(format!("missing_env_variable ROM_MANAGER_USERNAME")).expect("Failed to broadcast message");
     return false;
   }
 
@@ -27,6 +43,7 @@ pub fn authenticate_user(username: String, password_hash: String) -> bool {
   let env_password_res = var("ROM_MANAGER_PASSWORD");
   if env_password_res.is_err() {
     warn!("No password variable \"ROM_MANAGER_PASSWORD\" was found!");
+    tx.send(format!("missing_env_variable ROM_MANAGER_PASSWORD")).expect("Failed to broadcast message");
     return false;
   }
 

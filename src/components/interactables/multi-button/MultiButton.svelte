@@ -19,7 +19,7 @@
   style="display: {display}; overflow: hidden;"
   {...extraOptions}
 >
-  <div class="layer" />
+  <div class="layer"></div>
   {#if icon}
     <div class="custom icon">
       <Icon {icon} />
@@ -28,10 +28,10 @@
   <div class="check icon">
     <Icon icon={Checkmark} />
   </div>
-  <div class="start-pad pad" />
+  <div class="start-pad pad"></div>
   <slot />
   {#if !icon}
-    <div class="end-pad pad" />
+    <div class="end-pad pad"></div>
   {/if}
 </label>
 

@@ -21,7 +21,7 @@
 
 <div class="m3-container" style="display: {display};" {...extraOptions}>
   <input type="radio" name={name} checked={checked} {disabled} on:input={onInput} />
-  <div class="layer" />
+  <div class="layer"></div>
 </div>
 
 <style>

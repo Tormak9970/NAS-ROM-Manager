@@ -40,7 +40,7 @@
     on:change
     on:input
   />
-  <div class="layer" />
+  <div class="layer"></div>
   <label class="m3-font-body-large" for={id}>{name}</label>
   {#if leadingIcon}
     <Icon icon={leadingIcon} class="leading" />
@@ -59,7 +59,7 @@
   .m3-container {
     position: relative;
     align-items: center;
-    height: 3.5rem;
+    height: 3rem;
     min-width: 15rem;
   }
   input {
@@ -77,7 +77,7 @@
   label {
     position: absolute;
     left: 0.75rem;
-    top: 1rem;
+    top: 0.7rem;
     color: rgb(var(--error, var(--m3-scheme-on-surface-variant)));
     background-color: rgb(var(--m3-util-background, var(--m3-scheme-surface)));
     padding: 0 0.25rem;

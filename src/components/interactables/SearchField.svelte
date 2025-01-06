@@ -65,14 +65,6 @@
     background-color: transparent;
     color: rgb(var(--m3-scheme-on-surface));
   }
-  .layer {
-    position: absolute;
-    inset: 0;
-    border: 0.0625rem solid rgb(var(--error, var(--m3-scheme-outline)));
-    border-radius: var(--m3-textfield-outlined-shape);
-    pointer-events: none;
-    transition: all 200ms;
-  }
   .m3-container :global(svg) {
     width: 1.5rem;
     height: 1.5rem;
@@ -82,25 +74,6 @@
   .m3-container > :global(.leading) {
     position: relative;
     margin-left: 0.75rem;
-  }
-  .trailing {
-    position: absolute;
-    padding-left: 0.75rem;
-    padding-right: 0.75rem;
-    height: 100%;
-    right: 0;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: none;
-    background-color: transparent;
-    border-top-right-radius: 0.25rem;
-    border-bottom-right-radius: 0.25rem;
-
-    -webkit-tap-highlight-color: transparent;
-    cursor: pointer;
-    transition: all 200ms;
   }
 
   .error {

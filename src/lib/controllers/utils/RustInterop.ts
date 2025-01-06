@@ -15,6 +15,9 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>
  */
 
+import { isSignedIn, username } from "@stores/Auth";
+import { LogController } from "./LogController";
+
 /**
  * The available logging levels.
  */
@@ -26,21 +29,36 @@ export enum LogLevel {
 
 /**
  * Handles wrapping ipc communication into an easy to use JS bindings.
- * ! Should do no logging here.
  */
 export class RustInterop {
   private static ws: WebSocket;
+  private static hash: string;
 
-  static init() {
+  static init(onOpen: () => Promise<void>) {
     RustInterop.ws = new WebSocket("ws://127.0.0.1:1500/ws");
 
     RustInterop.ws.addEventListener("open", () => {
       RustInterop.ws.send("Hello World!");
+
+      onOpen();
     });
 
-    // TODO: initialize global listeners, such as token_expired
+    // * Handles generic messages such as token expiration.
     RustInterop.ws.addEventListener("message", (event) => {
+      const parts = event.data.split(" ");
 
+      switch(parts[0]) {
+        case "hash_mismatch":
+          sessionStorage.removeItem("hash");
+          sessionStorage.removeItem("user");
+          RustInterop.hash = "";
+          username.set("");
+          isSignedIn.set(false);
+          break;
+        case "missing_env_variable":
+          // TODO: go to the an error page indicating which environment variable is missing and explaining how to fix it.
+          break;
+      }
     });
   }
 
@@ -58,38 +76,34 @@ export class RustInterop {
       RustInterop.ws.addEventListener("message", handler);
     });
 
-    RustInterop.ws.send(`${message} ${args.join(" ")}`);
+    let interopInfo = message;
+
+    if (message !== "user_auth") {
+      interopInfo += ` ${RustInterop.hash}`;
+    }
+
+    RustInterop.ws.send(`${interopInfo} ${args.join(" ")}`);
 
     return await result;
   }
 
   /**
-   * Cleans the app's log file.
-   */
-  static async cleanOutLog(): Promise<void> {
-    // await invoke("clean_out_log", {});
-  }
-
-  /**
-   * Logs a message to the log file.
-   * @param message The message to log.
-   * @param level The log level.
-   */
-  static async logToFile(message: string, level: LogLevel): Promise<void> {
-    // await invoke("log_to_file", { message: message, level: level });
-  }
-
-  /**
    * Authenticates the user.
-   * @param username The username to authenticate with.
+   * @param user The username to authenticate with.
    * @param passwordHash The hash of the user's password.
    * @returns The backend's response.
    */
-  static async authenticate(username: string, passwordHash: string): Promise<boolean> {
-    const parts = await RustInterop.invoke("user_auth", username, passwordHash);
+  static async authenticate(user: string, passwordHash: string): Promise<boolean> {
+    const parts = await RustInterop.invoke("user_auth", user, passwordHash);
     const success = parts[2] === "true";
 
-    if (success) sessionStorage.setItem("jwt", parts[3]);
+    if (success) {
+      sessionStorage.setItem("hash", passwordHash);
+      sessionStorage.setItem("user", user);
+      RustInterop.hash = passwordHash;
+      username.set(user);
+      isSignedIn.set(true);
+    }
 
     return success;
   }
