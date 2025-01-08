@@ -17,5 +17,8 @@ export default defineConfig({
       // 3. tell vite to ignore watching `src-rust`
       ignored: ["**/src-rust/**"],
     },
+  },
+  define: {
+    'APP_VERSION': JSON.stringify(process.env.npm_package_version),
   }
 });

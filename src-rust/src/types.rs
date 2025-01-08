@@ -2,14 +2,52 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[allow(non_snake_case)]
-pub struct ScanSettings {
-  
+pub struct ROM {
+  pub name: String,
+  pub path: String,
+  pub heroPath: String,
+  pub gridPath: String,
+  pub format: String,
+  pub system: String,
+  pub isFavorite: bool,
 }
-
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[allow(non_snake_case)]
 pub struct Library {
+  pub name: String,
   pub path: String,
-  pub scanSettings: ScanSettings,
+  pub roms: Vec<ROM>,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+#[allow(non_snake_case)]
+pub struct Collection {
+  pub name: String,
+  pub roms: Vec<ROM>,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+#[allow(non_snake_case)]
+pub struct Settings {
+  pub FILE_SIG_DO_NOT_EDIT: String,
+  pub version: String,
+  pub libraries: Vec<Library>,
+  pub collections: Vec<Collection>,
+  pub romOverrides: Vec<ROM>,
+}
+
+
+// * Interop types
+#[derive(Serialize, Deserialize, Clone, Debug)]
+#[allow(non_snake_case)]
+pub struct AuthArgs {
+  pub passwordHash: String,
+  pub user: String
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+#[allow(non_snake_case)]
+pub struct SimpleArgs {
+  pub passwordHash: String,
 }

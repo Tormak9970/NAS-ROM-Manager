@@ -27,6 +27,8 @@ export enum LogLevel {
   ERROR
 }
 
+type Response<T> = { data: T, }
+
 /**
  * Handles wrapping ipc communication into an easy to use JS bindings.
  */
@@ -39,7 +41,6 @@ export class RustInterop {
 
     RustInterop.ws.addEventListener("open", () => {
       RustInterop.ws.send("Hello World!");
-
       onOpen();
     });
 
@@ -58,31 +59,41 @@ export class RustInterop {
         case "missing_env_variable":
           // TODO: go to the an error page indicating which environment variable is missing and explaining how to fix it.
           break;
+        case "file_added":
+          break;
+        case "file_deleted":
+          break;
       }
     });
   }
 
-  private static async invoke(message: string, ...args: string[]): Promise<string[]> {
-    const result = new Promise<string[]>((resolve, reject) => {
+  /**
+   * Sends a message to the backend.
+   * @param message The message name.
+   * @param data The data to send. **Always use an object literal**
+   * @returns The backend's response.
+   */
+  private static async invoke<T>(message: string, data: Record<string, any>): Promise<Response<T>> {
+    const result = new Promise<Response<T>>((resolve, reject) => {
       const handler = (event: MessageEvent<string>) => {
         if (event.data.startsWith(message)) {
-          const parts = event.data.split(" ");
           RustInterop.ws.removeEventListener("message", handler);
 
-          resolve(parts);
+          const jsonStart = event.data.indexOf(" ") + 1;
+          const data = JSON.parse(event.data.substring(jsonStart)) as Response<T>;
+
+          resolve(data);
         }
       }
 
       RustInterop.ws.addEventListener("message", handler);
     });
 
-    let interopInfo = message;
-
     if (message !== "user_auth") {
-      interopInfo += ` ${RustInterop.hash}`;
+      data.passwordHash = RustInterop.hash;
     }
 
-    RustInterop.ws.send(`${interopInfo} ${args.join(" ")}`);
+    RustInterop.ws.send(`${message} ${JSON.stringify(data)}`);
 
     return await result;
   }
@@ -94,8 +105,8 @@ export class RustInterop {
    * @returns The backend's response.
    */
   static async authenticate(user: string, passwordHash: string): Promise<boolean> {
-    const parts = await RustInterop.invoke("user_auth", user, passwordHash);
-    const success = parts[2] === "true";
+    const res = await RustInterop.invoke<boolean>("user_auth", { user, passwordHash});
+    const success = res.data;
 
     if (success) {
       sessionStorage.setItem("hash", passwordHash);

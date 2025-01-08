@@ -16,7 +16,6 @@
  */
 
 import { type Settings, DEFAULT_SETTINGS } from "@types";
-import { debounce } from "@utils";
 import { LogController } from "./LogController";
 
 /**
@@ -40,26 +39,38 @@ export class SettingsController {
     return settings;
   }
 
-  private static async saveSettings() {
-    
-  }
-  private static debouncedSave = debounce(this.saveSettings.bind(this), 1000) as () => Promise<void>;
-
-  private static async save() {
-    await this.debouncedSave();
-  }
-
   /**
    * Initializes the SettingsController.
    */
   static async init() {
     // TODO: load
 
-    this.save();
+    this.writeAll();
 
     await this.setStores();
 
     LogController.log("Initialized Settings.");
+  }
+
+  private static async writeAll() {
+    
+  }
+
+  /**
+   * Gets a setting's value.
+   * @param key The key of the setting to get.
+   */
+  static get<T>(key: string): T {
+    return null as T;
+  }
+
+  /**
+   * Sets a setting's value.
+   * @param key The key of the setting to set.
+   * @param value The setting's value
+   */
+  static set<T>(key: string, value: T): void {
+
   }
 
   /**

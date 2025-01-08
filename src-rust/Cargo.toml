@@ -19,4 +19,3 @@ pretty_env_logger = "0.5.0"
 
 rust-crypto = "0.2.36"
 dotenv = "0.15.0"
-jwt-simple = { version = "0.12", default-features = false, features = ["pure-rust"]}
