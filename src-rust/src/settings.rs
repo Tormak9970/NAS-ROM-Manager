@@ -1,6 +1,6 @@
 use std::{env::var, fs::{self, File}, path::PathBuf, sync::MutexGuard};
 use log::warn;
-use serde_json::Value;
+use serde_json::{Map, Value};
 
 use crate::types::Settings;
 
@@ -20,23 +20,18 @@ fn check_settings(settings: &mut Settings, defaults: &Settings) {
   settings.version = defaults.version.clone();
 }
 
-/// Loads the app's settings from the file system.
-pub fn load_settings() -> Settings {
-  let default_settings = get_default_settings();
-
-  let config_path = PathBuf::from(var("ROM_MANAGER_CONFIG_DIR").ok().unwrap());
-  let settings_path = config_path.join("settings.json");
-
+/// Checks if the app's settings exist and writes the defaults if they don't.
+fn write_default_if_missing(config_path: &PathBuf, settings_path: &PathBuf, default_settings: &Settings) -> bool {
   let _ = fs::create_dir_all(config_path);
 
-  let settings_exists = fs::exists(&settings_path);
+  let settings_exists = fs::exists(settings_path);
   if settings_exists.is_err() {
     warn!("Can't check existence of settings.json (Check permissions)");
-    return default_settings;
+    return false;
   }
 
   if !settings_exists.ok().unwrap() {
-    let settings_str = serde_json::to_string_pretty(&default_settings).expect("Settings were malformatted.");
+    let settings_str = serde_json::to_string_pretty(default_settings).expect("Settings were malformatted.");
     
     let write_res = fs::write(settings_path, &settings_str);
 
@@ -44,6 +39,21 @@ pub fn load_settings() -> Settings {
       warn!("Failed to write default settings (Check permissions)");
     }
 
+    return false;
+  }
+
+  return true;
+}
+
+/// Loads the app's settings from the file system.
+pub fn load_settings() -> Settings {
+  let default_settings = get_default_settings();
+  
+  let config_path = PathBuf::from(var("ROM_MANAGER_CONFIG_DIR").ok().unwrap());
+  let settings_path = config_path.join("settings.json");
+
+  let settings_exist = write_default_if_missing(&config_path, &settings_path, &default_settings);
+  if !settings_exist {
     return default_settings;
   }
 
@@ -60,10 +70,49 @@ pub fn load_settings() -> Settings {
   return saved_settings;
 }
 
-pub fn write_settings(state_settings: MutexGuard<'_, Settings>) {
+/// Writes all settings in state to the file system.
+pub fn write_settings(state_settings: MutexGuard<'_, Settings>) -> bool {
+  let default_settings = get_default_settings();
+  
+  let config_path = PathBuf::from(var("ROM_MANAGER_CONFIG_DIR").ok().unwrap());
+  let settings_path = config_path.join("settings.json");
 
+  let _ = write_default_if_missing(&config_path, &settings_path, &default_settings);
+
+  let settings = state_settings.clone();
+  let settings_str = serde_json::to_string_pretty(&settings).expect("Settings were malformatted.");
+    
+  let write_res = fs::write(settings_path, &settings_str);
+  if write_res.is_err() {
+    warn!("Failed to write default settings (Check permissions)");
+    return false;
+  }
+
+  return true;
 }
 
-pub fn set_setting(state_settings: MutexGuard<'_, Settings>, key: &str, value: Value) {
+fn set_property_recursive(object: &mut Map<String, Value>, properties: &[&str], index: usize, value: &Value) -> Value {
+  let mut new_value = value.to_owned();
 
+  if index != properties.len() - 1 {
+    let child = object.get_mut(properties[index]).unwrap().as_object_mut().unwrap();
+    new_value = set_property_recursive(child, properties, index + 1, value);
+  }
+
+  object.insert(properties[index].to_string(), new_value);
+  
+  return Value::Object(object.to_owned());
+}
+
+/// Sets the provided setting.
+pub fn set_setting(state_settings: &mut MutexGuard<'_, Settings>, key: &str, value: Value) {
+  let mut map_value = serde_json::to_value(state_settings.clone()).unwrap();
+  let map = map_value.as_object_mut().unwrap();
+
+  let keys: Vec<&str> = key.split(".").collect();
+  
+  let updated_value = set_property_recursive(map, &keys, 0, &value);
+  let updated_settings: Settings = serde_json::from_value(updated_value).unwrap();
+
+  **state_settings = updated_settings.clone();
 }

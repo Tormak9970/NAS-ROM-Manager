@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[allow(non_snake_case)]
@@ -41,6 +42,12 @@ pub struct Settings {
 // * Interop types
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[allow(non_snake_case)]
+pub struct SimpleArgs {
+  pub passwordHash: String,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+#[allow(non_snake_case)]
 pub struct AuthArgs {
   pub passwordHash: String,
   pub user: String
@@ -48,6 +55,8 @@ pub struct AuthArgs {
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[allow(non_snake_case)]
-pub struct SimpleArgs {
+pub struct SetSettingArgs {
   pub passwordHash: String,
+  pub key: String,
+  pub value: Value,
 }

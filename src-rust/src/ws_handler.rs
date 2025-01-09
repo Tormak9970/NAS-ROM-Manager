@@ -6,7 +6,7 @@ use warp::filters::ws::{Message, WebSocket};
 use std::sync::{Arc, Mutex};
 use tokio::sync::broadcast;
 
-use crate::{auth::{authenticate_user, validate_hash}, settings::load_settings, types::{AuthArgs, Settings, SimpleArgs}};
+use crate::{auth::{authenticate_user, validate_hash}, settings::{load_settings, write_settings, set_setting}, types::{AuthArgs, SetSettingArgs, Settings, SimpleArgs}};
 
 fn send<T: Serialize>(tx: broadcast::Sender<String>, message: &str, data: T) {
   let mut map = Map::new();
@@ -54,10 +54,30 @@ fn handle_message(message: &str, data: &str, tx: broadcast::Sender<String>, sett
       send(tx, "load_settings", &saved_settings);
     }
     "write_settings" => {
+      let args: SimpleArgs = serde_json::from_str(data).unwrap();
+      let valid = check_hash(args.passwordHash, tx.clone());
+      if !valid {
+        return;
+      }
 
+      let state_settings = settings.lock().expect("Should have been able to lock Settings Mutex.");
+      let success = write_settings(state_settings);
+      
+      send(tx, "write_settings", success);
     }
     "set_setting" => {
+      let args: SetSettingArgs = serde_json::from_str(data).unwrap();
+      let valid = check_hash(args.passwordHash, tx.clone());
+      if !valid {
+        return;
+      }
 
+      let mut state_settings = settings.lock().expect("Should have been able to lock Settings Mutex.");
+      set_setting(&mut state_settings, &args.key, args.value);
+      
+      let success = write_settings(state_settings);
+
+      send(tx, "set_setting", success);
     }
     "demo" => {
       let args: SimpleArgs = serde_json::from_str(data).unwrap();
