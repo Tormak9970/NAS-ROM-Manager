@@ -17,6 +17,7 @@
 
 import { isSignedIn, username } from "@stores/Auth";
 import { LogController } from "./LogController";
+import type { Settings } from "@types";
 
 /**
  * The available logging levels.
@@ -117,5 +118,34 @@ export class RustInterop {
     }
 
     return success;
+  }
+
+  /**
+   * Loads the app's settings from the file system.
+   * @returns The app's settings.
+   */
+  static async loadSettings(): Promise<Settings> {
+    const res = await RustInterop.invoke<Settings>("load_settings", {});
+    return res.data;
+  }
+
+  /**
+   * Writes the app's settings to the file system.
+   * @returns True if the write was successful, false otherwise.
+   */
+  static async writeSettings(): Promise<boolean> {
+    const res = await RustInterop.invoke<boolean>("write_settings", {});
+    return res.data;
+  }
+
+  /**
+   * Updates a setting and writes the app's settings to the file system.
+   * @param key The key of the setting to set. (Ex: "palette" or "something.something.something")
+   * @param value The setting's new value.
+   * @returns True if the update was successful, false otherwise.
+   */
+  static async setSettings<T>(key: string, value: T): Promise<boolean> {
+    const res = await RustInterop.invoke<boolean>("set_setting", { key, value });
+    return res.data;
   }
 }
