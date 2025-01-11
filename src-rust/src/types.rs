@@ -30,12 +30,21 @@ pub struct Collection {
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[allow(non_snake_case)]
+pub struct ThemeSettings {
+  pub primaryColor: String,
+  pub palette: String,
+  pub useOledPalette: bool,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+#[allow(non_snake_case)]
 pub struct Settings {
   pub FILE_SIG_DO_NOT_EDIT: String,
   pub version: String,
+  pub theme: ThemeSettings,
   pub libraries: Vec<Library>,
   pub collections: Vec<Collection>,
-  pub romOverrides: Vec<ROM>,
+  pub romCustomizations: Vec<ROM>,
 }
 
 

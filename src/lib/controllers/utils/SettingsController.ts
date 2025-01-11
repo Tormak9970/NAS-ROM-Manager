@@ -15,82 +15,96 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>
  */
 
-import { type Settings, DEFAULT_SETTINGS } from "@types";
+import { type Settings } from "@types";
 import { LogController } from "./LogController";
+import { RustInterop } from "./RustInterop";
+import type { Unsubscriber } from "svelte/store";
+import { collections, libraries, palette, ROMs, themePrimaryColor, useOledPalette } from "@stores/State";
 
 /**
  * The controller for settings.
  */
 export class SettingsController {
-  private static readonly STORE_NAME = "settings.dat";
   private static settings: Settings;
-
-  private static async loadSettings(): Promise<Settings> {
-    const defaultEntries = Object.entries(DEFAULT_SETTINGS);
-
-    // TODO: load settings
-
-    let settings = {} as Settings;
-
-    settings.version = APP_VERSION;
-
-    LogController.log("Finished checking settings for new app version and/or migration.");
-
-    return settings;
-  }
+  private static subscriptions: Unsubscriber[] = [];
 
   /**
    * Initializes the SettingsController.
    */
   static async init() {
-    // TODO: load
-
-    this.writeAll();
+    this.settings = await RustInterop.loadSettings();
+    LogController.log("Finished loading settings.");
 
     await this.setStores();
+    this.registerSubs();
 
-    LogController.log("Initialized Settings.");
+    LogController.log("Initialized Settings Listeners.");
   }
 
-  private static async writeAll() {
-    
+  private static async writeAll(): Promise<boolean> {
+    return await RustInterop.writeSettings();
   }
 
   /**
-   * Gets a setting's value.
+   * Gets a setting.
    * @param key The key of the setting to get.
    */
   static get<T>(key: string): T {
-    return null as T;
+    return this.settings[key as keyof Settings] as T;
   }
 
   /**
    * Sets a setting's value.
    * @param key The key of the setting to set.
    * @param value The setting's value
+   * @returns True if the update was successful, false otherwise.
    */
-  static set<T>(key: string, value: T): void {
-
+  static async set<T>(key: string, value: T): Promise<boolean> {
+    return await RustInterop.setSetting<T>(key, value);
   }
 
-  /**
-   * Sets the Svelte stores associated with the settings.
-   */
   private static async setStores(): Promise<void> {
-    
+    const themeSettings = this.settings.theme;
+    themePrimaryColor.set(themeSettings.primaryColor);
+    palette.set(themeSettings.palette);
+    useOledPalette.set(themeSettings.useOledPalette);
+
+    libraries.set(this.settings.libraries);
+    collections.set(this.settings.collections);
   }
 
-  /**
-   * Registers the subscriptions to stores.
-   */
-  static registerSubs() {
-    
+  private static setOnChange<T>(key: string): (value: T) => void {
+    const keys = key.split(".");
+    const lastKey = keys[keys.length - 1];
+
+    let parentObject = this.settings as any;
+    for (let i = 0; i < keys.length - 1; i++) {
+      parentObject = parentObject[keys[i]];
+    }
+
+    return (value: T) => {
+      parentObject[lastKey] = value;
+      this.set<T>(key, value);
+    }
+  }
+
+  private static registerSubs() {
+    this.subscriptions = [
+      themePrimaryColor.subscribe(this.setOnChange("themeSettings.primaryColor")),
+      palette.subscribe(this.setOnChange("themeSettings.palette")),
+      useOledPalette.subscribe(this.setOnChange("themeSettings.useOledPalette")),
+
+      libraries.subscribe(this.setOnChange("libraries")),
+      collections.subscribe(this.setOnChange("collections")),
+    ];
   }
 
   /**
    * Handles destroying the settings.
    */
   static destroy() {
-    
+    for (const unsub of this.subscriptions) {
+      unsub();
+    }
   }
 }

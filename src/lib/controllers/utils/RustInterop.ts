@@ -144,7 +144,7 @@ export class RustInterop {
    * @param value The setting's new value.
    * @returns True if the update was successful, false otherwise.
    */
-  static async setSettings<T>(key: string, value: T): Promise<boolean> {
+  static async setSetting<T>(key: string, value: T): Promise<boolean> {
     const res = await RustInterop.invoke<boolean>("set_setting", { key, value });
     return res.data;
   }

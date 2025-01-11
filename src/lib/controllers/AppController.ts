@@ -16,6 +16,12 @@ export class AppController {
     
   }
 
+  static async loadROMsFromLibrary() {
+    // TODO: load from system
+    // TODO: apply customizations from settings
+    // TODO: set state
+  }
+
   /**
    * Function to run on cleanup.
    */

@@ -6,7 +6,7 @@
   import { isLandscape, showErrorSnackbar, showInfoSnackbar } from "@stores/State";
   import { DesktopNav } from "@navigation";
   import MobileNav from "@navigation/MobileNav.svelte";
-  import { AppController, RustInterop } from "@controllers";
+  import { AppController, RustInterop, SettingsController } from "@controllers";
   import { isSignedIn } from "@stores/Auth";
   import { page } from '$app/state';
   import { goto } from "$app/navigation";
@@ -28,22 +28,25 @@
   });
 
   onMount(() => {
-    AppController.init();
     RustInterop.init(async () => {
       const user = sessionStorage.getItem("user");
       const hash = sessionStorage.getItem("hash");
 
       if (user && hash) {
-        RustInterop.authenticate(user, hash).then(() => {
+        await RustInterop.authenticate(user, hash).then(() => {
           validatingCredentials = false;
         });
       } else {
         validatingCredentials = false;
       }
+      
+      await SettingsController.init();
+      AppController.init();
     });
   });
 
   onDestroy(() => {
+    SettingsController.destroy();
     AppController.destroy();
   });
 </script>
