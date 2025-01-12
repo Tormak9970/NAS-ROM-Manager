@@ -1,9 +1,8 @@
 {
   "name": "Nintendo WiiU",
   "abbreviation": "WiiU",
-  "globs": [
-    "wiiu/${title}/@title(.tmd)",
-    "wiiu/${title}/*/*@(.rpx)",
-    "wiiu/${title}@(.wud|.wux)"
+  "regexs": [
+    "\\/wiiu\\/(?<title>.+)\\/.+(?:rpx)$",
+    "\\/wiiu\\/(?<title>.+)\\.(?:wud|wux)$"
   ]
 }

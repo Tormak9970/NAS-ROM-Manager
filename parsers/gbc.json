@@ -1,7 +1,7 @@
 {
   "name": "Nintendo GameBoy Color",
   "abbreviation": "GBC",
-  "globs": [
-    "gbc/${title}@(.7z|.gb|.gbc|.dmg|.sgb|.zip)"
+  "regexs": [
+    "\\/gbc\\/(?<title>.+)\\.(?:7z|gb|gbc|dmg|sgb|zip)$"
   ]
 }

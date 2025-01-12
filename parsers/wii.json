@@ -1,7 +1,7 @@
 {
   "name": "Nintendo Wii",
   "abbreviation": "Wii",
-  "globs": [
-    "wii/${title}@(.7z|.ciso|.dol|.elf|.gcz|.iso|.rvz|.wad|.wbfs|.wia)"
+  "regexs": [
+    "\\/wii\\/(?<title>.+)\\.(?:7z|ciso|dol|elf|gcz|iso|rvz|wad|wbfs|wia)$"
   ]
 }

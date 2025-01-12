@@ -1,7 +1,7 @@
 {
   "name": "Sony PlaySation 2",
   "abbreviation": "PS2",
-  "globs": [
-    "ps2/${title}@(.7z|.bin|.chd|.ciso|.cso|.dump|.elf|.gz|.img|.iso|.m3u|.mdf|.nrg|.zip)"
+  "regexs": [
+    "\\/ps2\\/(?<title>.+)\\.(?:7z|bin|chd|ciso|cso|dump|elf|gz|img|iso|m3u|mdf|nrg|zip)$"
   ]
 }

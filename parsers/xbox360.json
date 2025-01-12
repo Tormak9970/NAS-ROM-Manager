@@ -1,8 +1,8 @@
 {
   "name": "Microsoft Xbox 360",
   "abbreviation": "Xbox 360",
-  "globs": [
-    "xbox360/${title}/@(default.xex)",
-    "xbox360/${title}@(.iso|.zar)"
+  "regexs": [
+    "\\/xbox360\\/(?<title>.+)\\/default\\.xex$",
+    "\\/xbox360\\/(?<title>.+)\\.(?:iso|zar)$"
   ]
 }

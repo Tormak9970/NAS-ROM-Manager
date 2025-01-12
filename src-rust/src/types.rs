@@ -7,7 +7,7 @@ use serde_json::Value;
 pub struct Parser {
   pub name: String,
   pub abbreviation: String,
-  pub globs: Vec<String>,
+  pub regexs: Vec<String>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]

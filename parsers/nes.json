@@ -1,7 +1,7 @@
 {
   "name": "Nintendo Entertainment System",
   "abbreviation": "NES",
-  "globs": [
-    "nes/${title}@(.7z|.bz2|.gz|.nes|.fds|.unif|.unf|.xz|.zip)"
+  "regexs": [
+    "\\/nes\\/(?<title>.+)\\.(?:7z|bz2|gz|nes|fds|unif|unf|xz|zip)$"
   ]
 }
