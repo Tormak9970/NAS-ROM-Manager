@@ -1,0 +1,7 @@
+{
+  "name": "Nintendo DS",
+  "abbreviation": "NDS",
+  "globs": [
+    "nds/${title}@(.7z|.bin|.nds|.zip)"
+  ]
+}

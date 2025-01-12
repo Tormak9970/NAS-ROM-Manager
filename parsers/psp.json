@@ -1,0 +1,7 @@
+{
+  "name": "Sony PlaySation Portable",
+  "abbreviation": "PSP",
+  "globs": [
+    "psp/${title}@(.7z|.elf|.cso|.iso|.pbp|.prx)"
+  ]
+}

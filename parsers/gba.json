@@ -1,0 +1,7 @@
+{
+  "name": "Nintendo GameBoy Advanced",
+  "abbreviation": "GBA",
+  "globs": [
+    "gba/${title}@(.7z|.agb|.bin|.gba|.zip)"
+  ]
+}

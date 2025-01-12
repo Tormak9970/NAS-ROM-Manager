@@ -1,4 +1,4 @@
-import type { Collection, Library, ROM } from "./Library";
+import type { Collection, Library } from "./Library";
 
 export type Palette = "Auto" | "Dark" | "Light";
 
@@ -14,5 +14,4 @@ export type Settings = {
   theme: ThemeSettings;
   libraries: Library[];
   collections: Collection[];
-  romCustomizations: ROM[];
 }

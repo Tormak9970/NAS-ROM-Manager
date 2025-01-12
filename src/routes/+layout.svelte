@@ -33,21 +33,14 @@
       const hash = sessionStorage.getItem("hash");
 
       if (user && hash) {
+        console.log("running auto auth");
         await RustInterop.authenticate(user, hash).then(() => {
           validatingCredentials = false;
         });
       } else {
         validatingCredentials = false;
       }
-      
-      await SettingsController.init();
-      AppController.init();
     });
-  });
-
-  onDestroy(() => {
-    SettingsController.destroy();
-    AppController.destroy();
   });
 </script>
 

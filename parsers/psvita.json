@@ -1,0 +1,7 @@
+{
+  "name": "Sony PlaySation Vita",
+  "abbreviation": "PSVita",
+  "globs": [
+    "psvita/${title}"
+  ]
+}

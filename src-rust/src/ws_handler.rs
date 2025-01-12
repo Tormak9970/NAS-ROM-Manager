@@ -6,7 +6,7 @@ use warp::filters::ws::{Message, WebSocket};
 use std::sync::{Arc, Mutex};
 use tokio::sync::broadcast;
 
-use crate::{auth::{authenticate_user, validate_hash}, settings::{load_settings, write_settings, set_setting}, types::{AuthArgs, SetSettingArgs, Settings, SimpleArgs}};
+use crate::{auth::{authenticate_user, validate_hash}, library_manager::{add_library, load_libraries, remove_library}, settings::{load_settings, set_setting, write_settings}, types::{AuthArgs, ModifyLibraryArgs, SetSettingArgs, Settings, SimpleArgs}};
 
 fn send<T: Serialize>(tx: broadcast::Sender<String>, message: &str, data: T) {
   let mut map = Map::new();
@@ -79,6 +79,40 @@ fn handle_message(message: &str, data: &str, tx: broadcast::Sender<String>, sett
 
       send(tx, "set_setting", success);
     }
+    "load_libraries" => {
+      let args: SimpleArgs = serde_json::from_str(data).unwrap();
+      let valid = check_hash(args.passwordHash, tx.clone());
+      if !valid {
+        return;
+      }
+
+      let state_settings = settings.lock().expect("Should have been able to lock Settings Mutex.");
+      let libraries = load_libraries(state_settings);
+
+      send(tx, "load_libraries", libraries);
+    }
+    "add_library" => {
+      let args: ModifyLibraryArgs = serde_json::from_str(data).unwrap();
+      let valid = check_hash(args.passwordHash, tx.clone());
+      if !valid {
+        return;
+      }
+
+      let library = add_library(&args.library);
+
+      send(tx, "add_library", library);
+    }
+    "remove_library" => {
+      let args: ModifyLibraryArgs = serde_json::from_str(data).unwrap();
+      let valid = check_hash(args.passwordHash, tx.clone());
+      if !valid {
+        return;
+      }
+
+      let success = remove_library(&args.library);
+
+      send(tx, "remove_library", success);
+    }
     "demo" => {
       let args: SimpleArgs = serde_json::from_str(data).unwrap();
       let valid = check_hash(args.passwordHash, tx.clone());
@@ -97,7 +131,7 @@ pub async fn handle_connection(ws: WebSocket, tx: Arc<Mutex<broadcast::Sender<St
   let (mut ws_sender, mut ws_receiver) = ws.split();
   let mut rx = tx.lock().unwrap().subscribe();
 
-  // ! Spawn the Message Propegation Thread.
+  // * Spawn the Message Propegation Thread.
   tokio::spawn(async move {
     while let Ok(msg) = rx.recv().await {
       if ws_sender.send(Message::text(msg)).await.is_err() {

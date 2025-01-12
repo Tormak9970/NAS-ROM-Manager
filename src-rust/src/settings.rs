@@ -17,7 +17,6 @@ pub fn get_default_settings() -> Settings {
     },
     libraries: vec![],
     collections: vec![],
-    romCustomizations: vec![],
   };
 }
 
@@ -33,7 +32,8 @@ fn write_default_if_missing(config_path: &PathBuf, settings_path: &PathBuf, defa
 
   let settings_exists = fs::exists(settings_path);
   if settings_exists.is_err() {
-    warn!("Can't check existence of settings.json (Check permissions)");
+    let err = settings_exists.err().unwrap();
+    warn!("Can't check existence of settings.json: {}", err.to_string());
     return false;
   }
 
@@ -43,7 +43,8 @@ fn write_default_if_missing(config_path: &PathBuf, settings_path: &PathBuf, defa
     let write_res = fs::write(settings_path, &settings_str);
 
     if write_res.is_err() {
-      warn!("Failed to write default settings (Check permissions)");
+      let err = write_res.err().unwrap();
+      warn!("Failed to write default settings: {}", err.to_string());
     }
 
     return false;
@@ -66,7 +67,8 @@ pub fn load_settings() -> Settings {
 
   let settings_file_res = File::open(&settings_path);
   if settings_file_res.is_err() {
-    warn!("Can't read settings.json (Check permissions)");
+    let err = settings_file_res.err().unwrap();
+    warn!("Can't read settings.json: {}", err.to_string());
     return default_settings;
   }
 
@@ -91,7 +93,8 @@ pub fn write_settings(state_settings: MutexGuard<'_, Settings>) -> bool {
     
   let write_res = fs::write(settings_path, &settings_str);
   if write_res.is_err() {
-    warn!("Failed to write default settings (Check permissions)");
+    let err = write_res.err().unwrap();
+    warn!("Failed to write default settings: {}", err.to_string());
     return false;
   }
 

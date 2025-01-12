@@ -1,0 +1,7 @@
+{
+  "name": "Nintendo 3DS",
+  "abbreviation": "N3DS",
+  "globs": [
+    "n3ds/${title}@(.3ds|.3dsx||.app|.axf|.cci|.cxi|.elf)"
+  ]
+}

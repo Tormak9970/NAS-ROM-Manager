@@ -1,0 +1,8 @@
+{
+  "name": "Microsoft Xbox",
+  "abbreviation": "Xbox",
+  "globs": [
+    "xbox/${title}/@(default.xbe)",
+    "xbox/${title}@(.iso)"
+  ]
+}

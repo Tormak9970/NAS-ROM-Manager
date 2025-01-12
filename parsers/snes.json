@@ -1,0 +1,7 @@
+{
+  "name": "Super Nintendo Entertainment System",
+  "abbreviation": "SNES",
+  "globs": [
+    "snes/${title}@(.7z|.bs|.bml|.fig|.sfc|.smc|.st|.zip)"
+  ]
+}

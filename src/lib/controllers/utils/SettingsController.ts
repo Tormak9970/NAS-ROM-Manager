@@ -90,9 +90,9 @@ export class SettingsController {
 
   private static registerSubs() {
     this.subscriptions = [
-      themePrimaryColor.subscribe(this.setOnChange("themeSettings.primaryColor")),
-      palette.subscribe(this.setOnChange("themeSettings.palette")),
-      useOledPalette.subscribe(this.setOnChange("themeSettings.useOledPalette")),
+      themePrimaryColor.subscribe(this.setOnChange("theme.primaryColor")),
+      palette.subscribe(this.setOnChange("theme.palette")),
+      useOledPalette.subscribe(this.setOnChange("theme.useOledPalette")),
 
       libraries.subscribe(this.setOnChange("libraries")),
       collections.subscribe(this.setOnChange("collections")),

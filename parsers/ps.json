@@ -1,0 +1,7 @@
+{
+  "name": "Sony PlaySation",
+  "abbreviation": "PS",
+  "globs": [
+    "ps/${title}@(.7z|.cue|.ccd|.chd|.ecm|.iso|.m3u|.mds|.pbp|.toc)"
+  ]
+}

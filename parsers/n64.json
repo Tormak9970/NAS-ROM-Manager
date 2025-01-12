@@ -1,0 +1,7 @@
+{
+  "name": "Nintendo 64",
+  "abbreviation": "N64",
+  "globs": [
+    "n64/${title}@(.7z|.bin|.n64|.ndd|.u1|.v64|.z64|.zip)"
+  ]
+}

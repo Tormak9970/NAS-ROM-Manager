@@ -1,0 +1,7 @@
+{
+  "name": "Nintendo GameBoy",
+  "abbreviation": "GB",
+  "globs": [
+    "gb/${title}@(.7z|.gb|.dmg|.sgb|.zip)"
+  ]
+}

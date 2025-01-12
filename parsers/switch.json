@@ -1,0 +1,7 @@
+{
+  "name": "Nintendo Switch",
+  "abbreviation": "Switch",
+  "globs": [
+    "switch/${title}@(.kip|.nca|.nro|.nso|.nsp|.xci)"
+  ]
+}

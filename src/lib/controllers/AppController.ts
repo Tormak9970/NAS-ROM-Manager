@@ -1,3 +1,5 @@
+import { SettingsController } from "./utils/SettingsController";
+
 /**
  * The core app controller.
  */
@@ -10,10 +12,10 @@ export class AppController {
   }
 
   /**
-   * Initializes the app.
+   * Loads the app's state.
    */
-  static async init() {
-    
+  static async load() {
+    await SettingsController.init();
   }
 
   static async loadROMsFromLibrary() {
@@ -23,9 +25,9 @@ export class AppController {
   }
 
   /**
-   * Function to run on cleanup.
+   * Unloads the app's state and performs any cleanup.
    */
-  static destroy() {
-    
+  static unload() {
+    SettingsController.destroy();
   }
 }

@@ -1,0 +1,8 @@
+{
+  "name": "Sony PlaySation 3",
+  "abbreviation": "PS3",
+  "globs": [
+    "ps3/${title}/PS3_GAME/USRDIR/@(eboot.bin)",
+    "ps3/${title}/USRDIR/@(eboot.bin)"
+  ]
+}

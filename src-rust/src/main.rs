@@ -8,7 +8,7 @@ mod ws_handler;
 mod auth;
 mod types;
 mod settings;
-mod manager;
+mod library_manager;
 
 /// The main function
 #[tokio::main]

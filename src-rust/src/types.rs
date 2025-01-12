@@ -3,6 +3,15 @@ use serde_json::Value;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[allow(non_snake_case)]
+/// Use "i" when performing matches to ignore case sensitivity
+pub struct Parser {
+  pub name: String,
+  pub abbreviation: String,
+  pub globs: Vec<String>,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+#[allow(non_snake_case)]
 pub struct ROM {
   pub name: String,
   pub path: String,
@@ -10,6 +19,7 @@ pub struct ROM {
   pub gridPath: String,
   pub format: String,
   pub system: String,
+  pub library: String,
   pub isFavorite: bool,
 }
 
@@ -18,7 +28,9 @@ pub struct ROM {
 pub struct Library {
   pub name: String,
   pub path: String,
-  pub roms: Vec<ROM>,
+  pub useProvidedParsers: bool,
+  pub parsersPath: String,
+  pub romCustomizations: Vec<ROM>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -44,7 +56,6 @@ pub struct Settings {
   pub theme: ThemeSettings,
   pub libraries: Vec<Library>,
   pub collections: Vec<Collection>,
-  pub romCustomizations: Vec<ROM>,
 }
 
 
@@ -68,4 +79,12 @@ pub struct SetSettingArgs {
   pub passwordHash: String,
   pub key: String,
   pub value: Value,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+#[allow(non_snake_case)]
+pub struct ModifyLibraryArgs {
+  pub passwordHash: String,
+  pub key: String,
+  pub library: Library,
 }

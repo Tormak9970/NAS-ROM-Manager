@@ -17,7 +17,9 @@
 
 import { isSignedIn, username } from "@stores/Auth";
 import { LogController } from "./LogController";
-import type { Settings } from "@types";
+import type { Library, LoadedLibrary, Settings } from "@types";
+import { SettingsController } from "./SettingsController";
+import { AppController } from "../AppController";
 
 /**
  * The available logging levels.
@@ -56,6 +58,7 @@ export class RustInterop {
           RustInterop.hash = "";
           username.set("");
           isSignedIn.set(false);
+          AppController.unload();
           break;
         case "missing_env_variable":
           // TODO: go to the an error page indicating which environment variable is missing and explaining how to fix it.
@@ -99,6 +102,7 @@ export class RustInterop {
     return await result;
   }
 
+
   /**
    * Authenticates the user.
    * @param user The username to authenticate with.
@@ -115,10 +119,12 @@ export class RustInterop {
       RustInterop.hash = passwordHash;
       username.set(user);
       isSignedIn.set(true);
+      AppController.load();
     }
 
     return success;
   }
+
 
   /**
    * Loads the app's settings from the file system.
@@ -146,6 +152,36 @@ export class RustInterop {
    */
   static async setSetting<T>(key: string, value: T): Promise<boolean> {
     const res = await RustInterop.invoke<boolean>("set_setting", { key, value });
+    return res.data;
+  }
+
+
+  /**
+   * Loads the app's libraries.
+   * @returns The loaded libraries data.
+   */
+  static async loadLibraries(): Promise<LoadedLibrary[]> {
+    const res = await RustInterop.invoke<LoadedLibrary[]>("load_libraries", {});
+    return res.data;
+  }
+
+  /**
+   * Adds a library to the manager.
+   * @param library The library to add.
+   * @returns The loaded library data.
+   */
+  static async addLibrary(library: Library): Promise<LoadedLibrary> {
+    const res = await RustInterop.invoke<LoadedLibrary>("add_library", { library });
+    return res.data;
+  }
+
+  /**
+   * Removes a library from the manager.
+   * @param library The library to remove.
+   * @returns True if the library was removed, false otherwise.
+   */
+  static async removeLibrary(library: Library): Promise<boolean> {
+    const res = await RustInterop.invoke<boolean>("remove_library", { library });
     return res.data;
   }
 }
