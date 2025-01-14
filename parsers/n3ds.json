@@ -1,7 +1,11 @@
 {
   "name": "Nintendo 3DS",
   "abbreviation": "N3DS",
-  "regexs": [
-    "\\/n3ds\\/(?<title>.+)\\.(?:3ds|3dsx||app|axf|cci|cxi|elf)$"
+  "folder": "n3ds",
+  "patterns": [
+    {
+      "glob": "**/*.@(3ds|3dsx|app|axf|cci|cxi|elf)",
+      "regex": "\\/(?<title>.+)\\.(?:3ds|3dsx|app|axf|cci|cxi|elf)$"
+    }
   ]
 }

@@ -1,7 +1,11 @@
 {
   "name": "Super Nintendo Entertainment System",
   "abbreviation": "SNES",
-  "regexs": [
-    "\\/snes\\/(?<title>.+)\\.(?:7z|bs|bml|fig|sfc|smc|st|zip)$"
+  "folder": "snes",
+  "patterns": [
+    {
+      "glob": "**/*.@(7z|bs|bml|fig|sfc|smc|st|zip)",
+      "regex": "\\/(?<title>.+)\\.(?:7z|bs|bml|fig|sfc|smc|st|zip)$"
+    }
   ]
 }

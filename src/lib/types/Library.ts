@@ -20,15 +20,21 @@ export const SYSTEMS: string[] = [
   "PSP",
 ]
 
+export type ROMCustomization = {
+  name: string;
+  heroPath: string;
+  gridPath: string;
+  isFavorite: boolean;
+}
+
 export type ROM = {
   name: string;
   path: string;
-  heroPath: string;
-  gridPath: string;
+  size: number;
   format: string;
   library: string;
   system: string;
-  isFavorite: boolean;
+  addDate: string;
 }
 
 export type LoadedLibrary = {
@@ -44,7 +50,7 @@ export type Library = {
   path: string;
   useProvidedParsers: boolean;
   parsersPath: string;
-  romCustomizations: ROM[];
+  romCustomizations: ROMCustomization[];
 }
 
 export type Collection = {

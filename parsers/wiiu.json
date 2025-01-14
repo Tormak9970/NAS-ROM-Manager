@@ -1,8 +1,15 @@
 {
   "name": "Nintendo WiiU",
   "abbreviation": "WiiU",
-  "regexs": [
-    "\\/wiiu\\/(?<title>.+)\\/.+(?:rpx)$",
-    "\\/wiiu\\/(?<title>.+)\\.(?:wud|wux)$"
+  "folder": "wiiu",
+  "patterns": [
+    {
+      "glob": "**/*.rpx",
+      "regex": "\\/(?<title>.+)\\/.+(?:rpx)$"
+    },
+    {
+      "glob": "**/*.@(wud|wux)",
+      "regex": "\\/(?<title>.+)\\.(?:wud|wux)$"
+    }
   ]
 }

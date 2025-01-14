@@ -1,7 +1,11 @@
 {
   "name": "Nintendo GameBoy Advanced",
   "abbreviation": "GBA",
-  "regexs": [
-    "\\/gba\\/(?<title>.+)\\.(?:7z|agb|bin|gba|zip)$"
+  "folder": "gba",
+  "patterns": [
+    {
+      "glob": "**/*.@(7z|agb|bin|gba|zip)",
+      "regex": "\\/(?<title>.+)\\.(?:7z|agb|bin|gba|zip)$"
+    }
   ]
 }

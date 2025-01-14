@@ -1,7 +1,11 @@
 {
   "name": "Sony PlaySation",
   "abbreviation": "PS",
-  "regexs": [
-    "\\/ps\\/(?<title>.+)\\.(?:7z|cue|ccd|chd|ecm|iso|m3u|mds|pbp|toc)$"
+  "folder": "ps",
+  "patterns": [
+    {
+      "glob": "**/*.@(7z|ccd|chd|cue|ecm|iso|m3u|mds|pbp|toc)",
+      "regex": "\\/(?<title>.+)\\.(?:7z|ccd|chd|cue|ecm|iso|m3u|mds|pbp|toc)$"
+    }
   ]
 }

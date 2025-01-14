@@ -1,7 +1,11 @@
 {
   "name": "Nintendo GameBoy",
   "abbreviation": "GB",
-  "regexs": [
-    "\\/gb\\/(?<title>.+)\\.(?:7z|gb|dmg|sgb|zip)$"
+  "folder": "gb",
+  "patterns": [
+    {
+      "glob": "**/*.@(7z|gb|dmg|sgb|zip)",
+      "regex": "\\/(?<title>.+)\\.(?:7z|gb|dmg|sgb|zip)$"
+    }
   ]
 }

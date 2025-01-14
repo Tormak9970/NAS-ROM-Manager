@@ -1,7 +1,11 @@
 {
   "name": "Nintendo Wii",
   "abbreviation": "Wii",
-  "regexs": [
-    "\\/wii\\/(?<title>.+)\\.(?:7z|ciso|dol|elf|gcz|iso|rvz|wad|wbfs|wia)$"
+  "folder": "wii",
+  "patterns": [
+    {
+      "glob": "**/*.@(7z|ciso|dol|elf|gcz|iso|rvz|wad|wbfs|wia)",
+      "regex": "\\/(?<title>.+)\\.(?:7z|ciso|dol|elf|gcz|iso|rvz|wad|wbfs|wia)$"
+    }
   ]
 }

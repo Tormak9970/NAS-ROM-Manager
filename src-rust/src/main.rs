@@ -9,6 +9,8 @@ mod auth;
 mod types;
 mod settings;
 mod library_manager;
+mod watcher;
+mod utils;
 
 /// The main function
 #[tokio::main]

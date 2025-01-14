@@ -1,7 +1,11 @@
 {
   "name": "Sony PlaySation 2",
   "abbreviation": "PS2",
-  "regexs": [
-    "\\/ps2\\/(?<title>.+)\\.(?:7z|bin|chd|ciso|cso|dump|elf|gz|img|iso|m3u|mdf|nrg|zip)$"
+  "folder": "ps2",
+  "patterns": [
+    {
+      "glob": "**/*.@(7z|bin|chd|ciso|cso|dump|elf|gz|img|iso|m3u|mdf|nrg|zip)",
+      "regex": "\\/(?<title>.+)\\.(?:7z|bin|chd|ciso|cso|dump|elf|gz|img|iso|m3u|mdf|nrg|zip)$"
+    }
   ]
 }

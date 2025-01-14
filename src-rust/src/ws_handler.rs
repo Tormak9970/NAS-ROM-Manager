@@ -1,31 +1,9 @@
 use futures_util::{SinkExt, StreamExt};
-use log::warn;
-use serde::Serialize;
-use serde_json::Map;
 use warp::filters::ws::{Message, WebSocket};
 use std::sync::{Arc, Mutex};
 use tokio::sync::broadcast;
 
-use crate::{auth::{authenticate_user, validate_hash}, library_manager::{add_library, load_libraries, remove_library}, settings::{load_settings, set_setting, write_settings}, types::{AuthArgs, ModifyLibraryArgs, SetSettingArgs, Settings, SimpleArgs}};
-
-fn send<T: Serialize>(tx: broadcast::Sender<String>, message: &str, data: T) {
-  let mut map = Map::new();
-  map.insert(String::from("data"), serde_json::to_value(data).unwrap());
-
-  tx.send(format!("{} {}", message, serde_json::to_string(&map).unwrap())).expect("Failed to broadcast message");
-}
-
-fn check_hash(hash: String, tx: broadcast::Sender<String>) -> bool {
-  let is_valid = validate_hash(hash, tx.clone());
-
-  if !is_valid {
-    warn!("Password hashes do not match!");
-    send(tx, "hash_mismatch", String::from(""));
-    return false;
-  }
-
-  return true;
-}
+use crate::{auth::authenticate_user, library_manager::{add_library, load_libraries, remove_library}, settings::{load_settings, set_setting, write_settings}, types::{AuthArgs, ModifyLibraryArgs, SetSettingArgs, Settings, SimpleArgs}, utils::{check_hash, send}, watcher::Watcher};
 
 
 fn handle_message(message: &str, data: &str, tx: broadcast::Sender<String>, settings: Arc<Mutex<Settings>>) {
@@ -130,6 +108,9 @@ fn handle_message(message: &str, data: &str, tx: broadcast::Sender<String>, sett
 pub async fn handle_connection(ws: WebSocket, tx: Arc<Mutex<broadcast::Sender<String>>>, settings: Arc<Mutex<Settings>>) {
   let (mut ws_sender, mut ws_receiver) = ws.split();
   let mut rx = tx.lock().unwrap().subscribe();
+
+  let watcher = Watcher::new();
+  watcher.init(tx.lock().unwrap().to_owned());
 
   // * Spawn the Message Propegation Thread.
   tokio::spawn(async move {

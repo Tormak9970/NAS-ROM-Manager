@@ -1,7 +1,11 @@
 {
   "name": "Sony PlaySation Vita",
   "abbreviation": "PSVita",
-  "regexs": [
-    "\\/psvita\\/(?<title>.+)$"
+  "folder": "psvita",
+  "patterns": [
+    {
+      "glob": "**/*.*",
+      "regex": "\\/(?<title>.+)$"
+    }
   ]
 }

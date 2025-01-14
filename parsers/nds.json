@@ -1,7 +1,11 @@
 {
   "name": "Nintendo DS",
   "abbreviation": "NDS",
-  "regexs": [
-    "\\/nds\\/(?<title>.+)\\.(?:7z|bin|nds|zip)$"
+  "folder": "nds",
+  "patterns": [
+    {
+      "glob": "**/*.@(7z|bin|nds|zip)",
+      "regex": "\\/(?<title>.+)\\.(?:7z|bin|nds|zip)$"
+    }
   ]
 }

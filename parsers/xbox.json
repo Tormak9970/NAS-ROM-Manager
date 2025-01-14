@@ -1,8 +1,15 @@
 {
   "name": "Microsoft Xbox",
   "abbreviation": "Xbox",
-  "regexs": [
-    "\\/xbox\\/(?<title>.+)\\/default\\.xbe$",
-    "\\/xbox\\/(?<title>.+)\\.(?:iso)$"
+  "folder": "xbox",
+  "patterns": [
+    {
+      "glob": "**/default.xbe",
+      "regex": "\\/(?<title>.+)\\/default\\.xbe$"
+    },
+    {
+      "glob": "**/*.iso",
+      "regex": "\\/(?<title>.+)\\.iso$"
+    }
   ]
 }

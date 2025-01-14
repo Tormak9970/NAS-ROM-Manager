@@ -1,8 +1,15 @@
 {
   "name": "Microsoft Xbox 360",
   "abbreviation": "Xbox 360",
-  "regexs": [
-    "\\/xbox360\\/(?<title>.+)\\/default\\.xex$",
-    "\\/xbox360\\/(?<title>.+)\\.(?:iso|zar)$"
+  "folder": "xbox360",
+  "patterns": [
+    {
+      "glob": "**/default.xex",
+      "regex": "\\/(?<title>.+)\\/default\\.xex$"
+    },
+    {
+      "glob": "**/*.@.(iso|zar)",
+      "regex": "\\/(?<title>.+)\\.(?:iso|zar)$"
+    }
   ]
 }

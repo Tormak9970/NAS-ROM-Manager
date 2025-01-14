@@ -1,7 +1,11 @@
 {
   "name": "Nintendo GameCube",
   "abbreviation": "GC",
-  "regexs": [
-    "\\/gc\\/(?<title>.+)\\.(?:7z|ciso|dol|elf|gcm|gcz|iso|nkit\\.iso|rvz|wad|wia)$"
+  "folder": "gc",
+  "patterns": [
+    {
+      "glob": "**/*.@(7z|ciso|dol|elf|gcm|gcz|iso|nkit.iso|rvz|wad|wia)",
+      "regex": "\\/(?<title>.+)\\.(?:7z|ciso|dol|elf|gcm|gcz|iso|nkit\\.iso|rvz|wad|wia)$"
+    }
   ]
 }

@@ -65,7 +65,7 @@ export class RustInterop {
           break;
         case "file_added":
           break;
-        case "file_deleted":
+        case "file_removed":
           break;
       }
     });

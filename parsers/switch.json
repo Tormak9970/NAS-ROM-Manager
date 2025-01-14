@@ -1,7 +1,11 @@
 {
   "name": "Nintendo Switch",
   "abbreviation": "Switch",
-  "regexs": [
-    "\\/switch\\/(?<title>.+)\\.(?:kip|nca|nro|nso|nsp|xci)$"
+  "folder": "switch",
+  "patterns": [
+    {
+      "glob": "**/*.@(kip|nca|nro|nso|nsp|xci)",
+      "titleRegex": "\\/(?<title>.+)\\.(?:kip|nca|nro|nso|nsp|xci)$"
+    }
   ]
 }

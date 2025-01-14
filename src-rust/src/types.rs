@@ -4,10 +4,19 @@ use serde_json::Value;
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[allow(non_snake_case)]
 /// Use "i" when performing matches to ignore case sensitivity
+pub struct ParserPattern {
+  pub glob: String,
+  pub regex: String,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+#[allow(non_snake_case)]
+/// Use "i" when performing matches to ignore case sensitivity
 pub struct Parser {
   pub name: String,
   pub abbreviation: String,
-  pub regexs: Vec<String>,
+  pub folder: String,
+  pub patterns: Vec<ParserPattern>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -15,11 +24,18 @@ pub struct Parser {
 pub struct ROM {
   pub name: String,
   pub path: String,
-  pub heroPath: String,
-  pub gridPath: String,
+  pub size: usize,
+  pub addDate: String,
   pub format: String,
   pub system: String,
   pub library: String,
+}
+#[derive(Serialize, Deserialize, Clone, Debug)]
+#[allow(non_snake_case)]
+pub struct ROMCustomization {
+  pub name: String,
+  pub heroPath: String,
+  pub gridPath: String,
   pub isFavorite: bool,
 }
 
@@ -30,7 +46,7 @@ pub struct Library {
   pub path: String,
   pub useProvidedParsers: bool,
   pub parsersPath: String,
-  pub romCustomizations: Vec<ROM>,
+  pub romCustomizations: Vec<ROMCustomization>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
