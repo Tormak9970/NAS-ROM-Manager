@@ -3,7 +3,7 @@ use log::warn;
 
 use serde::{Deserialize, Serialize};
 
-use crate::types::{Library, Parser, Settings, ROM};
+use crate::{types::{Library, Parser, Settings, ROM}, watcher::Watcher};
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[allow(non_snake_case)]
@@ -60,7 +60,7 @@ fn load_platform(library: &Library, parser: &Parser, path: PathBuf) -> Vec<ROM> 
 
 }
 
-fn load_library(library: &Library) -> LoadedLibrary {
+fn load_library(library: &Library, watcher: &Watcher) -> LoadedLibrary {
   let parsers = load_parsers(library);
   let mut roms: Vec<ROM> = vec![];
 
@@ -96,7 +96,8 @@ fn load_library(library: &Library) -> LoadedLibrary {
       let mut platform_roms = load_platform(library, parser, dir_entry.path());
 
       roms.append(&mut platform_roms);
-      // TODO: add folder to watchlist with library tied to it.
+      
+      watcher.watch_path(dir_entry.path(), library.path.to_owned());
     }
   }
 
@@ -107,13 +108,13 @@ fn load_library(library: &Library) -> LoadedLibrary {
 }
 
 /// Loads the app's libraries.
-pub fn load_libraries(state_settings: MutexGuard<'_, Settings>) -> Vec<LoadedLibrary> {
+pub fn load_libraries(state_settings: &Settings, watcher: &Watcher) -> Vec<LoadedLibrary> {
   let libraries = &state_settings.libraries;
 
   let mut loaded_libraries: Vec<LoadedLibrary> = vec![];
 
   for library in libraries {
-    let loaded_library = load_library(&library);
+    let loaded_library = load_library(&library, &watcher);
     loaded_libraries.push(loaded_library);
   }
 
@@ -121,11 +122,6 @@ pub fn load_libraries(state_settings: MutexGuard<'_, Settings>) -> Vec<LoadedLib
 }
 
 /// Adds a library to the app
-pub fn add_library(library: &Library) -> LoadedLibrary {
-  
-}
-
-/// Removes a library from the app
-pub fn remove_library(library: &Library) -> bool {
-  
+pub fn add_library(library: &Library, watcher: &Watcher) -> LoadedLibrary {
+  return load_library(library, watcher);
 }

@@ -1,4 +1,4 @@
-use std::{collections::HashMap, path::{self, Path}, sync::{mpsc::{Receiver, Sender}, Arc, Mutex}};
+use std::{collections::HashMap, path::PathBuf, sync::{mpsc::{Receiver, Sender}, Arc, Mutex}};
 
 use notify::{Config, EventKind, RecommendedWatcher, RecursiveMode, Watcher as _};
 use tokio::sync::broadcast;
@@ -6,8 +6,9 @@ use tokio::sync::broadcast;
 use crate::utils::send;
 
 pub enum WatcherEvent {
-  Add(String, String),
-  Remove(String, String),
+  Add(PathBuf, String),
+  Remove(PathBuf, String),
+  RemoveLibrary(String),
 }
 
 #[derive(Clone)]
@@ -31,10 +32,6 @@ impl Watcher {
   pub fn init(&self, tx: broadcast::Sender<String>) {
     let event_receiver = self.receiver.clone();
 
-    // path -> library_name
-    let mut map: HashMap<String, String> = HashMap::new();
-    let library_path_map = Arc::new(Mutex::new(map));
-
     let (sender, receiver) = std::sync::mpsc::channel();
 
     let reciever_mutex = Arc::new(Mutex::new(receiver));
@@ -43,7 +40,11 @@ impl Watcher {
     std::thread::spawn(move || {
       println!("starting watcher loop...");
 
-      let mut folders_watching: Vec<String> = vec![];
+      // path -> library_path
+      let mut dir_path_map: HashMap<PathBuf, String> = HashMap::new();
+
+      // library_path -> path[]
+      let mut library_map: HashMap<String, Vec<PathBuf>> = HashMap::new();
 
       // Select recommended watcher for debouncer.
       // Using a callback here, could also be a channel.
@@ -55,29 +56,42 @@ impl Watcher {
 
         if let Ok(result) = event {
           match result {
-            WatcherEvent::Add(path, library_name) => {
-              // * Remove watchers from any paths that were removed.
-              // let folders_watching_loop = folders_watching.clone();
-              // for current_folder in folders_watching_loop {
-              //   if !folders.contains(&current_folder) {
-              //     let _ = watcher.unwatch(Path::new(&current_folder));
-                  
-              //     let index = (&folders_watching).iter().position(|f| *f == current_folder).unwrap();
-              //     folders_watching.remove(index);
-              //   }
-              // }
+            WatcherEvent::Add(path, library_path) => {
+              // * Add watcher to the path.
+              if !library_map.contains_key(library_path.as_str()) {
+                library_map.insert(library_path.clone(), Vec::new());
+              }
 
-              // // * Add watchers to any paths that were added.
-              // for folder in folders {
-              //   if !folders_watching.contains(&folder) {
-              //     let _ = watcher.watch(Path::new(&folder), RecursiveMode::Recursive);
+              let folders_watching = library_map.get_mut(&library_path).unwrap();
+              if !folders_watching.contains(&path) {
+                let _ = watcher.watch(path.as_path(), RecursiveMode::Recursive);
 
-              //     folders_watching.push(folder);
-              //   }
-              // }
+                folders_watching.push(path.clone());
+              }
+
+              dir_path_map.insert(path, library_path);
             },
-            WatcherEvent::Remove(path, library_name) => {
+            WatcherEvent::Remove(path, library_path) => {
+              // * Remove watcher from the path.
+              let _ = watcher.unwatch(path.as_path());
+                  
+              let folders_watching = library_map.get_mut(&library_path).unwrap();
+              let index = (&folders_watching).iter().position(|f| *f == path).unwrap();
+              folders_watching.remove(index);
 
+              dir_path_map.remove(&path);
+            },
+            WatcherEvent::RemoveLibrary(library_path) => {
+              // * Remove watcher from the library.
+              let paths = library_map.get(&library_path).unwrap();
+
+              for path in paths {
+                let _ = watcher.unwatch(path.as_path());
+
+                dir_path_map.remove(path);
+              }
+
+              library_map.remove(&library_path);
             }
           }
         }
@@ -118,12 +132,17 @@ impl Watcher {
   }
 
   /// Watches a path.
-  pub fn watch_path(&self, path: String, library_name: String) {
-    let _ = self.sender.send(WatcherEvent::Add(path, library_name));
+  pub fn watch_path(&self, path: PathBuf, library_path: String) {
+    let _ = self.sender.send(WatcherEvent::Add(path, library_path));
   }
 
   /// Unwatches a path.
-  pub fn unwatch_path(&self, path: String, library_name: String) {
-    let _ = self.sender.send(WatcherEvent::Remove(path, library_name));
+  pub fn unwatch_path(&self, path: PathBuf, library_path: String) {
+    let _ = self.sender.send(WatcherEvent::Remove(path, library_path));
+  }
+
+  /// Unwatches all paths associated with a given library.
+  pub fn unwatch_library(&self, library_path: String) {
+    let _ = self.sender.send(WatcherEvent::RemoveLibrary(library_path));
   }
 }

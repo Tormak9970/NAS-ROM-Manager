@@ -64,8 +64,10 @@ export class RustInterop {
           // TODO: go to the an error page indicating which environment variable is missing and explaining how to fix it.
           break;
         case "file_added":
+          // TODO: will provide what library its from as .library
           break;
         case "file_removed":
+          // TODO: will provide what library its from as .library
           break;
       }
     });

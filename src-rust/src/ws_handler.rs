@@ -3,10 +3,16 @@ use warp::filters::ws::{Message, WebSocket};
 use std::sync::{Arc, Mutex};
 use tokio::sync::broadcast;
 
-use crate::{auth::authenticate_user, library_manager::{add_library, load_libraries, remove_library}, settings::{load_settings, set_setting, write_settings}, types::{AuthArgs, ModifyLibraryArgs, SetSettingArgs, Settings, SimpleArgs}, utils::{check_hash, send}, watcher::Watcher};
+use crate::{auth::authenticate_user, library_manager::{add_library, load_libraries}, settings::{load_settings, set_setting, write_settings}, types::{AuthArgs, ModifyLibraryArgs, SetSettingArgs, Settings, SimpleArgs}, utils::{check_hash, send}, watcher::Watcher};
 
 
-fn handle_message(message: &str, data: &str, tx: broadcast::Sender<String>, settings: Arc<Mutex<Settings>>) {
+fn handle_message(
+  message: &str,
+  data: &str,
+  tx: broadcast::Sender<String>,
+  settings: Arc<Mutex<Settings>>,
+  watcher: Arc<Mutex<Watcher>>
+) {
   match message {
     "user_auth" => {
       let args: AuthArgs = serde_json::from_str(data).unwrap();
@@ -65,7 +71,8 @@ fn handle_message(message: &str, data: &str, tx: broadcast::Sender<String>, sett
       }
 
       let state_settings = settings.lock().expect("Should have been able to lock Settings Mutex.");
-      let libraries = load_libraries(state_settings);
+      let state_watcher = watcher.lock().expect("Should have been able to lock Watcher Mutex.");
+      let libraries = load_libraries(&state_settings, &state_watcher);
 
       send(tx, "load_libraries", libraries);
     }
@@ -75,8 +82,9 @@ fn handle_message(message: &str, data: &str, tx: broadcast::Sender<String>, sett
       if !valid {
         return;
       }
-
-      let library = add_library(&args.library);
+      
+      let state_watcher = watcher.lock().expect("Should have been able to lock Watcher Mutex.");
+      let library = add_library(&args.library, &state_watcher);
 
       send(tx, "add_library", library);
     }
@@ -87,9 +95,10 @@ fn handle_message(message: &str, data: &str, tx: broadcast::Sender<String>, sett
         return;
       }
 
-      let success = remove_library(&args.library);
+      let state_watcher = watcher.lock().expect("Should have been able to lock Watcher Mutex.");
+      &state_watcher.unwatch_library(args.library.path);
 
-      send(tx, "remove_library", success);
+      send(tx, "remove_library", true);
     }
     "demo" => {
       let args: SimpleArgs = serde_json::from_str(data).unwrap();
@@ -105,12 +114,14 @@ fn handle_message(message: &str, data: &str, tx: broadcast::Sender<String>, sett
 }
 
 /// Handles WebSocket Connections
-pub async fn handle_connection(ws: WebSocket, tx: Arc<Mutex<broadcast::Sender<String>>>, settings: Arc<Mutex<Settings>>) {
+pub async fn handle_connection(
+  ws: WebSocket,
+  tx: Arc<Mutex<broadcast::Sender<String>>>,
+  settings: Arc<Mutex<Settings>>,
+  watcher: Arc<Mutex<Watcher>>
+) {
   let (mut ws_sender, mut ws_receiver) = ws.split();
   let mut rx = tx.lock().unwrap().subscribe();
-
-  let watcher = Watcher::new();
-  watcher.init(tx.lock().unwrap().to_owned());
 
   // * Spawn the Message Propegation Thread.
   tokio::spawn(async move {
@@ -127,7 +138,7 @@ pub async fn handle_connection(ws: WebSocket, tx: Arc<Mutex<broadcast::Sender<St
         if let Ok(text) = message.to_str() {
           let (message, data) = text.split_once(" ").unwrap();
 
-          handle_message(message, data, tx.lock().unwrap().to_owned(), settings.clone());
+          handle_message(message, data, tx.lock().unwrap().to_owned(), settings.clone(), watcher.clone());
         }
       },
       Err(_e) => break,
