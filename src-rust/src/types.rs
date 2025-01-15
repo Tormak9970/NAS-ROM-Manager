@@ -22,18 +22,20 @@ pub struct Parser {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[allow(non_snake_case)]
 pub struct ROM {
-  pub name: String,
+  pub title: String,
   pub path: String,
-  pub size: usize,
+  pub size: u64,
   pub addDate: String,
   pub format: String,
   pub system: String,
+  pub systemFullName: String,
   pub library: String,
 }
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[allow(non_snake_case)]
 pub struct ROMCustomization {
-  pub name: String,
+  pub path: String,
+  pub title: String,
   pub heroPath: String,
   pub gridPath: String,
   pub isFavorite: bool,

@@ -4,7 +4,7 @@
   "folder": "n64",
   "patterns": [
     {
-      "glob": "**/*.@(7z|bin|n64|ndd|u1|v64|z64|zip)",
+      "glob": "/**/*.@(7z|bin|n64|ndd|u1|v64|z64|zip)",
       "regex": "\\/(?<title>.+)\\.(?:7z|bin|n64|ndd|u1|v64|z64|zip)$"
     }
   ]

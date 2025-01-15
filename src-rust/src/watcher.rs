@@ -108,15 +108,15 @@ impl Watcher {
         if let Ok(res) = event {
           match res {
             Ok(event) => match event.kind {
-                EventKind::Create(path) => {
-                  let paths = event.paths;
+                EventKind::Create(_create_kind) => {
+                  let path = event.paths[0];
 
-                  // send(tx.clone(), "file_added", data);
+                  send(tx.clone(), "reload_library", data);
                 },
-                EventKind::Remove(path) => {
-                  let paths = event.paths;
+                EventKind::Remove(_create_kind) => {
+                  let path = event.paths[0];
                   
-                  // send(tx.clone(), "file_removed", data);
+                  send(tx.clone(), "reload_library", data);
                 },
                 _ => {
                   

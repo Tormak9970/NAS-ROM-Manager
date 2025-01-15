@@ -15,8 +15,8 @@ pub fn get_default_settings() -> Settings {
       palette: String::from("Auto"),
       useOledPalette: false,
     },
-    libraries: vec![],
-    collections: vec![],
+    libraries: Vec::new(),
+    collections: Vec::new(),
   };
 }
 

@@ -4,7 +4,7 @@
   "folder": "gb",
   "patterns": [
     {
-      "glob": "**/*.@(7z|gb|dmg|sgb|zip)",
+      "glob": "/**/*.@(7z|gb|dmg|sgb|zip)",
       "regex": "\\/(?<title>.+)\\.(?:7z|gb|dmg|sgb|zip)$"
     }
   ]

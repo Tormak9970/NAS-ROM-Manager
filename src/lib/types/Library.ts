@@ -21,19 +21,24 @@ export const SYSTEMS: string[] = [
 ]
 
 export type ROMCustomization = {
-  name: string;
+  /**
+   * Path will act like the ID of the ROM.
+   */
+  path: string;
+  title: string;
   heroPath: string;
   gridPath: string;
   isFavorite: boolean;
 }
 
 export type ROM = {
-  name: string;
+  title: string;
   path: string;
   size: number;
   format: string;
   library: string;
   system: string;
+  systemFullName: string;
   addDate: string;
 }
 

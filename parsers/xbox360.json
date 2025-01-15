@@ -4,11 +4,11 @@
   "folder": "xbox360",
   "patterns": [
     {
-      "glob": "**/default.xex",
+      "glob": "/**/default.xex",
       "regex": "\\/(?<title>.+)\\/default\\.xex$"
     },
     {
-      "glob": "**/*.@.(iso|zar)",
+      "glob": "/**/*.@.(iso|zar)",
       "regex": "\\/(?<title>.+)\\.(?:iso|zar)$"
     }
   ]

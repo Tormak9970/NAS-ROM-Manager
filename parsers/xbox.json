@@ -4,11 +4,11 @@
   "folder": "xbox",
   "patterns": [
     {
-      "glob": "**/default.xbe",
+      "glob": "/**/default.xbe",
       "regex": "\\/(?<title>.+)\\/default\\.xbe$"
     },
     {
-      "glob": "**/*.iso",
+      "glob": "/**/*.iso",
       "regex": "\\/(?<title>.+)\\.iso$"
     }
   ]

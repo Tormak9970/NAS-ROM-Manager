@@ -1,9 +1,12 @@
-use std::{collections::HashMap, fs::{read_dir, File}, path::PathBuf, sync::MutexGuard};
+use std::{collections::HashMap, fs::{self, read_dir, File}, path::PathBuf};
+use chrono::{DateTime, Local};
 use log::warn;
+use glob::{glob, glob_with, MatchOptions};
 
+use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use serde::{Deserialize, Serialize};
 
-use crate::{types::{Library, Parser, Settings, ROM}, watcher::Watcher};
+use crate::{types::{Library, Parser, ParserPattern, Settings, ROM}, watcher::Watcher};
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[allow(non_snake_case)]
@@ -19,7 +22,7 @@ fn load_parsers(library: &Library) -> HashMap<String, Parser> {
   let entries_res = read_dir(&library.parsersPath);
   if entries_res.is_err() {
     let err = entries_res.err().unwrap();
-    warn!("Can't load parsers for library \"{}\": {}", library.name, err.to_string());
+    warn!("Library: \"{}\"; Can't load parsers: {}", library.name, err.to_string());
     return parsers;
   }
 
@@ -34,7 +37,7 @@ fn load_parsers(library: &Library) -> HashMap<String, Parser> {
     let parser_metadata_res = parser_entry.metadata();
     if parser_metadata_res.is_err() {
       let err = parser_metadata_res.err().unwrap();
-      warn!("Can't read metadata of parser \"{}\" for library \"{}\": {}", parser_filename, library.name, err.to_string());
+      warn!("Library: \"{}\"; Can't read metadata of parser \"{}\": {}", library.name, parser_filename, err.to_string());
       continue;
     }
     let parser_metadata = parser_metadata_res.unwrap();
@@ -43,21 +46,80 @@ fn load_parsers(library: &Library) -> HashMap<String, Parser> {
       let parser_file_res = File::open(&parser_entry.path());
       if parser_file_res.is_err() {
         let err = parser_file_res.err().unwrap();
-        warn!("Can't read parser \"{}\" for library \"{}\": {}", parser_filename, library.name, err.to_string());
+        warn!("Library: \"{}\"; Can't read parser \"{}\": {}", library.name, parser_filename, err.to_string());
         continue;
       }
 
       let parser: Parser = serde_json::from_reader(parser_file_res.ok().unwrap()).unwrap();
 
-      parsers.insert(parser.folder, parser);
+      parsers.insert(parser.folder.clone(), parser);
     }
   }
 
   return parsers;
 }
 
-fn load_platform(library: &Library, parser: &Parser, path: PathBuf) -> Vec<ROM> {
+fn load_rom(library: &Library, parser: &Parser, pattern: &ParserPattern, path: PathBuf) -> ROM {
+  let path_str = path.to_str().unwrap().to_string();
+  let metadata = fs::metadata(&path).expect("Failed to read ROM metadata");
 
+  let create_date: DateTime<Local> = DateTime::<Local>::from(metadata.created().unwrap());
+  let extension = path.extension().unwrap().to_str().unwrap();
+
+  let mut title = path_str.clone();
+
+  
+
+  return ROM {
+    title: title,
+    path: path_str,
+    size: metadata.len(),
+    addDate: format!("{}", create_date.format("%B %e, %Y")),
+    format: extension.to_owned(),
+    system: parser.abbreviation.clone(),
+    systemFullName: parser.name.clone(),
+    library: library.name.clone(),
+  };
+}
+
+fn load_platform(library: &Library, parser: &Parser, path: PathBuf) -> Vec<ROM> {
+  let mut roms: Vec<ROM> = Vec::new();
+
+  let glob_options = MatchOptions {
+    case_sensitive: false,
+    require_literal_separator: false,
+    require_literal_leading_dot: false,
+  };
+
+  let dir_path = path.to_str().expect("Failed to convert path to string").to_string();
+
+  for pattern in &parser.patterns {
+    let glob_pattern = dir_path.clone() + &pattern.glob;
+    let entries_res = glob_with(&glob_pattern, glob_options);
+    if entries_res.is_err() {
+      let err = entries_res.err().unwrap();
+      warn!("Library: \"{}\"; Parser: \"{}\"; Failed to parse glob pattern \"{}\": {} at pos {}", &library.name, &parser.abbreviation, &pattern.glob, err.msg, err.pos);
+      continue;
+    }
+
+    for path_res in entries_res.unwrap() {
+      if path_res.is_err() {
+        let err = path_res.err().unwrap();
+        warn!("Library: \"{}\"; Parser: \"{}\"; Failed to apply glob pattern \"{}\": {}", &library.name, &parser.abbreviation, &pattern.glob, err.to_string());
+        continue;
+      }
+      let path = path_res.unwrap();
+
+      roms.push(load_rom(
+        library,
+        parser,
+        pattern,
+        path
+      ));
+    }
+  }
+
+  return roms;
 }
 
 fn load_library(library: &Library, watcher: &Watcher) -> LoadedLibrary {
@@ -67,7 +129,7 @@ fn load_library(library: &Library, watcher: &Watcher) -> LoadedLibrary {
   let entries_res = read_dir(&library.path);
   if entries_res.is_err() {
     let err = entries_res.err().unwrap();
-    warn!("Can't load library \"{}\": {}", library.name, err.to_string());
+    warn!("Library: \"{}\"; Failed to load: {}", library.name, err.to_string());
     return LoadedLibrary {
       library: library.to_owned(),
       ROMs: roms,
@@ -85,7 +147,7 @@ fn load_library(library: &Library, watcher: &Watcher) -> LoadedLibrary {
     let dir_metadata_res = dir_entry.metadata();
     if dir_metadata_res.is_err() {
       let err = dir_metadata_res.err().unwrap();
-      warn!("Can't read metadata of directory \"{}\" in library \"{}\": {}", dir_name, library.name, err.to_string());
+      warn!("Library: \"{}\"; Can't read metadata of directory \"{}\": {}", library.name, dir_name, err.to_string());
       continue;
     }
     let dir_metadata = dir_metadata_res.unwrap();
@@ -111,12 +173,9 @@ fn load_library(library: &Library, watcher: &Watcher) -> LoadedLibrary {
 pub fn load_libraries(state_settings: &Settings, watcher: &Watcher) -> Vec<LoadedLibrary> {
   let libraries = &state_settings.libraries;
 
-  let mut loaded_libraries: Vec<LoadedLibrary> = vec![];
-
-  for library in libraries {
-    let loaded_library = load_library(&library, &watcher);
-    loaded_libraries.push(loaded_library);
-  }
+  let loaded_libraries: Vec<LoadedLibrary> = libraries.par_iter().map_with(watcher, | watcher_par, library | {
+    return load_library(&library, &watcher_par);
+  }).collect();
 
   return loaded_libraries;
 }
