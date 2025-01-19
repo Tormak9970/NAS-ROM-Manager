@@ -1,9 +1,10 @@
 use std::{collections::HashMap, fs::{self, read_dir, File}, path::PathBuf};
 use chrono::{DateTime, Local};
 use log::warn;
-use glob::{glob, glob_with, MatchOptions};
+use glob::{glob_with, MatchOptions};
 
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
+use regex::RegexBuilder;
 use serde::{Deserialize, Serialize};
 
 use crate::{types::{Library, Parser, ParserPattern, Settings, ROM}, watcher::Watcher};
@@ -68,7 +69,25 @@ fn load_rom(library: &Library, parser: &Parser, pattern: &ParserPattern, path: P
 
   let mut title = path_str.clone();
 
-  
+  let mut regex_builder = RegexBuilder::new(&pattern.regex);
+  regex_builder.case_insensitive(true);
+
+  let regex_res = regex_builder.build();
+  if regex_res.is_err() {
+    let err = regex_res.err().unwrap();
+    warn!("Library: \"{}\"; Parser: \"{}\"; Failed to parse glob pattern \"{}\": {}", &library.name, &parser.abbreviation, &pattern.glob, err.to_string());
+  } else {
+    let regex = regex_res.unwrap();
+
+    let captures = regex.captures(&title);
+
+    if captures.is_some() {
+      let results = captures.unwrap();
+      if results.len() > 0 {
+        title = results.name("title").unwrap().as_str().to_owned();
+      }
+    }
+  }
 
   return ROM {
     title: title,
