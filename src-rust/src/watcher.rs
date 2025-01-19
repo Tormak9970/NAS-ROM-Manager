@@ -109,14 +109,14 @@ impl Watcher {
           match res {
             Ok(event) => match event.kind {
                 EventKind::Create(_create_kind) => {
-                  let path = event.paths[0];
+                  let path = event.paths[0].clone();
 
-                  send(tx.clone(), "reload_library", data);
+                  send(tx.clone(), "reload_library", path.to_str().to_owned());
                 },
                 EventKind::Remove(_create_kind) => {
-                  let path = event.paths[0];
+                  let path = event.paths[0].clone();
                   
-                  send(tx.clone(), "reload_library", data);
+                  send(tx.clone(), "reload_library", path.to_str().to_owned());
                 },
                 _ => {
                   

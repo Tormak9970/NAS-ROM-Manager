@@ -64,7 +64,7 @@ export class RustInterop {
           // TODO: go to the an error page indicating which environment variable is missing and explaining how to fix it.
           break;
         case "reload_library":
-          // TODO: will provide what library to reload as .library
+          // TODO: implement reloading the libraries. Path that caused the reload will be .data
           break;
       }
     });

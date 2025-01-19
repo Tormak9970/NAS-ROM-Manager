@@ -96,7 +96,7 @@ fn handle_message(
       }
 
       let state_watcher = watcher.lock().expect("Should have been able to lock Watcher Mutex.");
-      &state_watcher.unwatch_library(args.library.path);
+      state_watcher.unwatch_library(args.library.path);
 
       send(tx, "remove_library", true);
     }
