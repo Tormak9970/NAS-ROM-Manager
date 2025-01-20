@@ -4,12 +4,12 @@
   "folder": "wiiu",
   "patterns": [
     {
-      "glob": "/**/*.rpx",
-      "regex": "\\/(?<title>.+)\\/.+(?:rpx)$"
+      "glob": "/**/*/*.rpx",
+      "regex": "\\/(?<title>.+)\\/.+\\/.+(?:rpx)$"
     },
     {
-      "glob": "/**/*.@(wud|wux)",
-      "regex": "\\/(?<title>.+)\\.(?:wud|wux)$"
+      "glob": "/**/*.@(wud|wux|wua)",
+      "regex": "\\/(?<title>.+)\\.(?:wud|wux|wua)$"
     }
   ]
 }

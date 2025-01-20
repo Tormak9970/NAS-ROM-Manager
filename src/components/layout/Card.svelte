@@ -5,22 +5,40 @@
   export let type: "elevated" | "filled" | "outlined" | "transparent";
 </script>
 
-<div class="m3-container type-{type}" style="display: flex;" {...extraOptions}>
-  <slot />
+<div class="card-wrapper type-{type}" {...extraOptions}>
+  <slot name="header" />
+  <div class="m3-container">
+    <slot />
+  </div>
 </div>
 
 <style>
   :root {
     --m3-card-shape: var(--m3-util-rounding-medium);
   }
-  .m3-container {
+
+  .card-wrapper {
+    display: flex;
     flex-direction: column;
+    
     position: relative;
-    padding: 1rem; /* protip: use margin: -1rem (adjust as needed) to make images stretch to the end */
+
     border: none;
     border-radius: var(--m3-card-shape);
+
     background-color: rgb(var(--m3-scheme-surface));
     color: rgb(var(--m3-scheme-on-surface));
+
+    overflow: hidden;
+  }
+
+  .m3-container {
+    display: flex;
+    flex-direction: column;
+
+    position: relative;
+    padding: 1rem; /* protip: use margin: -1rem (adjust as needed) to make images stretch to the end */
+
     transition: all 200ms;
   }
   .layer {

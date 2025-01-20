@@ -1,10 +1,11 @@
 <script lang="ts">
   import jsSHA from "jssha";
   import { Card } from "@layout";
-  import { TextField, Button } from "@interactables";
+  import { TextField, Button, Checkbox } from "@interactables";
   import { LogController, RustInterop } from "@controllers";
   import { VisibiityOff, Visibility } from "@icons";
   import { showErrorSnackbar } from "@stores/State";
+  import { rememberMe } from "@stores/Auth";
 
   let user = $state("");
   let password = $state("");
@@ -30,6 +31,9 @@
 <div class="login-form-wrapper">
   <div id="login-form">
     <Card type="elevated">
+      <div slot="header" class="card-header">
+        <img src="/logo.svg" alt="Logo" />
+      </div>
       <div class="body">
         <h2 class="header">Login</h2>
         <TextField
@@ -45,9 +49,13 @@
           on:trailingClick={() => passwordVisible = !passwordVisible}
           bind:value={password}
         />
+        <div class="remember-me-container">
+          <Checkbox bind:checked={$rememberMe} />
+          Remember me
+        </div>
         <Button
           type="tonal"
-          extraOptions={{ style: "width: 100%; margin-top: 1rem;" }}
+          extraOptions={{ style: "width: 100%;" }}
           on:click={signIn}
           disabled={user === "" || password === ""}
         >
@@ -68,6 +76,24 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
+
+    position: relative;
+  }
+
+  .card-header {
+    width: 100%;
+    height: 3.5rem;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background-color: rgb(var(--m3-scheme-surface-container-high));
+  }
+
+  .card-header > img {
+    width: 2.5rem;
+    height: 2.5rem;
   }
 
   #login-form {
@@ -85,7 +111,17 @@
   }
 
   .header {
-    margin: 1rem 0;
+    margin: 0.5rem 0;
+  }
+
+  .remember-me-container {
+    width: calc(100% - 0.5rem);
+
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    margin: 0.5rem 0.25rem;
   }
 
   .floater-text {

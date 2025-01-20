@@ -1,13 +1,13 @@
 <script>
   import "../app.css";
-  import { onDestroy, onMount } from "svelte";
+  import { onMount } from "svelte";
   import MediaQuery from "@component-utils/MediaQuery.svelte";
   import Theme from "../components/theme/Theme.svelte";
   import { isLandscape, showErrorSnackbar, showInfoSnackbar } from "@stores/State";
   import { DesktopNav } from "@navigation";
   import MobileNav from "@navigation/MobileNav.svelte";
   import { AppController, RustInterop, SettingsController } from "@controllers";
-  import { isSignedIn } from "@stores/Auth";
+  import { isSignedIn, rememberMe } from "@stores/Auth";
   import { page } from '$app/state';
   import { goto } from "$app/navigation";
   import InfoSnackbar from "../components/snackbars/InfoSnackbar.svelte";
@@ -32,7 +32,7 @@
       const user = sessionStorage.getItem("user");
       const hash = sessionStorage.getItem("hash");
 
-      if (user && hash) {
+      if (user && hash && $rememberMe) {
         console.log("running auto auth");
         await RustInterop.authenticate(user, hash).then(() => {
           validatingCredentials = false;
