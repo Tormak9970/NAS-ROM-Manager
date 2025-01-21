@@ -38,6 +38,18 @@ type Response<T> = { data: T, }
 export class RustInterop {
   private static ws: WebSocket;
   private static hash: string;
+  
+  /**
+   * Logs the current user out and resets the relevant state.
+   */
+  static logout() {
+    sessionStorage.removeItem("hash");
+    sessionStorage.removeItem("user");
+    RustInterop.hash = "";
+    username.set("");
+    isSignedIn.set(false);
+    AppController.unload();
+  }
 
   static init(onOpen: () => Promise<void>) {
     RustInterop.ws = new WebSocket("ws://127.0.0.1:1500/ws");
@@ -53,12 +65,7 @@ export class RustInterop {
 
       switch(parts[0]) {
         case "hash_mismatch":
-          sessionStorage.removeItem("hash");
-          sessionStorage.removeItem("user");
-          RustInterop.hash = "";
-          username.set("");
-          isSignedIn.set(false);
-          AppController.unload();
+          RustInterop.logout();
           break;
         case "missing_env_variable":
           // TODO: go to the an error page indicating which environment variable is missing and explaining how to fix it.

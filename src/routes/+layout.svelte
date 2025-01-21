@@ -1,5 +1,6 @@
 <script>
   import "../app.css";
+  import "../lib/md-defs";
   import { onMount } from "svelte";
   import MediaQuery from "@component-utils/MediaQuery.svelte";
   import Theme from "../components/theme/Theme.svelte";
@@ -12,6 +13,8 @@
   import { goto } from "$app/navigation";
   import InfoSnackbar from "../components/snackbars/InfoSnackbar.svelte";
   import ErrorSnackbar from "../components/snackbars/ErrorSnackbar.svelte";
+  import Header from "@views/Header.svelte";
+  import { ContextMenu } from "@component-utils";
 
 	let { children } = $props();
 
@@ -46,22 +49,25 @@
 
 <MediaQuery query="(orientation:landscape)" bind:matches={$isLandscape} />
 <MediaQuery query="(max-width: 1200px)" bind:matches={condenseDesktopNav} />
+<ContextMenu />
 <Theme>
-  <div class="layout" class:mobile={!$isLandscape}>
+  <div class="layout">
     {#if $isSignedIn}
-      <!-- {#if $isLandscape}
-        
-      {/if} -->
-      <div class="nav" style:width={$isLandscape ? (condenseDesktopNav ? "3.5rem" : "10rem") : "100%"}>
-        {#if $isLandscape}
-          <DesktopNav condenseNav={condenseDesktopNav} />
-        {:else}
-          <MobileNav />
-        {/if}
-      </div>
+      <Header />
     {/if}
-    <div class="content" style:width={condenseDesktopNav ? "calc(100% - 3.5rem)" : "calc(100% - 10rem)"}>
-      {@render children()}
+    <div class="page-body" class:mobile={!$isLandscape}>
+      {#if $isSignedIn}
+        <div class="nav" style:width={$isLandscape ? (condenseDesktopNav ? "3.5rem" : "10rem") : "100%"}>
+          {#if $isLandscape}
+            <DesktopNav condenseNav={condenseDesktopNav} />
+          {:else}
+            <MobileNav />
+          {/if}
+        </div>
+      {/if}
+      <div class="content" style:width={condenseDesktopNav ? "calc(100% - 3.5rem)" : "calc(100% - 10rem)"}>
+        {@render children()}
+      </div>
     </div>
   </div>
 </Theme>
@@ -70,6 +76,11 @@
 
 <style>
   .layout {
+    width: 100%;
+    height: 100%;
+  }
+
+  .page-body {
     width: calc(100% - 1rem);
     height: calc(100% - 1rem);
 
@@ -87,7 +98,7 @@
 
     padding: 0;
     width: 100%;
-    height: 100%;
+    height: calc(100% - 60px);
   }
 
   .mobile .nav {
