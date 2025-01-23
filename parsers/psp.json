@@ -4,7 +4,7 @@
   "folder": "psp",
   "patterns": [
     {
-      "glob": "/**/*.@(7z|elf|cso|iso|pbp|prx)",
+      "glob": "*.@(7z|elf|cso|iso|pbp|prx)",
       "regex": "\\/(?<title>.+)\\.(?:7z|elf|cso|iso|pbp|prx)$"
     }
   ]

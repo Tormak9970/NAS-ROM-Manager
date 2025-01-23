@@ -1,12 +1,12 @@
-use std::{env::var, collections::HashMap, fs::{self, read_dir, File}, path::PathBuf};
+use std::{collections::HashMap, env::var, fs::{self, read_dir, File}, path::PathBuf};
 use chrono::{DateTime, Local};
 use log::warn;
-use glob::{glob_with, MatchOptions};
 use tokio::sync::broadcast;
 
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use regex::RegexBuilder;
 use serde::{Deserialize, Serialize};
+use wax::Glob;
 
 use crate::{types::{Library, Parser, ParserPattern, Settings, ROM}, watcher::Watcher};
 
@@ -103,7 +103,7 @@ fn load_rom(library: &Library, parser: &Parser, pattern: &ParserPattern, path: P
   }
 
   return ROM {
-    title: title,
+    title,
     path: path_str,
     size: metadata.len(),
     addDate: format!("{}", create_date.format("%B %e, %Y")),
@@ -117,37 +117,24 @@ fn load_rom(library: &Library, parser: &Parser, pattern: &ParserPattern, path: P
 fn load_platform(library: &Library, parser: &Parser, path: PathBuf) -> Vec<ROM> {
   let mut roms: Vec<ROM> = Vec::new();
 
-  let glob_options = MatchOptions {
-    case_sensitive: false,
-    require_literal_separator: false,
-    require_literal_leading_dot: false,
-  };
-
-  let dir_path = path.to_str().expect("Failed to convert path to string").to_string();
-
   for pattern in &parser.patterns {
-    let glob_pattern = dir_path.clone() + &pattern.glob;
-    let entries_res = glob_with(&glob_pattern, glob_options);
-    if entries_res.is_err() {
-      let err = entries_res.err().unwrap();
-      warn!("Library: \"{}\"; Parser: \"{}\"; Failed to parse glob pattern \"{}\": {} at pos {}", &library.name, &parser.abbreviation, &pattern.glob, err.msg, err.pos);
-      continue;
-    }
+    let glob = Glob::new(&pattern.glob).unwrap();
+    for entry in glob.walk(&path) {
+        if entry.is_err() {
+          let err = entry.err().unwrap();
+          warn!("Library: \"{}\"; Parser: \"{}\"; Failed to walk entry \"{}\"", &library.name, &parser.abbreviation, err.path().unwrap().display());
+          continue;
+        }
 
-    for path_res in entries_res.unwrap() {
-      if path_res.is_err() {
-        let err = path_res.err().unwrap();
-        warn!("Library: \"{}\"; Parser: \"{}\"; Failed to apply glob pattern \"{}\": {}", &library.name, &parser.abbreviation, &pattern.glob, err.to_string());
-        continue;
-      }
-      let path = path_res.unwrap();
-
-      roms.push(load_rom(
-        library,
-        parser,
-        pattern,
-        path
-      ));
+        let path = entry.unwrap().into_path();
+        warn!("{}", path.clone().display());
+  
+        roms.push(load_rom(
+          library,
+          parser,
+          pattern,
+          path
+        ));
     }
   }
 

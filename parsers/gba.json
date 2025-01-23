@@ -4,7 +4,7 @@
   "folder": "gba",
   "patterns": [
     {
-      "glob": "/**/*.@(7z|agb|bin|gba|zip)",
+      "glob": "*.@(7z|agb|bin|gba|zip)",
       "regex": "\\/(?<title>.+)\\.(?:7z|agb|bin|gba|zip)$"
     }
   ]

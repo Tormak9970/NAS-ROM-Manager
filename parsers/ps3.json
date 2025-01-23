@@ -4,11 +4,11 @@
   "folder": "ps3",
   "patterns": [
     {
-      "glob": "/**/PS3_GAME/USRDIR/eboot.bin",
+      "glob": "*/PS3_GAME/USRDIR/eboot.bin",
       "regex": "\\/(?<title>.+)\\/PS3_GAME\\/USRDIR\\/eboot\\.bin$"
     },
     {
-      "glob": "/**/USRDIR/eboot.bin",
+      "glob": "*/USRDIR/eboot.bin",
       "regex": "\\/(?<title>.+)\\/USRDIR\\/eboot\\.bin$"
     }
   ]

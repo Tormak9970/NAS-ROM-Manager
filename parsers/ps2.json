@@ -4,7 +4,7 @@
   "folder": "ps2",
   "patterns": [
     {
-      "glob": "/**/*.@(7z|bin|chd|ciso|cso|dump|elf|gz|img|iso|m3u|mdf|nrg|zip)",
+      "glob": "*.@(7z|bin|chd|ciso|cso|dump|elf|gz|img|iso|m3u|mdf|nrg|zip)",
       "regex": "\\/(?<title>.+)\\.(?:7z|bin|chd|ciso|cso|dump|elf|gz|img|iso|m3u|mdf|nrg|zip)$"
     }
   ]

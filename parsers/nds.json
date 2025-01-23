@@ -4,7 +4,7 @@
   "folder": "nds",
   "patterns": [
     {
-      "glob": "/**/*.@(7z|bin|nds|zip)",
+      "glob": "*.@(7z|bin|nds|zip)",
       "regex": "\\/(?<title>.+)\\.(?:7z|bin|nds|zip)$"
     }
   ]
