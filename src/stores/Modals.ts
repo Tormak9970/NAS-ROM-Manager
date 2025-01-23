@@ -7,3 +7,5 @@ export const controlledModalConfirmText = writable("");
 export const controlledModalConfirm = writable(async () => {});
 export const controlledModalCancelText = writable("");
 export const controlledModalCancel = writable(async () => {});
+
+export const showAddLibraryModal = writable(true);

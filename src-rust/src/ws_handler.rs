@@ -72,7 +72,7 @@ fn handle_message(
 
       let state_settings = settings.lock().expect("Should have been able to lock Settings Mutex.");
       let state_watcher = watcher.lock().expect("Should have been able to lock Watcher Mutex.");
-      let libraries = load_libraries(&state_settings, &state_watcher);
+      let libraries = load_libraries(&state_settings, &state_watcher, tx.clone());
 
       send(tx, "load_libraries", libraries);
     }
@@ -84,7 +84,7 @@ fn handle_message(
       }
       
       let state_watcher = watcher.lock().expect("Should have been able to lock Watcher Mutex.");
-      let library = add_library(&args.library, &state_watcher);
+      let library = add_library(&args.library, &state_watcher, tx.clone());
 
       send(tx, "add_library", library);
     }

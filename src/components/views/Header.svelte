@@ -2,13 +2,13 @@
   import { MenuButton } from "@interactables";
   import type { ContextMenuItem } from "@directives";
   import { Person } from "@icons";
-  import { RustInterop } from "@controllers";
+  import { AuthController } from "@controllers";
 
   const menuItems: ContextMenuItem[] = [
     {
       id: "logout",
       text: "Logout",
-      action: RustInterop.logout,
+      action: AuthController.logout,
     }
   ]
 </script>

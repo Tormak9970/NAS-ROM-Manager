@@ -7,7 +7,6 @@ use crate::utils::send;
 
 pub enum WatcherEvent {
   Add(PathBuf, String),
-  Remove(PathBuf, String),
   RemoveLibrary(String),
 }
 
@@ -71,16 +70,6 @@ impl Watcher {
 
               dir_path_map.insert(path, library_path);
             },
-            WatcherEvent::Remove(path, library_path) => {
-              // * Remove watcher from the path.
-              let _ = watcher.unwatch(path.as_path());
-                  
-              let folders_watching = library_map.get_mut(&library_path).unwrap();
-              let index = (&folders_watching).iter().position(|f| *f == path).unwrap();
-              folders_watching.remove(index);
-
-              dir_path_map.remove(&path);
-            },
             WatcherEvent::RemoveLibrary(library_path) => {
               // * Remove watcher from the library.
               let paths = library_map.get(&library_path).unwrap();
@@ -134,11 +123,6 @@ impl Watcher {
   /// Watches a path.
   pub fn watch_path(&self, path: PathBuf, library_path: String) {
     let _ = self.sender.send(WatcherEvent::Add(path, library_path));
-  }
-
-  /// Unwatches a path.
-  pub fn unwatch_path(&self, path: PathBuf, library_path: String) {
-    let _ = self.sender.send(WatcherEvent::Remove(path, library_path));
   }
 
   /// Unwatches all paths associated with a given library.

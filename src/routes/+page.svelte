@@ -2,7 +2,7 @@
   import jsSHA from "jssha";
   import { Card } from "@layout";
   import { TextField, Button, Checkbox } from "@interactables";
-  import { LogController, RustInterop } from "@controllers";
+  import { AuthController, LogController } from "@controllers";
   import { VisibiityOff, Visibility } from "@icons";
   import { showErrorSnackbar } from "@stores/State";
   import { rememberMe } from "@stores/Auth";
@@ -16,7 +16,7 @@
     shaObj.update(password);
 
     const hash = shaObj.getHash("HEX");
-    const result = await RustInterop.authenticate(user, hash);
+    const result = await AuthController.authenticate(user, hash);
 
     LogController.log("Authenticated:", result);
 

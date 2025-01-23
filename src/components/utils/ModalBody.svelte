@@ -72,7 +72,7 @@
   class:hide={hideDialog}
   {...extraOptions}
 >
-  <div class="modal-body">
+  <div class="modal-body" style:--m3-util-background="var(--m3-scheme-surface-container-high)">
     {#if loading}
       <div class="loading-container">
         <LoadingSpinner />

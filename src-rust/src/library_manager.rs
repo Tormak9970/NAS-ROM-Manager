@@ -1,7 +1,8 @@
-use std::{collections::HashMap, fs::{self, read_dir, File}, path::PathBuf};
+use std::{env::var, collections::HashMap, fs::{self, read_dir, File}, path::PathBuf};
 use chrono::{DateTime, Local};
 use log::warn;
 use glob::{glob_with, MatchOptions};
+use tokio::sync::broadcast;
 
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use regex::RegexBuilder;
@@ -13,14 +14,26 @@ use crate::{types::{Library, Parser, ParserPattern, Settings, ROM}, watcher::Wat
 #[allow(non_snake_case)]
 pub struct LoadedLibrary {
   pub library: Library,
-  pub ROMs: Vec<ROM>,
+  pub roms: Vec<ROM>,
 }
 
 /// Loads a library's parsers.
-fn load_parsers(library: &Library) -> HashMap<String, Parser> {
+fn load_parsers(library: &Library, tx: broadcast::Sender<String>) -> HashMap<String, Parser> {
   let mut parsers: HashMap<String, Parser> = HashMap::new();
 
-  let entries_res = read_dir(&library.parsersPath);
+  let mut parsers_path = library.parsersPath.clone();
+  if library.useProvidedParsers {
+    let env_parsers_default_res = var("ROM_MANAGER_DEFAULT_PARSERS_DIR");
+    if env_parsers_default_res.is_err() {
+      warn!("No default_parsers variable \"ROM_MANAGER_DEFAULT_PARSERS_DIR\" was found!");
+      tx.send(format!("missing_env_variable ROM_MANAGER_DEFAULT_PARSERS_DIR")).expect("Failed to broadcast message");
+      return parsers;
+    }
+
+    parsers_path = env_parsers_default_res.unwrap();
+  }
+
+  let entries_res = read_dir(&parsers_path);
   if entries_res.is_err() {
     let err = entries_res.err().unwrap();
     warn!("Library: \"{}\"; Can't load parsers: {}", library.name, err.to_string());
@@ -141,8 +154,8 @@ fn load_platform(library: &Library, parser: &Parser, path: PathBuf) -> Vec<ROM> 
   return roms;
 }
 
-fn load_library(library: &Library, watcher: &Watcher) -> LoadedLibrary {
-  let parsers = load_parsers(library);
+fn load_library(library: &Library, watcher: &Watcher, tx: broadcast::Sender<String>) -> LoadedLibrary {
+  let parsers = load_parsers(library, tx);
   let mut roms: Vec<ROM> = vec![];
 
   let entries_res = read_dir(&library.path);
@@ -151,7 +164,7 @@ fn load_library(library: &Library, watcher: &Watcher) -> LoadedLibrary {
     warn!("Library: \"{}\"; Failed to load: {}", library.name, err.to_string());
     return LoadedLibrary {
       library: library.to_owned(),
-      ROMs: roms,
+      roms,
     };
   }
 
@@ -184,22 +197,24 @@ fn load_library(library: &Library, watcher: &Watcher) -> LoadedLibrary {
 
   return LoadedLibrary {
     library: library.to_owned(),
-    ROMs: roms,
+    roms,
   };
 }
 
 /// Loads the app's libraries.
-pub fn load_libraries(state_settings: &Settings, watcher: &Watcher) -> Vec<LoadedLibrary> {
+pub fn load_libraries(state_settings: &Settings, watcher: &Watcher, tx: broadcast::Sender<String>) -> Vec<LoadedLibrary> {
   let libraries = &state_settings.libraries;
 
   let loaded_libraries: Vec<LoadedLibrary> = libraries.par_iter().map_with(watcher, | watcher_par, library | {
-    return load_library(&library, &watcher_par);
+    return load_library(&library, &watcher_par, tx.clone());
   }).collect();
+
+  warn!("{:#?}", loaded_libraries);
 
   return loaded_libraries;
 }
 
 /// Adds a library to the app
-pub fn add_library(library: &Library, watcher: &Watcher) -> LoadedLibrary {
-  return load_library(library, watcher);
+pub fn add_library(library: &Library, watcher: &Watcher, tx: broadcast::Sender<String>) -> LoadedLibrary {
+  return load_library(library, watcher, tx);
 }

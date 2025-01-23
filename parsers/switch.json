@@ -5,7 +5,7 @@
   "patterns": [
     {
       "glob": "/**/*.@(kip|nca|nro|nso|nsp|xci)",
-      "titleRegex": "\\/(?<title>.+)\\.(?:kip|nca|nro|nso|nsp|xci)$"
+      "regex": "\\/(?<title>.+)\\.(?:kip|nca|nro|nso|nsp|xci)$"
     }
   ]
 }

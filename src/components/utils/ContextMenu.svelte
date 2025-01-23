@@ -29,7 +29,7 @@
 
   onMount(() => {
     const style = document.createElement("style");
-    style.innerHTML = '.items { scrollbar-color: rgb(var(--m3-scheme-primary)) transparent; scrollbar-width: thin; }\n.item-padding { padding-block: unset; }';
+    style.innerHTML = '.items { scrollbar-color: rgb(var(--m3-scheme-primary)) transparent; scrollbar-width: thin; }\n.item-padding { padding-block: 0px !important; }';
     menuElement.shadowRoot?.appendChild(style);
 
     $showContextMenu = false;

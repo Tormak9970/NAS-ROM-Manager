@@ -32,7 +32,7 @@ async fn main() {
   let watcher_arc = Arc::new(Mutex::new(watcher_core));
   let watcher_ws = watcher_arc.clone();
 
-  let ws_route = warp::path("ws")
+  let ws_route = warp::path("api")
     .and(warp::ws())
     .map(move |ws: warp::ws::Ws| {
       let tx = tx_ws.clone();

@@ -15,11 +15,11 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>
  */
 
-import { type Settings } from "@types";
+import type { Library, Settings } from "@types";
 import { LogController } from "./LogController";
 import { RustInterop } from "./RustInterop";
 import type { Unsubscriber } from "svelte/store";
-import { collections, libraries, palette, ROMs, themePrimaryColor, useOledPalette } from "@stores/State";
+import { collections, libraries, palette, themePrimaryColor, useOledPalette } from "@stores/State";
 
 /**
  * The controller for settings.
@@ -36,9 +36,6 @@ export class SettingsController {
     LogController.log("Finished loading settings.");
 
     await this.setStores();
-    this.registerSubs();
-
-    LogController.log("Initialized Settings Listeners.");
   }
 
   private static async writeAll(): Promise<boolean> {
@@ -69,7 +66,6 @@ export class SettingsController {
     palette.set(themeSettings.palette);
     useOledPalette.set(themeSettings.useOledPalette);
 
-    libraries.set(this.settings.libraries);
     collections.set(this.settings.collections);
   }
 
@@ -88,13 +84,20 @@ export class SettingsController {
     }
   }
 
-  private static registerSubs() {
+  /**
+   * Registers the store listeners responsible for automatically updating the settings.
+   */
+  static registerSubs() {
     this.subscriptions = [
       themePrimaryColor.subscribe(this.setOnChange("theme.primaryColor")),
       palette.subscribe(this.setOnChange("theme.palette")),
       useOledPalette.subscribe(this.setOnChange("theme.useOledPalette")),
 
-      libraries.subscribe(this.setOnChange("libraries")),
+      libraries.subscribe((libraries) => {
+        const libraryList = Object.values(libraries);
+        this.settings.libraries = libraryList;
+        this.set<Library[]>("libraries", libraryList);
+      }),
       collections.subscribe(this.setOnChange("collections")),
     ];
   }

@@ -7,7 +7,7 @@
   import { isLandscape, showErrorSnackbar, showInfoSnackbar } from "@stores/State";
   import { DesktopNav } from "@navigation";
   import MobileNav from "@navigation/MobileNav.svelte";
-  import { AppController, RustInterop, SettingsController } from "@controllers";
+  import { AuthController, RustInterop } from "@controllers";
   import { isSignedIn, rememberMe } from "@stores/Auth";
   import { page } from '$app/state';
   import { goto } from "$app/navigation";
@@ -15,6 +15,7 @@
   import ErrorSnackbar from "../components/snackbars/ErrorSnackbar.svelte";
   import Header from "@views/Header.svelte";
   import { ContextMenu } from "@component-utils";
+  import Modals from "../components/modals/Modals.svelte";
 
 	let { children } = $props();
 
@@ -31,26 +32,30 @@
   });
 
   onMount(() => {
-    RustInterop.init(async () => {
-      const user = sessionStorage.getItem("user");
-      const hash = sessionStorage.getItem("hash");
+    RustInterop.init(
+      async () => {
+        const user = sessionStorage.getItem("user");
+        const hash = sessionStorage.getItem("hash");
 
-      if (user && hash && $rememberMe) {
-        console.log("running auto auth");
-        await RustInterop.authenticate(user, hash).then(() => {
+        if (user && hash && $rememberMe) {
+          console.log("running auto auth");
+          await AuthController.authenticate(user, hash).then(() => {
+            validatingCredentials = false;
+          });
+        } else {
           validatingCredentials = false;
-        });
-      } else {
-        validatingCredentials = false;
-      }
-    });
+        }
+      },
+      AuthController.logout
+    );
   });
 </script>
 
 <MediaQuery query="(orientation:landscape)" bind:matches={$isLandscape} />
 <MediaQuery query="(max-width: 1200px)" bind:matches={condenseDesktopNav} />
-<ContextMenu />
 <Theme>
+  <ContextMenu />
+  <Modals />
   <div class="layout">
     {#if $isSignedIn}
       <Header />

@@ -20,10 +20,13 @@ export const SYSTEMS: string[] = [
   "PSP",
 ]
 
+export type System = {
+  fullName: string;
+  abbreviation: string;
+  romCount: number;
+}
+
 export type ROMCustomization = {
-  /**
-   * Path will act like the ID of the ROM.
-   */
   path: string;
   title: string;
   heroPath: string;
@@ -44,7 +47,7 @@ export type ROM = {
 
 export type LoadedLibrary = {
   library: Library;
-  ROMs: ROM[];
+  roms: ROM[];
 }
 
 /**
@@ -60,5 +63,5 @@ export type Library = {
 
 export type Collection = {
   name: string;
-  roms: ROM[];
+  romsIds: string[];
 }

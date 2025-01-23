@@ -55,7 +55,7 @@ pub struct Library {
 #[allow(non_snake_case)]
 pub struct Collection {
   pub name: String,
-  pub roms: Vec<ROM>,
+  pub romIds: Vec<String>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -103,6 +103,5 @@ pub struct SetSettingArgs {
 #[allow(non_snake_case)]
 pub struct ModifyLibraryArgs {
   pub passwordHash: String,
-  pub key: String,
   pub library: Library,
 }

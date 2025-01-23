@@ -27,11 +27,11 @@
     {$controlledModalMessage}
   </div>
   <div slot="buttons" class="buttons">
-    {#if $controlledModalConfirmText !== ""}
-      <Button type="text" on:click={onConfirm}>{$controlledModalConfirmText}</Button>
-    {/if}
     {#if $controlledModalCancelText !== ""}
       <Button type="text" on:click={onCancel}>{$controlledModalCancelText}</Button>
+    {/if}
+    {#if $controlledModalConfirmText !== ""}
+      <Button type="text" on:click={onConfirm}>{$controlledModalConfirmText}</Button>
     {/if}
   </div>
 </ModalBody>
