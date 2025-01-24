@@ -30,7 +30,7 @@ export { default as ArrowDropUp } from "@ktibow/iconset-material-symbols/arrow-d
 export { default as ForwardArrow } from "@ktibow/iconset-material-symbols/arrow-forward-rounded";
 export { default as SubdirectoryArrowRight } from "@ktibow/iconset-material-symbols/subdirectory-arrow-right-rounded";
 
-export { default as Search } from "@ktibow/iconset-material-symbols/search";
+export { default as Search } from "@ktibow/iconset-material-symbols/search-rounded";
 
 export { default as Add } from "@ktibow/iconset-material-symbols/add-rounded";
 
@@ -58,3 +58,5 @@ export { default as Checkmark } from "@ktibow/iconset-material-symbols/check";
 
 export { default as Visibility } from "@ktibow/iconset-material-symbols/visibility";
 export { default as VisibiityOff } from "@ktibow/iconset-material-symbols/visibility-off";
+
+export { default as Tune } from "@ktibow/iconset-material-symbols/tune-rounded";

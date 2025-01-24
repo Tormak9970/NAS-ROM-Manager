@@ -76,6 +76,7 @@
   .selected {
     --text-color: var(--m3-scheme-on-surface);
   }
+  
   .m3-container:hover.m3-container::before,
   .selected.m3-container::before {
     opacity: 1;

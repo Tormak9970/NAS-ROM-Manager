@@ -1,7 +1,7 @@
 <script lang="ts">
   import NavList from "./NavList.svelte";
   import NavListButton from "./NavListButton.svelte";
-  import { views } from "$lib/routes";
+  import { mobileViews } from "$lib/routes";
     
   import { page } from '$app/state';  
   import { goto } from "$app/navigation";
@@ -9,7 +9,7 @@
 
 <div class="view-nav">
   <NavList type="bar" extraOptions={{ style: "padding: 0.75rem 0.5rem; height: 56px;" }}>
-    {#each views as view}
+    {#each mobileViews as view}
       {@const selected = view.path === page.url.pathname}
       <NavListButton
         type="bar"

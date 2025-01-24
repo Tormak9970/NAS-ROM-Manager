@@ -62,7 +62,7 @@
     {/if}
     <div class="page-body" class:mobile={!$isLandscape}>
       {#if $isSignedIn}
-        <div class="nav" style:width={$isLandscape ? (condenseDesktopNav ? "3.5rem" : "10rem") : "100%"}>
+        <div class="nav" style:width={$isLandscape ? (condenseDesktopNav ? "4rem" : "15rem") : "100%"}>
           {#if $isLandscape}
             <DesktopNav condenseNav={condenseDesktopNav} />
           {:else}
@@ -70,7 +70,7 @@
           {/if}
         </div>
       {/if}
-      <div class="content" style:width={condenseDesktopNav ? "calc(100% - 3.5rem)" : "calc(100% - 10rem)"}>
+      <div class="content" style:width={$isLandscape ? (condenseDesktopNav ? "calc(100% - 5rem)" : "calc(100% - 16rem)") : "100%"}>
         {@render children()}
       </div>
     </div>
@@ -112,5 +112,6 @@
 
   .content {
     height: 100%;
+    margin-left: 1rem;
   }
 </style>

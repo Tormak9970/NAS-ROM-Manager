@@ -28,6 +28,10 @@
   }
 </script>
 
+<svelte:head>
+	<title>Login</title>
+</svelte:head>
+
 <div class="login-form-wrapper">
   <div id="login-form">
     <Card type="elevated">

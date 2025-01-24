@@ -1,4 +1,3 @@
-
 export type SingleFileStrategy = {
   type: "single-file";
 }

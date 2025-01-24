@@ -3,6 +3,8 @@
   import type { ContextMenuItem } from "@directives";
   import { Person } from "@icons";
   import { AuthController } from "@controllers";
+  import { isLandscape } from "@stores/State";
+  import SearchBar from "./SearchBar.svelte";
 
   const menuItems: ContextMenuItem[] = [
     {
@@ -17,6 +19,9 @@
   <div class="branding">
     <img src="/logo.svg" alt="Logo" />
     <div class="m3-font-headline-small">ROM Manager</div>
+    {#if $isLandscape}
+      <SearchBar />
+    {/if}
   </div>
   <div class="account">
     <MenuButton items={menuItems} icon={Person} />
@@ -38,11 +43,14 @@
     align-items: center;
     gap: 1rem;
     margin-left: 1.25rem;
+    flex: 1 1 0%;
   }
 
   .branding > div {
     font-weight: bold;
     color: rgb(var(--m3-scheme-primary));
+    flex-grow: 1;
+    flex-shrink: 0;
   }
 
   .branding > img {
@@ -51,6 +59,6 @@
   }
 
   .account {
-    margin-right: 1rem;
+    margin: 0rem 1rem;
   }
 </style>

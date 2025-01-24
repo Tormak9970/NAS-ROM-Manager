@@ -1,7 +1,7 @@
 <script lang="ts">
   import NavList from "./NavList.svelte";
   import NavListButton from "./NavListButton.svelte";
-  import { views } from "$lib/routes";
+  import { desktopViews } from "$lib/routes";
 
   import { page } from '$app/state';  
   import { goto } from "$app/navigation";
@@ -10,7 +10,7 @@
 </script>
 
 <NavList type="rail">
-  {#each views as view}
+  {#each desktopViews as view}
     {@const selected = view.path === page.url.pathname}
     <NavListButton
       type="rail"
