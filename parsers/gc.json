@@ -4,8 +4,11 @@
   "folder": "gc",
   "patterns": [
     {
-      "glob": "*.@(7z|ciso|dol|elf|gcm|gcz|iso|nkit.iso|rvz|wad|wia)",
-      "regex": "\\/(?<title>.+)\\.(?:7z|ciso|dol|elf|gcm|gcz|iso|nkit\\.iso|rvz|wad|wia)$"
+      "glob": "*.(?i){7z,ciso,dol,elf,gcm,gcz,iso,nkit.iso,rvz,wad,wia}",
+      "regex": "\\/(?<title>.+)\\.(?:7z|ciso|dol|elf|gcm|gcz|iso|nkit\\.iso|rvz|wad|wia)$",
+      "downloadStrategy": {
+        "type": "single-file"
+      }
     }
   ]
 }

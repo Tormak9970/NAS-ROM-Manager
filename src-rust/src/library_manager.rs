@@ -111,6 +111,7 @@ fn load_rom(library: &Library, parser: &Parser, pattern: &ParserPattern, path: P
     system: parser.abbreviation.clone(),
     systemFullName: parser.name.clone(),
     library: library.name.clone(),
+    downloadStrategy: pattern.downloadStrategy.clone(),
   };
 }
 
@@ -127,7 +128,6 @@ fn load_platform(library: &Library, parser: &Parser, path: PathBuf) -> Vec<ROM> 
         }
 
         let path = entry.unwrap().into_path();
-        warn!("{}", path.clone().display());
   
         roms.push(load_rom(
           library,

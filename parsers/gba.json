@@ -4,8 +4,11 @@
   "folder": "gba",
   "patterns": [
     {
-      "glob": "*.@(7z|agb|bin|gba|zip)",
-      "regex": "\\/(?<title>.+)\\.(?:7z|agb|bin|gba|zip)$"
+      "glob": "*.(?i){7z,agb,bin,gba,zip}",
+      "regex": "\\/(?<title>.+)\\.(?:7z|agb|bin|gba|zip)$",
+      "downloadStrategy": {
+        "type": "single-file"
+      }
     }
   ]
 }

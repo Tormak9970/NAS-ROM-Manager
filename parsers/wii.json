@@ -4,8 +4,11 @@
   "folder": "wii",
   "patterns": [
     {
-      "glob": "*.@(7z|ciso|dol|elf|gcz|iso|rvz|wad|wbfs|wia)",
-      "regex": "\\/(?<title>.+)\\.(?:7z|ciso|dol|elf|gcz|iso|rvz|wad|wbfs|wia)$"
+      "glob": "*.(?i){7z,ciso,dol,elf,gcz,iso,rvz,wad,wbfs,wia}",
+      "regex": "\\/(?<title>.+)\\.(?:7z|ciso|dol|elf|gcz|iso|rvz|wad|wbfs|wia)$",
+      "downloadStrategy": {
+        "type": "single-file"
+      }
     }
   ]
 }

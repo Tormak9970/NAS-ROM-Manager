@@ -4,8 +4,11 @@
   "folder": "nds",
   "patterns": [
     {
-      "glob": "*.@(7z|bin|nds|zip)",
-      "regex": "\\/(?<title>.+)\\.(?:7z|bin|nds|zip)$"
+      "glob": "*.(?i){7z,bin,nds,zip}",
+      "regex": "\\/(?<title>.+)\\.(?:7z|bin|nds|zip)$",
+      "downloadStrategy": {
+        "type": "single-file"
+      }
     }
   ]
 }

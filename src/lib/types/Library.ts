@@ -1,3 +1,5 @@
+import type { DownloadStrategy } from "./DownloadStrategy";
+
 export const SYSTEMS: string[] = [
   "Xbox",
   "Xbox 360",
@@ -43,6 +45,7 @@ export type ROM = {
   system: string;
   systemFullName: string;
   addDate: string;
+  downloadStrategy: DownloadStrategy;
 }
 
 export type LoadedLibrary = {

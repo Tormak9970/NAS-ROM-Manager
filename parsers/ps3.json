@@ -4,12 +4,20 @@
   "folder": "ps3",
   "patterns": [
     {
-      "glob": "*/PS3_GAME/USRDIR/eboot.bin",
-      "regex": "\\/(?<title>.+)\\/PS3_GAME\\/USRDIR\\/eboot\\.bin$"
+      "glob": "*/PS3_GAME/USRDIR/(?i)eboot.bin",
+      "regex": "\\/(?<title>.+)\\/PS3_GAME\\/USRDIR\\/eboot\\.bin$",
+      "downloadStrategy": {
+        "type": "folder",
+        "parent": "ps3"
+      }
     },
     {
-      "glob": "*/USRDIR/eboot.bin",
-      "regex": "\\/(?<title>.+)\\/USRDIR\\/eboot\\.bin$"
+      "glob": "*/USRDIR/(?i)eboot.bin",
+      "regex": "\\/(?<title>.+)\\/USRDIR\\/eboot\\.bin$",
+      "downloadStrategy": {
+        "type": "folder",
+        "parent": "ps3"
+      }
     }
   ]
 }

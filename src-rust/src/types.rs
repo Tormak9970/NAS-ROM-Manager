@@ -1,17 +1,16 @@
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
+use serde_json::{Map, Value};
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[allow(non_snake_case)]
-/// Use "i" when performing matches to ignore case sensitivity
 pub struct ParserPattern {
   pub glob: String,
   pub regex: String,
+  pub downloadStrategy: Map<String, Value>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[allow(non_snake_case)]
-/// Use "i" when performing matches to ignore case sensitivity
 pub struct Parser {
   pub name: String,
   pub abbreviation: String,
@@ -30,6 +29,7 @@ pub struct ROM {
   pub system: String,
   pub systemFullName: String,
   pub library: String,
+  pub downloadStrategy: Map<String, Value>,
 }
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[allow(non_snake_case)]

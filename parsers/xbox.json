@@ -4,12 +4,19 @@
   "folder": "xbox",
   "patterns": [
     {
-      "glob": "*/default.xbe",
-      "regex": "\\/(?<title>.+)\\/default\\.xbe$"
+      "glob": "*/(?i)default.xbe",
+      "regex": "\\/(?<title>.+)\\/default\\.xbe$",
+      "downloadStrategy": {
+        "type": "folder",
+        "parent": "xbox"
+      }
     },
     {
-      "glob": "*.iso",
-      "regex": "\\/(?<title>.+)\\.iso$"
+      "glob": "*.(?i)iso",
+      "regex": "\\/(?<title>.+)\\.iso$",
+      "downloadStrategy": {
+        "type": "single-file"
+      }
     }
   ]
 }

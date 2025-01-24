@@ -4,12 +4,19 @@
   "folder": "xbox360",
   "patterns": [
     {
-      "glob": "*/default.xex",
-      "regex": "\\/(?<title>.+)\\/default\\.xex$"
+      "glob": "*/(?i)default.xex",
+      "regex": "\\/(?<title>.+)\\/default\\.xex$",
+      "downloadStrategy": {
+        "type": "folder",
+        "parent": "xbox360"
+      }
     },
     {
-      "glob": "*.@(iso|zar)",
-      "regex": "\\/(?<title>.+)\\.(?:iso|zar)$"
+      "glob": "*.(?i){iso,zar}",
+      "regex": "\\/(?<title>.+)\\.(?:iso|zar)$",
+      "downloadStrategy": {
+        "type": "single-file"
+      }
     }
   ]
 }

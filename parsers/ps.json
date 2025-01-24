@@ -4,8 +4,11 @@
   "folder": "ps",
   "patterns": [
     {
-      "glob": "*.@(7z|ccd|chd|cue|ecm|iso|m3u|mds|pbp|toc)",
-      "regex": "\\/(?<title>.+)\\.(?:7z|ccd|chd|cue|ecm|iso|m3u|mds|pbp|toc)$"
+      "glob": "*.(?i){7z,ccd,chd,cue,ecm,iso,m3u,mds,pbp,toc}",
+      "regex": "\\/(?<title>.+)\\.(?:7z|ccd|chd|cue|ecm|iso|m3u|mds|pbp|toc)$",
+      "downloadStrategy": {
+        "type": "single-file"
+      }
     }
   ]
 }
