@@ -23,10 +23,10 @@ fn load_parsers(library: &Library, tx: broadcast::Sender<String>) -> HashMap<Str
 
   let mut parsers_path = library.parsersPath.clone();
   if library.useProvidedParsers {
-    let env_parsers_default_res = var("ROM_MANAGER_DEFAULT_PARSERS_DIR");
+    let env_parsers_default_res = var("NRM_DEFAULT_PARSERS_DIR");
     if env_parsers_default_res.is_err() {
-      warn!("No default_parsers variable \"ROM_MANAGER_DEFAULT_PARSERS_DIR\" was found!");
-      tx.send(format!("missing_env_variable ROM_MANAGER_DEFAULT_PARSERS_DIR")).expect("Failed to broadcast message");
+      warn!("No default_parsers variable \"NRM_DEFAULT_PARSERS_DIR\" was found!");
+      tx.send(format!("missing_env_variable NRM_DEFAULT_PARSERS_DIR")).expect("Failed to broadcast message");
       return parsers;
     }
 

@@ -49,7 +49,6 @@
   .branding > div {
     font-weight: bold;
     color: rgb(var(--m3-scheme-primary));
-    flex-grow: 1;
     flex-shrink: 0;
   }
 

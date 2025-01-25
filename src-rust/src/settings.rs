@@ -5,7 +5,7 @@ use serde_json::{Map, Value};
 use crate::types::{Settings, ThemeSettings};
 
 pub fn get_default_settings() -> Settings {
-  let version = var("ROM_MANAGER_VERSION").ok().unwrap();
+  let version = var("NRM_VERSION").ok().unwrap();
 
   return Settings {
     FILE_SIG_DO_NOT_EDIT: String::from("dev.travislane.nas-rom-manager"),
@@ -57,7 +57,7 @@ fn write_default_if_missing(config_path: &PathBuf, settings_path: &PathBuf, defa
 pub fn load_settings() -> Settings {
   let default_settings = get_default_settings();
   
-  let config_path = PathBuf::from(var("ROM_MANAGER_CONFIG_DIR").ok().unwrap());
+  let config_path = PathBuf::from(var("NRM_CONFIG_DIR").ok().unwrap());
   let settings_path = config_path.join("settings.json");
 
   let settings_exist = write_default_if_missing(&config_path, &settings_path, &default_settings);
@@ -83,7 +83,7 @@ pub fn load_settings() -> Settings {
 pub fn write_settings(state_settings: MutexGuard<'_, Settings>) -> bool {
   let default_settings = get_default_settings();
   
-  let config_path = PathBuf::from(var("ROM_MANAGER_CONFIG_DIR").ok().unwrap());
+  let config_path = PathBuf::from(var("NRM_CONFIG_DIR").ok().unwrap());
   let settings_path = config_path.join("settings.json");
 
   let _ = write_default_if_missing(&config_path, &settings_path, &default_settings);

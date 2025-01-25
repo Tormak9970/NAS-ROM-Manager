@@ -16,10 +16,10 @@ fn hash(text: String) -> String {
 }
 
 pub fn validate_hash(password_hash: String, tx: broadcast::Sender<String>) -> bool {
-  let env_password_res = var("ROM_MANAGER_PASSWORD");
+  let env_password_res = var("NRM_PASSWORD");
   if env_password_res.is_err() {
-    warn!("No password variable \"ROM_MANAGER_PASSWORD\" was found!");
-    tx.send(format!("missing_env_variable ROM_MANAGER_PASSWORD")).expect("Failed to broadcast message");
+    warn!("No password variable \"NRM_PASSWORD\" was found!");
+    tx.send(format!("missing_env_variable NRM_PASSWORD")).expect("Failed to broadcast message");
     return false;
   }
 
@@ -31,19 +31,19 @@ pub fn validate_hash(password_hash: String, tx: broadcast::Sender<String>) -> bo
 
 /// password is already hashed with SHA2
 pub fn authenticate_user(username: String, password_hash: String, tx: broadcast::Sender<String>) -> bool {
-  let env_username_res = var("ROM_MANAGER_USERNAME");
+  let env_username_res = var("NRM_USERNAME");
   if env_username_res.is_err() {
-    warn!("No environment variable \"ROM_MANAGER_USERNAME\" was found!");
-    tx.send(format!("missing_env_variable ROM_MANAGER_USERNAME")).expect("Failed to broadcast message");
+    warn!("No environment variable \"NRM_USERNAME\" was found!");
+    tx.send(format!("missing_env_variable NRM_USERNAME")).expect("Failed to broadcast message");
     return false;
   }
 
   let env_username = env_username_res.unwrap();
   
-  let env_password_res = var("ROM_MANAGER_PASSWORD");
+  let env_password_res = var("NRM_PASSWORD");
   if env_password_res.is_err() {
-    warn!("No password variable \"ROM_MANAGER_PASSWORD\" was found!");
-    tx.send(format!("missing_env_variable ROM_MANAGER_PASSWORD")).expect("Failed to broadcast message");
+    warn!("No password variable \"NRM_PASSWORD\" was found!");
+    tx.send(format!("missing_env_variable NRM_PASSWORD")).expect("Failed to broadcast message");
     return false;
   }
 
