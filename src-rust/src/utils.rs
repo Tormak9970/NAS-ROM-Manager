@@ -20,8 +20,7 @@ pub fn check_hash(hash: String, tx: broadcast::Sender<String>) -> bool {
   if !is_valid {
     warn!("Password hashes do not match!");
     send(tx, "hash_mismatch", String::from(""));
-    return false;
   }
 
-  return true;
+  return is_valid;
 }

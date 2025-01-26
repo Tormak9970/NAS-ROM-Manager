@@ -15,11 +15,10 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>
  */
 
-import { isSignedIn, username } from "@stores/Auth";
-import { LogController } from "./LogController";
 import type { Library, LoadedLibrary, Settings } from "@types";
-import { SettingsController } from "./SettingsController";
-import { AppController } from "../AppController";
+import { get } from "svelte/store";
+import { showErrorSnackbar } from "../../../stores/State";
+import { goto } from "$app/navigation";
 
 /**
  * The available logging levels.
@@ -60,9 +59,13 @@ export class RustInterop {
         case "hash_mismatch":
           RustInterop.hash = "";
           onLogout();
+          get(showErrorSnackbar)({ message: "Something went wrong verifying your request"});
           break;
         case "missing_env_variable":
-          // TODO: go to the an error page indicating which environment variable is missing and explaining how to fix it.
+          const variable = JSON.parse(parts[1]).data;
+          const message = `No environment variable ${variable} was found`;
+          const fix = `Please check your container to ensure ${variable} is set`;
+          goto(`/error?message=${message}&fix=${fix}`);
           break;
         case "reload_library":
           // TODO: implement reloading the libraries. Path that caused the reload will be .data
@@ -177,6 +180,15 @@ export class RustInterop {
    */
   static async removeLibrary(library: Library): Promise<boolean> {
     const res = await RustInterop.invoke<boolean>("remove_library", { library });
+    return res.data;
+  }
+
+  /**
+   * Gets the user's SGDB api key.
+   * @returns The user's SGDB api key.
+   */
+  static async getSGDBKey(): Promise<string> {
+    const res = await RustInterop.invoke<string>("get_sgdb_key", {});
     return res.data;
   }
 }

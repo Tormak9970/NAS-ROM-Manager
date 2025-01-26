@@ -1,6 +1,7 @@
 use futures_util::{SinkExt, StreamExt};
+use log::warn;
 use warp::filters::ws::{Message, WebSocket};
-use std::sync::{Arc, Mutex};
+use std::{env::var, sync::{Arc, Mutex}};
 use tokio::sync::broadcast;
 
 use crate::{auth::authenticate_user, library_manager::{add_library, load_libraries}, settings::{load_settings, set_setting, write_settings}, types::{AuthArgs, ModifyLibraryArgs, SetSettingArgs, Settings, SimpleArgs}, utils::{check_hash, send}, watcher::Watcher};
@@ -99,6 +100,21 @@ fn handle_message(
       state_watcher.unwatch_library(args.library.path);
 
       send(tx, "remove_library", true);
+    }
+    "get_sgdb_key" => {
+      let args: SimpleArgs = serde_json::from_str(data).unwrap();
+      let valid = check_hash(args.passwordHash, tx.clone());
+      if !valid {
+        return;
+      }
+
+      let env_api_key_res = var("SGDB_API_KEY");
+      if env_api_key_res.is_err() {
+        warn!("No environment variable \"SGDB_API_KEY\" was found!");
+        send(tx, "missing_env_variable", "SGDB_API_KEY");
+      } else {
+        send(tx, "get_sgdb_key", env_api_key_res.unwrap());
+      }
     }
     "demo" => {
       let args: SimpleArgs = serde_json::from_str(data).unwrap();

@@ -23,12 +23,16 @@
 
   let validatingCredentials = $state(true);
 
+  let showDecorations = $state(false);
+
   $effect(() => {
     if (!$isSignedIn && page.url.pathname !== '/') {
       goto('/');
     } else if (!validatingCredentials && $isSignedIn && page.url.pathname === '/') {
       goto('/loading');
     }
+
+    showDecorations = page.url.pathname !== '/' && page.url.pathname !== '/loading' && page.url.pathname !== '/error';
   });
 
   onMount(() => {
@@ -56,11 +60,11 @@
   <ContextMenu />
   <Modals />
   <div class="layout">
-    {#if page.url.pathname !== '/' && page.url.pathname !== '/loading'}
+    {#if showDecorations}
       <Header />
     {/if}
     <div class="page-body" class:mobile={!$isLandscape}>
-      {#if page.url.pathname !== '/' && page.url.pathname !== '/loading'}
+      {#if showDecorations}
         <div class="nav" style:width={$isLandscape ? (condenseDesktopNav ? "4rem" : "15rem") : "100%"}>
           {#if $isLandscape}
             <DesktopNav condenseNav={condenseDesktopNav} />

@@ -19,6 +19,7 @@ wax = "0.6.0"
 diacritics = "0.2.2"
 regex = "1.11.1"
 rust-crypto = "0.2.36"
+reqwest="0.12.12"
 
 log = "0.4.22"
 pretty_env_logger = "0.5.0"

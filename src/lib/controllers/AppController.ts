@@ -1,10 +1,11 @@
-import type { Collection, Library, ROM, ROMCustomization, System } from "@types";
+import type { Library, ROM, ROMCustomization, System } from "@types";
 import { SettingsController } from "./utils/SettingsController";
 import { LogController } from "./utils/LogController";
 import { RustInterop } from "./utils/RustInterop";
 import { collections, libraries, romCustomizations, roms, romsByLibrary, romsBySystem, showErrorSnackbar, showInfoSnackbar, systems } from "@stores/State";
 import { hash64 } from "@utils";
 import { get } from "svelte/store";
+import { ApiController } from "./ApiController";
 
 /**
  * The core app controller.
@@ -15,6 +16,7 @@ export class AppController {
    */
   static async load() {
     await SettingsController.init();
+    await ApiController.init();
     await this.loadLibraries();
     SettingsController.registerSubs();
   }
