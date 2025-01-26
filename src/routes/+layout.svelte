@@ -90,7 +90,7 @@
 
   .page-body {
     width: calc(100% - 1rem);
-    height: calc(100% - 1rem);
+    height: calc(100% - 1rem - 60px);
 
     padding: 0.5rem;
 

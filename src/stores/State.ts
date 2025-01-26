@@ -1,5 +1,9 @@
 import { writable } from "svelte/store";
-import type { Collection, Library, ROM, Palette, System, ROMCustomization } from "@types";
+import type { Collection, Library, ROM, Palette, System, ROMCustomization, DBFilters } from "@types";
+import { DEFAULT_FILTERS } from "@models";
+import { localStorageWritable } from "@utils";
+
+export const requestTimeoutLength = 5000;
 
 export const isLandscape = writable(true);
 export const loadedSettings = writable(false);
@@ -25,3 +29,5 @@ export const romCustomizations = writable<Record<string, ROMCustomization>>({});
 
 export const romsByLibrary = writable<Record<string, string[]>>({});
 export const romsBySystem = writable<Record<string, string[]>>({});
+
+export const dbFilters = localStorageWritable<DBFilters>("sgdb-filters", DEFAULT_FILTERS);
