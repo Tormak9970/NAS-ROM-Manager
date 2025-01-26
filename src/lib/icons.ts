@@ -62,3 +62,4 @@ export { default as VisibiityOff } from "@ktibow/iconset-material-symbols/visibi
 export { default as Tune } from "@ktibow/iconset-material-symbols/tune-rounded";
 
 export { default as EmergencyHome } from "@ktibow/iconset-material-symbols/emergency-home-rounded";
+export { default as Download } from "@ktibow/iconset-material-symbols/download-rounded";

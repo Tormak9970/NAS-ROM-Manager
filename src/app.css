@@ -329,3 +329,12 @@ a.m3-container {
 
   pointer-events: none;
 }
+
+a, a:visited {
+  color: rgb(var(--m3-scheme-secondary));
+  transition: color 0.15s;
+}
+
+a:hover {
+  color: rgb(var(--m3-scheme-secondary) / 0.8);
+}

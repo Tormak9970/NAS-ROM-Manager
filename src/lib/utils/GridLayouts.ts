@@ -4,17 +4,15 @@ export type GRID_LAYOUT = {
   gap: number;
 }
 
-const TITLE_SPACE = 48;
-
 export const GRID_LAYOUTS: Record<string, GRID_LAYOUT> = {
   portrait: {
-    width: 160,
-    height: 225 + TITLE_SPACE,
+    width: 162,
+    height: 242,
     gap: 30,
   },
   landscape: {
-    width: 368,
-    height: 172 + TITLE_SPACE,
+    width: 370,
+    height: 174,
     gap: 30,
   }
 }

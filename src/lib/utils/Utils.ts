@@ -223,3 +223,18 @@ export function compareStrings(first: string, second: string) {
 
 	return (2.0 * intersectionSize) / (first.length + second.length - 2);
 }
+
+/**
+ * Formats a file's size using Kb, Mb, Gb, etc.
+ * @param fileSize The file size.
+ * @returns The formatted size.
+ */
+export function formatFileSize(fileSize: number): string {
+  if (fileSize < 1000000) {
+    return (fileSize / 1000).toFixed(1) + " Kb";
+  } else if (fileSize < 1000000000) {
+    return (fileSize / 1000000).toFixed(1) + " Mb";
+  } else {
+    return (fileSize / 1000000000).toFixed(1) + " Gb";
+  }
+}
