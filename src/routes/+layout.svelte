@@ -27,7 +27,7 @@
     if (!$isSignedIn && page.url.pathname !== '/') {
       goto('/');
     } else if (!validatingCredentials && $isSignedIn && page.url.pathname === '/') {
-      goto('/dashboard');
+      goto('/loading');
     }
   });
 
@@ -38,7 +38,6 @@
         const hash = sessionStorage.getItem("hash");
 
         if (user && hash && $rememberMe) {
-          console.log("running auto auth");
           await AuthController.authenticate(user, hash).then(() => {
             validatingCredentials = false;
           });
@@ -57,11 +56,11 @@
   <ContextMenu />
   <Modals />
   <div class="layout">
-    {#if $isSignedIn}
+    {#if page.url.pathname !== '/' && page.url.pathname !== '/loading'}
       <Header />
     {/if}
     <div class="page-body" class:mobile={!$isLandscape}>
-      {#if $isSignedIn}
+      {#if page.url.pathname !== '/' && page.url.pathname !== '/loading'}
         <div class="nav" style:width={$isLandscape ? (condenseDesktopNav ? "4rem" : "15rem") : "100%"}>
           {#if $isLandscape}
             <DesktopNav condenseNav={condenseDesktopNav} />

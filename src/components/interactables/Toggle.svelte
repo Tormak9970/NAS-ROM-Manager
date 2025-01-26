@@ -4,7 +4,6 @@
   import { Checkmark } from "@icons";
   import type { HTMLAttributes } from "svelte/elements";
 
-  export let display = "inline-flex";
   export let extraWrapperOptions: HTMLAttributes<HTMLDivElement> = {};
   export let extraOptions: HTMLAttributes<HTMLDivElement> = {};
   export let checked = false;
@@ -24,7 +23,6 @@
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <div
   class="m3-container"
-  style="display: {display};"
   {...extraWrapperOptions}
   on:mousedown={(e) => {
     if (!disabled) {
@@ -58,6 +56,8 @@
     position: relative;
     width: 3.25rem;
     height: 2rem;
+
+    display: inline-flex;
   }
   input {
     appearance: none;

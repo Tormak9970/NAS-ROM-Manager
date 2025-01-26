@@ -4,7 +4,6 @@
   import { createEventDispatcher } from "svelte";
   import type { HTMLAttributes, HTMLInputAttributes } from "svelte/elements";
 
-  export let display = "inline-flex";
   export let extraWrapperOptions: HTMLAttributes<HTMLDivElement> = {};
   export let extraOptions: HTMLInputAttributes = {};
   export let name: string;
@@ -24,7 +23,6 @@
   class:leading-icon={leadingIcon}
   class:trailing-icon={trailingIcon}
   class:error
-  style="display: {display}"
   {...extraWrapperOptions}
 >
   <input
@@ -58,7 +56,10 @@
   }
   .m3-container {
     position: relative;
+    
+    display: inline-flex;
     align-items: center;
+    
     height: 3rem;
     min-width: 15rem;
   }

@@ -2,6 +2,7 @@ import { writable } from "svelte/store";
 import type { Collection, Library, ROM, Palette, System, ROMCustomization } from "@types";
 
 export const isLandscape = writable(true);
+export const hasLoadedSettings = writable(false);
 
 export const showInfoSnackbar = writable<(data: ShowInfoOptions) => void>();
 export const showErrorSnackbar = writable<(data: ShowErrorOptions) => void>();
@@ -10,6 +11,8 @@ export const showErrorSnackbar = writable<(data: ShowErrorOptions) => void>();
 export const palette = writable<Palette>("Auto");
 export const useOledPalette = writable(false);
 export const themePrimaryColor = writable("#a74bf2");
+
+export const landingPage = writable("library");
 
 // * App State
 export const libraries = writable<Record<string, Library>>({});

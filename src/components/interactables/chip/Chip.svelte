@@ -3,7 +3,6 @@
   import type { IconifyIcon } from "@iconify/types";
   import type { HTMLButtonAttributes } from "svelte/elements";
 
-  export let display = "inline-flex";
   export let extraOptions: HTMLButtonAttributes = {};
   /**
    * general is filter/suggestion since they're the same.
@@ -24,7 +23,6 @@
 
 <button
   class="m3-container type-{type}"
-  style="display: {display}"
   class:elevated
   class:selected
   {disabled}
@@ -50,6 +48,8 @@
     border-radius: var(--m3-chip-shape);
     padding: 0 1rem;
     gap: 0.5rem;
+
+    display: inline-flex;
     align-items: center;
 
     background-color: rgb(var(--m3-scheme-surface));

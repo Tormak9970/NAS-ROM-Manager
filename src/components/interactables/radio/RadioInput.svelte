@@ -8,7 +8,6 @@
   export let checked = false;
   export let disabled = false;
   export let name: string;
-  export let display = "inline-flex";
   export let extraOptions: HTMLAttributes<HTMLDivElement> = {};
 
   /**
@@ -19,7 +18,7 @@
   }
 </script>
 
-<div class="m3-container" style="display: {display};" {...extraOptions}>
+<div class="m3-container" {...extraOptions}>
   <input type="radio" name={name} checked={checked} {disabled} on:input={onInput} />
   <div class="layer"></div>
 </div>
@@ -29,6 +28,8 @@
     position: relative;
     width: 1.25rem;
     height: 1.25rem;
+
+    display: inline-flex;
   }
   .m3-container input {
     position: absolute;

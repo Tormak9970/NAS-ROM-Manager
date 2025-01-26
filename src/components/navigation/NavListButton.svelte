@@ -3,7 +3,6 @@
   import type { IconifyIcon } from "@iconify/types";
   import type { HTMLButtonAttributes } from "svelte/elements";
 
-  export let display = "flex";
   export let extraOptions: HTMLButtonAttributes = {};
   export let type: "rail" | "bar";
 
@@ -14,7 +13,6 @@
 <button
   on:click
   class="m3-container type-{type}"
-  style="display: {display};"
   class:selected
   {...extraOptions}
 >
@@ -30,7 +28,9 @@
 
 <style>
   .m3-container {
+    display: flex;
     flex-direction: column;
+    
     gap: 0.25rem;
     padding: 0;
     border: none;

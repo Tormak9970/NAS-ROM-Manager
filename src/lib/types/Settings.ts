@@ -12,6 +12,7 @@ export type Settings = {
   FILE_SIG_DO_NOT_EDIT: "dev.travislane.nas-rom-manager";
   version: string;
   theme: ThemeSettings;
+  landingPage: string;
   libraries: Library[];
   collections: Collection[];
 }

@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { HTMLButtonAttributes } from "svelte/elements";
-  export let display = "inline-flex";
+  
   export let extraOptions: HTMLButtonAttributes = {};
   export let iconType: "none" | "left" | "full" = "none";
   export let type: "elevated" | "filled" | "tonal" | "outlined" | "text";
@@ -22,7 +22,6 @@
   class="m3-container m3-font-label-large font-label {type} icon-{iconType}"
   style:--size={size}
   style:--icon-size={iconSize}
-  style="display: {display};"
   {...extraOptions}
 >
   <div class="layer"></div>
@@ -42,6 +41,7 @@
     color: rgb(var(--text-color));
     transition: background-color 0.2s ease-out, color 0.2s ease-out, box-shadow 0.2s ease-out;
 
+    display: inline-flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;

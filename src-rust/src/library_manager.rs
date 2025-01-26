@@ -196,8 +196,6 @@ pub fn load_libraries(state_settings: &Settings, watcher: &Watcher, tx: broadcas
     return load_library(&library, &watcher_par, tx.clone());
   }).collect();
 
-  warn!("{:#?}", loaded_libraries);
-
   return loaded_libraries;
 }
 

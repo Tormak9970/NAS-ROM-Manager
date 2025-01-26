@@ -29,9 +29,6 @@
 </div>
 
 <style>
-  :root {
-    --m3-textfield-outlined-shape: var(--m3-util-rounding-medium);
-  }
   .m3-container {
     margin-left: 5rem;
     display: inline-flex;
@@ -42,6 +39,8 @@
     height: 3rem;
     width: 100%;
     max-width: 50rem;
+
+    --m3-textfield-outlined-shape: var(--m3-util-rounding-medium);
   }
 
   input {

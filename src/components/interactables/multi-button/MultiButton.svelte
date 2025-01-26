@@ -4,7 +4,6 @@
   import { Checkmark } from "@icons";
   import type { HTMLLabelAttributes } from "svelte/elements";
 
-  export let display = "flex";
   export let extraOptions: HTMLLabelAttributes = {};
   export let id: string;
   export let name: string
@@ -16,7 +15,6 @@
 <label
   for={id}
   class="m3-font-label-large"
-  style="display: {display}; overflow: hidden;"
   {...extraOptions}
 >
   <div class="layer"></div>
@@ -41,6 +39,11 @@
     padding: 0 1rem;
     /* flex: 1; */
     min-width: 3rem;
+
+    display: flex;
+
+    overflow: hidden;
+
     align-items: center;
     justify-content: center;
 

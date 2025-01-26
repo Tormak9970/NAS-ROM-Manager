@@ -1,10 +1,10 @@
 <script lang="ts">
   import type { HTMLAttributes } from "svelte/elements";
-  export let display = "inline-flex";
+  
   export let extraOptions: HTMLAttributes<HTMLDivElement> = {};
 </script>
 
-<div class="m3-container" style="display: {display};" {...extraOptions}>
+<div class="m3-container" {...extraOptions}>
   <slot />
 </div>
 
@@ -18,5 +18,7 @@
     height: 2rem;
     border-radius: var(--m3-segmented-button-shape);
     overflow: hidden;
+
+    display: inline-flex;
   }
 </style>

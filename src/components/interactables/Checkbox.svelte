@@ -1,13 +1,12 @@
 <script lang="ts">
   import type { HTMLAttributes } from "svelte/elements";
 
-  export let display = "inline-flex";
   export let extraOptions: HTMLAttributes<HTMLLabelElement> = {};
   export let checked = false;
   export let disabled = false;
 </script>
 
-<label class="m3-container" style="display: {display};" {...extraOptions}>
+<label class="m3-container" {...extraOptions}>
   <input type="checkbox" bind:checked={checked} on:input disabled={disabled} />
   <div class="layer">
     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -26,6 +25,8 @@
     position: relative;
     width: 1.125rem;
     height: 1.125rem;
+
+    display: inline-flex;
   }
   .m3-container input {
     position: absolute;

@@ -2,28 +2,13 @@ use std::{env::var, fs::{self, File}, path::PathBuf, sync::MutexGuard};
 use log::warn;
 use serde_json::{Map, Value};
 
-use crate::types::{Settings, ThemeSettings};
-
-pub fn get_default_settings() -> Settings {
-  let version = var("NRM_VERSION").ok().unwrap();
-
-  return Settings {
-    FILE_SIG_DO_NOT_EDIT: String::from("dev.travislane.nas-rom-manager"),
-    version,
-    theme: ThemeSettings {
-      primaryColor: String::from("#a74bf2"),
-      palette: String::from("Auto"),
-      useOledPalette: false,
-    },
-    libraries: Vec::new(),
-    collections: Vec::new(),
-  };
-}
+use crate::types::{get_default_settings, Settings};
 
 fn check_settings(settings: &mut Settings, defaults: &Settings) {
   settings.version = defaults.version.clone();
 
-  // TODO: any changes to settings structure need to be checked and addressed here.
+  // ! any changes to settings structure need to be checked and addressed here.
+  // ! remember that missing values will be the defaults, so check for existence of old field vs lack of new field.
 }
 
 /// Checks if the app's settings exist and writes the defaults if they don't.

@@ -5,7 +5,6 @@
   import type { HTMLDialogAttributes } from "svelte/elements";
   import Icon from "./Icon.svelte";
 
-  export let display = "flex";
   export let extraOptions: HTMLDialogAttributes = {};
   export let icon: IconifyIcon | undefined = undefined;
   export let headline: string;
@@ -68,7 +67,6 @@
   on:click={onClick}
   on:animationend={onAnimationEnd}
   bind:this={dialog}
-  style="display: {display};"
   class:hide={hideDialog}
   {...extraOptions}
 >
@@ -101,6 +99,8 @@
     border: none;
     padding: 0;
     background-color: transparent;
+
+    display: flex;
   }
   .modal-body {
     background-color: rgb(var(--m3-scheme-surface-container-high));

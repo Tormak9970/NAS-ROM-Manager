@@ -19,7 +19,7 @@ import type { Library, Settings } from "@types";
 import { LogController } from "./LogController";
 import { RustInterop } from "./RustInterop";
 import type { Unsubscriber } from "svelte/store";
-import { collections, libraries, palette, themePrimaryColor, useOledPalette } from "@stores/State";
+import { collections, hasLoadedSettings, landingPage, libraries, palette, themePrimaryColor, useOledPalette } from "@stores/State";
 
 /**
  * The controller for settings.
@@ -36,6 +36,8 @@ export class SettingsController {
     LogController.log("Finished loading settings.");
 
     await this.setStores();
+    
+    hasLoadedSettings.set(true);
   }
 
   private static async writeAll(): Promise<boolean> {
@@ -66,6 +68,8 @@ export class SettingsController {
     palette.set(themeSettings.palette);
     useOledPalette.set(themeSettings.useOledPalette);
 
+    landingPage.set(this.settings.landingPage);
+
     collections.set(this.settings.collections);
   }
 
@@ -92,6 +96,7 @@ export class SettingsController {
       themePrimaryColor.subscribe(this.setOnChange("theme.primaryColor")),
       palette.subscribe(this.setOnChange("theme.palette")),
       useOledPalette.subscribe(this.setOnChange("theme.useOledPalette")),
+      landingPage.subscribe(this.setOnChange("landingPage")),
 
       libraries.subscribe((libraries) => {
         const libraryList = Object.values(libraries);
@@ -109,5 +114,7 @@ export class SettingsController {
     for (const unsub of this.subscriptions) {
       unsub();
     }
+    
+    hasLoadedSettings.set(false);
   }
 }

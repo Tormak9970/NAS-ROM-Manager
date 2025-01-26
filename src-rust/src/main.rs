@@ -1,4 +1,4 @@
-use settings::get_default_settings;
+use types::get_default_settings;
 use warp::Filter;
 use watcher::Watcher;
 use std::sync::{Arc, Mutex};

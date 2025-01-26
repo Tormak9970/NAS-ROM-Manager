@@ -1,12 +1,11 @@
 <script lang="ts">
   import type { HTMLButtonAttributes } from "svelte/elements";
 
-  export let display = "flex";
   export let extraOptions: HTMLButtonAttributes = {};
   export let headline = "";
 </script>
 
-<button on:click class="m3-container" style="display: {display}" {...extraOptions}>
+<button on:click class="m3-container" {...extraOptions}>
   {#if $$slots.leading}
     <div class="leading">
       <slot name="leading" />
@@ -19,6 +18,7 @@
 
 <style>
   .m3-container {
+    display: flex;
     padding: 0.5rem 1.5rem 0.5rem 1rem;
     align-items: center;
     gap: 1rem;
