@@ -5,7 +5,7 @@
   "patterns": [
     {
       "glob": "*",
-      "regex": "\\/(?<title>.+)$",
+      "regex": ".+\\/(?<title>.+)$",
       "downloadStrategy": {
         "type": "single-file"
       }

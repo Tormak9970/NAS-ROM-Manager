@@ -5,7 +5,7 @@
   "patterns": [
     {
       "glob": "*.(?i){7z,elf,cso,iso,pbp,prx}",
-      "regex": "\\/(?<title>.+)\\.(?:7z|elf|cso|iso|pbp|prx)$",
+      "regex": ".+\\/(?<title>.+)\\.(?:7z|elf|cso|iso|pbp|prx)$",
       "downloadStrategy": {
         "type": "single-file"
       }

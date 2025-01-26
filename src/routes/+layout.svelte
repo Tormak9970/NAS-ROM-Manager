@@ -69,7 +69,11 @@
           {/if}
         </div>
       {/if}
-      <div class="content" style:width={$isLandscape ? (condenseDesktopNav ? "calc(100% - 5rem)" : "calc(100% - 16rem)") : "100%"}>
+      <div
+        style:width={$isLandscape ? (condenseDesktopNav ? "calc(100% - 5rem)" : "calc(100% - 16rem)") : "100%"}
+        style:height={$isLandscape ? "100%" : "calc(100% - 56px)"}
+        style:margin-left={$isLandscape ? "1rem" : "0"}
+      >
         {@render children()}
       </div>
     </div>
@@ -107,10 +111,5 @@
 
   .mobile .nav {
     width: 100%;
-  }
-
-  .content {
-    height: 100%;
-    margin-left: 1rem;
   }
 </style>

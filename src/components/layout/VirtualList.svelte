@@ -187,7 +187,7 @@
   <svelte-virtual-list-viewport
     style="height: {height};"
     class="styled-scrollbar"
-    use:scrollShadow={{ background: "--m3-scheme-surface-container" }}
+    use:scrollShadow={{ background: "--m3-scheme-background" }}
     on:scroll={handleScroll}
     bind:offsetHeight={viewportHeight}
     bind:this={viewport}

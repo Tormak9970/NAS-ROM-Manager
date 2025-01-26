@@ -1,10 +1,10 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
   import { LoadingSpinner } from "@layout";
-  import { hasLoadedSettings, landingPage } from "@stores/State";
+  import { loadedSettings, landingPage } from "@stores/State";
 
   $effect(() => {
-    if ($hasLoadedSettings) {
+    if ($loadedSettings) {
       goto(`/${$landingPage}`);
     }
   });

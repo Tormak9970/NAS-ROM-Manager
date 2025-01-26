@@ -211,7 +211,7 @@
     style="height: {height}; --img-width: {itemWidth}px; --img-height: {itemHeight}px; --column-gap: {columnGap}px; --row-gap: {rowGap}px;"
     class="styled-scrollbar"
     on:scroll={handleScroll}
-    use:scrollShadow={{ background: "--m3-scheme-surface-container" }}
+    use:scrollShadow={{ background: "--m3-scheme-background" }}
     bind:offsetHeight={viewportHeight}
     bind:offsetWidth={viewportWidth}
     bind:this={viewport}

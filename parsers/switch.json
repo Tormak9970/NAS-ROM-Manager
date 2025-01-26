@@ -5,7 +5,7 @@
   "patterns": [
     {
       "glob": "*.(?i){kip,nca,nro,nso,nsp,xci}",
-      "regex": "\\/(?<title>.+)\\.(?:kip|nca|nro|nso|nsp|xci)$",
+      "regex": ".+\\/(?<title>.+)\\.(?:kip|nca|nro|nso|nsp|xci)$",
       "downloadStrategy": {
         "type": "single-file"
       }

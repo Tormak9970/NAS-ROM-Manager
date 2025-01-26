@@ -19,7 +19,7 @@ import type { Library, Settings } from "@types";
 import { LogController } from "./LogController";
 import { RustInterop } from "./RustInterop";
 import type { Unsubscriber } from "svelte/store";
-import { collections, hasLoadedSettings, landingPage, libraries, palette, themePrimaryColor, useOledPalette } from "@stores/State";
+import { collections, loadedSettings, landingPage, libraries, palette, themePrimaryColor, useOledPalette } from "@stores/State";
 
 /**
  * The controller for settings.
@@ -37,7 +37,7 @@ export class SettingsController {
 
     await this.setStores();
     
-    hasLoadedSettings.set(true);
+    loadedSettings.set(true);
   }
 
   private static async writeAll(): Promise<boolean> {
@@ -115,6 +115,6 @@ export class SettingsController {
       unsub();
     }
     
-    hasLoadedSettings.set(false);
+    loadedSettings.set(false);
   }
 }

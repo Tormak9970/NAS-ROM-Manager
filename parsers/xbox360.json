@@ -5,7 +5,7 @@
   "patterns": [
     {
       "glob": "*/(?i)default.xex",
-      "regex": "\\/(?<title>.+)\\/default\\.xex$",
+      "regex": ".+\\/(?<title>.+)\\/default\\.xex$",
       "downloadStrategy": {
         "type": "folder",
         "parent": "xbox360"
@@ -13,7 +13,7 @@
     },
     {
       "glob": "*.(?i){iso,zar}",
-      "regex": "\\/(?<title>.+)\\.(?:iso|zar)$",
+      "regex": ".+\\/(?<title>.+)\\.(?:iso|zar)$",
       "downloadStrategy": {
         "type": "single-file"
       }

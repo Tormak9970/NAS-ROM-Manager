@@ -92,7 +92,9 @@ fn load_rom(library: &Library, parser: &Parser, pattern: &ParserPattern, path: P
   } else {
     let regex = regex_res.unwrap();
 
-    let captures = regex.captures(&title);
+    let clean_title = title.replace("\\", "/");
+
+    let captures = regex.captures(&clean_title);
 
     if captures.is_some() {
       let results = captures.unwrap();
