@@ -1,11 +1,12 @@
 <script lang="ts">
-  import { formatFileSize, GRID_LAYOUTS } from "@utils";
-  import { libraryGridType } from "@stores/State";
-  import type { ROM } from "@types";
-  import { Button } from "@interactables";
   import { Icon } from "@component-utils";
   import { Download } from "@icons";
-    import RomTag from "./RomTag.svelte";
+  import { Button } from "@interactables";
+  import { SYSTEM_TAGS_CONFIG } from "@models";
+  import { libraryGridType } from "@stores/State";
+  import type { ROM } from "@types";
+  import { formatFileSize, GRID_LAYOUTS } from "@utils";
+  import RomTag from "./RomTag.svelte";
 
   type RomProps = {
     rom: ROM;
@@ -13,9 +14,14 @@
 
   let { rom }: RomProps = $props();
 
+  let system = $derived(rom.system.toLowerCase());
+
   let cover = "https://cdn2.steamgriddb.com/thumb/3c64afe806cd466dd1ffecbe3e2e8cce.jpg";
 
   let layout = $derived(GRID_LAYOUTS[$libraryGridType]);
+
+  const DEFAULT_COLOR = "var(--m3-scheme-tertiary-container)";
+  let systemTagConfig = $derived(SYSTEM_TAGS_CONFIG[system]);
 
   function download() {
 
@@ -35,7 +41,7 @@
       <div class="date">{rom.addDate}</div>
       <div class="file-info">
         <div class="size">{formatFileSize(rom.size)}</div>
-        <RomTag color="var(--m3-scheme-tertiary-container)">.{rom.format}</RomTag>
+        <RomTag backgroundColor="var(--m3-scheme-tertiary-container)">.{rom.format}</RomTag>
       </div>
     </div>
     <div style:--m3-button-shape="var(--m3-util-rounding-small)">
@@ -54,7 +60,13 @@
     </div>
   </div>
   <div class="system">
-    <RomTag color="var(--m3-scheme-tertiary-container)" isUppercase><b>{rom.system}</b></RomTag>
+    <RomTag
+      backgroundColor={systemTagConfig?.backgroundColor ?? DEFAULT_COLOR}
+      borderColor={systemTagConfig?.borderColor ?? DEFAULT_COLOR}
+      isUppercase
+    >
+      <b>{rom.system}</b>
+    </RomTag>
   </div>
 </div>
 

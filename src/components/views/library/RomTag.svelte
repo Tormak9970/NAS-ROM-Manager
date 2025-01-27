@@ -1,8 +1,13 @@
 <script lang="ts">
-  let { children, color, isUppercase = false } = $props();
+  let { children, backgroundColor, borderColor = null, isUppercase = false } = $props();
 </script>
 
-<div class="rom-tag" class:uppercase={isUppercase} style:--background-color={color}>
+<div
+  class="rom-tag"
+  class:uppercase={isUppercase}
+  style:--background-color={backgroundColor}
+  style:--border-color={borderColor ?? backgroundColor}
+>
   {@render children()}
 </div>
 
@@ -11,7 +16,7 @@
     background-color: rgb(var(--background-color) / 0.8);
     color: white;
     
-    border: 1px solid rgb(var(--background-color));
+    border: 1px solid rgb(var(--border-color));
     border-radius: var(--m3-util-rounding-medium);
 
     font-size: .8rem;
