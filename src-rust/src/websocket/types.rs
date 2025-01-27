@@ -82,7 +82,6 @@ pub fn get_default_settings() -> Settings {
     },
     landingPage: String::from("library"),
     libraries: Vec::new(),
-    collections: Vec::new(),
   };
 }
 
@@ -95,7 +94,6 @@ pub struct Settings {
   pub theme: ThemeSettings,
   pub landingPage: String,
   pub libraries: Vec<Library>,
-  pub collections: Vec<Collection>,
 }
 
 

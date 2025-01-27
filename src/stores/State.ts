@@ -1,7 +1,7 @@
-import { writable } from "svelte/store";
-import type { Collection, Library, ROM, Palette, System, ROMCustomization, DBFilters } from "@types";
 import { DEFAULT_FILTERS } from "@models";
+import type { DBFilters, Library, Palette, ROM, ROMCustomization, System } from "@types";
 import { localStorageWritable } from "@utils";
+import { writable } from "svelte/store";
 
 export const requestTimeoutLength = 5000;
 
@@ -23,7 +23,6 @@ export const libraryGridType = writable("portrait");
 export const libraries = writable<Record<string, Library>>({});
 export const systems = writable<Record<string, System>>({});
 export const roms = writable<Record<string, ROM>>({});
-export const collections = writable<Collection[]>([]);
 
 export const romCustomizations = writable<Record<string, ROMCustomization>>({});
 

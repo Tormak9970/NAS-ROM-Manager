@@ -15,11 +15,11 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>
  */
 
+import { landingPage, libraries, loadedSettings, palette, themePrimaryColor, useOledPalette } from "@stores/State";
 import type { Library, Settings } from "@types";
+import type { Unsubscriber } from "svelte/store";
 import { LogController } from "./LogController";
 import { RustInterop } from "./RustInterop";
-import type { Unsubscriber } from "svelte/store";
-import { collections, loadedSettings, landingPage, libraries, palette, themePrimaryColor, useOledPalette } from "@stores/State";
 
 /**
  * The controller for settings.
@@ -69,8 +69,6 @@ export class SettingsController {
     useOledPalette.set(themeSettings.useOledPalette);
 
     landingPage.set(this.settings.landingPage);
-
-    collections.set(this.settings.collections);
   }
 
   private static setOnChange<T>(key: string): (value: T) => void {
@@ -103,7 +101,6 @@ export class SettingsController {
         this.settings.libraries = libraryList;
         this.set<Library[]>("libraries", libraryList);
       }),
-      collections.subscribe(this.setOnChange("collections")),
     ];
   }
 

@@ -3,7 +3,7 @@ use std::{collections::HashMap, path::PathBuf, sync::{mpsc::{Receiver, Sender}, 
 use notify::{Config, EventKind, RecommendedWatcher, RecursiveMode, Watcher as _};
 use tokio::sync::broadcast;
 
-use crate::utils::send;
+use crate::websocket::utils::send;
 
 pub enum WatcherEvent {
   Add(PathBuf, String),

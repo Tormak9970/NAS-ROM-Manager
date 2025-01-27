@@ -3,7 +3,7 @@ use serde::Serialize;
 use serde_json::Map;
 use tokio::sync::broadcast;
 
-use crate::auth::validate_hash;
+use crate::websocket::auth::validate_hash;
 
 /// Wraps a Broadcast Sender to handle json data.
 pub fn send<T: Serialize>(tx: broadcast::Sender<String>, message: &str, data: T) {

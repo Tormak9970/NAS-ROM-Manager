@@ -4,7 +4,14 @@ use warp::filters::ws::{Message, WebSocket};
 use std::{env::var, sync::{Arc, Mutex}};
 use tokio::sync::broadcast;
 
-use crate::{auth::authenticate_user, library_manager::{add_library, load_libraries}, settings::{load_settings, set_setting, write_settings}, types::{AuthArgs, ModifyLibraryArgs, SetSettingArgs, Settings, SimpleArgs}, utils::{check_hash, send}, watcher::Watcher};
+use crate::websocket::{
+  auth::authenticate_user,
+  library_manager::{add_library, load_libraries},
+  settings::{load_settings, set_setting, write_settings},
+  types::{AuthArgs, ModifyLibraryArgs, SetSettingArgs, Settings, SimpleArgs},
+  utils::{check_hash, send},
+  watcher::Watcher
+};
 
 
 fn handle_message(

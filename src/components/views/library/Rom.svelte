@@ -26,13 +26,20 @@
   function download() {
 
   }
+
+  function openEditModal() {
+
+  }
 </script>
 
+<!-- svelte-ignore a11y_click_events_have_key_events -->
+<!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
   class="rom"
   style:width="{layout.width - 2}px"
   style:height="{layout.height - 2}px"
   style:--cover-url='url("{cover}")'
+  onclick={openEditModal}
 >
   <div class="cover"></div>
   <div class="overlay">

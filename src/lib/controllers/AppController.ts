@@ -1,11 +1,11 @@
+import { libraries, romCustomizations, roms, romsByLibrary, romsBySystem, showErrorSnackbar, showInfoSnackbar, systems } from "@stores/State";
 import type { Library, ROM, ROMCustomization, System } from "@types";
-import { SettingsController } from "./utils/SettingsController";
-import { LogController } from "./utils/LogController";
-import { RustInterop } from "./utils/RustInterop";
-import { collections, libraries, romCustomizations, roms, romsByLibrary, romsBySystem, showErrorSnackbar, showInfoSnackbar, systems } from "@stores/State";
 import { hash64 } from "@utils";
 import { get } from "svelte/store";
 import { ApiController } from "./ApiController";
+import { LogController } from "./utils/LogController";
+import { RustInterop } from "./utils/RustInterop";
+import { SettingsController } from "./utils/SettingsController";
 
 /**
  * The core app controller.
@@ -31,7 +31,6 @@ export class AppController {
     const libraryMap = get(libraries);
     const systemMap = get(systems);
     const romMap = get(roms);
-    const collectionList = get(collections);
     
     const romEdits = get(romCustomizations);
     
@@ -73,7 +72,6 @@ export class AppController {
     libraries.set({ ...libraryMap });
     systems.set({ ...systemMap });
     roms.set({ ...romMap });
-    collections.set([ ...collectionList ]);
 
     romCustomizations.set({ ...romEdits });
 
@@ -97,7 +95,6 @@ export class AppController {
       const libraryMap = get(libraries);
       const systemMap = get(systems);
       const romMap = get(roms);
-      const collectionList = get(collections);
       
       const romEdits = get(romCustomizations);
       
@@ -121,14 +118,6 @@ export class AppController {
         if (system.romCount === 0) {
           delete systemMap[rom.system];
         }
-
-        for (const collection of collectionList) {
-          const idIndex = collection.romsIds.indexOf(id);
-
-          if (idIndex !== -1) {
-            collection.romsIds.splice(idIndex, 1);
-          }
-        }
       }
 
       delete romsLibraryLUT[library.name];
@@ -137,7 +126,6 @@ export class AppController {
       libraries.set({ ...libraryMap });
       systems.set({ ...systemMap });
       roms.set({ ...romMap });
-      collections.set([ ...collectionList ]);
 
       romCustomizations.set({ ...romEdits });
 

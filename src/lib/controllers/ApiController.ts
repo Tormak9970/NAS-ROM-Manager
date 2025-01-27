@@ -1,5 +1,6 @@
-import { RustInterop } from "./utils/RustInterop";
 import { SGDB } from "@models";
+import type { SGDBImage } from "@types";
+import { RustInterop } from "./utils/RustInterop";
 
 /**
  * The api controller.
@@ -15,6 +16,23 @@ export class ApiController {
 
     this.client = new SGDB(key);
   }
+
+  /**
+   * Caches the cover for a title.
+   * @param url The url of the cover to cache.
+   * @param id The id of the title whose cover is being cached.
+   * @returns The path to the cached cover.
+   */
+  private static async cacheCover(url: string, id: string): Promise<string> {
+    return "";
+  }
   
-  
+  /**
+   * Fetches the SGDB covers for the provided title.
+   * @param title The title to fetch the covers for.
+   * @returns The fetched covers.
+   */
+  static async getCoversForGame(title: string): Promise<SGDBImage[]> {
+    return []
+  }
 }

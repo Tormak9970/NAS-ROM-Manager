@@ -2,7 +2,7 @@ use std::{env::var, fs::{self, File}, path::PathBuf, sync::MutexGuard};
 use log::warn;
 use serde_json::{Map, Value};
 
-use crate::types::{get_default_settings, Settings};
+use crate::websocket::types::{get_default_settings, Settings};
 
 fn check_settings(settings: &mut Settings, defaults: &Settings) {
   settings.version = defaults.version.clone();

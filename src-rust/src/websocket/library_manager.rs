@@ -8,7 +8,7 @@ use regex::RegexBuilder;
 use serde::{Deserialize, Serialize};
 use wax::Glob;
 
-use crate::{types::{Library, Parser, ParserPattern, Settings, ROM}, watcher::Watcher};
+use crate::{websocket::types::{Library, Parser, ParserPattern, Settings, ROM}, websocket::watcher::Watcher};
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[allow(non_snake_case)]
