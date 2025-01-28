@@ -15,10 +15,10 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>
  */
 
+import { goto } from "$app/navigation";
 import type { Library, LoadedLibrary, Settings } from "@types";
 import { get } from "svelte/store";
 import { showErrorSnackbar } from "../../../stores/State";
-import { goto } from "$app/navigation";
 
 /**
  * The available logging levels.
@@ -44,7 +44,7 @@ export class RustInterop {
    * @param onLogout The callback to run when the app should log out.
    */
   static init(onOpen: () => Promise<void>, onLogout: () => void) {
-    RustInterop.ws = new WebSocket("ws://127.0.0.1:1500/api");
+    RustInterop.ws = new WebSocket("ws://127.0.0.1:1500/ws");
 
     RustInterop.ws.addEventListener("open", () => {
       RustInterop.ws.send("Hello World!");

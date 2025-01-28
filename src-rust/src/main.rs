@@ -11,7 +11,11 @@ async fn main() {
   
   pretty_env_logger::init_timed();
 
-  let websocket_api_promise = initialize_websocket_api(([127, 0, 0, 1], 1500));
+  let websocket_route = initialize_websocket_api();
+  
+  let routes = websocket_route;
 
-  websocket_api_promise.await;
+  warp::serve(routes)
+    .run(([127, 0, 0, 1], 1500))
+    .await;
 }
