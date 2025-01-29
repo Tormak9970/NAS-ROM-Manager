@@ -1,27 +1,5 @@
 import type { DownloadStrategy } from "./DownloadStrategy";
 
-export const SYSTEMS: string[] = [
-  "Xbox",
-  "Xbox 360",
-  "NES",
-  "SNES",
-  "N64",
-  "GC",
-  "GB",
-  "GBA",
-  "GBC",
-  "NDS",
-  "N3DS",
-  "Wii",
-  "WiiU",
-  "Switch",
-  "PS",
-  "PS2",
-  "PSVita",
-  "PS3",
-  "PSP",
-]
-
 export type System = {
   fullName: string;
   abbreviation: string;

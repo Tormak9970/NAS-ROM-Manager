@@ -33,6 +33,7 @@ pub struct ROM {
   pub library: String,
   pub downloadStrategy: Map<String, Value>,
 }
+
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[allow(non_snake_case)]
 pub struct ROMCustomization {

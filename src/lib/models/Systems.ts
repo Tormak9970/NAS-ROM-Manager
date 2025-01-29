@@ -3,6 +3,28 @@ export type SystemTagConfig = {
   borderColor: string;
 }
 
+export const SYSTEMS: string[] = [
+  "Xbox",
+  "Xbox 360",
+  "NES",
+  "SNES",
+  "N64",
+  "GC",
+  "GB",
+  "GBA",
+  "GBC",
+  "NDS",
+  "N3DS",
+  "Wii",
+  "WiiU",
+  "Switch",
+  "PS",
+  "PS2",
+  "PSVita",
+  "PS3",
+  "PSP",
+]
+
 /**
  * Color config for the different systems.
  */

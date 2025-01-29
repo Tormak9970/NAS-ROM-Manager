@@ -7,8 +7,7 @@
       "glob": "*.(?i){7z,gb,dmg,sgb,zip}",
       "regex": ".+\\/(?<title>.+)\\.(?:7z|gb|dmg|sgb|zip)$",
       "downloadStrategy": {
-        "isFolderStructure": false,
-        "folderToZip": ""
+        "type": "single-file"
       }
     }
   ]
