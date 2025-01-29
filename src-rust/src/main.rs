@@ -1,3 +1,5 @@
+use restful::initialize_rest_api;
+use warp::Filter;
 use websocket::initialize_websocket_api;
 use dotenv::dotenv;
 
@@ -12,8 +14,9 @@ async fn main() {
   pretty_env_logger::init_timed();
 
   let websocket_route = initialize_websocket_api();
+  let rest_routes = initialize_rest_api();
   
-  let routes = websocket_route;
+  let routes = websocket_route.or(rest_routes);
 
   warp::serve(routes)
     .run(([127, 0, 0, 1], 1500))
