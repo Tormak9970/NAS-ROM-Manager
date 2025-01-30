@@ -1,68 +1,53 @@
-use std::path::{Path, PathBuf};
+use std::{io::SeekFrom, path::{Path, PathBuf}};
 
 use bytes::Buf;
 use futures::{Stream, StreamExt};
 use log::{info, warn};
-use tokio::{fs::{create_dir_all, File, OpenOptions}, io::{AsyncSeekExt, AsyncWriteExt, BufReader}};
+use tokio::{fs::{create_dir_all, File, OpenOptions}, io::{AsyncReadExt, AsyncSeekExt, AsyncWriteExt, BufReader}};
 use tokio_util::compat::{TokioAsyncReadCompatExt, TokioAsyncWriteCompatExt};
-use warp::{http::{HeaderMap, Response}, reject::Rejection, reply::Reply};
+use warp::{http::HeaderMap, reject::Rejection, reply::Reply};
 use async_zip::{base::read::seek::ZipFileReader, error::ZipError};
 use sanitize_filename::sanitize;
 
 use super::types::{ROMDelete, ROMDownload, StreamProgress, StreamStore};
 
 /// Handles downloading a rom.
-pub async fn download_rom(data: ROMDownload, streams: StreamStore, headers: HeaderMap) -> Result<impl Reply, Rejection> {
-  // let mut parts = form.into_stream();
+pub async fn download_rom(data: ROMDownload, range_header: Option<String>) -> Result<impl Reply, Rejection> {
+  let file_path = Path::new(&data.path);
 
-  // while let Some(Ok(p)) = parts.next().await {
-  //   if p.name() == "file" {
-  //     let content_type = p.content_type();
-  //     let file_ending;
+  // TODO: if the download strategy requires zipping the folder structure, do it here.
 
-  //     match content_type {
-  //       Some(file_type) => match file_type {
-  //         "image/png" => {
-  //           file_ending = "png";
-  //         }
-  //         v => {
-  //           warn!("invalid file type found: {}", v);
-  //           return Err(warp::reject::reject());
-  //         }
-  //       },
-  //       None => {
-  //         warn!("file type could not be determined");
-  //         return Err(warp::reject::reject());
-  //       }
-  //     }
+  let file = File::open(file_path).await.map_err(|_| warp::reject())?;
+  let metadata = file.metadata().await.map_err(|_| warp::reject())?;
+  let file_size = metadata.len();
 
-  //     let value = p
-  //       .stream()
-  //       .try_fold(Vec::new(), |mut vec, data| {
-  //         vec.put(data);
-  //         async move { Ok(vec) }
-  //       })
-  //       .await
-  //       .map_err(|e| {
-  //         warn!("reading file error: {}", e);
-  //         warp::reject::reject()
-  //       })?;
+  let (start, end) = match range_header {
+    Some(range) => {
+      if range.starts_with("bytes=") {
+        let range_parts: Vec<&str> = range[6..].split('-').collect();
+        let start = range_parts[0].parse::<u64>().unwrap_or(0);
+        let end = range_parts[1].parse::<u64>().unwrap_or(file_size - 1);
+        (start, end)
+      } else {
+        (0, file_size - 1) // Default to the entire file if no valid range is provided
+      }
+    },
+    None => (0, file_size - 1), // No Range header provided
+  };
 
-  //     let file_name = format!("{}/{}.{}", cover_cache_dir, rom_id, file_ending);
+  let mut file = file;
+  file.seek(SeekFrom::Start(start)).await.map_err(|_| warp::reject())?;
 
-  //     tokio::fs::write(&file_name, value).await.map_err(|e| {
-  //       warn!("error writing file: {}", e);
-  //       warp::reject::reject()
-  //     })?;
+  let mut buffer = Vec::new();
+  file.take(end - start + 1).read_to_end(&mut buffer).await.map_err(|_| warp::reject())?;
 
-  //     info!("created file: {}", file_name);
-  //   }
-  // }
-
-  let response = Response::builder()
-    .header("content-length", "some-value")
-    .header("content-type", "some-value")
-    .body("and a custom body");
+  let response = warp::http::Response::builder()
+    .status(206)  // Partial Content
+    .header("Content-Range", format!("bytes {}-{}/{}", start, end, file_size))
+    .header("Content-Length", (end - start + 1).to_string())
+    .header("Content-Type", "application/octet-stream")
+    .body(buffer)
+    .map_err(|_| warp::reject())?;
 
   return Ok(response);
 }
@@ -119,9 +104,11 @@ pub async fn upload_rom(
   streams_store: StreamStore,
   headers: HeaderMap
 ) -> Result<impl Reply, Rejection> {
+  // TODO: reject if Content-Type is wrong
+
   let content_length = headers.get("content-length").unwrap().to_str().unwrap().to_string();
   let full_size = content_length.parse::<u64>().map_err(|e| {
-    warn!("error parsing content-length: {}", e);
+    warn!("error parsing Content-Length: {}", e);
     warp::reject::reject()
   })?;
 
@@ -165,7 +152,7 @@ pub async fn upload_rom(
     warp::reject::reject()
   })?;
 
-  file.seek(std::io::SeekFrom::Start(start_pos)).await.map_err(|e| {
+  file.seek(SeekFrom::Start(start_pos)).await.map_err(|e| {
     warn!("error seeking in file: {}", e);
     warp::reject::reject()
   })?;

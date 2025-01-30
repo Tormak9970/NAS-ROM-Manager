@@ -55,15 +55,11 @@ pub fn initialize_rest_api() -> impl Filter + Clone {
     .and_then(delete_cover);
 
 
-  let download_store = StreamStore::new();
-  let download_store_filter = warp::any().map(move || download_store.clone());
-
-  // TODO: GET ROM (rest/roms)
+  // * GET ROM (rest/roms)
   let get_rom_route = warp::path!("rest" / "roms")
     .and(warp::get())
     .and(json_body_download())
-    .and(download_store_filter.clone())
-    .and(warp::filters::header::headers_cloned())
+    .and(warp::header::optional::<String>("range"))
     .and_then(download_rom);
 
   let upload_store = StreamStore::new();
