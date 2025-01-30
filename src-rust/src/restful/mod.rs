@@ -45,7 +45,7 @@ pub fn initialize_rest_api() -> impl Filter + Clone {
   let post_cover_route = warp::path!("rest" / "covers" / String)
     .and(warp::post())
     .and(cache_dir_filter.clone())
-    .and(warp::multipart::form().max_length(100_000_000))
+    .and(warp::multipart::form().max_length(50 * 1024 * 1024))
     .and_then(upload_cover);
   
   // * DELETE cover (rest/covers/{id}) (might need delete)
@@ -59,7 +59,7 @@ pub fn initialize_rest_api() -> impl Filter + Clone {
   let download_store_filter = warp::any().map(move || download_store.clone());
 
   // TODO: GET ROM (rest/roms)
-  let get_cover_route = warp::path!("rest" / "roms")
+  let get_rom_route = warp::path!("rest" / "roms")
     .and(warp::get())
     .and(json_body_download())
     .and(download_store_filter.clone())
@@ -87,6 +87,7 @@ pub fn initialize_rest_api() -> impl Filter + Clone {
   let http_routes = get_cover_route
     .or(post_cover_route)
     .or(delete_cover_route)
+    .or(get_rom_route)
     .or(post_rom_route)
     .or(delete_rom_route)
     .recover(handle_rejection);
