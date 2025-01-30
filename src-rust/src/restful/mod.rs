@@ -4,8 +4,8 @@ mod types;
 
 use std::{convert::Infallible, env::var};
 use covers::{delete_cover, upload_cover};
-use roms::{delete_rom, upload_rom};
-use types::{ROMDelete, ROMDownload, ROMUpload};
+use roms::{delete_rom, download_rom, upload_rom};
+use types::{ROMDelete, ROMDownload, StreamStore};
 use warp::{http::StatusCode, reject::Rejection, reply::Reply, Filter};
 
 async fn handle_rejection(err: Rejection) -> std::result::Result<impl Reply, Infallible> {
@@ -22,10 +22,6 @@ async fn handle_rejection(err: Rejection) -> std::result::Result<impl Reply, Inf
 }
 
 fn json_body_download() -> impl Filter<Extract = (ROMDownload,), Error = warp::Rejection> + Clone {
-  warp::body::content_length_limit(1024 * 16).and(warp::body::json())
-}
-
-fn json_body_upload() -> impl Filter<Extract = (ROMUpload,), Error = warp::Rejection> + Clone {
   warp::body::content_length_limit(1024 * 16).and(warp::body::json())
 }
 
@@ -59,13 +55,26 @@ pub fn initialize_rest_api() -> impl Filter + Clone {
     .and_then(delete_cover);
 
 
-  // TODO: GET ROM (rest/roms)
+  let download_store = StreamStore::new();
+  let download_store_filter = warp::any().map(move || download_store.clone());
 
+  // TODO: GET ROM (rest/roms)
+  let get_cover_route = warp::path!("rest" / "roms")
+    .and(warp::get())
+    .and(json_body_download())
+    .and(download_store_filter.clone())
+    .and(warp::filters::header::headers_cloned())
+    .and_then(download_rom);
+
+  let upload_store = StreamStore::new();
+  let upload_store_filter = warp::any().map(move || upload_store.clone());
+    
   // * POST ROM (rest/roms)
   let post_rom_route = warp::path!("rest" / "roms")
     .and(warp::post())
-    .and(json_body_upload())
-    .and(warp::multipart::form().max_length(20_000_000_000))
+    .and(warp::filters::body::stream())
+    .and(upload_store_filter)
+    .and(warp::filters::header::headers_cloned())
     .and_then(upload_rom);
 
   // * DELETE ROM (rest/roms)
