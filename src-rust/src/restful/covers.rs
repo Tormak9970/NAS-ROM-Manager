@@ -1,57 +1,62 @@
-use bytes::BufMut;
-use futures::{StreamExt, TryStreamExt};
+use std::time::Duration;
+
 use log::{info, warn};
-use warp::{filters::multipart::FormData, reject::Rejection, reply::Reply};
+use reqwest::Client;
+use warp::{reject::Rejection, reply::Reply};
+
+use super::types::CoverUpload;
+
+/// Downloads a file from a url.
+async fn download_url(url: String, dest_path: &str, timeout: u64) -> Result<(), Rejection> {
+  let http_client_res = Client::builder().timeout(Duration::from_secs(timeout)).build();
+  let http_client: Client = http_client_res.expect("Should have been able to successfully make the reqwest client.");
+
+  let response_res = http_client.get(url.clone()).send().await;
+  
+  if response_res.is_ok() {
+    let response = response_res.ok().expect("Should have been able to get response from ok result.");
+    let response_bytes = response.bytes().await.expect("Should have been able to await getting response bytes.");
+
+    let write_res = tokio::fs::write(&dest_path, &response_bytes).await;
+
+    if write_res.is_ok() {
+      info!("Download of {} finished.", url.clone());
+      return Ok(());
+    } else {
+      let err = write_res.err().expect("Request failed, error should have existed.");
+      warn!("Download of {} failed with {}.", url.clone(), err.to_string());
+      return Err(warp::reject::reject());
+    }
+  } else {
+    let err = response_res.err().expect("Request failed, error should have existed.");
+    warn!("Download of {} failed with {}.", url.clone(), err.to_string());
+    return Ok(());
+  }
+}
 
 /// Handles uploading a rom cover to the cache.
-pub async fn upload_cover(rom_id: String, cover_cache_dir: String, form: FormData) -> Result<impl Reply, Rejection> {
-  let mut parts = form.into_stream();
+pub async fn upload_cover(rom_id: String, cover_cache_dir: String, data: CoverUpload) -> Result<impl Reply, Rejection> {
+  let url = data.url;
 
-  while let Some(Ok(p)) = parts.next().await {
-    if p.name() == "file" {
-      let content_type = p.content_type();
-      let file_ending;
+  let file_path = format!("{}/{}.{}", cover_cache_dir, rom_id, data.ext);
 
-      match content_type {
-        Some(file_type) => match file_type {
-          "image/png" => {
-            file_ending = "png";
-          }
-          v => {
-            warn!("invalid file type found: {}", v);
-            return Err(warp::reject::reject());
-          }
-        },
-        None => {
-          warn!("file type could not be determined");
-          return Err(warp::reject::reject());
-        }
-      }
+  info!("endpoint hit");
 
-      let value = p
-        .stream()
-        .try_fold(Vec::new(), |mut vec, data| {
-          vec.put(data);
-          async move { Ok(vec) }
-        })
-        .await
-        .map_err(|e| {
-          warn!("error reading file: {}", e);
-          warp::reject::reject()
-        })?;
+  download_url(url, &file_path, data.timeout)
+    .await
+    .map_err(|_e| {
+      warp::reject::reject()
+    })?;
 
-      let file_name = format!("{}/{}.{}", cover_cache_dir, rom_id, file_ending);
+  info!("created file: {}", file_path);
 
-      tokio::fs::write(&file_name, value).await.map_err(|e| {
-        warn!("error writing file: {}", e);
-        warp::reject::reject()
-      })?;
+  let response = warp::http::Response::builder()
+    .status(200)
+    .header("Content-Type", "text/plain")
+    .body(format!("http://127.0.0.1:1500/rest/covers/{}.{}", rom_id, data.ext))
+    .map_err(|_| warp::reject())?;
 
-      info!("created file: {}", file_name);
-    }
-  }
-
-  return Ok("success");
+  return Ok(response);
 }
 
 /// Handles deleting a rom cover from the cache.

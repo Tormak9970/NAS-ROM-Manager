@@ -1,5 +1,6 @@
 import { SGDB } from "@models";
 import type { SGDBImage } from "@types";
+import { LogController } from "./utils/LogController";
 import { RustInterop } from "./utils/RustInterop";
 
 /**
@@ -7,6 +8,8 @@ import { RustInterop } from "./utils/RustInterop";
  */
 export class ApiController {
   private static client: SGDB;
+
+  private static restURL = "http://127.0.0.1:1500/rest"
 
   /**
    * Initializes the api controller.
@@ -23,8 +26,27 @@ export class ApiController {
    * @param id The id of the title whose cover is being cached.
    * @returns The path to the cached cover.
    */
-  private static async cacheCover(url: string, id: string): Promise<string> {
-    return "";
+  static async cacheCover(url: string, id: string): Promise<string> {
+    const res = await fetch(this.restURL + `/covers/${id}`, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: {
+        'Accept': 'application/json, text/plain, */*',
+        'Content-Type': 'application/json'
+      },
+      // body: JSON.stringify({
+      //   url: url,
+      //   ext: url.substring(url.lastIndexOf(".") + 1),
+      //   timeout: 5000,
+      // })
+    });
+
+    if (res.ok) {
+      return await res.text();
+    } else {
+      LogController.error(`Failed to cache cover ${url}:`, res.statusText);
+      return "";
+    }
   }
 
   // ! Possible method for handling the rom downloads

@@ -7,6 +7,14 @@ use std::sync::Arc;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[allow(non_snake_case)]
+pub struct CoverUpload {
+  pub url: String,
+  pub ext: String,
+  pub timeout: u64,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+#[allow(non_snake_case)]
 pub struct ROMDownload {
   pub title: String,
   pub path: String,

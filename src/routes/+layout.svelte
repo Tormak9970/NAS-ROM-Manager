@@ -1,21 +1,22 @@
 <script>
-  import "../app.css";
-  import "../lib/md-defs";
-  import { onMount } from "svelte";
+  import { goto } from "$app/navigation";
+  import { page } from '$app/state';
+  import { ContextMenu } from "@component-utils";
   import MediaQuery from "@component-utils/MediaQuery.svelte";
-  import Theme from "../components/theme/Theme.svelte";
-  import { isLandscape, showErrorSnackbar, showInfoSnackbar } from "@stores/State";
+  import { AuthController, RustInterop } from "@controllers";
+  import { ApiController } from "@controllers/ApiController";
   import { DesktopNav } from "@navigation";
   import MobileNav from "@navigation/MobileNav.svelte";
-  import { AuthController, RustInterop } from "@controllers";
   import { isSignedIn, rememberMe } from "@stores/Auth";
-  import { page } from '$app/state';
-  import { goto } from "$app/navigation";
-  import InfoSnackbar from "../components/snackbars/InfoSnackbar.svelte";
-  import ErrorSnackbar from "../components/snackbars/ErrorSnackbar.svelte";
+  import { isLandscape, showErrorSnackbar, showInfoSnackbar } from "@stores/State";
   import Header from "@views/Header.svelte";
-  import { ContextMenu } from "@component-utils";
+  import { onMount } from "svelte";
+  import "../app.css";
   import Modals from "../components/modals/Modals.svelte";
+  import ErrorSnackbar from "../components/snackbars/ErrorSnackbar.svelte";
+  import InfoSnackbar from "../components/snackbars/InfoSnackbar.svelte";
+  import Theme from "../components/theme/Theme.svelte";
+  import "../lib/md-defs";
 
 	let { children } = $props();
 
@@ -48,6 +49,11 @@
         } else {
           validatingCredentials = false;
         }
+
+        setTimeout(() => {
+          console.log("testing cover caching");
+          ApiController.cacheCover("https://cdn2.steamgriddb.com/thumb/3c64afe806cd466dd1ffecbe3e2e8cce.jpg", "test");
+        }, 5000);
       },
       AuthController.logout
     );
