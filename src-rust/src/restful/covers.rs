@@ -40,19 +40,18 @@ pub async fn upload_cover(rom_id: String, cover_cache_dir: String, data: CoverUp
 
   let file_path = format!("{}/{}.{}", cover_cache_dir, rom_id, data.ext);
 
-  info!("endpoint hit");
-
   download_url(url, &file_path, data.timeout)
     .await
     .map_err(|_e| {
       warp::reject::reject()
     })?;
 
-  info!("created file: {}", file_path);
+  info!("Created file: {}", file_path);
 
   let response = warp::http::Response::builder()
     .status(200)
     .header("Content-Type", "text/plain")
+    .header("Access-Control-Allow-Origin", "*")
     .body(format!("http://127.0.0.1:1500/rest/covers/{}.{}", rom_id, data.ext))
     .map_err(|_| warp::reject())?;
 
@@ -60,13 +59,15 @@ pub async fn upload_cover(rom_id: String, cover_cache_dir: String, data: CoverUp
 }
 
 /// Handles deleting a rom cover from the cache.
-pub async fn delete_cover(rom_id: String, cover_cache_dir: String) -> Result<impl Reply, Rejection> {
-  let file_name = format!("{}/{}.png", cover_cache_dir, rom_id);
+pub async fn delete_cover(rom_id: String, cover_cache_dir: String, cover_ext: String) -> Result<impl Reply, Rejection> {
+  let file_path = format!("{}/{}.{}", cover_cache_dir, rom_id, cover_ext);
 
-  tokio::fs::remove_file(&file_name).await.map_err(|e| {
-    warn!("error deleting file: {}", e);
+  tokio::fs::remove_file(&file_path).await.map_err(|e| {
+    warn!("Error deleting file: {}", e);
     warp::reject::reject()
   })?;
 
-  return Ok("success");
+  info!("Removed file: {}", file_path);
+
+  return Ok(warp::reply::with_header("success", "Access-Control-Allow-Origin", "*"));
 }

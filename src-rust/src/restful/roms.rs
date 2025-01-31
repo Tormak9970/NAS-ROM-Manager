@@ -174,7 +174,7 @@ pub async fn upload_rom(
 
   if stream_progress.currentSize != stream_progress.totalSize {
     streams_store.streams.write().await.insert(upload_id, stream_progress);
-    return Ok("success");
+    return Ok(warp::reply::with_header("success", "Access-Control-Allow-Origin", "*"));
   }
 
   // * We'll only get here once the upload is done.
@@ -202,7 +202,7 @@ pub async fn upload_rom(
     info!("unzipped file: {}", file_path);
   }
 
-  return Ok("success");
+  return Ok(warp::reply::with_header("success", "Access-Control-Allow-Origin", "*"));
 }
 
 /// Handles deleting a rom.
@@ -212,5 +212,5 @@ pub async fn delete_rom(data: ROMDelete) -> Result<impl Reply, Rejection> {
     warp::reject::reject()
   })?;
 
-  return Ok("success");
+  return Ok(warp::reply::with_header("success", "Access-Control-Allow-Origin", "*"));
 }

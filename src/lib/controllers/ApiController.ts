@@ -26,19 +26,44 @@ export class ApiController {
    * @param id The id of the title whose cover is being cached.
    * @returns The path to the cached cover.
    */
+  static async deleteCover(url: string, id: string): Promise<string> {
+    const res = await fetch(this.restURL + `/covers/${id}`, {
+      method: 'DELETE',
+      mode: 'cors',
+      headers: {
+        'Accept': 'application/json, text/plain, */*',
+        'Content-Type': 'application/json',
+        'Cover-Extension': url.substring(url.lastIndexOf(".") + 1)
+      },
+    });
+
+    if (res.ok) {
+      return await res.text();
+    } else {
+      LogController.error(`Failed to cache cover ${url}:`, res.statusText);
+      return "";
+    }
+  }
+
+  /**
+   * Caches the cover for a title.
+   * @param url The url of the cover to cache.
+   * @param id The id of the title whose cover is being cached.
+   * @returns The path to the cached cover.
+   */
   static async cacheCover(url: string, id: string): Promise<string> {
     const res = await fetch(this.restURL + `/covers/${id}`, {
       method: 'POST',
-      mode: 'no-cors',
+      mode: 'cors',
       headers: {
         'Accept': 'application/json, text/plain, */*',
         'Content-Type': 'application/json'
       },
-      // body: JSON.stringify({
-      //   url: url,
-      //   ext: url.substring(url.lastIndexOf(".") + 1),
-      //   timeout: 5000,
-      // })
+      body: JSON.stringify({
+        url: url,
+        ext: url.substring(url.lastIndexOf(".") + 1),
+        timeout: 5000,
+      })
     });
 
     if (res.ok) {

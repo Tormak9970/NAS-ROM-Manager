@@ -4,7 +4,6 @@
   import { ContextMenu } from "@component-utils";
   import MediaQuery from "@component-utils/MediaQuery.svelte";
   import { AuthController, RustInterop } from "@controllers";
-  import { ApiController } from "@controllers/ApiController";
   import { DesktopNav } from "@navigation";
   import MobileNav from "@navigation/MobileNav.svelte";
   import { isSignedIn, rememberMe } from "@stores/Auth";
@@ -52,8 +51,9 @@
 
         setTimeout(() => {
           console.log("testing cover caching");
-          ApiController.cacheCover("https://cdn2.steamgriddb.com/thumb/3c64afe806cd466dd1ffecbe3e2e8cce.jpg", "test");
-        }, 5000);
+          // ApiController.cacheCover("https://cdn2.steamgriddb.com/thumb/3c64afe806cd466dd1ffecbe3e2e8cce.jpg", "test_id");
+          // ApiController.deleteCover("http://127.0.0.1:1500/rest/covers/test_id.jpg", "test_id")
+        }, 2000);
       },
       AuthController.logout
     );
