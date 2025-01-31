@@ -1,9 +1,10 @@
 mod covers;
 mod roms;
 mod types;
+mod zip;
 
 use covers::{delete_cover, upload_cover};
-use roms::{delete_rom, download_rom, upload_rom};
+use roms::{delete_rom, download_rom, download_rom_complete, get_rom_metadata, upload_rom};
 use types::{CoverUpload, ROMDelete, ROMDownload, StreamStore};
 use warp::{Filter, http::Method};
 
@@ -34,7 +35,11 @@ pub fn initialize_rest_api(cover_cache_dir: String) -> impl Filter<Extract = (im
       "Content-Type",
       "Cover-Extension"
     ])
-    .allow_methods(&[Method::GET, Method::POST, Method::DELETE]);
+    .allow_methods(&[
+      Method::GET,
+      Method::POST,
+      Method::DELETE
+    ]);
 
   // * GET cover (rest/covers/{id}.png)
   let get_cover_route = warp::path!("rest" / "covers" / ..)
@@ -58,6 +63,13 @@ pub fn initialize_rest_api(cover_cache_dir: String) -> impl Filter<Extract = (im
     .with(&cors);
 
 
+  // * POST ROM (rest/roms/metadata)
+  let get_rom_metadata = warp::path!("rest" / "roms" / "metadata")
+    .and(warp::post())
+    .and(json_body_download())
+    .and_then(get_rom_metadata)
+    .with(&cors);
+
   // * GET ROM (rest/roms)
   let get_rom_route = warp::path!("rest" / "roms")
     .and(warp::get())
@@ -65,10 +77,18 @@ pub fn initialize_rest_api(cover_cache_dir: String) -> impl Filter<Extract = (im
     .and(warp::header::optional::<String>("range"))
     .and_then(download_rom)
     .with(&cors);
+  
+  // * POST ROM (rest/roms/complete)
+  let post_download_complete_route = warp::path!("rest" / "roms" / "complete")
+    .and(warp::post())
+    .and(json_body_download())
+    .and_then(download_rom_complete)
+    .with(&cors);
+
 
   let upload_store = StreamStore::new();
   let upload_store_filter = warp::any().map(move || upload_store.clone());
-    
+  
   // * POST ROM (rest/roms)
   let post_rom_route = warp::path!("rest" / "roms")
     .and(warp::post())
@@ -88,8 +108,10 @@ pub fn initialize_rest_api(cover_cache_dir: String) -> impl Filter<Extract = (im
   
   let http_routes = get_cover_route
     .or(post_cover_route)
-    .or(delete_cover_route);
+    .or(delete_cover_route)
+    .or(get_rom_metadata);
     // .or(get_rom_route)
+    // .or(post_download_complete_route)
     // .or(post_rom_route)
     // .or(delete_rom_route);
 

@@ -1,5 +1,6 @@
 use std::{collections::HashMap, path::PathBuf, sync::{mpsc::{Receiver, Sender}, Arc, Mutex}};
 
+use log::{info, warn};
 use notify::{Config, EventKind, RecommendedWatcher, RecursiveMode, Watcher as _};
 use tokio::sync::broadcast;
 
@@ -37,7 +38,7 @@ impl Watcher {
     
     // Create a thread for handling the folder watching.
     std::thread::spawn(move || {
-      println!("starting watcher loop...");
+      info!("Thread: Starting watcher file listener...");
 
       // path -> library_path
       let mut dir_path_map: HashMap<PathBuf, String> = HashMap::new();
@@ -89,7 +90,7 @@ impl Watcher {
 
     // Create a thread for handling the watcher events
     std::thread::spawn(move || {
-      println!("starting watcher event thread...");
+      info!("Thread: Starting watcher event handler...");
 
       loop {
         let event = reciever_mutex.try_lock().unwrap().recv();
@@ -112,7 +113,7 @@ impl Watcher {
                 }
             },
             Err(e) => {
-              println!("Error {:?}", e)
+              warn!("Error {:?}", e)
             },
           }
         }

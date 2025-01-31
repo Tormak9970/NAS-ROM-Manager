@@ -1,7 +1,12 @@
 import { SGDB } from "@models";
-import type { SGDBImage } from "@types";
+import type { DownloadStrategy, ROM, SGDBImage } from "@types";
 import { LogController } from "./utils/LogController";
 import { RustInterop } from "./utils/RustInterop";
+
+type ROMDownload = {
+  path: string,
+  downloadStrategy: DownloadStrategy,
+}
 
 /**
  * The api controller.
@@ -72,6 +77,73 @@ export class ApiController {
       LogController.error(`Failed to cache cover ${url}:`, res.statusText);
       return "";
     }
+  }
+
+
+  private static async getMetadata(data: ROMDownload) {
+    const res = await fetch(this.restURL + "/roms/metadata", {
+      method: 'POST',
+      mode: 'cors',
+      headers: {
+        'Accept': 'application/json, text/plain, */*',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    });
+
+    if (res.ok) {
+      return await res.text();
+    } else {
+      LogController.error(`Failed to get metadata for ${data.path}:`, res.statusText);
+      return "";
+    }
+  }
+
+  private static async notifyDownloadComplete(data: ROMDownload) {
+    const res = await fetch(this.restURL + "/roms/complete", {
+      method: 'POST',
+      mode: 'cors',
+      headers: {
+        'Accept': 'application/json, text/plain, */*',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    });
+
+    if (res.ok) {
+      return await res.text();
+    } else {
+      LogController.error(`Failed to notify the backend of the completed download for ${data.path}:`, res.statusText);
+      return "";
+    }
+  }
+
+  /**
+   * Downloads the requested rom.
+   * @param rom The rom to download.
+   * @param onStart Function to run on start.
+   * @param onProgress Function to run on chunk update.
+   * @param onEnd Function to run on download complete.
+   */
+  static async downloadRom(
+    rom: ROM,
+    onStart: () => void = () => {},
+    onProgress: (progress: number) => void = () => {},
+    onEnd: () => void = () => {}
+  ): Promise<void> {
+    const romDownloadConfig = {
+      path: rom.path,
+      downloadStrategy: rom.downloadStrategy,
+    }
+
+    const adjustedFilePath = await this.getMetadata(romDownloadConfig);
+    romDownloadConfig.path = adjustedFilePath;
+    onStart();
+
+    // TODO: download the rom in chunks
+
+    await this.notifyDownloadComplete(romDownloadConfig);
+    onEnd();
   }
 
   // ! Possible method for handling the rom downloads

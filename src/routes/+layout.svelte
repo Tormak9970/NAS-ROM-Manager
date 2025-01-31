@@ -48,12 +48,6 @@
         } else {
           validatingCredentials = false;
         }
-
-        setTimeout(() => {
-          console.log("testing cover caching");
-          // ApiController.cacheCover("https://cdn2.steamgriddb.com/thumb/3c64afe806cd466dd1ffecbe3e2e8cce.jpg", "test_id");
-          // ApiController.deleteCover("http://127.0.0.1:1500/rest/covers/test_id.jpg", "test_id")
-        }, 2000);
       },
       AuthController.logout
     );

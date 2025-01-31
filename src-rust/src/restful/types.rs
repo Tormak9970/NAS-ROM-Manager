@@ -16,7 +16,6 @@ pub struct CoverUpload {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[allow(non_snake_case)]
 pub struct ROMDownload {
-  pub title: String,
   pub path: String,
   pub downloadStrategy: Map<String, Value>,
 }

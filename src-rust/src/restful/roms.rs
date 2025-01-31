@@ -1,21 +1,65 @@
-use std::{io::SeekFrom, path::{Path, PathBuf}};
+use std::{ffi::OsStr, io::SeekFrom, path::{Path, PathBuf}};
 
 use bytes::Buf;
 use futures::{Stream, StreamExt};
 use log::{info, warn};
-use tokio::{fs::{create_dir_all, File, OpenOptions}, io::{AsyncReadExt, AsyncSeekExt, AsyncWriteExt, BufReader}};
-use tokio_util::compat::{TokioAsyncReadCompatExt, TokioAsyncWriteCompatExt};
+use tokio::{fs::File, io::{AsyncReadExt, AsyncSeekExt, AsyncWriteExt}};
 use warp::{http::HeaderMap, reject::Rejection, reply::Reply};
-use async_zip::{base::read::seek::ZipFileReader, error::ZipError};
-use sanitize_filename::sanitize;
 
-use super::types::{ROMDelete, ROMDownload, StreamProgress, StreamStore};
+use crate::restful::zip::unpack_zip;
+
+use super::{types::{ROMDelete, ROMDownload, StreamProgress, StreamStore}, zip::pack_zip};
+
+/// Gets the needed metadata for downloading a rom, and zips its folder if necessary.
+pub async fn get_rom_metadata(data: ROMDownload) -> Result<impl Reply, Rejection> {
+  let mut file_path = PathBuf::from(&data.path);
+
+
+  if data.downloadStrategy.contains_key("parent") {
+    let parent_dir = data.downloadStrategy.get("parent").unwrap().to_string();
+    let os_parent_dir = OsStr::new(&parent_dir);
+
+    let mut rom_dir = file_path.clone();
+
+    for ancestor in file_path.ancestors() {
+      if ancestor.parent().unwrap().file_name().unwrap() == os_parent_dir {
+        rom_dir = ancestor.to_path_buf();
+        break;
+      }
+    }
+
+    if rom_dir == file_path {
+      warn!("Error zipping rom folder: The path \"{}\" does not contain \"{}\"", &data.path, parent_dir);
+      return Err(warp::reject::reject());
+    }
+
+    file_path = pack_zip(&rom_dir)
+      .await
+      .map_err(|e| {
+        warn!("Error zipping rom folder: {}", e);
+        warp::reject::reject()
+      })?;
+  }
+
+
+  let file = File::open(&file_path).await.map_err(|_| warp::reject())?;
+  let metadata = file.metadata().await.map_err(|_| warp::reject())?;
+  let file_size = metadata.len();
+
+
+  let response = warp::http::Response::builder()
+    .status(200)
+    .header("Content-Length", file_size.to_string())
+    .header("Content-Type", "text/plain")
+    .body(file_path.to_str().unwrap().to_string())
+    .map_err(|_| warp::reject())?;
+
+  return Ok(response);
+}
 
 /// Handles downloading a rom.
 pub async fn download_rom(data: ROMDownload, range_header: Option<String>) -> Result<impl Reply, Rejection> {
   let file_path = Path::new(&data.path);
-
-  // TODO: if the download strategy requires zipping the folder structure, do it here.
 
   let file = File::open(file_path).await.map_err(|_| warp::reject())?;
   let metadata = file.metadata().await.map_err(|_| warp::reject())?;
@@ -52,50 +96,16 @@ pub async fn download_rom(data: ROMDownload, range_header: Option<String>) -> Re
   return Ok(response);
 }
 
-/// Returns a relative path without reserved names, redundant separators, ".", or "..".
-fn sanitize_file_path(path: &str) -> PathBuf {
-  path.replace('\\', "/")
-    .split('/')
-    .map(sanitize)
-    .collect()
-}
-
-/// Extracts everything from the ZIP archive to the output directory
-async fn unpack_zip(archive: File, out_dir: &Path) -> Result<bool, ZipError> {
-  let archive = BufReader::new(archive).compat();
-  let mut reader = ZipFileReader::new(archive).await?;
-
-  for index in 0..reader.file().entries().len() {
-    let entry = reader.file().entries().get(index).unwrap();
-    let path = out_dir.join(sanitize_file_path(entry.filename().as_str().unwrap()));
-    let entry_is_dir = entry.dir().unwrap();
-
-    let mut entry_reader = reader.reader_without_entry(index).await?;
-
-    if entry_is_dir {
-      if !path.exists() {
-        create_dir_all(&path).await.expect("Failed to create extracted directory");
-      }
-    } else {
-      let parent = path.parent().expect("A file entry should have parent directories");
-      if !parent.is_dir() {
-        create_dir_all(parent).await.expect("Failed to create parent directories");
-      }
-
-      let writer = OpenOptions::new()
-        .write(true)
-        .create_new(true)
-        .open(&path)
-        .await
-        .expect("Failed to create extracted file");
-
-      futures_util::io::copy(&mut entry_reader, &mut writer.compat_write())
-        .await
-        .expect("Failed to copy to extracted file");
-    }
+/// Handles cleanup after a rom download finished.
+pub async fn download_rom_complete(data: ROMDownload) -> Result<impl Reply, Rejection> {
+  if data.downloadStrategy.contains_key("parent") {
+    tokio::fs::remove_file(&data.path).await.map_err(|e| {
+      warn!("Error deleting zipped rom folder: {}", e);
+      warp::reject::reject()
+    })?;
   }
 
-  return Ok(true);
+  return Ok(warp::reply::with_header("success", "Access-Control-Allow-Origin", "*"));
 }
 
 /// Handles uploading a rom.
@@ -119,7 +129,7 @@ pub async fn upload_rom(
   let system = headers.get("game-system").unwrap().to_str().unwrap().to_string();
   let library_path = headers.get("library-path").unwrap().to_str().unwrap().to_string();
   let needs_unzip = headers.get("needs-unzip").unwrap().to_str().unwrap().to_string().parse::<bool>().map_err(|e| {
-    warn!("error parsing needs-unzip: {}", e);
+    warn!("Error parsing needs-unzip: {}", e);
     warp::reject::reject()
   })?;
 
@@ -143,22 +153,22 @@ pub async fn upload_rom(
   let file_path = format!("{}/{}/{}", library_path, system, filename);
 
   let mut file = tokio::fs::File::open(&file_path).await.map_err(|e| {
-    warn!("error opening file: {}", e);
+    warn!("Error opening file: {}", e);
     warp::reject::reject()
   })?;
 
   let start_pos = content_position.parse::<u64>().map_err(|e| {
-    warn!("error parsing start position: {}", e);
+    warn!("Error parsing start position: {}", e);
     warp::reject::reject()
   })?;
 
   file.seek(SeekFrom::Start(start_pos)).await.map_err(|e| {
-    warn!("error seeking in file: {}", e);
+    warn!("Error seeking in file: {}", e);
     warp::reject::reject()
   })?;
   
   file.write_buf(&mut collected.as_slice()).await.map_err(|e| {
-    warn!("error writing data to file: {}", e);
+    warn!("Error writing data to file: {}", e);
     warp::reject::reject()
   })?;
   
@@ -185,7 +195,7 @@ pub async fn upload_rom(
     let file = File::open(file_path.clone())
       .await
       .map_err(|e| {
-        warn!("error opening zip: {}", e);
+        warn!("Error opening zip: {}", e);
         warp::reject::reject()
       })?;
     
@@ -195,11 +205,11 @@ pub async fn upload_rom(
     unpack_zip(file, &output_path)
       .await
       .map_err(|e| {
-        warn!("error unpacking zip: {}", e);
+        warn!("Error unpacking zip: {}", e);
         warp::reject::reject()
       })?;
     
-    info!("unzipped file: {}", file_path);
+    info!("Unzipped file: {}", file_path);
   }
 
   return Ok(warp::reply::with_header("success", "Access-Control-Allow-Origin", "*"));
@@ -208,7 +218,7 @@ pub async fn upload_rom(
 /// Handles deleting a rom.
 pub async fn delete_rom(data: ROMDelete) -> Result<impl Reply, Rejection> {
   tokio::fs::remove_file(&data.path).await.map_err(|e| {
-    warn!("error deleting file: {}", e);
+    warn!("Error deleting rom file: {}", e);
     warp::reject::reject()
   })?;
 
