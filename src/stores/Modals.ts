@@ -1,3 +1,4 @@
+import type { ROM } from "@types";
 import { writable } from "svelte/store";
 
 export const showControlledModal = writable(false);
@@ -9,3 +10,6 @@ export const controlledModalCancelText = writable("");
 export const controlledModalCancel = writable(async () => {});
 
 export const showAddLibraryModal = writable(false);
+
+export const showDownloadProgressModal = writable(false);
+export const downloadProgressRom = writable<ROM | null>(null);

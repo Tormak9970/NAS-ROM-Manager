@@ -134,7 +134,6 @@
       color 200ms;
   }
   .selected > .icon-space > :global(svg) {
-    animation: icon-select 0.5s cubic-bezier(0.64, 0.57, 0.67, 1.53);
     color: rgb(var(--m3-scheme-on-secondary-container));
   }
 

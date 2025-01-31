@@ -3,6 +3,7 @@
   import { Download } from "@icons";
   import { Button } from "@interactables";
   import { SYSTEM_TAGS_CONFIG } from "@models";
+  import { downloadProgressRom, showDownloadProgressModal } from "@stores/Modals";
   import { libraryGridType } from "@stores/State";
   import type { ROM } from "@types";
   import { formatFileSize, GRID_LAYOUTS } from "@utils";
@@ -24,7 +25,8 @@
   let systemTagConfig = $derived(SYSTEM_TAGS_CONFIG[system]);
 
   function download() {
-
+    $downloadProgressRom = rom;
+    $showDownloadProgressModal = true;
   }
 
   function openEditModal() {
@@ -45,7 +47,6 @@
   <div class="overlay">
     <div class="rom-info">
       <div class="title">{rom.title}</div>
-      <div class="date">{rom.addDate}</div>
       <div class="file-info">
         <div class="size">{formatFileSize(rom.size)}</div>
         <RomTag backgroundColor="var(--m3-scheme-tertiary-container)">.{rom.format}</RomTag>
@@ -55,7 +56,7 @@
       <Button
         type="filled"
         iconType="left"
-        size="2.25rem"
+        size="2rem"
         extraOptions={{
           style: "width: 100%;"
         }}
