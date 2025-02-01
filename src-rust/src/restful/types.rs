@@ -1,5 +1,4 @@
 use serde::{Deserialize, Serialize};
-use serde_json::{Map, Value};
 use tokio::sync::RwLock;
 
 use std::collections::HashMap;
@@ -17,13 +16,7 @@ pub struct CoverUpload {
 #[allow(non_snake_case)]
 pub struct ROMDownload {
   pub path: String,
-  pub downloadStrategy: Map<String, Value>,
-}
-
-#[derive(Serialize, Deserialize, Clone, Debug)]
-#[allow(non_snake_case)]
-pub struct ROMDelete {
-  pub path: String,
+  pub parent: String,
 }
 
 

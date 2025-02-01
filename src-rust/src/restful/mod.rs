@@ -5,7 +5,7 @@ mod zip;
 
 use covers::{delete_cover, upload_cover};
 use roms::{delete_rom, download_rom, download_rom_complete, get_rom_metadata, upload_rom};
-use types::{CoverUpload, ROMDelete, ROMDownload, StreamStore};
+use types::{CoverUpload, ROMDownload, StreamStore};
 use warp::{Filter, http::Method};
 
 fn json_cover_upload() -> impl Filter<Extract = (CoverUpload,), Error = warp::Rejection> + Clone {
@@ -13,11 +13,7 @@ fn json_cover_upload() -> impl Filter<Extract = (CoverUpload,), Error = warp::Re
 }
 
 fn json_body_download() -> impl Filter<Extract = (ROMDownload,), Error = warp::Rejection> + Clone {
-  warp::body::content_length_limit(1024 * 16).and(warp::body::json())
-}
-
-fn json_body_delete() -> impl Filter<Extract = (ROMDelete,), Error = warp::Rejection> + Clone {
-  warp::body::content_length_limit(1024 * 16).and(warp::body::json())
+  warp::body::content_length_limit(50 * 1024 * 1024).and(warp::body::json())
 }
 
 /// Gets the rest api routes.
@@ -32,8 +28,12 @@ pub fn initialize_rest_api(cover_cache_dir: String) -> impl Filter<Extract = (im
       "Origin",
       "Accept",
       "X-Requested-With",
+      "Content-Range",
       "Content-Type",
-      "Cover-Extension"
+      "Cover-Extension",
+      "Rom-Path",
+      "Rom-Parent",
+      "File-Length"
     ])
     .allow_methods(&[
       Method::GET,
@@ -63,10 +63,11 @@ pub fn initialize_rest_api(cover_cache_dir: String) -> impl Filter<Extract = (im
     .with(&cors);
 
 
-  // * POST ROM (rest/roms/metadata)
+  // * GET ROM (rest/roms/metadata)
   let get_rom_metadata = warp::path!("rest" / "roms" / "metadata")
-    .and(warp::post())
-    .and(json_body_download())
+    .and(warp::get())
+    .and(warp::filters::header::header("Rom-Path"))
+    .and(warp::filters::header::header("Rom-Parent"))
     .and_then(get_rom_metadata)
     .with(&cors);
 
@@ -101,7 +102,7 @@ pub fn initialize_rest_api(cover_cache_dir: String) -> impl Filter<Extract = (im
   // * DELETE ROM (rest/roms)
   let delete_rom_route = warp::path!("rest" / "roms")
     .and(warp::delete())
-    .and(json_body_delete())
+    .and(warp::filters::header::header("Rom-Path"))
     .and_then(delete_rom)
     .with(&cors);
 
@@ -109,9 +110,9 @@ pub fn initialize_rest_api(cover_cache_dir: String) -> impl Filter<Extract = (im
   let http_routes = get_cover_route
     .or(post_cover_route)
     .or(delete_cover_route)
-    .or(get_rom_metadata);
+    .or(get_rom_metadata)
     // .or(get_rom_route)
-    // .or(post_download_complete_route)
+    .or(post_download_complete_route);
     // .or(post_rom_route)
     // .or(delete_rom_route);
 

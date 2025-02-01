@@ -1,11 +1,11 @@
 import { SGDB } from "@models";
-import type { DownloadStrategy, ROM, SGDBImage } from "@types";
+import type { ROM, SGDBImage } from "@types";
 import { LogController } from "./utils/LogController";
 import { RustInterop } from "./utils/RustInterop";
 
 type ROMDownload = {
   path: string,
-  downloadStrategy: DownloadStrategy,
+  parent: string,
 }
 
 /**
@@ -25,13 +25,14 @@ export class ApiController {
     this.client = new SGDB(key);
   }
 
+
   /**
-   * Caches the cover for a title.
-   * @param url The url of the cover to cache.
-   * @param id The id of the title whose cover is being cached.
-   * @returns The path to the cached cover.
+   * Deletes the cover for a title.
+   * @param url The url of the cover to delete.
+   * @param id The id of the title whose cover is being deleted.
+   * @returns Whether the cover was successfully deleted.
    */
-  static async deleteCover(url: string, id: string): Promise<string> {
+  static async deleteCover(url: string, id: string): Promise<boolean> {
     const res = await fetch(this.restURL + `/covers/${id}`, {
       method: 'DELETE',
       mode: 'cors',
@@ -43,10 +44,10 @@ export class ApiController {
     });
 
     if (res.ok) {
-      return await res.text();
+      return true;
     } else {
-      LogController.error(`Failed to cache cover ${url}:`, res.statusText);
-      return "";
+      LogController.error(`Failed to delete cover ${url}:`, res.statusText);
+      return false;
     }
   }
 
@@ -80,22 +81,22 @@ export class ApiController {
   }
 
 
-  private static async getMetadata(data: ROMDownload) {
+  private static async getMetadata(data: ROMDownload): Promise<{ size: number, path: string }> {
     const res = await fetch(this.restURL + "/roms/metadata", {
-      method: 'POST',
+      method: 'GET',
       mode: 'cors',
       headers: {
         'Accept': 'application/json, text/plain, */*',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(data)
+        'Rom-Path': data.path,
+        'Rom-Parent': data.parent,
+      }
     });
 
     if (res.ok) {
-      return await res.text();
+      return await res.json();
     } else {
       LogController.error(`Failed to get metadata for ${data.path}:`, res.statusText);
-      return "";
+      return { size: 0, path: "" };
     }
   }
 
@@ -127,18 +128,18 @@ export class ApiController {
    */
   static async downloadRom(
     rom: ROM,
-    onStart: () => void = () => {},
+    onStart: (fileSize: number) => void = () => {},
     onProgress: (progress: number) => void = () => {},
     onEnd: () => void = () => {}
   ): Promise<void> {
     const romDownloadConfig = {
       path: rom.path,
-      downloadStrategy: rom.downloadStrategy,
+      parent: rom.downloadStrategy.type === "folder" ? rom.downloadStrategy.parent : "",
     }
 
-    const adjustedFilePath = await this.getMetadata(romDownloadConfig);
-    romDownloadConfig.path = adjustedFilePath;
-    onStart();
+    const { size, path } = await this.getMetadata(romDownloadConfig);
+    romDownloadConfig.path = path;
+    onStart(size);
 
     // TODO: download the rom in chunks
 
@@ -191,6 +192,29 @@ export class ApiController {
   // const fileSize = await getFileSize(url);
   // downloadFile(url, fileSize);
   
+  /**
+   * Deletes a ROM from the server.
+   * @param rom The rom to delete.
+   * @returns Whether the delete was successful.
+   */
+  static async deleteRom(rom: ROM): Promise<boolean> {
+    const res = await fetch(this.restURL + `/roms`, {
+      method: 'DELETE',
+      mode: 'cors',
+      headers: {
+        'Accept': 'text/plain, */*',
+        'Rom-Path': rom.path
+      },
+    });
+
+    if (res.ok) {
+      return true;
+    } else {
+      LogController.error(`Failed to delete rom ${rom.path}:`, res.statusText);
+      return false;
+    }
+  }
+
   /**
    * Fetches the SGDB covers for the provided title.
    * @param title The title to fetch the covers for.

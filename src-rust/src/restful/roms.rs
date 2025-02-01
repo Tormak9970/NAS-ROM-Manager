@@ -3,21 +3,21 @@ use std::{ffi::OsStr, io::SeekFrom, path::{Path, PathBuf}};
 use bytes::Buf;
 use futures::{Stream, StreamExt};
 use log::{info, warn};
+use serde_json::{Map, Value};
 use tokio::{fs::File, io::{AsyncReadExt, AsyncSeekExt, AsyncWriteExt}};
 use warp::{http::HeaderMap, reject::Rejection, reply::Reply};
 
 use crate::restful::zip::unpack_zip;
 
-use super::{types::{ROMDelete, ROMDownload, StreamProgress, StreamStore}, zip::pack_zip};
+use super::{types::{ROMDownload, StreamProgress, StreamStore}, zip::pack_zip};
 
 /// Gets the needed metadata for downloading a rom, and zips its folder if necessary.
-pub async fn get_rom_metadata(data: ROMDownload) -> Result<impl Reply, Rejection> {
-  let mut file_path = PathBuf::from(&data.path);
+pub async fn get_rom_metadata(path: String, parent: String) -> Result<impl Reply, Rejection> {
+  let mut file_path = PathBuf::from(&path);
 
 
-  if data.downloadStrategy.contains_key("parent") {
-    let parent_dir = data.downloadStrategy.get("parent").unwrap().to_string();
-    let os_parent_dir = OsStr::new(&parent_dir);
+  if parent != String::from("") {
+    let os_parent_dir = OsStr::new(&parent);
 
     let mut rom_dir = file_path.clone();
 
@@ -29,7 +29,7 @@ pub async fn get_rom_metadata(data: ROMDownload) -> Result<impl Reply, Rejection
     }
 
     if rom_dir == file_path {
-      warn!("Error zipping rom folder: The path \"{}\" does not contain \"{}\"", &data.path, parent_dir);
+      warn!("Error zipping rom folder: The path \"{}\" does not contain \"{}\"", &path, &parent);
       return Err(warp::reject::reject());
     }
 
@@ -46,12 +46,16 @@ pub async fn get_rom_metadata(data: ROMDownload) -> Result<impl Reply, Rejection
   let metadata = file.metadata().await.map_err(|_| warp::reject())?;
   let file_size = metadata.len();
 
+  let mut map = Map::new();
+  map.insert("size".to_string(), Value::Number(file_size.into()));
+  map.insert("path".to_string(), Value::String(file_path.to_str().unwrap().to_string()));
 
   let response = warp::http::Response::builder()
     .status(200)
-    .header("Content-Length", file_size.to_string())
+    .header("File-Length", file_size.to_string())
     .header("Content-Type", "text/plain")
-    .body(file_path.to_str().unwrap().to_string())
+    .header("Access-Control-Allow-Origin", "*")
+    .body(serde_json::to_string(&map).unwrap())
     .map_err(|_| warp::reject())?;
 
   return Ok(response);
@@ -90,6 +94,7 @@ pub async fn download_rom(data: ROMDownload, range_header: Option<String>) -> Re
     .header("Content-Range", format!("bytes {}-{}/{}", start, end, file_size))
     .header("Content-Length", (end - start + 1).to_string())
     .header("Content-Type", "application/octet-stream")
+    .header("Access-Control-Allow-Origin", "*")
     .body(buffer)
     .map_err(|_| warp::reject())?;
 
@@ -98,7 +103,7 @@ pub async fn download_rom(data: ROMDownload, range_header: Option<String>) -> Re
 
 /// Handles cleanup after a rom download finished.
 pub async fn download_rom_complete(data: ROMDownload) -> Result<impl Reply, Rejection> {
-  if data.downloadStrategy.contains_key("parent") {
+  if data.parent != String::from("") {
     tokio::fs::remove_file(&data.path).await.map_err(|e| {
       warn!("Error deleting zipped rom folder: {}", e);
       warp::reject::reject()
@@ -216,8 +221,8 @@ pub async fn upload_rom(
 }
 
 /// Handles deleting a rom.
-pub async fn delete_rom(data: ROMDelete) -> Result<impl Reply, Rejection> {
-  tokio::fs::remove_file(&data.path).await.map_err(|e| {
+pub async fn delete_rom(rom_path: String) -> Result<impl Reply, Rejection> {
+  tokio::fs::remove_file(&rom_path).await.map_err(|e| {
     warn!("Error deleting rom file: {}", e);
     warp::reject::reject()
   })?;

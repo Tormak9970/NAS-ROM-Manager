@@ -1,8 +1,10 @@
 <script lang="ts">
   import { ModalBody } from "@component-utils";
+  import { ApiController } from "@controllers/ApiController";
   import { Button } from "@interactables";
   import { LoadingSpinner } from "@layout";
   import { downloadProgressRom, showDownloadProgressModal } from "@stores/Modals";
+  import { formatFileSize } from "@utils";
   import { onMount } from "svelte";
 
   let open = $state(true);
@@ -23,18 +25,18 @@
   }
 
   onMount(() => {
-    // ApiController.downloadRom(
-    //   $downloadProgressRom!,
-    //   () => {
+    ApiController.downloadRom(
+      $downloadProgressRom!,
+      (fileSize: number) => {
+        console.log("file size is:", formatFileSize(fileSize));
+      },
+      (progress: number) => {
 
-    //   },
-    //   (progress: number) => {
+      },
+      () => {
 
-    //   },
-    //   () => {
-
-    //   }
-    // );
+      }
+    );
   });
 </script>
 
