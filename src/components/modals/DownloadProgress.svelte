@@ -1,6 +1,6 @@
 <script lang="ts">
   import { ModalBody } from "@component-utils";
-  import { ApiController } from "@controllers/ApiController";
+  import { RestController } from "@controllers";
   import { Button, ProgressIndicator } from "@interactables";
   import { LoadingSpinner } from "@layout";
   import { downloadProgressRom, showDownloadProgressModal } from "@stores/Modals";
@@ -27,7 +27,7 @@
   }
 
   onMount(() => {
-    ApiController.downloadRom(
+    RestController.downloadRom(
       $downloadProgressRom!,
       (size: number) => {
         fileSize = size;
