@@ -1,5 +1,6 @@
 import { SGDB } from "@models";
 import type { ROM, SGDBImage } from "@types";
+import streamSaver from 'streamsaver';
 import { LogController } from "./utils/LogController";
 import { RustInterop } from "./utils/RustInterop";
 
@@ -13,6 +14,7 @@ type ROMDownload = {
  */
 export class ApiController {
   private static client: SGDB;
+  private static readonly STREAM_CHUNK_SIZE = 10 * 1024 * 1024;
 
   private static restURL = "http://127.0.0.1:1500/rest"
 
@@ -119,6 +121,41 @@ export class ApiController {
     }
   }
 
+  private static async streamDownload(path: string, fileSize: number, onProgress: (progress: number) => void) {
+    let downloaded = 0;
+
+    const fileName = path.substring(path.lastIndexOf("\\") + 1);
+    const fileStream = streamSaver.createWriteStream(fileName);
+    const writer = fileStream.getWriter();
+
+    while (downloaded < fileSize) {
+      const end = Math.min(downloaded + this.STREAM_CHUNK_SIZE - 1, fileSize - 1);
+      const range = `bytes=${downloaded}-${end}`;
+
+      const response = await fetch(this.restURL + "/roms", {
+        headers: {
+          'Range': range,
+          'Rom-Path': path,
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch the chunk');
+      }
+
+      const reader = response.body!.getReader();
+      let result;
+      while (!(result = await reader.read()).done) {
+        writer.write(result.value);
+      }
+
+      downloaded += this.STREAM_CHUNK_SIZE;
+      onProgress(downloaded);
+    }
+
+    writer.close();
+  }
+
   /**
    * Downloads the requested rom.
    * @param rom The rom to download.
@@ -141,56 +178,13 @@ export class ApiController {
     romDownloadConfig.path = path;
     onStart(size);
 
-    // TODO: download the rom in chunks
+
+    await this.streamDownload(path, size, onProgress);
+    
 
     await this.notifyDownloadComplete(romDownloadConfig);
     onEnd();
   }
-
-  // ! Possible method for handling the rom downloads
-  // async function downloadFile(url, fileSize) {
-  //     const chunkSize = 5 * 1024 * 1024;  // 5MB per chunk
-  //     let downloaded = 0;
-
-  //     const fileStream = streamSaver.createWriteStream('largefile.dat'); // Using the StreamSaver library for saving to disk
-  //     const writer = fileStream.getWriter();
-
-  //     while (downloaded < fileSize) {
-  //         const end = Math.min(downloaded + chunkSize - 1, fileSize - 1);
-  //         const range = `bytes=${downloaded}-${end}`;
-
-  //         const response = await fetch(url, {
-  //             headers: { 'Range': range }
-  //         });
-
-  //         if (!response.ok) {
-  //             throw new Error('Failed to fetch the chunk');
-  //         }
-
-  //         const reader = response.body.getReader();
-  //         let result;
-  //         while (!(result = await reader.read()).done) {
-  //             writer.write(result.value);
-  //         }
-
-  //         downloaded += chunkSize;
-  //         console.log(`Downloaded ${downloaded} of ${fileSize} bytes.`);
-  //     }
-
-  //     writer.close();
-  // TODO: make a request to the server telling it the download is complete, and to cleanup as needed
-  // }
-
-  // async function getFileSize(url) {
-  //     const response = await fetch(url, { method: 'HEAD' });
-  //     if (!response.ok) throw new Error('Failed to fetch file size');
-  //     return parseInt(response.headers.get('Content-Length'));
-  // }
-
-  // // Usage
-  // const url = 'http://localhost:3030/download/largefile';
-  // const fileSize = await getFileSize(url);
-  // downloadFile(url, fileSize);
   
   /**
    * Deletes a ROM from the server.

@@ -1,9 +1,10 @@
 <script lang="ts">
   import { ModalBody } from "@component-utils";
   import { ApiController } from "@controllers/ApiController";
-  import { Button } from "@interactables";
+  import { Button, ProgressIndicator } from "@interactables";
   import { LoadingSpinner } from "@layout";
   import { downloadProgressRom, showDownloadProgressModal } from "@stores/Modals";
+  import { showInfoSnackbar } from "@stores/State";
   import { formatFileSize } from "@utils";
   import { onMount } from "svelte";
 
@@ -11,6 +12,7 @@
   
   let prepping = $state(true);
   let downloadProgress = $state(0);
+  let fileSize = $state(1);
 
   /**
    * Function to run on cancel.
@@ -27,27 +29,38 @@
   onMount(() => {
     ApiController.downloadRom(
       $downloadProgressRom!,
-      (fileSize: number) => {
-        console.log("file size is:", formatFileSize(fileSize));
+      (size: number) => {
+        fileSize = size;
+        prepping = false;
       },
       (progress: number) => {
-
+        downloadProgress = progress;
       },
       () => {
-
+        $showInfoSnackbar({ message: "Download complete" });
+        onCancel();
       }
     );
   });
 </script>
 
-<ModalBody headline="Download Progress" open={open} canClose={false} on:closeEnd={closeEnd}>
+<ModalBody
+  headline="Download Progress"
+  open={open}
+  canClose={false}
+  on:closeEnd={closeEnd}
+  extraOptions={{ style: "margin-bottom: 0rem" }}
+>
   <div class="content">
     {#if prepping}
       <div class="loading-container">
         <LoadingSpinner /> <div class="font-headline-small">Loading ROM Metadata...</div>
       </div>
     {:else}
-      
+      <div class="download-container">
+        <ProgressIndicator percent={downloadProgress / fileSize * 100} />
+        <div class="info">{formatFileSize(downloadProgress)} / {formatFileSize(fileSize)}</div>
+      </div>
     {/if}
   </div>
   <div slot="buttons" class="buttons">
@@ -72,6 +85,18 @@
     gap: 20px;
 
     margin: 0rem 1rem;
+    margin-top: 1rem;
+  }
+
+  .download-container {
+    width: 100%;
+
+    display: flex;
+    flex-direction: column;
+    /* align-items: flex-end; */
+    gap: 0.5rem;
+
+
     margin-top: 1rem;
   }
 

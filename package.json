@@ -15,14 +15,15 @@
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
 	},
 	"devDependencies": {
+		"@iconify/types": "^2.0.0",
 		"@sveltejs/adapter-auto": "^3.0.0",
 		"@sveltejs/kit": "^2.0.0",
 		"@sveltejs/vite-plugin-svelte": "^4.0.0",
+		"@types/streamsaver": "^2.0.5",
+		"concurrently": "^9.1.1",
 		"svelte": "^5.0.0",
 		"svelte-check": "^4.0.0",
 		"typescript": "^5.0.0",
-		"@iconify/types": "^2.0.0",
-		"concurrently": "^9.1.1",
 		"vite": "^5.4.11"
 	},
 	"dependencies": {
@@ -30,6 +31,7 @@
 		"@material/material-color-utilities": "^0.3.0",
 		"@types/node": "^22.10.5",
 		"jssha": "^3.3.1",
+		"streamsaver": "^2.0.6",
 		"svelte-awesome-color-picker": "^3.1.4",
 		"svelte-gesture": "^0.1.4"
 	}

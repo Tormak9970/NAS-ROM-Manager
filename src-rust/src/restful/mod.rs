@@ -29,6 +29,7 @@ pub fn initialize_rest_api(cover_cache_dir: String) -> impl Filter<Extract = (im
       "Accept",
       "X-Requested-With",
       "Content-Range",
+      "Range",
       "Content-Type",
       "Cover-Extension",
       "Rom-Path",
@@ -74,7 +75,7 @@ pub fn initialize_rest_api(cover_cache_dir: String) -> impl Filter<Extract = (im
   // * GET ROM (rest/roms)
   let get_rom_route = warp::path!("rest" / "roms")
     .and(warp::get())
-    .and(json_body_download())
+    .and(warp::filters::header::header("Rom-Path"))
     .and(warp::header::optional::<String>("range"))
     .and_then(download_rom)
     .with(&cors);
@@ -111,7 +112,7 @@ pub fn initialize_rest_api(cover_cache_dir: String) -> impl Filter<Extract = (im
     .or(post_cover_route)
     .or(delete_cover_route)
     .or(get_rom_metadata)
-    // .or(get_rom_route)
+    .or(get_rom_route)
     .or(post_download_complete_route);
     // .or(post_rom_route)
     // .or(delete_rom_route);

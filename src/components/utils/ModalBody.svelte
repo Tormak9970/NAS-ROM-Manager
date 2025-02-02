@@ -2,10 +2,11 @@
   import type { IconifyIcon } from "@iconify/types";
   import { LoadingSpinner } from "@layout";
   import { createEventDispatcher } from "svelte";
-  import type { HTMLDialogAttributes } from "svelte/elements";
+  import type { HTMLAttributes, HTMLDialogAttributes } from "svelte/elements";
   import Icon from "./Icon.svelte";
 
-  export let extraOptions: HTMLDialogAttributes = {};
+  export let extraWrapperOptions: HTMLDialogAttributes = {};
+  export let extraOptions: HTMLAttributes<HTMLDivElement> = {};
   export let icon: IconifyIcon | undefined = undefined;
   export let headline: string;
   export let open: boolean;
@@ -68,7 +69,7 @@
   on:animationend={onAnimationEnd}
   bind:this={dialog}
   class:hide={hideDialog}
-  {...extraOptions}
+  {...extraWrapperOptions}
 >
   <div class="modal-body" style:--m3-util-background="var(--m3-scheme-surface-container-high)">
     {#if loading}
@@ -81,7 +82,7 @@
         <Icon {icon} />
       {/if}
       <p class="headline m3-font-headline-small" class:center={icon}>{headline}</p>
-      <div class="content m3-font-body-medium">
+      <div class="content m3-font-body-medium" {...extraOptions}>
         <slot />
       </div>
       <div class="buttons">

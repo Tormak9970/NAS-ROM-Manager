@@ -62,8 +62,8 @@ pub async fn get_rom_metadata(path: String, parent: String) -> Result<impl Reply
 }
 
 /// Handles downloading a rom.
-pub async fn download_rom(data: ROMDownload, range_header: Option<String>) -> Result<impl Reply, Rejection> {
-  let file_path = Path::new(&data.path);
+pub async fn download_rom(path: String, range_header: Option<String>) -> Result<impl Reply, Rejection> {
+  let file_path = Path::new(&path);
 
   let file = File::open(file_path).await.map_err(|_| warp::reject())?;
   let metadata = file.metadata().await.map_err(|_| warp::reject())?;
