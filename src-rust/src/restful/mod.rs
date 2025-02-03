@@ -1,11 +1,13 @@
 mod covers;
-mod roms;
+mod rom_download;
+mod rom_upload;
 mod types;
 mod zip;
 
 use covers::{delete_cover, upload_cover};
-use roms::{delete_rom, download_rom, download_rom_complete, get_rom_metadata, upload_rom};
-use types::{CoverUpload, ROMDownload, StreamStore};
+use rom_download::{delete_rom, download_rom, download_rom_complete, get_rom_metadata};
+use rom_upload::{prepare_rom_upload, rom_upload_complete, upload_rom};
+use types::{CoverUpload, ROMDownload, ROMUploadComplete, StreamStore};
 use warp::{Filter, http::Method};
 
 fn json_cover_upload() -> impl Filter<Extract = (CoverUpload,), Error = warp::Rejection> + Clone {
@@ -13,6 +15,10 @@ fn json_cover_upload() -> impl Filter<Extract = (CoverUpload,), Error = warp::Re
 }
 
 fn json_body_download() -> impl Filter<Extract = (ROMDownload,), Error = warp::Rejection> + Clone {
+  warp::body::content_length_limit(50 * 1024 * 1024).and(warp::body::json())
+}
+
+fn json_body_upload_complete() -> impl Filter<Extract = (ROMUploadComplete,), Error = warp::Rejection> + Clone {
   warp::body::content_length_limit(50 * 1024 * 1024).and(warp::body::json())
 }
 
@@ -34,7 +40,8 @@ pub fn initialize_rest_api(cover_cache_dir: String) -> impl Filter<Extract = (im
       "Cover-Extension",
       "Rom-Path",
       "Rom-Parent",
-      "File-Length"
+      "File-Length",
+      "Upload-Id",
     ])
     .allow_methods(&[
       Method::GET,
@@ -48,7 +55,7 @@ pub fn initialize_rest_api(cover_cache_dir: String) -> impl Filter<Extract = (im
     .with(&cors);
 
   // * POST cover (rest/covers/{id})
-  let post_cover_route = warp::path!("rest" / "covers" / String)
+  let upload_cover_route = warp::path!("rest" / "covers" / String)
     .and(warp::post())
     .and(cache_dir_filter.clone())
     .and(json_cover_upload())
@@ -64,24 +71,24 @@ pub fn initialize_rest_api(cover_cache_dir: String) -> impl Filter<Extract = (im
     .with(&cors);
 
 
-  // * GET ROM (rest/roms/metadata)
-  let get_rom_metadata = warp::path!("rest" / "roms" / "metadata")
+  // * GET ROM Metadata (rest/roms/download/metadata)
+  let get_rom_download_metadata = warp::path!("rest" / "roms" / "download" / "metadata")
     .and(warp::get())
     .and(warp::filters::header::header("Rom-Path"))
     .and(warp::filters::header::header("Rom-Parent"))
     .and_then(get_rom_metadata)
     .with(&cors);
 
-  // * GET ROM (rest/roms)
-  let get_rom_route = warp::path!("rest" / "roms")
+  // * GET ROM (rest/roms/download)
+  let rom_download_route = warp::path!("rest" / "roms" / "download")
     .and(warp::get())
     .and(warp::filters::header::header("Rom-Path"))
     .and(warp::header::optional::<String>("range"))
     .and_then(download_rom)
     .with(&cors);
   
-  // * POST ROM (rest/roms/complete)
-  let post_download_complete_route = warp::path!("rest" / "roms" / "complete")
+  // * POST ROM (rest/roms/download/complete)
+  let rom_download_complete_route = warp::path!("rest" / "roms" / "download" / "complete")
     .and(warp::post())
     .and(json_body_download())
     .and_then(download_rom_complete)
@@ -91,17 +98,33 @@ pub fn initialize_rest_api(cover_cache_dir: String) -> impl Filter<Extract = (im
   let upload_store = StreamStore::new();
   let upload_store_filter = warp::any().map(move || upload_store.clone());
   
-  // * POST ROM (rest/roms)
-  let post_rom_route = warp::path!("rest" / "roms")
+  // * POST Prepare ROM Upload (rest/roms/upload/prepare)
+  let prepare_upload_rom_route = warp::path!("rest" / "roms" / "upload" / "prepare")
+    .and(warp::post())
+    .and(warp::filters::header::header("Rom-Path"))
+    .and_then(prepare_rom_upload)
+    .with(&cors);
+  
+  // * POST ROM (rest/roms/upload)
+  let upload_rom_route = warp::path!("rest" / "roms" / "upload")
     .and(warp::post())
     .and(warp::filters::body::stream())
-    .and(upload_store_filter)
+    .and(upload_store_filter.clone())
     .and(warp::filters::header::headers_cloned())
     .and_then(upload_rom)
     .with(&cors);
 
+  // * POST ROM (rest/roms/upload/complete)
+  let upload_rom_complete_route = warp::path!("rest" / "roms" / "upload" / "complete")
+    .and(warp::post())
+    .and(upload_store_filter)
+    .and(json_body_upload_complete())
+    .and_then(rom_upload_complete)
+    .with(&cors);
+  
+
   // * DELETE ROM (rest/roms)
-  let delete_rom_route = warp::path!("rest" / "roms")
+  let delete_rom_route = warp::path!("rest" / "roms" / "delete")
     .and(warp::delete())
     .and(warp::filters::header::header("Rom-Path"))
     .and_then(delete_rom)
@@ -109,12 +132,14 @@ pub fn initialize_rest_api(cover_cache_dir: String) -> impl Filter<Extract = (im
 
   
   let http_routes = get_cover_route
-    .or(post_cover_route)
+    .or(upload_cover_route)
     .or(delete_cover_route)
-    .or(get_rom_metadata)
-    .or(get_rom_route)
-    .or(post_download_complete_route);
-    // .or(post_rom_route)
+    .or(get_rom_download_metadata)
+    .or(rom_download_route)
+    .or(rom_download_complete_route)
+    .or(prepare_upload_rom_route)
+    .or(upload_rom_route);
+    // .or(upload_rom_complete_route)
     // .or(delete_rom_route);
 
   return http_routes;

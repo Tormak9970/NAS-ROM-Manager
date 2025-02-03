@@ -19,6 +19,16 @@ pub struct ROMDownload {
   pub parent: String,
 }
 
+#[derive(Serialize, Deserialize, Clone, Debug)]
+#[allow(non_snake_case)]
+pub struct ROMUploadComplete {
+  pub uploadId: String,
+  pub path: String,
+  pub libraryPath: String,
+  pub system: String,
+  pub unzip: bool,
+}
+
 
 type Streams = HashMap<String, StreamProgress>;
 

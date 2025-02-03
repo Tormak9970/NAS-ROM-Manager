@@ -1,10 +1,19 @@
 import type { ROM } from "@types";
+import { hash64 } from "@utils";
 import streamSaver from 'streamsaver';
 import { LogController } from "./LogController";
 
 type ROMDownload = {
   path: string,
   parent: string,
+}
+
+type ROMUploadComplete = {
+  uploadId: string;
+  path: string;
+  libraryPath: string;
+  system: string;
+  unzip: boolean;
 }
 
 /**
@@ -72,7 +81,7 @@ export class RestController {
 
 
   private static async getMetadata(data: ROMDownload): Promise<{ size: number, path: string }> {
-    const res = await fetch(this.restURL + "/roms/metadata", {
+    const res = await fetch(this.restURL + "/roms/download/metadata", {
       method: 'GET',
       mode: 'cors',
       headers: {
@@ -91,7 +100,7 @@ export class RestController {
   }
 
   private static async notifyDownloadComplete(data: ROMDownload) {
-    const res = await fetch(this.restURL + "/roms/complete", {
+    const res = await fetch(this.restURL + "/roms/download/complete", {
       method: 'POST',
       mode: 'cors',
       headers: {
@@ -112,15 +121,18 @@ export class RestController {
   private static async streamDownload(path: string, fileSize: number, onProgress: (progress: number) => void) {
     let downloaded = 0;
 
-    const fileName = path.substring(path.lastIndexOf("\\") + 1);
-    const fileStream = streamSaver.createWriteStream(fileName);
+    const backslashIndex = path.lastIndexOf("\\");
+    const slashIndex = path.lastIndexOf("/");
+    const startIndex = backslashIndex > slashIndex ? backslashIndex : slashIndex;
+    const filename = path.substring(startIndex + 1);
+    const fileStream = streamSaver.createWriteStream(filename);
     const writer = fileStream.getWriter();
 
     while (downloaded < fileSize) {
       const end = Math.min(downloaded + this.STREAM_CHUNK_SIZE - 1, fileSize - 1);
       const range = `bytes=${downloaded}-${end}`;
 
-      const response = await fetch(this.restURL + "/roms", {
+      const response = await fetch(this.restURL + "/roms/download", {
         headers: {
           'Range': range,
           'Rom-Path': path,
@@ -173,6 +185,129 @@ export class RestController {
     await this.notifyDownloadComplete(romDownloadConfig);
     onEnd();
   }
+
+
+  private static async prepareUpload(libraryPath: string, system: string, filename: string): Promise<string> {
+    const filePath = `${libraryPath}/${system}/${filename}`;
+
+    const res = await fetch(this.restURL + "/roms/upload/prepare", {
+      method: 'POST',
+      mode: 'cors',
+      headers: {
+        'Accept': 'application/json, text/plain, */*',
+        'Rom-Path': filePath,
+      }
+    });
+
+    if (res.ok) {
+      return filePath;
+    } else {
+      LogController.error(`Failed to prepare upload for ${filePath}:`, res.statusText);
+      return "";
+    }
+  }
+
+  private static async uploadComplete(data: ROMUploadComplete) {
+    const res = await fetch(this.restURL + "/roms/upload/complete", {
+      method: 'POST',
+      mode: 'cors',
+      headers: {
+        'Accept': 'application/json, text/plain, */*',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    });
+
+    if (res.ok) {
+      return true;
+    } else {
+      LogController.error(`Failed to notify the backend of the completed download for ${data.path}:`, res.statusText);
+      return false;
+    }
+  }
+
+  private static async streamUpload(uploadId: string, path: string, file: File, onProgress: (progress: number) => void) {
+    let sent = 0;
+
+    const filename = file.name;
+    const fileSize = file.size;
+
+    // const reader = file.stream().pipeThrough(new ReadableStream(, { size: this.STREAM_CHUNK_SIZE }));
+
+    // let result;
+    // while (!(result = await reader.read()).done) {
+    //   writer.write(result.value);
+    // }
+
+    while (sent < fileSize) {
+      const end = Math.min(sent + this.STREAM_CHUNK_SIZE - 1, fileSize - 1);
+      const range = `bytes=${sent}-${end}`;
+
+      // TODO: read from the writer
+
+      // TODO: upload the rom
+      // .header("Range", `bytes=${start}-${end}`)
+      // .header("Content-Length", (end - start + 1).to_string())
+      // .header("Content-Type", "application/octet-stream")
+      // "Upload-Id"
+      // "Rom-Path"
+      const response = await fetch(this.restURL + "/roms/upload", {
+        headers: {
+          'Range': range,
+          'Rom-Path': path,
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to send the chunk');
+      }
+
+      sent += this.STREAM_CHUNK_SIZE;
+      onProgress(sent);
+    }
+  }
+
+  /**
+   * Uploads a rom to the server.
+   * @param rom The rom to upload.
+   * @param filename The filename of the rom.
+   * @param reader The reader stream for the file input.
+   * @param needsUnzip Whether this rom will need to be unzipped.
+   * @param onStart Function to run on start.
+   * @param onProgress Function to run on chunk update.
+   * @param onEnd Function to run on upload complete.
+   */
+  static async uploadRom(
+    rom: ROM,
+    file: File,
+    needsUnzip: boolean,
+    onStart: () => void = () => {},
+    onProgress: (progress: number) => void = () => {},
+    onEnd: (success: boolean) => void = () => {}
+  ) {
+    const filePath = await this.prepareUpload(rom.library, rom.system, file.name);
+    onStart();
+
+    const uploadId = hash64(filePath);
+
+  
+    await this.streamUpload(
+      uploadId,
+      filePath,
+      file,
+      onProgress
+    );
+
+
+    const success = await this.uploadComplete({
+      uploadId: uploadId,
+      path: filePath,
+      libraryPath: rom.library,
+      system: rom.system,
+      unzip: needsUnzip,
+    });
+    onEnd(success);
+  }
   
   /**
    * Deletes a ROM from the server.
@@ -180,7 +315,7 @@ export class RestController {
    * @returns Whether the delete was successful.
    */
   static async deleteRom(rom: ROM): Promise<boolean> {
-    const res = await fetch(this.restURL + `/roms`, {
+    const res = await fetch(this.restURL + `/roms/delete`, {
       method: 'DELETE',
       mode: 'cors',
       headers: {
