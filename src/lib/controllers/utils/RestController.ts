@@ -1,6 +1,6 @@
 import type { ROM } from "@types";
 import { hash64 } from "@utils";
-import streamSaver from 'streamsaver';
+import streamSaver from "streamsaver";
 import { LogController } from "./LogController";
 
 type ROMDownload = {
@@ -33,12 +33,12 @@ export class RestController {
    */
   static async deleteCover(url: string, id: string): Promise<boolean> {
     const res = await fetch(this.restURL + `/covers/${id}`, {
-      method: 'DELETE',
-      mode: 'cors',
+      method: "DELETE",
+      mode: "cors",
       headers: {
-        'Accept': 'application/json, text/plain, */*',
-        'Content-Type': 'application/json',
-        'Cover-Extension': url.substring(url.lastIndexOf(".") + 1)
+        "Accept": "application/json, text/plain, */*",
+        "Content-Type": "application/json",
+        "Cover-Extension": url.substring(url.lastIndexOf(".") + 1)
       },
     });
 
@@ -58,11 +58,11 @@ export class RestController {
    */
   static async cacheCover(url: string, id: string): Promise<string> {
     const res = await fetch(this.restURL + `/covers/${id}`, {
-      method: 'POST',
-      mode: 'cors',
+      method: "POST",
+      mode: "cors",
       headers: {
-        'Accept': 'application/json, text/plain, */*',
-        'Content-Type': 'application/json'
+        "Accept": "application/json, text/plain, */*",
+        "Content-Type": "application/json"
       },
       body: JSON.stringify({
         url: url,
@@ -82,12 +82,12 @@ export class RestController {
 
   private static async getMetadata(data: ROMDownload): Promise<{ size: number, path: string }> {
     const res = await fetch(this.restURL + "/roms/download/metadata", {
-      method: 'GET',
-      mode: 'cors',
+      method: "GET",
+      mode: "cors",
       headers: {
-        'Accept': 'application/json, text/plain, */*',
-        'Rom-Path': data.path,
-        'Rom-Parent': data.parent,
+        "Accept": "application/json, text/plain, */*",
+        "Rom-Path": data.path,
+        "Rom-Parent": data.parent,
       }
     });
 
@@ -101,11 +101,11 @@ export class RestController {
 
   private static async notifyDownloadComplete(data: ROMDownload) {
     const res = await fetch(this.restURL + "/roms/download/complete", {
-      method: 'POST',
-      mode: 'cors',
+      method: "POST",
+      mode: "cors",
       headers: {
-        'Accept': 'application/json, text/plain, */*',
-        'Content-Type': 'application/json'
+        "Accept": "application/json, text/plain, */*",
+        "Content-Type": "application/json"
       },
       body: JSON.stringify(data)
     });
@@ -131,16 +131,17 @@ export class RestController {
     while (downloaded < fileSize) {
       const end = Math.min(downloaded + this.STREAM_CHUNK_SIZE - 1, fileSize - 1);
       const range = `bytes=${downloaded}-${end}`;
+      const length = end - downloaded;
 
       const response = await fetch(this.restURL + "/roms/download", {
         headers: {
-          'Range': range,
-          'Rom-Path': path,
+          "Range": range,
+          "Rom-Path": path,
         }
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch the chunk');
+        throw new Error("Failed to fetch the chunk");
       }
 
       const reader = response.body!.getReader();
@@ -149,7 +150,7 @@ export class RestController {
         writer.write(result.value);
       }
 
-      downloaded += this.STREAM_CHUNK_SIZE;
+      downloaded += length;
       onProgress(downloaded);
     }
 
@@ -191,11 +192,11 @@ export class RestController {
     const filePath = `${libraryPath}/${system}/${filename}`;
 
     const res = await fetch(this.restURL + "/roms/upload/prepare", {
-      method: 'POST',
-      mode: 'cors',
+      method: "POST",
+      mode: "cors",
       headers: {
-        'Accept': 'application/json, text/plain, */*',
-        'Rom-Path': filePath,
+        "Accept": "application/json, text/plain, */*",
+        "Rom-Path": filePath,
       }
     });
 
@@ -209,11 +210,11 @@ export class RestController {
 
   private static async uploadComplete(data: ROMUploadComplete) {
     const res = await fetch(this.restURL + "/roms/upload/complete", {
-      method: 'POST',
-      mode: 'cors',
+      method: "POST",
+      mode: "cors",
       headers: {
-        'Accept': 'application/json, text/plain, */*',
-        'Content-Type': 'application/json'
+        "Accept": "application/json, text/plain, */*",
+        "Content-Type": "application/json"
       },
       body: JSON.stringify(data)
     });
@@ -229,40 +230,34 @@ export class RestController {
   private static async streamUpload(uploadId: string, path: string, file: File, onProgress: (progress: number) => void) {
     let sent = 0;
 
-    const filename = file.name;
     const fileSize = file.size;
-
-    // const reader = file.stream().pipeThrough(new ReadableStream(, { size: this.STREAM_CHUNK_SIZE }));
-
-    // let result;
-    // while (!(result = await reader.read()).done) {
-    //   writer.write(result.value);
-    // }
 
     while (sent < fileSize) {
       const end = Math.min(sent + this.STREAM_CHUNK_SIZE - 1, fileSize - 1);
       const range = `bytes=${sent}-${end}`;
+      const length = end - sent + 1;
 
-      // TODO: read from the writer
+      const data = file.slice(sent, end + 1);
 
-      // TODO: upload the rom
-      // .header("Range", `bytes=${start}-${end}`)
-      // .header("Content-Length", (end - start + 1).to_string())
-      // .header("Content-Type", "application/octet-stream")
-      // "Upload-Id"
-      // "Rom-Path"
       const response = await fetch(this.restURL + "/roms/upload", {
+        method: "POST",
+        mode: "cors",
         headers: {
-          'Range': range,
-          'Rom-Path': path,
-        }
+          "Range": range,
+          "Content-Length": length.toString(),
+          "Upload-Id": uploadId,
+          "Rom-Path": path,
+          "File-Size": fileSize.toString(),
+          "Content-Type": "application/octet-stream"
+        },
+        body: data
       });
 
       if (!response.ok) {
-        throw new Error('Failed to send the chunk');
+        throw new Error("Failed to send the chunk");
       }
 
-      sent += this.STREAM_CHUNK_SIZE;
+      sent += length;
       onProgress(sent);
     }
   }
@@ -278,14 +273,15 @@ export class RestController {
    * @param onEnd Function to run on upload complete.
    */
   static async uploadRom(
-    rom: ROM,
+    library: string,
+    system: string,
     file: File,
     needsUnzip: boolean,
     onStart: () => void = () => {},
     onProgress: (progress: number) => void = () => {},
-    onEnd: (success: boolean) => void = () => {}
+    onEnd: (success: boolean, filePath: string) => void = () => {}
   ) {
-    const filePath = await this.prepareUpload(rom.library, rom.system, file.name);
+    const filePath = await this.prepareUpload(library, system, file.name);
     onStart();
 
     const uploadId = hash64(filePath);
@@ -302,11 +298,11 @@ export class RestController {
     const success = await this.uploadComplete({
       uploadId: uploadId,
       path: filePath,
-      libraryPath: rom.library,
-      system: rom.system,
+      libraryPath: library,
+      system: system,
       unzip: needsUnzip,
     });
-    onEnd(success);
+    onEnd(success, filePath);
   }
   
   /**
@@ -316,11 +312,11 @@ export class RestController {
    */
   static async deleteRom(rom: ROM): Promise<boolean> {
     const res = await fetch(this.restURL + `/roms/delete`, {
-      method: 'DELETE',
-      mode: 'cors',
+      method: "DELETE",
+      mode: "cors",
       headers: {
-        'Accept': 'text/plain, */*',
-        'Rom-Path': rom.path
+        "Accept": "text/plain, */*",
+        "Rom-Path": rom.path
       },
     });
 

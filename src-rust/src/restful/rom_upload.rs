@@ -1,9 +1,9 @@
-use std::{io::SeekFrom, path::PathBuf};
+use std::path::PathBuf;
 
 use bytes::Buf;
 use futures::{Stream, StreamExt};
 use log::{info, warn};
-use tokio::{fs::File, io::{AsyncSeekExt, AsyncWriteExt}};
+use tokio::{fs::{File, OpenOptions}, io::AsyncWriteExt};
 use warp::{http::HeaderMap, reject::Rejection, reply::Reply};
 
 use crate::restful::zip::unpack_zip;
@@ -31,14 +31,13 @@ pub async fn upload_rom(
     return Err(warp::reject::reject());
   }
 
-  let content_length = headers.get("content-length").unwrap().to_str().unwrap().to_string();
-  let file_size = content_length.parse::<u64>().map_err(|e| {
+  let file_size = headers.get("file-size").unwrap().to_str().unwrap().to_string().parse::<u64>().map_err(|e| {
     warn!("error parsing Content-Length: {}", e);
     warp::reject::reject()
   })?;
 
   let range_header = headers.get("range").unwrap().to_str();
-  let (start, _end) = match range_header {
+  let (start, end) = match range_header {
     Ok(range) => {
       if range.starts_with("bytes=") {
         let range_parts: Vec<&str> = range[6..].split('-').collect();
@@ -51,45 +50,39 @@ pub async fn upload_rom(
     },
     Err(_) => (0, file_size - 1), // No Range header provided
   };
+  let chunk_size = end - start;
 
   let upload_id = headers.get("upload-id").unwrap().to_str().unwrap().to_string();
   let file_path = headers.get("rom-path").unwrap().to_str().unwrap().to_string();
 
-
-  let mut collected: Vec<u8> = vec![];
+  
+  let mut file = OpenOptions::new()
+    .write(true)
+    .append(true)
+    .open(&file_path)
+    .await.map_err(|e| {
+      warn!("Error opening file: {}", e);
+      warp::reject::reject()
+    })?;
 
   while let Some(buf) = body.next().await {
     let mut buf = buf.unwrap();
-
-    while buf.remaining() > 0 {
-      let chunk = buf.chunk();
-      let chunk_len = chunk.len();
-
-      collected.extend_from_slice(chunk);
-      buf.advance(chunk_len);
-    }
+    
+    file.write_buf(&mut buf).await.map_err(|e| {
+      warn!("Error writing data to file: {}", e);
+      warp::reject::reject()
+    })?;
   }
 
-
-  let chunk_size = collected.len() as u64;
-
-  let mut file = tokio::fs::File::open(&file_path).await.map_err(|e| {
-    warn!("Error opening file: {}", e);
+  file.flush().await.map_err(|e| {
+    warn!("Error flushing data to file: {}", e);
     warp::reject::reject()
   })?;
 
-  file.seek(SeekFrom::Start(start)).await.map_err(|e| {
-    warn!("Error seeking in file: {}", e);
-    warp::reject::reject()
-  })?;
-  
-  file.write_buf(&mut collected.as_slice()).await.map_err(|e| {
-    warn!("Error writing data to file: {}", e);
-    warp::reject::reject()
-  })?;
   
   if !streams_store.streams.read().await.contains_key(&upload_id) {
     streams_store.streams.write().await.insert(upload_id.clone(), StreamProgress {
+      path: file_path.clone(),
       currentSize: 0,
       totalSize: file_size
     });

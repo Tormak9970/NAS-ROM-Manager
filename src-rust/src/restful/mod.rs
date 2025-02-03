@@ -42,6 +42,7 @@ pub fn initialize_rest_api(cover_cache_dir: String) -> impl Filter<Extract = (im
       "Rom-Parent",
       "File-Length",
       "Upload-Id",
+      "File-Size"
     ])
     .allow_methods(&[
       Method::GET,
@@ -138,9 +139,9 @@ pub fn initialize_rest_api(cover_cache_dir: String) -> impl Filter<Extract = (im
     .or(rom_download_route)
     .or(rom_download_complete_route)
     .or(prepare_upload_rom_route)
-    .or(upload_rom_route);
-    // .or(upload_rom_complete_route)
-    // .or(delete_rom_route);
+    .or(upload_rom_route)
+    .or(upload_rom_complete_route)
+    .or(delete_rom_route);
 
   return http_routes;
 }

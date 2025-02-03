@@ -1,7 +1,5 @@
 <script lang="ts">
   import { Card } from "@layout";
-
-
 </script>
 
 <svelte:head>

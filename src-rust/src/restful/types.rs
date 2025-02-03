@@ -35,6 +35,7 @@ type Streams = HashMap<String, StreamProgress>;
 #[derive(Debug, Deserialize, Serialize, Clone)]
 #[allow(non_snake_case)]
 pub struct StreamProgress {
+  pub path: String,
   pub currentSize: u64,
   pub totalSize: u64,
 }
