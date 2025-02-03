@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { MenuButton } from "@interactables";
+  import { AuthController } from "@controllers";
   import type { ContextMenuItem } from "@directives";
   import { Person } from "@icons";
-  import { AuthController } from "@controllers";
+  import { MenuButton } from "@interactables";
   import { isLandscape } from "@stores/State";
   import SearchBar from "./SearchBar.svelte";
 
@@ -15,10 +15,10 @@
   ]
 </script>
 
-<div id="desktop-header">
+<div id="header">
   <div class="branding">
     <img src="/logo.svg" alt="Logo" />
-    <div class="m3-font-headline-small">ROM Manager</div>
+    <div class="m3-font-headline-small"><i>NRM</i></div>
     {#if $isLandscape}
       <SearchBar />
     {/if}
@@ -29,7 +29,7 @@
 </div>
 
 <style>
-  #desktop-header {
+  #header {
     width: 100%;
     height: 60px;
 
