@@ -273,7 +273,7 @@ export class RestController {
    * @param onEnd Function to run on upload complete.
    */
   static async uploadRom(
-    library: string,
+    libraryPath: string,
     system: string,
     file: File,
     needsUnzip: boolean,
@@ -281,7 +281,7 @@ export class RestController {
     onProgress: (progress: number) => void = () => {},
     onEnd: (success: boolean, filePath: string) => void = () => {}
   ) {
-    const filePath = await this.prepareUpload(library, system, file.name);
+    const filePath = await this.prepareUpload(libraryPath, system, file.name);
     onStart();
 
     const uploadId = hash64(filePath);
@@ -298,7 +298,7 @@ export class RestController {
     const success = await this.uploadComplete({
       uploadId: uploadId,
       path: filePath,
-      libraryPath: library,
+      libraryPath: libraryPath,
       system: system,
       unzip: needsUnzip,
     });

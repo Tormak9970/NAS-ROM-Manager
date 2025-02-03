@@ -16,7 +16,7 @@
  */
 
 import { goto } from "$app/navigation";
-import type { Library, LoadedLibrary, Settings } from "@types";
+import type { Library, LoadedLibrary, ROM, Settings } from "@types";
 import { get } from "svelte/store";
 import { showErrorSnackbar } from "../../../stores/State";
 
@@ -32,9 +32,9 @@ export enum LogLevel {
 type Response<T> = { data: T, }
 
 /**
- * Handles wrapping ipc communication into an easy to use JS bindings.
+ * Handles wrapping websocket communication into an easy to use JS bindings.
  */
-export class RustInterop {
+export class WebsocketController {
   private static ws: WebSocket;
   private static hash: string;
 
@@ -44,20 +44,20 @@ export class RustInterop {
    * @param onLogout The callback to run when the app should log out.
    */
   static init(onOpen: () => Promise<void>, onLogout: () => void) {
-    RustInterop.ws = new WebSocket("ws://127.0.0.1:1500/ws");
+    WebsocketController.ws = new WebSocket("ws://127.0.0.1:1500/ws");
 
-    RustInterop.ws.addEventListener("open", () => {
-      RustInterop.ws.send("Hello World!");
+    WebsocketController.ws.addEventListener("open", () => {
+      WebsocketController.ws.send("Hello World!");
       onOpen();
     });
 
     // * Handles generic messages such as token expiration.
-    RustInterop.ws.addEventListener("message", (event) => {
+    WebsocketController.ws.addEventListener("message", (event) => {
       const parts = event.data.split(" ");
 
       switch(parts[0]) {
         case "hash_mismatch":
-          RustInterop.hash = "";
+          WebsocketController.hash = "";
           onLogout();
           get(showErrorSnackbar)({ message: "Something went wrong verifying your request"});
           break;
@@ -84,7 +84,7 @@ export class RustInterop {
     const result = new Promise<Response<T>>((resolve, reject) => {
       const handler = (event: MessageEvent<string>) => {
         if (event.data.startsWith(message)) {
-          RustInterop.ws.removeEventListener("message", handler);
+          WebsocketController.ws.removeEventListener("message", handler);
 
           const jsonStart = event.data.indexOf(" ") + 1;
           const data = JSON.parse(event.data.substring(jsonStart)) as Response<T>;
@@ -93,14 +93,14 @@ export class RustInterop {
         }
       }
 
-      RustInterop.ws.addEventListener("message", handler);
+      WebsocketController.ws.addEventListener("message", handler);
     });
 
     if (message !== "user_auth") {
-      data.passwordHash = RustInterop.hash;
+      data.passwordHash = WebsocketController.hash;
     }
 
-    RustInterop.ws.send(`${message} ${JSON.stringify(data)}`);
+    WebsocketController.ws.send(`${message} ${JSON.stringify(data)}`);
 
     return await result;
   }
@@ -113,11 +113,11 @@ export class RustInterop {
    * @returns The backend's response.
    */
   static async authenticate(user: string, passwordHash: string): Promise<boolean> {
-    const res = await RustInterop.invoke<boolean>("user_auth", { user, passwordHash});
+    const res = await WebsocketController.invoke<boolean>("user_auth", { user, passwordHash});
     const success = res.data;
 
     if (success) {
-      RustInterop.hash = passwordHash;
+      WebsocketController.hash = passwordHash;
     }
 
     return success;
@@ -129,7 +129,7 @@ export class RustInterop {
    * @returns The app's settings.
    */
   static async loadSettings(): Promise<Settings> {
-    const res = await RustInterop.invoke<Settings>("load_settings", {});
+    const res = await WebsocketController.invoke<Settings>("load_settings", {});
     return res.data;
   }
 
@@ -138,7 +138,7 @@ export class RustInterop {
    * @returns True if the write was successful, false otherwise.
    */
   static async writeSettings(): Promise<boolean> {
-    const res = await RustInterop.invoke<boolean>("write_settings", {});
+    const res = await WebsocketController.invoke<boolean>("write_settings", {});
     return res.data;
   }
 
@@ -149,7 +149,7 @@ export class RustInterop {
    * @returns True if the update was successful, false otherwise.
    */
   static async setSetting<T>(key: string, value: T): Promise<boolean> {
-    const res = await RustInterop.invoke<boolean>("set_setting", { key, value });
+    const res = await WebsocketController.invoke<boolean>("set_setting", { key, value });
     return res.data;
   }
 
@@ -159,7 +159,7 @@ export class RustInterop {
    * @returns The loaded libraries data.
    */
   static async loadLibraries(): Promise<LoadedLibrary[]> {
-    const res = await RustInterop.invoke<LoadedLibrary[]>("load_libraries", {});
+    const res = await WebsocketController.invoke<LoadedLibrary[]>("load_libraries", {});
     return res.data;
   }
 
@@ -169,7 +169,7 @@ export class RustInterop {
    * @returns The loaded library data.
    */
   static async addLibrary(library: Library): Promise<LoadedLibrary> {
-    const res = await RustInterop.invoke<LoadedLibrary>("add_library", { library });
+    const res = await WebsocketController.invoke<LoadedLibrary>("add_library", { library });
     return res.data;
   }
 
@@ -179,7 +179,19 @@ export class RustInterop {
    * @returns True if the library was removed, false otherwise.
    */
   static async removeLibrary(library: Library): Promise<boolean> {
-    const res = await RustInterop.invoke<boolean>("remove_library", { library });
+    const res = await WebsocketController.invoke<boolean>("remove_library", { library });
+    return res.data;
+  }
+
+  /**
+   * Parses all of the necessary data from an uploaded rom's path.
+   * @param libraryName The name of the library the rom belongs to.
+   * @param system The name of the rom's system.
+   * @param romPath The rom's path.
+   * @returns The parsed rom data.
+   */
+  static async parseAddedRom(libraryName: string, system: string, romPath: string): Promise<ROM> {
+    const res = await WebsocketController.invoke<ROM>("parse_rom", { libraryName, system, romPath });
     return res.data;
   }
 
@@ -188,7 +200,7 @@ export class RustInterop {
    * @returns The user's SGDB api key.
    */
   static async getSGDBKey(): Promise<string> {
-    const res = await RustInterop.invoke<string>("get_sgdb_key", {});
+    const res = await WebsocketController.invoke<string>("get_sgdb_key", {});
     return res.data;
   }
 }

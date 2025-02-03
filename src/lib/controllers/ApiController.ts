@@ -1,6 +1,6 @@
 import { SGDB } from "@models";
 import type { SGDBImage } from "@types";
-import { RustInterop } from "./utils/RustInterop";
+import { WebsocketController } from "./utils/WebsocketController";
 
 /**
  * The api controller.
@@ -12,7 +12,7 @@ export class ApiController {
    * Initializes the api controller.
    */
   static async init(): Promise<void> {
-    const key = await RustInterop.getSGDBKey();
+    const key = await WebsocketController.getSGDBKey();
 
     this.client = new SGDB(key);
   }

@@ -19,7 +19,7 @@ import { landingPage, libraries, loadedSettings, palette, themePrimaryColor, use
 import type { Library, Settings } from "@types";
 import type { Unsubscriber } from "svelte/store";
 import { LogController } from "./LogController";
-import { RustInterop } from "./RustInterop";
+import { WebsocketController } from "./WebsocketController";
 
 /**
  * The controller for settings.
@@ -32,7 +32,7 @@ export class SettingsController {
    * Initializes the SettingsController.
    */
   static async init() {
-    this.settings = await RustInterop.loadSettings();
+    this.settings = await WebsocketController.loadSettings();
     LogController.log("Finished loading settings.");
 
     await this.setStores();
@@ -41,7 +41,7 @@ export class SettingsController {
   }
 
   private static async writeAll(): Promise<boolean> {
-    return await RustInterop.writeSettings();
+    return await WebsocketController.writeSettings();
   }
 
   /**
@@ -59,7 +59,7 @@ export class SettingsController {
    * @returns True if the update was successful, false otherwise.
    */
   static async set<T>(key: string, value: T): Promise<boolean> {
-    return await RustInterop.setSetting<T>(key, value);
+    return await WebsocketController.setSetting<T>(key, value);
   }
 
   private static async setStores(): Promise<void> {

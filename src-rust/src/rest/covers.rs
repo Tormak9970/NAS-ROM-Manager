@@ -9,13 +9,13 @@ use super::types::CoverUpload;
 /// Downloads a file from a url.
 async fn download_url(url: String, dest_path: &str, timeout: u64) -> Result<(), Rejection> {
   let http_client_res = Client::builder().timeout(Duration::from_secs(timeout)).build();
-  let http_client: Client = http_client_res.expect("Should have been able to successfully make the reqwest client.");
+  let http_client: Client = http_client_res.expect("Failed to make the reqwest client.");
 
   let response_res = http_client.get(url.clone()).send().await;
   
   if response_res.is_ok() {
-    let response = response_res.ok().expect("Should have been able to get response from ok result.");
-    let response_bytes = response.bytes().await.expect("Should have been able to await getting response bytes.");
+    let response = response_res.ok().expect("Failed to get response from ok result.");
+    let response_bytes = response.bytes().await.expect("Failed to await getting response bytes.");
 
     let write_res = tokio::fs::write(&dest_path, &response_bytes).await;
 

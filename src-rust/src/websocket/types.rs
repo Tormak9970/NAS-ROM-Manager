@@ -1,7 +1,15 @@
-use std::env::var;
+use std::{collections::HashMap, env::var};
 
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
+
+
+type ParserMap = HashMap<String, Parser>;
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct ParserStore {
+  pub libraries: HashMap<String, ParserMap>,
+}
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[allow(non_snake_case)]
@@ -125,4 +133,13 @@ pub struct SetSettingArgs {
 pub struct ModifyLibraryArgs {
   pub passwordHash: String,
   pub library: Library,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+#[allow(non_snake_case)]
+pub struct ParseRomArgs {
+  pub passwordHash: String,
+  pub libraryName: String,
+  pub system: String,
+  pub romPath: String,
 }

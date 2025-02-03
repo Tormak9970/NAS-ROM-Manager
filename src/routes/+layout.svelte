@@ -3,7 +3,7 @@
   import { page } from '$app/state';
   import { ContextMenu } from "@component-utils";
   import MediaQuery from "@component-utils/MediaQuery.svelte";
-  import { AuthController, RustInterop } from "@controllers";
+  import { AuthController, WebsocketController } from "@controllers";
   import { DesktopNav } from "@navigation";
   import MobileNav from "@navigation/MobileNav.svelte";
   import { isSignedIn, rememberMe } from "@stores/Auth";
@@ -36,7 +36,7 @@
   });
 
   onMount(() => {
-    RustInterop.init(
+    WebsocketController.init(
       async () => {
         const user = sessionStorage.getItem("user");
         const hash = sessionStorage.getItem("hash");

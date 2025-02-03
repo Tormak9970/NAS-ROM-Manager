@@ -4,7 +4,12 @@ mod rom_upload;
 mod types;
 mod zip;
 
+use std::{fs::remove_file, str::FromStr, thread};
+
+use chrono::Utc;
 use covers::{delete_cover, upload_cover};
+use cron::Schedule;
+use log::{info, warn};
 use rom_download::{delete_rom, download_rom, download_rom_complete, get_rom_metadata};
 use rom_upload::{prepare_rom_upload, rom_upload_complete, upload_rom};
 use types::{CoverUpload, ROMDownload, ROMUploadComplete, StreamStore};
@@ -23,7 +28,7 @@ fn json_body_upload_complete() -> impl Filter<Extract = (ROMUploadComplete,), Er
 }
 
 /// Gets the rest api routes.
-pub fn initialize_rest_api(cover_cache_dir: String) -> impl Filter<Extract = (impl warp::Reply,), Error = warp::Rejection> + Clone {
+pub fn initialize_rest_api(cover_cache_dir: String, cleanup_schedule: String) -> impl Filter<Extract = (impl warp::Reply,), Error = warp::Rejection> + Clone {
   let cache_dir = cover_cache_dir.clone();
   let cache_dir_filter = warp::any().map(move || cache_dir.clone());
 
@@ -97,7 +102,8 @@ pub fn initialize_rest_api(cover_cache_dir: String) -> impl Filter<Extract = (im
 
 
   let upload_store = StreamStore::new();
-  let upload_store_filter = warp::any().map(move || upload_store.clone());
+  let filter_upload_store = upload_store.clone();
+  let upload_store_filter = warp::any().map(move || filter_upload_store.clone());
   
   // * POST Prepare ROM Upload (rest/roms/upload/prepare)
   let prepare_upload_rom_route = warp::path!("rest" / "roms" / "upload" / "prepare")
@@ -142,6 +148,38 @@ pub fn initialize_rest_api(cover_cache_dir: String) -> impl Filter<Extract = (im
     .or(upload_rom_route)
     .or(upload_rom_complete_route)
     .or(delete_rom_route);
+
+
+  let cleanup_upload_store = upload_store.clone();
+  std::thread::spawn(move || {
+    info!("Thread: Starting failed download cleanup check...");
+
+    const DEAD_TIME_LENGTH: i64 = 60 * 60;
+
+    let schedule = Schedule::from_str(&cleanup_schedule).expect("Failed to parse CRON expression");
+
+    for datetime in schedule.upcoming(Utc).take(1) {
+      let now = Utc::now();
+      let until = datetime - now;
+      thread::sleep(until.to_std().unwrap());
+
+
+      let streams = cleanup_upload_store.streams.blocking_read().clone();
+      for stream in streams.into_values() {
+        if now.timestamp() - stream.lastChunkTime > DEAD_TIME_LENGTH {
+          info!("Removing failed upload for path \"{}\"", stream.path);
+
+          let remove_res = remove_file(&stream.path);
+          if remove_res.is_err() {
+            warn!("Error deleting zipped rom folder: {}", remove_res.err().unwrap());
+          }
+
+          cleanup_upload_store.streams.blocking_write().remove(&stream.id);
+        }
+      }
+    }
+  });
+
 
   return http_routes;
 }

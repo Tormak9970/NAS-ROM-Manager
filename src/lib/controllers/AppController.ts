@@ -4,8 +4,8 @@ import { hash64 } from "@utils";
 import { get } from "svelte/store";
 import { ApiController } from "./ApiController";
 import { LogController } from "./utils/LogController";
-import { RustInterop } from "./utils/RustInterop";
 import { SettingsController } from "./utils/SettingsController";
+import { WebsocketController } from "./utils/WebsocketController";
 
 /**
  * The core app controller.
@@ -26,7 +26,7 @@ export class AppController {
    * @param library The library to add.
    */
   static async addLibrary(library: Library) {
-    const loadedLibrary = await RustInterop.addLibrary(library);
+    const loadedLibrary = await WebsocketController.addLibrary(library);
 
     const libraryMap = get(libraries);
     const systemMap = get(systems);
@@ -89,7 +89,7 @@ export class AppController {
    * @param library The library to remove.
    */
   static async removeLibrary(library: Library) {
-    const success = await RustInterop.removeLibrary(library);
+    const success = await WebsocketController.removeLibrary(library);
 
     if (success) {
       const libraryMap = get(libraries);
@@ -143,7 +143,7 @@ export class AppController {
    * Loads the user's libraries.
    */
   static async loadLibraries() {
-    const loadedLibraries = await RustInterop.loadLibraries();
+    const loadedLibraries = await WebsocketController.loadLibraries();
 
     const libraryMap: Record<string, Library> = {};
     const systemMap: Record<string, System> = {};

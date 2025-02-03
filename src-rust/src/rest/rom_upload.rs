@@ -5,8 +5,9 @@ use futures::{Stream, StreamExt};
 use log::{info, warn};
 use tokio::{fs::{File, OpenOptions}, io::AsyncWriteExt};
 use warp::{http::HeaderMap, reject::Rejection, reply::Reply};
+use chrono::Utc;
 
-use crate::restful::zip::unpack_zip;
+use crate::rest::zip::unpack_zip;
 
 use super::types::{ROMUploadComplete, StreamProgress, StreamStore};
 
@@ -82,14 +83,17 @@ pub async fn upload_rom(
   
   if !streams_store.streams.read().await.contains_key(&upload_id) {
     streams_store.streams.write().await.insert(upload_id.clone(), StreamProgress {
+      id: upload_id.clone(),
       path: file_path.clone(),
       currentSize: 0,
-      totalSize: file_size
+      totalSize: file_size,
+      lastChunkTime: Utc::now().timestamp(),
     });
   }
   
   let mut stream_progress = streams_store.streams.read().await.get(&upload_id).unwrap().clone();
   stream_progress.currentSize += chunk_size;
+  stream_progress.lastChunkTime = Utc::now().timestamp();
 
   return Ok(warp::reply::with_header("success", "Access-Control-Allow-Origin", "*"));
 }

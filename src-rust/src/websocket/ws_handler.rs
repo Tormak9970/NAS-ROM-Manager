@@ -8,10 +8,19 @@ use crate::websocket::{
   auth::authenticate_user,
   library_manager::{add_library, load_libraries},
   settings::{load_settings, set_setting, write_settings},
-  types::{AuthArgs, ModifyLibraryArgs, SetSettingArgs, Settings, SimpleArgs},
+  types::{
+    AuthArgs,
+    ModifyLibraryArgs,
+    SetSettingArgs,
+    Settings,
+    SimpleArgs,
+    ParserStore
+  },
   utils::{check_hash, send},
   watcher::Watcher
 };
+
+use super::{library_manager::parse_added_rom, types::ParseRomArgs};
 
 
 fn handle_message(
@@ -19,7 +28,8 @@ fn handle_message(
   data: &str,
   tx: broadcast::Sender<String>,
   settings: Arc<Mutex<Settings>>,
-  watcher: Arc<Mutex<Watcher>>
+  watcher: Arc<Mutex<Watcher>>,
+  parser_store: Arc<Mutex<ParserStore>>
 ) {
   match message {
     "user_auth" => {
@@ -38,7 +48,7 @@ fn handle_message(
         return;
       }
 
-      let mut state_settings = settings.lock().expect("Should have been able to lock Settings Mutex.");
+      let mut state_settings = settings.lock().expect("Failed to lock Settings Mutex.");
       let saved_settings = load_settings();
 
       *state_settings = saved_settings.clone();
@@ -52,7 +62,7 @@ fn handle_message(
         return;
       }
 
-      let state_settings = settings.lock().expect("Should have been able to lock Settings Mutex.");
+      let state_settings = settings.lock().expect("Failed to lock Settings Mutex.");
       let success = write_settings(state_settings);
       
       send(tx, "write_settings", success);
@@ -64,7 +74,7 @@ fn handle_message(
         return;
       }
 
-      let mut state_settings = settings.lock().expect("Should have been able to lock Settings Mutex.");
+      let mut state_settings = settings.lock().expect("Failed to lock Settings Mutex.");
       set_setting(&mut state_settings, &args.key, args.value);
       
       let success = write_settings(state_settings);
@@ -78,9 +88,15 @@ fn handle_message(
         return;
       }
 
-      let state_settings = settings.lock().expect("Should have been able to lock Settings Mutex.");
-      let state_watcher = watcher.lock().expect("Should have been able to lock Watcher Mutex.");
-      let libraries = load_libraries(&state_settings, &state_watcher, tx.clone());
+      let state_settings = settings.lock().expect("Failed to lock Settings Mutex.");
+      let state_watcher = watcher.lock().expect("Failed to lock Watcher Mutex.");
+      let mut state_parsers = parser_store.lock().expect("Failed to lock ParserStore Mutex.");
+      let libraries = load_libraries(
+        &state_settings,
+        &state_watcher,
+        &mut state_parsers,
+        tx.clone()
+      );
 
       send(tx, "load_libraries", libraries);
     }
@@ -91,8 +107,14 @@ fn handle_message(
         return;
       }
       
-      let state_watcher = watcher.lock().expect("Should have been able to lock Watcher Mutex.");
-      let library = add_library(&args.library, &state_watcher, tx.clone());
+      let state_watcher = watcher.lock().expect("Failed to lock Watcher Mutex.");
+      let mut state_parsers = parser_store.lock().expect("Failed to lock ParserStore Mutex.");
+      let library = add_library(
+        &args.library,
+        &state_watcher,
+        &mut state_parsers,
+        tx.clone()
+      );
 
       send(tx, "add_library", library);
     }
@@ -103,10 +125,25 @@ fn handle_message(
         return;
       }
 
-      let state_watcher = watcher.lock().expect("Should have been able to lock Watcher Mutex.");
+      let state_watcher = watcher.lock().expect("Failed to lock Watcher Mutex.");
       state_watcher.unwatch_library(args.library.path);
 
+      let mut state_parsers = parser_store.lock().expect("Failed to lock ParserStore Mutex.");
+      state_parsers.libraries.remove(&args.library.name);
+
       send(tx, "remove_library", true);
+    }
+    "parse_rom" => {
+      let args: ParseRomArgs = serde_json::from_str(data).unwrap();
+      let valid = check_hash(args.passwordHash, tx.clone());
+      if !valid {
+        return;
+      }
+
+      let state_parsers = parser_store.lock().expect("Failed to lock ParserStore Mutex.");
+      let rom = parse_added_rom(args.libraryName, args.system, &args.romPath, &state_parsers);
+
+      send(tx, "parse_rom", rom);
     }
     "get_sgdb_key" => {
       let args: SimpleArgs = serde_json::from_str(data).unwrap();
@@ -141,7 +178,8 @@ pub async fn handle_connection(
   ws: WebSocket,
   tx: Arc<Mutex<broadcast::Sender<String>>>,
   settings: Arc<Mutex<Settings>>,
-  watcher: Arc<Mutex<Watcher>>
+  watcher: Arc<Mutex<Watcher>>,
+  parser_store: Arc<Mutex<ParserStore>>
 ) {
   let (mut ws_sender, mut ws_receiver) = ws.split();
   let mut rx = tx.lock().unwrap().subscribe();
@@ -161,7 +199,14 @@ pub async fn handle_connection(
         if let Ok(text) = message.to_str() {
           let (message, data) = text.split_once(" ").unwrap();
 
-          handle_message(message, data, tx.lock().unwrap().to_owned(), settings.clone(), watcher.clone());
+          handle_message(
+            message,
+            data,
+            tx.lock().unwrap().to_owned(),
+            settings.clone(),
+            watcher.clone(),
+            parser_store.clone()
+          );
         }
       },
       Err(_e) => break,

@@ -1,6 +1,6 @@
 import { isSignedIn, username } from "@stores/Auth";
 import { AppController } from "./AppController";
-import { RustInterop } from "./utils/RustInterop";
+import { WebsocketController } from "./utils/WebsocketController";
 
 /**
  * The user authentication controller.
@@ -13,7 +13,7 @@ export class AuthController {
    * @returns The backend's response.
    */
   static async authenticate(user: string, passwordHash: string): Promise<boolean> {
-    const success = await RustInterop.authenticate(user, passwordHash);
+    const success = await WebsocketController.authenticate(user, passwordHash);
 
     if (success) {
       sessionStorage.setItem("hash", passwordHash);

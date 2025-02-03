@@ -1,14 +1,25 @@
 use std::{collections::HashMap, env::var, fs::{self, read_dir, File}, path::PathBuf};
 use chrono::{DateTime, Local};
 use log::warn;
+use serde_json::Map;
 use tokio::sync::broadcast;
 
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use regex::RegexBuilder;
 use serde::{Deserialize, Serialize};
-use wax::Glob;
+use wax::{Glob, Pattern};
 
-use crate::{websocket::types::{Library, Parser, ParserPattern, Settings, ROM}, websocket::watcher::Watcher};
+use crate::websocket::{
+  types::{
+    Library,
+    Parser,
+    ParserPattern,
+    Settings,
+    ROM,
+    ParserStore
+  },
+  watcher::Watcher
+};
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[allow(non_snake_case)]
@@ -73,7 +84,7 @@ fn load_parsers(library: &Library, tx: broadcast::Sender<String>) -> HashMap<Str
   return parsers;
 }
 
-fn load_rom(library: &Library, parser: &Parser, pattern: &ParserPattern, path: PathBuf) -> ROM {
+fn load_rom(library_name: &str, parser: &Parser, pattern: &ParserPattern, path: PathBuf) -> ROM {
   let path_str = path.to_str().unwrap().to_string();
   let metadata = fs::metadata(&path).expect("Failed to read ROM metadata");
 
@@ -88,7 +99,7 @@ fn load_rom(library: &Library, parser: &Parser, pattern: &ParserPattern, path: P
   let regex_res = regex_builder.build();
   if regex_res.is_err() {
     let err = regex_res.err().unwrap();
-    warn!("Library: \"{}\"; Parser: \"{}\"; Failed to parse glob pattern \"{}\": {}", &library.name, &parser.abbreviation, &pattern.glob, err.to_string());
+    warn!("Library: \"{}\"; Parser: \"{}\"; Failed to parse glob pattern \"{}\": {}", library_name, &parser.abbreviation, &pattern.glob, err.to_string());
   } else {
     let regex = regex_res.unwrap();
 
@@ -112,7 +123,7 @@ fn load_rom(library: &Library, parser: &Parser, pattern: &ParserPattern, path: P
     format: extension.to_owned(),
     system: parser.abbreviation.clone(),
     systemFullName: parser.name.clone(),
-    library: library.name.clone(),
+    library: library_name.to_string(),
     downloadStrategy: pattern.downloadStrategy.clone(),
   };
 }
@@ -132,7 +143,7 @@ fn load_platform(library: &Library, parser: &Parser, path: PathBuf) -> Vec<ROM> 
         let path = entry.unwrap().into_path();
   
         roms.push(load_rom(
-          library,
+          &library.name,
           parser,
           pattern,
           path
@@ -143,7 +154,7 @@ fn load_platform(library: &Library, parser: &Parser, path: PathBuf) -> Vec<ROM> 
   return roms;
 }
 
-fn load_library(library: &Library, watcher: &Watcher, tx: broadcast::Sender<String>) -> LoadedLibrary {
+fn load_library(library: &Library, watcher: &Watcher, tx: broadcast::Sender<String>) -> (LoadedLibrary, HashMap<String, Parser>) {
   let parsers = load_parsers(library, tx);
   let mut roms: Vec<ROM> = vec![];
 
@@ -151,10 +162,13 @@ fn load_library(library: &Library, watcher: &Watcher, tx: broadcast::Sender<Stri
   if entries_res.is_err() {
     let err = entries_res.err().unwrap();
     warn!("Library: \"{}\"; Failed to load: {}", library.name, err.to_string());
-    return LoadedLibrary {
-      library: library.to_owned(),
-      roms,
-    };
+    return (
+      LoadedLibrary {
+        library: library.to_owned(),
+        roms,
+      },
+      parsers
+    );
   }
 
   for dir_entry_res in entries_res.unwrap() {
@@ -184,24 +198,68 @@ fn load_library(library: &Library, watcher: &Watcher, tx: broadcast::Sender<Stri
     }
   }
 
-  return LoadedLibrary {
-    library: library.to_owned(),
-    roms,
-  };
+  return (
+    LoadedLibrary {
+      library: library.to_owned(),
+      roms,
+    },
+    parsers
+  );
 }
 
 /// Loads the app's libraries.
-pub fn load_libraries(state_settings: &Settings, watcher: &Watcher, tx: broadcast::Sender<String>) -> Vec<LoadedLibrary> {
+pub fn load_libraries(state_settings: &Settings, watcher: &Watcher, parser_store: &mut ParserStore, tx: broadcast::Sender<String>) -> Vec<LoadedLibrary> {
   let libraries = &state_settings.libraries;
 
-  let loaded_libraries: Vec<LoadedLibrary> = libraries.par_iter().map_with(watcher, | watcher_par, library | {
+  let loaded_data: Vec<(LoadedLibrary, HashMap<String, Parser>)> = libraries.par_iter().map_with(watcher, | watcher_par, library | {
     return load_library(&library, &watcher_par, tx.clone());
+  }).collect();
+
+  let loaded_libraries: Vec<LoadedLibrary> = loaded_data.iter().map(| (loaded_library, parsers) | {
+    (*parser_store).libraries.insert(loaded_library.library.name.clone(), parsers.to_owned());
+    return loaded_library.to_owned();
   }).collect();
 
   return loaded_libraries;
 }
 
 /// Adds a library to the app
-pub fn add_library(library: &Library, watcher: &Watcher, tx: broadcast::Sender<String>) -> LoadedLibrary {
-  return load_library(library, watcher, tx);
+pub fn add_library(library: &Library, watcher: &Watcher, parser_store: &mut ParserStore, tx: broadcast::Sender<String>) -> LoadedLibrary {
+  let (loaded_library, parsers) = load_library(library, watcher, tx);
+  (*parser_store).libraries.insert(loaded_library.library.name.clone(), parsers.to_owned());
+
+  return loaded_library;
+}
+
+/// Parses a ROM's data from its path.
+pub fn parse_added_rom(library_name: String, system: String, rom_path: &str, parser_store: &ParserStore) -> ROM {
+  let parsers = parser_store.libraries.get(&library_name).expect("Library name was missing from parser map");
+  let parser = parsers.get(&system).expect("System abbreviation was missing from parser map");
+
+  for pattern in &parser.patterns {
+    let glob = Glob::new(&pattern.glob).unwrap();
+
+    if glob.is_match(rom_path) {
+      return load_rom(
+        &library_name,
+        parser,
+        pattern,
+        PathBuf::from(rom_path)
+      );
+    }
+  }
+
+  warn!("ROM should have matched on of the parsers for system \"{}\".", system);
+
+  return ROM {
+    title: "ERROR".to_string(),
+    path: "ERROR".to_string(),
+    size: 0,
+    addDate: "ERROR".to_string(),
+    format: "ERROR".to_string(),
+    system: "ERROR".to_string(),
+    systemFullName: "ERROR".to_string(),
+    library: "ERROR".to_string(),
+    downloadStrategy: Map::new(),
+  }
 }
