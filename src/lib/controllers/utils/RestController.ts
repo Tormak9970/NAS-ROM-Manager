@@ -220,10 +220,10 @@ export class RestController {
     });
 
     if (res.ok) {
-      return true;
+      return await res.text();
     } else {
       LogController.error(`Failed to notify the backend of the completed download for ${data.path}:`, res.statusText);
-      return false;
+      return "";
     }
   }
 
@@ -295,14 +295,14 @@ export class RestController {
     );
 
 
-    const success = await this.uploadComplete({
+    const finalPath = await this.uploadComplete({
       uploadId: uploadId,
       path: filePath,
       libraryPath: libraryPath,
       system: system,
       unzip: needsUnzip,
     });
-    onEnd(success, filePath);
+    onEnd(finalPath !== "", finalPath);
   }
   
   /**

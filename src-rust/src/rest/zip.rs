@@ -1,7 +1,7 @@
 use std::path::{Path, PathBuf};
 use log::warn;
 use tokio::{fs::{create_dir_all, File, OpenOptions}, io::{AsyncReadExt, BufReader}};
-use async_zip::{base::read::seek::ZipFileReader, error::ZipError, tokio::write::ZipFileWriter, Compression, ZipEntryBuilder};
+use async_zip::{base::read::seek::ZipFileReader, error::ZipError, tokio::write::ZipFileWriter, Compression, StoredZipEntry, ZipEntryBuilder};
 use sanitize_filename::sanitize;
 use tokio_util::compat::{TokioAsyncReadCompatExt, TokioAsyncWriteCompatExt};
 
@@ -13,10 +13,28 @@ fn sanitize_file_path(path: &str) -> PathBuf {
     .collect()
 }
 
+fn get_root_of_zip(file: &StoredZipEntry) -> String {
+  let file_path = sanitize_file_path(file.filename().as_str().unwrap());
+
+  let mut components = file_path.components();
+
+  let first = components.next();
+  if first == Some(std::path::Component::CurDir) {
+    // Its relative, need to grab the next path.
+    return components.next().unwrap().as_os_str().to_str().unwrap().to_string();
+  } else {
+    // Its an absolute path.
+    return first.unwrap().as_os_str().to_str().unwrap().to_string();
+  }
+}
+
 /// Extracts everything from the ZIP archive to the output directory.
-pub async fn unpack_zip(archive: File, out_dir: &Path) -> Result<bool, ZipError> {
+pub async fn unpack_zip(archive: File, out_dir: &Path) -> Result<PathBuf, ZipError> {
   let archive = BufReader::new(archive).compat();
   let mut reader = ZipFileReader::new(archive).await?;
+
+  let first_file: &StoredZipEntry = reader.file().entries().get(0).unwrap();
+  let zip_root_folder = get_root_of_zip(first_file);
 
   for index in 0..reader.file().entries().len() {
     let entry = reader.file().entries().get(index).unwrap();
@@ -48,7 +66,7 @@ pub async fn unpack_zip(archive: File, out_dir: &Path) -> Result<bool, ZipError>
     }
   }
 
-  return Ok(true);
+  return Ok(out_dir.join(zip_root_folder));
 }
 
 

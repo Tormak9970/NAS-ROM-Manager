@@ -134,20 +134,20 @@ fn load_platform(library: &Library, parser: &Parser, path: PathBuf) -> Vec<ROM> 
   for pattern in &parser.patterns {
     let glob = Glob::new(&pattern.glob).unwrap();
     for entry in glob.walk(&path) {
-        if entry.is_err() {
-          let err = entry.err().unwrap();
-          warn!("Library: \"{}\"; Parser: \"{}\"; Failed to walk entry \"{}\"", &library.name, &parser.abbreviation, err.path().unwrap().display());
-          continue;
-        }
+      if entry.is_err() {
+        let err = entry.err().unwrap();
+        warn!("Library: \"{}\"; Parser: \"{}\"; Failed to walk entry \"{}\"", &library.name, &parser.abbreviation, err.path().unwrap().display());
+        continue;
+      }
 
-        let path = entry.unwrap().into_path();
-  
-        roms.push(load_rom(
-          &library.name,
-          parser,
-          pattern,
-          path
-        ));
+      let path = entry.unwrap().into_path();
+
+      roms.push(load_rom(
+        &library.name,
+        parser,
+        pattern,
+        path
+      ));
     }
   }
 
@@ -236,20 +236,45 @@ pub fn parse_added_rom(library_name: String, system: String, rom_path: &str, par
   let parsers = parser_store.libraries.get(&library_name).expect("Library name was missing from parser map");
   let parser = parsers.get(&system).expect("System abbreviation was missing from parser map");
 
-  for pattern in &parser.patterns {
-    let glob = Glob::new(&pattern.glob).unwrap();
+  let path = PathBuf::from(rom_path);
 
-    if glob.is_match(rom_path) {
-      return load_rom(
-        &library_name,
-        parser,
-        pattern,
-        PathBuf::from(rom_path)
-      );
+  if path.is_dir() {
+    for pattern in &parser.patterns {
+      let glob = Glob::new(&pattern.glob).unwrap();
+
+      for entry in glob.walk(&path) {
+        if entry.is_err() {
+          let err = entry.err().unwrap();
+          warn!("Adding ROM: Parser: \"{}\"; Failed to walk entry \"{}\"", &parser.abbreviation, err.path().unwrap().display());
+          continue;
+        }
+  
+        let path = entry.unwrap().into_path();
+  
+        return load_rom(
+          &library_name,
+          parser,
+          pattern,
+          path
+        )
+      }
+    }
+  } else {
+    for pattern in &parser.patterns {
+      let glob = Glob::new(&pattern.glob).unwrap();
+  
+      if glob.is_match(rom_path) {
+        return load_rom(
+          &library_name,
+          parser,
+          pattern,
+          path
+        );
+      }
     }
   }
 
-  warn!("ROM should have matched on of the parsers for system \"{}\".", system);
+  warn!("Adding ROM: ROM should have matched on of the parsers for system \"{}\".", system);
 
   return ROM {
     title: "ERROR".to_string(),
