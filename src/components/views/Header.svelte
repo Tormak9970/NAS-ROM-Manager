@@ -1,8 +1,10 @@
 <script lang="ts">
+  import { Icon } from "@component-utils";
   import { AuthController } from "@controllers";
   import type { ContextMenuItem } from "@directives";
-  import { Person } from "@icons";
-  import { MenuButton } from "@interactables";
+  import { Add, Person } from "@icons";
+  import { Button, MenuButton } from "@interactables";
+  import { showAddRomModal } from "@stores/Modals";
   import { isLandscape } from "@stores/State";
   import SearchBar from "./SearchBar.svelte";
 
@@ -23,7 +25,10 @@
       <SearchBar />
     {/if}
   </div>
-  <div class="account">
+  <div class="buttons">
+    <Button type="text" iconType="full" on:click={() => $showAddRomModal = true}>
+      <Icon icon={Add}/>
+    </Button>
     <MenuButton items={menuItems} icon={Person} />
   </div>
 </div>
@@ -57,7 +62,11 @@
     height: 2.5rem;
   }
 
-  .account {
+  .buttons {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+
     margin: 0rem 1rem;
   }
 </style>

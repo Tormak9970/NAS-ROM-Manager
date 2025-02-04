@@ -1,10 +1,10 @@
 <script lang="ts">
+  import { mobileViews } from "$lib/routes";
   import NavList from "./NavList.svelte";
   import NavListButton from "./NavListButton.svelte";
-  import { mobileViews } from "$lib/routes";
     
-  import { page } from '$app/state';  
   import { goto } from "$app/navigation";
+  import { page } from '$app/state';
 </script>
 
 <div class="view-nav">
@@ -30,5 +30,7 @@
 
     position: relative;
     z-index: 4;
+
+    border-radius: var(--m3-util-rounding-small) var(--m3-util-rounding-small) 0 0;
   }
 </style>

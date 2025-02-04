@@ -1,4 +1,11 @@
-export * from "./Settings";
-export * from "./Library";
-export * from "./SGDB";
 export * from "./DownloadStrategy";
+export * from "./Library";
+export * from "./Settings";
+export * from "./SGDB";
+
+export type RomUploadConfig = {
+  libraryPath: string;
+  system: string;
+  file: File;
+  needsUnzip: boolean;
+}

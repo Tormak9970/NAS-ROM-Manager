@@ -1,4 +1,4 @@
-import type { ROM } from "@types";
+import type { ROM, RomUploadConfig } from "@types";
 import { writable } from "svelte/store";
 
 export const showControlledModal = writable(false);
@@ -13,3 +13,10 @@ export const showAddLibraryModal = writable(false);
 
 export const showDownloadProgressModal = writable(false);
 export const downloadProgressRom = writable<ROM | null>(null);
+
+export const showAddRomModal = writable(false);
+export const showUploadProgressModal = writable(false);
+export const uploadProgressConfig = writable<RomUploadConfig | null>(null);
+
+export const showEditRomModal = writable(false);
+export const editIsPostUpload = writable(false);

@@ -1,0 +1,106 @@
+<script lang="ts">
+  import { ModalBody } from "@component-utils";
+  import { Button, ProgressIndicator } from "@interactables";
+  import { LoadingSpinner } from "@layout";
+  import { downloadProgressRom, showDownloadProgressModal } from "@stores/Modals";
+  import { formatFileSize } from "@utils";
+  import { onMount } from "svelte";
+
+  let open = $state(true);
+  
+  let prepping = $state(true);
+  let downloadProgress = $state(0);
+  let fileSize = $state(1);
+
+  /**
+   * Function to run on cancel.
+   */
+  async function onCancel(): Promise<void> {
+    open = false;
+  }
+
+  function closeEnd() {
+    $showDownloadProgressModal = false;
+    $downloadProgressRom = null;
+  }
+
+  onMount(() => {
+    // RestController.uploadRom(
+    //   $downloadProgressRom!,
+    //   (size: number) => {
+    //     fileSize = size;
+    //     prepping = false;
+    //   },
+    //   (progress: number) => {
+    //     downloadProgress = progress;
+    //   },
+    //   () => {
+    //     $showInfoSnackbar({ message: "Download complete" });
+    //     onCancel();
+    //   }
+    // );
+  });
+</script>
+
+<ModalBody
+  headline="Download Progress"
+  open={open}
+  canClose={false}
+  on:closeEnd={closeEnd}
+  extraOptions={{ style: "margin-bottom: 0rem" }}
+>
+  <div class="content">
+    {#if prepping}
+      <div class="loading-container">
+        <LoadingSpinner /> <div class="font-headline-small">Loading ROM Metadata...</div>
+      </div>
+    {:else}
+      <div class="download-container">
+        <ProgressIndicator percent={downloadProgress / fileSize * 100} />
+        <div class="info">{formatFileSize(downloadProgress)} / {formatFileSize(fileSize)}</div>
+      </div>
+    {/if}
+  </div>
+  <div slot="buttons" class="buttons">
+    <Button type="text" on:click={onCancel}>Cancel</Button>
+  </div>
+</ModalBody>
+
+<style>
+  .content {
+    width: 350px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .loading-container {
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+    gap: 20px;
+
+    margin: 0rem 1rem;
+    margin-top: 1rem;
+  }
+
+  .download-container {
+    width: 100%;
+
+    display: flex;
+    flex-direction: column;
+    /* align-items: flex-end; */
+    gap: 0.5rem;
+
+
+    margin-top: 1rem;
+  }
+
+  .buttons {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+</style>
