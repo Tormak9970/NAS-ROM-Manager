@@ -51,17 +51,16 @@
   <div class="content">
     <Select name="Library" options={libraryOptions} disabled={libraryOptions.length === 1} bind:value={library} />
     <Select name="System" options={systemOptions} disabled={systemOptions.length === 1} bind:value={system} />
-    <FileField name="File" />
+    <FileField name="File" on:change={(e) => file = e.detail.value} />
     {#if file && isZip}
       <label>
-        <div class="m3-font-title-medium">Unzip After Upload:</div>
+        <div class="m3-font-title-medium">Unzip after upload:</div>
         <Toggle bind:checked={needsUnzip} />
       </label>
       <label>
-        <div class="m3-font-title-medium">This zip has <a href="">one root folder</a>:</div>
+        <div class="m3-font-title-medium">Zip has <a href="https://github.com/Tormak9970/NAS-ROM-Manager?tab=readme-ov-file#single-root-folder">one root folder</a>:</div>
         <Checkbox bind:checked={okStructure} />
       </label>
-      <!-- TODO: checkbox verifying it has a single root -->
     {/if}
   </div>
   <div slot="buttons" class="buttons">
