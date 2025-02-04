@@ -1,18 +1,18 @@
 // ! Nav icons
-export { default as Settings } from "@ktibow/iconset-material-symbols/settings-rounded";
 export { default as SettingsOutline } from "@ktibow/iconset-material-symbols/settings-outline-rounded";
+export { default as Settings } from "@ktibow/iconset-material-symbols/settings-rounded";
 
-export { default as Dashboard } from "@ktibow/iconset-material-symbols/dashboard-rounded";
 export { default as DashboardOutline } from "@ktibow/iconset-material-symbols/dashboard-outline-rounded";
+export { default as Dashboard } from "@ktibow/iconset-material-symbols/dashboard-rounded";
 
-export { default as GameAsset } from "@ktibow/iconset-material-symbols/videogame-asset-rounded";
 export { default as GameAssetOutline } from "@ktibow/iconset-material-symbols/videogame-asset-outline-rounded";
+export { default as GameAsset } from "@ktibow/iconset-material-symbols/videogame-asset-rounded";
 
-export { default as Library } from "@ktibow/iconset-material-symbols/video-library-rounded";
 export { default as LibraryOutline } from "@ktibow/iconset-material-symbols/video-library-outline-rounded";
+export { default as Library } from "@ktibow/iconset-material-symbols/video-library-rounded";
 
-export { default as Assignment } from "@ktibow/iconset-material-symbols/assignment-rounded";
 export { default as AssignmentOutline } from "@ktibow/iconset-material-symbols/assignment-outline-rounded";
+export { default as Assignment } from "@ktibow/iconset-material-symbols/assignment-rounded";
 
 // ! Other Icons
 export { default as Close } from "@ktibow/iconset-material-symbols/close-rounded";
@@ -35,6 +35,7 @@ export { default as Search } from "@ktibow/iconset-material-symbols/search-round
 export { default as Add } from "@ktibow/iconset-material-symbols/add-rounded";
 
 export { default as FolderOpen } from "@ktibow/iconset-material-symbols/folder-open-rounded";
+export { default as Folder } from "@ktibow/iconset-material-symbols/folder-rounded";
 export { default as Today } from "@ktibow/iconset-material-symbols/today-rounded";
 
 export { default as Edit } from "@ktibow/iconset-material-symbols/edit-outline-rounded";
@@ -61,5 +62,5 @@ export { default as VisibiityOff } from "@ktibow/iconset-material-symbols/visibi
 
 export { default as Tune } from "@ktibow/iconset-material-symbols/tune-rounded";
 
-export { default as EmergencyHome } from "@ktibow/iconset-material-symbols/emergency-home-rounded";
 export { default as Download } from "@ktibow/iconset-material-symbols/download-rounded";
+export { default as EmergencyHome } from "@ktibow/iconset-material-symbols/emergency-home-rounded";

@@ -12,6 +12,7 @@
 
   export let disabled = false;
   export let required = false;
+  export let readonly = false;
   export let error = false;
   export let value = "";
   const dispatch = createEventDispatcher();
@@ -33,6 +34,7 @@
     {id}
     {disabled}
     {required}
+    {readonly}
     {...extraOptions}
     on:change
     on:input
@@ -107,27 +109,35 @@
     position: relative;
     margin-left: 0.75rem;
   }
+  .m3-container .trailing :global(svg) {
+    width: 1.4rem;
+    height: 1.4rem;
+    color: rgb(var(--m3-scheme-on-surface-variant));
+    pointer-events: none;
+  }
+  
   .trailing {
     position: absolute;
-    padding-left: 0.75rem;
-    padding-right: 0.75rem;
-    height: 100%;
-    right: 0;
+    z-index: 2;
+
+    padding-left: 0.425rem;
+    padding-right: 0.425rem;
+    height: 2.25rem;
+    right: 0.4rem;
 
     display: flex;
     align-items: center;
     justify-content: center;
     border: none;
     background-color: transparent;
-    border-top-right-radius: 0.25rem;
-    border-bottom-right-radius: 0.25rem;
+    border-radius: 1.125rem;
 
     -webkit-tap-highlight-color: transparent;
     cursor: pointer;
     transition: all 200ms;
   }
 
-  input:focus ~ label,
+  input:not(:read-only):focus ~ label,
   input:not(:placeholder-shown) ~ label {
     top: calc(var(--m3-font-body-small-height, 1rem) * -0.5);
     font-size: var(--m3-font-body-small-size, 0.85rem);
@@ -173,6 +183,10 @@
   .error > input:hover ~ label,
   .error > input:hover ~ .layer {
     --error: var(--m3-scheme-on-error-container);
+  }
+
+  input:read-only {
+    caret-color: transparent;
   }
 
   input:disabled {
