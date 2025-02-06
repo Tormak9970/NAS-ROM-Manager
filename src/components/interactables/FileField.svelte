@@ -8,6 +8,8 @@
   export let extraOptions: HTMLInputAttributes = {};
   export let name: string;
 
+  export let fileExtensions: string[] = [];
+
   export let disabled = false;
 
   let fileElement: HTMLInputElement;
@@ -33,6 +35,7 @@
   type="file"
   id="fileElem"
   style="display:none"
+  accept={fileExtensions.length > 0 ? fileExtensions.join(",") : undefined}
   on:change={handleFilePrompt}
   bind:this={fileElement}
 />
