@@ -5,7 +5,7 @@
   import { Add, Person } from "@icons";
   import { Button, MenuButton } from "@interactables";
   import { showAddRomModal } from "@stores/Modals";
-  import { isLandscape } from "@stores/State";
+  import { isLandscape, libraries, systems } from "@stores/State";
   import SearchBar from "./SearchBar.svelte";
 
   const menuItems: ContextMenuItem[] = [
@@ -14,7 +14,10 @@
       text: "Logout",
       action: AuthController.logout,
     }
-  ]
+  ];
+
+  let libraryKeys = $derived(Object.keys($libraries));
+  let systemKeys = $derived(Object.keys($systems));
 </script>
 
 <div id="header">
@@ -26,7 +29,7 @@
     {/if}
   </div>
   <div class="buttons">
-    <Button type="text" iconType="full" on:click={() => $showAddRomModal = true}>
+    <Button type="text" iconType="full" on:click={() => $showAddRomModal = true} disabled={libraryKeys.length === 0 || systemKeys.length === 0}>
       <Icon icon={Add}/>
     </Button>
     <MenuButton items={menuItems} icon={Person} />
