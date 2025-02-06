@@ -9,7 +9,6 @@
   export let name: string;
 
   export let disabled = false;
-  export let error = false;
 
   let fileElement: HTMLInputElement;
   
@@ -41,7 +40,6 @@
   name={name}
   trailingIcon={Folder}
   disabled={disabled}
-  error={error}
   readonly
   on:trailingClick={() => fileElement.click()}
   extraOptions={extraOptions}

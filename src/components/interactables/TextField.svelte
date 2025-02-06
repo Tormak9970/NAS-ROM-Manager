@@ -10,13 +10,16 @@
   export let leadingIcon: IconifyIcon | undefined = undefined;
   export let trailingIcon: IconifyIcon | undefined = undefined;
 
+  export let validate: (value: string) => boolean = (value: string) => { return true; };
+
   export let disabled = false;
   export let required = false;
   export let readonly = false;
-  export let error = false;
   export let value = "";
   const dispatch = createEventDispatcher();
   const id = crypto.randomUUID();
+  
+  $: error = !validate(value);
 </script>
 
 <div
@@ -120,10 +123,9 @@
     position: absolute;
     z-index: 2;
 
-    padding-left: 0.425rem;
-    padding-right: 0.425rem;
     height: 2.25rem;
-    right: 0.4rem;
+    width: 2.25rem;
+    right: 0.3rem;
 
     display: flex;
     align-items: center;
