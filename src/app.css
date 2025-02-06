@@ -331,10 +331,10 @@ a.m3-container {
 }
 
 a, a:visited {
-  color: rgb(var(--m3-scheme-secondary));
+  color: rgb(var(--m3-scheme-primary));
   transition: color 0.15s;
 }
 
 a:hover {
-  color: rgb(var(--m3-scheme-secondary) / 0.8);
+  color: rgb(var(--m3-scheme-primary) / 0.8);
 }

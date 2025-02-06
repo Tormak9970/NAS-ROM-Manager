@@ -1,6 +1,6 @@
 <script lang="ts">
   import { ModalBody } from "@component-utils";
-  import { Button, Checkbox, FileField, Select, Toggle } from "@interactables";
+  import { Button, Checkbox, FileField, Select } from "@interactables";
   import { showAddRomModal, showUploadProgressModal, uploadProgressConfig } from "@stores/Modals";
   import { libraries, systems } from "@stores/State";
 
@@ -55,10 +55,10 @@
     {#if file && isZip}
       <label>
         <div class="m3-font-title-medium">Unzip after upload:</div>
-        <Toggle bind:checked={needsUnzip} />
+        <Checkbox bind:checked={needsUnzip} />
       </label>
       <label>
-        <div class="m3-font-title-medium">Zip has <a href="https://github.com/Tormak9970/NAS-ROM-Manager?tab=readme-ov-file#single-root-folder">one root folder</a>:</div>
+        <div class="m3-font-title-medium">Zip has <a href="https://github.com/Tormak9970/NAS-ROM-Manager?tab=readme-ov-file#single-root-folder" rel="noopener noreferrer" target="_blank">one root folder</a>:</div>
         <Checkbox bind:checked={okStructure} />
       </label>
     {/if}
