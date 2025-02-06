@@ -21,11 +21,14 @@ use crate::websocket::{
   watcher::Watcher
 };
 
+use super::types::System;
+
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[allow(non_snake_case)]
 pub struct LoadedLibrary {
   pub library: Library,
   pub roms: Vec<ROM>,
+  pub systems: Vec<System>,
 }
 
 /// Loads a library's parsers.
@@ -157,6 +160,13 @@ fn load_platform(library: &Library, parser: &Parser, path: PathBuf) -> Vec<ROM> 
 fn load_library(library: &Library, watcher: &Watcher, tx: broadcast::Sender<String>) -> (LoadedLibrary, HashMap<String, Parser>) {
   let parsers = load_parsers(library, tx);
   let mut roms: Vec<ROM> = vec![];
+  let systems: Vec<System> = parsers.clone().into_values().map(| parser | {
+    return System {
+      abbreviation: parser.abbreviation,
+      fullName: parser.name,
+      romCount: 0
+    }
+  }).collect();
 
   let entries_res = read_dir(&library.path);
   if entries_res.is_err() {
@@ -166,6 +176,7 @@ fn load_library(library: &Library, watcher: &Watcher, tx: broadcast::Sender<Stri
       LoadedLibrary {
         library: library.to_owned(),
         roms,
+        systems,
       },
       parsers
     );
@@ -202,6 +213,7 @@ fn load_library(library: &Library, watcher: &Watcher, tx: broadcast::Sender<Stri
     LoadedLibrary {
       library: library.to_owned(),
       roms,
+      systems,
     },
     parsers
   );

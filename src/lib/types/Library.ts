@@ -29,6 +29,7 @@ export type ROM = {
 export type LoadedLibrary = {
   library: Library;
   roms: ROM[];
+  systems: System[];
 }
 
 /**

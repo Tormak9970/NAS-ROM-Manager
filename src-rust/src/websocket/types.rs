@@ -21,6 +21,14 @@ pub struct ParserPattern {
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[allow(non_snake_case)]
+pub struct System {
+  pub fullName: String,
+  pub abbreviation: String,
+  pub romCount: u64,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+#[allow(non_snake_case)]
 pub struct Parser {
   pub name: String,
   pub abbreviation: String,

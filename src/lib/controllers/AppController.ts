@@ -41,6 +41,16 @@ export class AppController {
     libraryMap[library.name] = library;
     romsLibraryLUT[library.name] = [];
 
+    for (const system of loadedLibrary.systems) {
+      if (!systemMap[system.abbreviation]) {
+        systemMap[system.abbreviation] = system;
+      }
+
+      if (!romsSystemLUT[system.abbreviation]) {
+        romsSystemLUT[system.abbreviation] = [];
+      }
+    }
+
     for (const customization of library.romCustomizations) {
       const id = hash64(customization.path);
       romEdits[id] = customization;
@@ -51,21 +61,8 @@ export class AppController {
       romMap[id] = rom;
 
       romsLibraryLUT[rom.library].push(id);
-
-      if (!romsSystemLUT[rom.system]) romsSystemLUT[rom.system] = [];
       romsSystemLUT[rom.system].push(id);
-
-      let system = systemMap[rom.system];
-      if (!system) {
-        system = {
-          fullName: rom.systemFullName,
-          abbreviation: rom.system,
-          romCount: 0,
-        }
-
-        systemMap[rom.system] = system;
-      }
-      system.romCount++;
+      systemMap[rom.system].romCount++;
     }
 
 
@@ -114,10 +111,6 @@ export class AppController {
         const system = systemMap[rom.system];
         system.romCount--;
         romsSystemLUT[rom.system].splice(romsSystemLUT[rom.system].indexOf(id), 1);
-
-        if (system.romCount === 0) {
-          delete systemMap[rom.system];
-        }
       }
 
       delete romsLibraryLUT[library.name];
@@ -161,6 +154,16 @@ export class AppController {
       libraryMap[library.name] = library;
       romsLibraryLUT[library.name] = [];
 
+      for (const system of loadedLibrary.systems) {
+        if (!systemMap[system.abbreviation]) {
+          systemMap[system.abbreviation] = system;
+        }
+
+        if (!romsSystemLUT[system.abbreviation]) {
+          romsSystemLUT[system.abbreviation] = [];
+        }
+      }
+
       for (const customization of library.romCustomizations) {
         const id = hash64(customization.path);
         romEdits[id] = customization;
@@ -171,21 +174,8 @@ export class AppController {
         romMap[id] = rom;
 
         romsLibraryLUT[rom.library].push(id);
-
-        if (!romsSystemLUT[rom.system]) romsSystemLUT[rom.system] = [];
         romsSystemLUT[rom.system].push(id);
-
-        let system = systemMap[rom.system];
-        if (!system) {
-          system = {
-            fullName: rom.systemFullName,
-            abbreviation: rom.system,
-            romCount: 0,
-          }
-
-          systemMap[rom.system] = system;
-        }
-        system.romCount++;
+        systemMap[rom.system].romCount++;
       }
     }
 
