@@ -1,6 +1,7 @@
 <script lang="ts">
   import { ModalBody } from "@component-utils";
   import { Button, Checkbox, FileField, Select } from "@interactables";
+  import { systemToParser } from "@models";
   import { showAddRomModal, showUploadProgressModal, uploadProgressConfig } from "@stores/Modals";
   import { libraries, systems } from "@stores/State";
 
@@ -11,7 +12,7 @@
   });
 
   let systemOptions: SelectItem[] = Object.keys($systems).map((key) => {
-    return { label: key, value: key };
+    return { label: key, value: systemToParser(key) };
   });
 
   let library = $state(libraryOptions[0].value);

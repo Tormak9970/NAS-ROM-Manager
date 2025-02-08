@@ -268,14 +268,16 @@ pub fn parse_added_rom(library_name: String, parser_name: String, rom_path: &str
           parser,
           pattern,
           path
-        )
+        );
       }
     }
   } else {
+    let filename = path.file_name().unwrap().to_str().unwrap();
+
     for pattern in &parser.patterns {
       let glob = Glob::new(&pattern.glob).unwrap();
   
-      if glob.is_match(rom_path) {
+      if glob.is_match(filename) {
         return load_rom(
           &library_name,
           parser,

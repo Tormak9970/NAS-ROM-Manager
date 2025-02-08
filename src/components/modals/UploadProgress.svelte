@@ -3,7 +3,6 @@
   import { RestController, WebsocketController } from "@controllers";
   import { Button, ProgressIndicator } from "@interactables";
   import { LoadingSpinner } from "@layout";
-  import { systemToParser } from "@models";
   import { editIsPostUpload, romEditingId, showEditRomModal, showUploadProgressModal, uploadProgressConfig } from "@stores/Modals";
   import { roms, romsByLibrary, romsBySystem, showErrorSnackbar, showInfoSnackbar } from "@stores/State";
   import { formatFileSize, hash64 } from "@utils";
@@ -38,16 +37,18 @@
 
     step = "processing"
 
-    const rom = await WebsocketController.parseAddedRom(library, systemToParser(system), romPath);
+    const rom = await WebsocketController.parseAddedRom(library, system, romPath);
     const id = hash64(rom.path);
     
-    $roms[id] = rom;
-    $romsByLibrary[library].push(id);
-    $romsBySystem[system].push(id);
+    if (!$romsBySystem[system].includes(id)) {
+      $roms[id] = rom;
+      $romsByLibrary[library].push(id);
+      $romsBySystem[system].push(id);
 
-    $roms = { ...$roms };
-    $romsByLibrary = { ...$romsByLibrary };
-    $romsBySystem = { ...$romsBySystem };
+      $roms = { ...$roms };
+      $romsByLibrary = { ...$romsByLibrary };
+      $romsBySystem = { ...$romsBySystem };
+    }
 
     $showInfoSnackbar({ message: "Upload complete" });
     onCancel();
