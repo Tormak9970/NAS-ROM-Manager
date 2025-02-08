@@ -4,7 +4,7 @@ export * from "./Settings";
 export * from "./SGDB";
 
 export type RomUploadConfig = {
-  libraryPath: string;
+  library: string;
   system: string;
   file: File;
   needsUnzip: boolean;

@@ -1,16 +1,19 @@
 <script lang="ts">
   import { ModalBody } from "@component-utils";
+  import { RestController, WebsocketController } from "@controllers";
   import { Button, ProgressIndicator } from "@interactables";
   import { LoadingSpinner } from "@layout";
-  import { downloadProgressRom, showDownloadProgressModal } from "@stores/Modals";
-  import { formatFileSize } from "@utils";
+  import { systemToParser } from "@models";
+  import { editIsPostUpload, romEditingId, showEditRomModal, showUploadProgressModal, uploadProgressConfig } from "@stores/Modals";
+  import { roms, romsByLibrary, romsBySystem, showErrorSnackbar, showInfoSnackbar } from "@stores/State";
+  import { formatFileSize, hash64 } from "@utils";
   import { onMount } from "svelte";
 
   let open = $state(true);
   
-  let prepping = $state(true);
-  let downloadProgress = $state(0);
-  let fileSize = $state(1);
+  let step = $state<"prep" | "upload" | "processing">("prep");
+  let uploadProgress = $state(0);
+  let fileSize = $uploadProgressConfig!.file.size;
 
   /**
    * Function to run on cancel.
@@ -20,44 +23,69 @@
   }
 
   function closeEnd() {
-    $showDownloadProgressModal = false;
-    $downloadProgressRom = null;
+    $showUploadProgressModal = false;
+    $uploadProgressConfig = null;
+  }
+
+  async function processRom(success: boolean, romPath: string) {
+    if (!success) {
+      $showErrorSnackbar({ message: "Upload failed with unkown error" });
+      onCancel();
+      return;
+    }
+    
+    const { library, system } = $uploadProgressConfig!;
+
+    step = "processing"
+
+    const rom = await WebsocketController.parseAddedRom(library, systemToParser(system), romPath);
+    const id = hash64(rom.path);
+    
+    $roms[id] = rom;
+    $romsByLibrary[library].push(id);
+    $romsBySystem[system].push(id);
+
+    $roms = { ...$roms };
+    $romsByLibrary = { ...$romsByLibrary };
+    $romsBySystem = { ...$romsBySystem };
+
+    $showInfoSnackbar({ message: "Upload complete" });
+    onCancel();
+    $showEditRomModal = true;
+    $editIsPostUpload = true;
+    $romEditingId = id;
   }
 
   onMount(() => {
-    // RestController.uploadRom(
-    //   $downloadProgressRom!,
-    //   (size: number) => {
-    //     fileSize = size;
-    //     prepping = false;
-    //   },
-    //   (progress: number) => {
-    //     downloadProgress = progress;
-    //   },
-    //   () => {
-    //     $showInfoSnackbar({ message: "Download complete" });
-    //     onCancel();
-    //   }
-    // );
+    RestController.uploadRom(
+      $uploadProgressConfig!,
+      () => step = "upload",
+      (progress: number) => uploadProgress = progress,
+      processRom,
+    );
   });
 </script>
 
 <ModalBody
-  headline="Download Progress"
+  headline="Upload Progress"
   open={open}
   canClose={false}
   on:closeEnd={closeEnd}
   extraOptions={{ style: "margin-bottom: 0rem" }}
 >
   <div class="content">
-    {#if prepping}
+    {#if step === "prep"}
       <div class="loading-container">
-        <LoadingSpinner /> <div class="font-headline-small">Loading ROM Metadata...</div>
+        <LoadingSpinner /> <div class="font-headline-small">Setting Upload Metadata...</div>
+      </div>
+    {:else if step === "upload"}
+      <div class="upload-container">
+        <ProgressIndicator percent={uploadProgress / fileSize * 100} />
+        <div class="info">{formatFileSize(uploadProgress)} / {formatFileSize(fileSize)}</div>
       </div>
     {:else}
-      <div class="download-container">
-        <ProgressIndicator percent={downloadProgress / fileSize * 100} />
-        <div class="info">{formatFileSize(downloadProgress)} / {formatFileSize(fileSize)}</div>
+      <div class="loading-container">
+        <LoadingSpinner /> <div class="font-headline-small">Processing ROM...</div>
       </div>
     {/if}
   </div>
@@ -86,12 +114,11 @@
     margin-top: 1rem;
   }
 
-  .download-container {
+  .upload-container {
     width: 100%;
 
     display: flex;
     flex-direction: column;
-    /* align-items: flex-end; */
     gap: 0.5rem;
 
 

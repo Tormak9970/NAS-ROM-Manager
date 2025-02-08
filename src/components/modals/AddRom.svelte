@@ -31,7 +31,7 @@
     open = false;
 
     $uploadProgressConfig = {
-      libraryPath: $libraries[library].path,
+      library: library,
       system: system,
       file: file!,
       needsUnzip: needsUnzip

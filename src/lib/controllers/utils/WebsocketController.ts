@@ -186,12 +186,12 @@ export class WebsocketController {
   /**
    * Parses all of the necessary data from an uploaded rom's path.
    * @param libraryName The name of the library the rom belongs to.
-   * @param system The name of the rom's system.
+   * @param parser The parser for the rom's system.
    * @param romPath The rom's path.
    * @returns The parsed rom data.
    */
-  static async parseAddedRom(libraryName: string, system: string, romPath: string): Promise<ROM> {
-    const res = await WebsocketController.invoke<ROM>("parse_rom", { libraryName, system, romPath });
+  static async parseAddedRom(libraryName: string, parser: string, romPath: string): Promise<ROM> {
+    const res = await WebsocketController.invoke<ROM>("parse_rom", { libraryName, parser, romPath });
     return res.data;
   }
 

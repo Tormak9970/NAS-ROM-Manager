@@ -141,7 +141,7 @@ fn handle_message(
       }
 
       let state_parsers = parser_store.lock().expect("Failed to lock ParserStore Mutex.");
-      let rom = parse_added_rom(args.libraryName, args.system, &args.romPath, &state_parsers);
+      let rom = parse_added_rom(args.libraryName, args.parser, &args.romPath, &state_parsers);
 
       send(tx, "parse_rom", rom);
     }

@@ -148,6 +148,6 @@ pub struct ModifyLibraryArgs {
 pub struct ParseRomArgs {
   pub passwordHash: String,
   pub libraryName: String,
-  pub system: String,
+  pub parser: String,
   pub romPath: String,
 }

@@ -1,6 +1,8 @@
-import type { ROM } from "@types";
+import { libraries } from "@stores/State";
+import type { ROM, RomUploadConfig } from "@types";
 import { hash64 } from "@utils";
 import streamSaver from "streamsaver";
+import { get } from "svelte/store";
 import { LogController } from "./LogController";
 
 type ROMDownload = {
@@ -273,14 +275,14 @@ export class RestController {
    * @param onEnd Function to run on upload complete.
    */
   static async uploadRom(
-    libraryPath: string,
-    system: string,
-    file: File,
-    needsUnzip: boolean,
+    uploadConfig: RomUploadConfig,
     onStart: () => void = () => {},
     onProgress: (progress: number) => void = () => {},
     onEnd: (success: boolean, filePath: string) => void = () => {}
   ) {
+    const { library, system, file, needsUnzip } = uploadConfig;
+    const libraryPath = get(libraries)[library].path;
+    
     const filePath = await this.prepareUpload(libraryPath, system, file.name);
     onStart();
 

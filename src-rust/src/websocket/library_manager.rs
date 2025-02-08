@@ -244,9 +244,9 @@ pub fn add_library(library: &Library, watcher: &Watcher, parser_store: &mut Pars
 }
 
 /// Parses a ROM's data from its path.
-pub fn parse_added_rom(library_name: String, system: String, rom_path: &str, parser_store: &ParserStore) -> ROM {
+pub fn parse_added_rom(library_name: String, parser_name: String, rom_path: &str, parser_store: &ParserStore) -> ROM {
   let parsers = parser_store.libraries.get(&library_name).expect("Library name was missing from parser map");
-  let parser = parsers.get(&system).expect("System abbreviation was missing from parser map");
+  let parser = parsers.get(&parser_name).expect("System abbreviation was missing from parser map");
 
   let path = PathBuf::from(rom_path);
 
@@ -286,7 +286,7 @@ pub fn parse_added_rom(library_name: String, system: String, rom_path: &str, par
     }
   }
 
-  warn!("Adding ROM: ROM should have matched on of the parsers for system \"{}\".", system);
+  warn!("Adding ROM: ROM should have matched on of the parsers for system \"{}\".", parser_name);
 
   return ROM {
     title: "ERROR".to_string(),

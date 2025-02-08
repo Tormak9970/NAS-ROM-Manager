@@ -23,7 +23,16 @@ export const SYSTEMS: string[] = [
   "PSVita",
   "PS3",
   "PSP",
-]
+];
+
+/**
+ * Gets the parser key for the provided system.
+ * @param system The system.
+ * @returns The parser key.
+ */
+export function systemToParser(system: string): string {
+  return system.toLowerCase().replace(/\s/g, "");
+}
 
 /**
  * Color config for the different systems.
