@@ -2,6 +2,10 @@
   "name": "Nintendo 3DS",
   "abbreviation": "N3DS",
   "folder": "n3ds",
+  "tagConfig": {
+    "backgroundColor": "240 143 57",
+    "borderColor": "240 143 57"
+  },
   "patterns": [
     {
       "glob": "*.(?i){3ds,3dsx,app,axf,cci,cxi,elf}",

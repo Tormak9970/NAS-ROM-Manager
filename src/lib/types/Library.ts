@@ -1,9 +1,15 @@
 import type { DownloadStrategy } from "./DownloadStrategy";
 
+export type SystemTagConfig = {
+  backgroundColor: string;
+  borderColor: string;
+}
+
 export type System = {
   fullName: string;
   abbreviation: string;
   romCount: number;
+  tagConfig: SystemTagConfig;
 }
 
 export type ROMCustomization = {

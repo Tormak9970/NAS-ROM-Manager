@@ -2,6 +2,10 @@
   "name": "Nintendo GameBoy",
   "abbreviation": "GB",
   "folder": "gb",
+  "tagConfig": {
+    "backgroundColor": "86 44 6",
+    "borderColor": "86 44 6"
+  },
   "patterns": [
     {
       "glob": "*.(?i){7z,gb,dmg,sgb,zip}",

@@ -2,6 +2,10 @@
   "name": "Sony PlaySation",
   "abbreviation": "PS",
   "folder": "ps",
+  "tagConfig": {
+    "backgroundColor": "165 165 165",
+    "borderColor": "165 165 165"
+  },
   "patterns": [
     {
       "glob": "*.(?i){7z,ccd,chd,cue,ecm,iso,m3u,mds,pbp,toc}",

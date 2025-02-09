@@ -1,5 +1,5 @@
-import { libraries, romCustomizations, roms, romsByLibrary, romsBySystem, showErrorSnackbar, showInfoSnackbar, systems } from "@stores/State";
-import type { Library, ROM, ROMCustomization, System } from "@types";
+import { libraries, romCustomizations, roms, romsByLibrary, romsBySystem, showErrorSnackbar, showInfoSnackbar, systems, systemTagConfigs } from "@stores/State";
+import type { Library, ROM, ROMCustomization, System, SystemTagConfig } from "@types";
 import { hash64 } from "@utils";
 import { get } from "svelte/store";
 import { ApiController } from "./ApiController";
@@ -36,6 +36,8 @@ export class AppController {
     
     const romsLibraryLUT = get(romsByLibrary);
     const romsSystemLUT = get(romsBySystem);
+    
+    const tagConfigs = get(systemTagConfigs);
 
 
     libraryMap[library.name] = library;
@@ -48,6 +50,10 @@ export class AppController {
 
       if (!romsSystemLUT[system.abbreviation]) {
         romsSystemLUT[system.abbreviation] = [];
+      }
+
+      if (!tagConfigs[system.abbreviation]) {
+        tagConfigs[system.abbreviation] = system.tagConfig;
       }
     }
 
@@ -75,6 +81,8 @@ export class AppController {
     romsByLibrary.set({ ...romsLibraryLUT });
     romsBySystem.set({ ...romsSystemLUT });
 
+    systemTagConfigs.set({ ...tagConfigs });
+    
 
     LogController.log(`Loaded ${loadedLibrary.roms.length} new ROMs.`);
 
@@ -146,6 +154,8 @@ export class AppController {
     
     const romsLibraryLUT: Record<string, string[]> = {};
     const romsSystemLUT: Record<string, string[]> = {};
+
+    const tagConfigs: Record<string, SystemTagConfig> = {};
     
 
     for (const loadedLibrary of loadedLibraries) {
@@ -161,6 +171,10 @@ export class AppController {
 
         if (!romsSystemLUT[system.abbreviation]) {
           romsSystemLUT[system.abbreviation] = [];
+        }
+
+        if (!tagConfigs[system.abbreviation]) {
+          tagConfigs[system.abbreviation] = system.tagConfig;
         }
       }
 
@@ -188,6 +202,8 @@ export class AppController {
 
     romsByLibrary.set(romsLibraryLUT);
     romsBySystem.set(romsSystemLUT);
+
+    systemTagConfigs.set(tagConfigs);
 
     LogController.log(`Loaded ${Object.keys(libraryMap).length} libraries.`);
     LogController.log(`Loaded ${Object.keys(systemMap).length} systems.`);

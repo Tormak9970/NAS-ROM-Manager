@@ -1,5 +1,5 @@
 import { DEFAULT_FILTERS } from "@models";
-import type { DBFilters, Library, Palette, ROM, ROMCustomization, System } from "@types";
+import type { DBFilters, Library, Palette, ROM, ROMCustomization, System, SystemTagConfig } from "@types";
 import { localStorageWritable } from "@utils";
 import { writable } from "svelte/store";
 
@@ -30,3 +30,5 @@ export const romsByLibrary = writable<Record<string, string[]>>({});
 export const romsBySystem = writable<Record<string, string[]>>({});
 
 export const dbFilters = localStorageWritable<DBFilters>("sgdb-filters", DEFAULT_FILTERS);
+
+export const systemTagConfigs = writable<Record<string, SystemTagConfig>>({});

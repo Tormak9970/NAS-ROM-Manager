@@ -2,6 +2,10 @@
   "name": "Sony PlaySation Vita",
   "abbreviation": "PSVita",
   "folder": "psvita",
+  "tagConfig": {
+    "backgroundColor": "1 30 98",
+    "borderColor": "1 30 98"
+  },
   "patterns": [
     {
       "glob": "*",

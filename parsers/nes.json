@@ -2,6 +2,10 @@
   "name": "Nintendo Entertainment System",
   "abbreviation": "NES",
   "folder": "nes",
+  "tagConfig": {
+    "backgroundColor": "165 165 165",
+    "borderColor": "165 165 165"
+  },
   "patterns": [
     {
       "glob": "*.(?i){7z,bz2,gz,nes,fds,unif,unf,xz,zip}",

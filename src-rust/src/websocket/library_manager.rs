@@ -164,7 +164,8 @@ fn load_library(library: &Library, watcher: &Watcher, tx: broadcast::Sender<Stri
     return System {
       abbreviation: parser.abbreviation,
       fullName: parser.name,
-      romCount: 0
+      romCount: 0,
+      tagConfig: parser.tagConfig,
     }
   }).collect();
 

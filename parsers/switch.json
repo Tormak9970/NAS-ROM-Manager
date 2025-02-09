@@ -2,6 +2,10 @@
   "name": "Nintendo Switch",
   "abbreviation": "Switch",
   "folder": "switch",
+  "tagConfig": {
+    "backgroundColor": "228 0 15",
+    "borderColor": "228 0 15"
+  },
   "patterns": [
     {
       "glob": "*.(?i){kip,nca,nro,nso,nsp,xci}",

@@ -2,6 +2,10 @@
   "name": "Microsoft Xbox",
   "abbreviation": "Xbox",
   "folder": "xbox",
+  "tagConfig": {
+    "backgroundColor": "50 104 18",
+    "borderColor": "50 104 18"
+  },
   "patterns": [
     {
       "glob": "*/(?i)default.xbe",

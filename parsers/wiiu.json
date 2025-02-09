@@ -2,6 +2,10 @@
   "name": "Nintendo WiiU",
   "abbreviation": "WiiU",
   "folder": "wiiu",
+  "tagConfig": {
+    "backgroundColor": "0 228 212",
+    "borderColor": "0 228 212"
+  },
   "patterns": [
     {
       "glob": "*/*/*.(?i)rpx",

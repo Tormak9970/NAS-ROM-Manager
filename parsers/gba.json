@@ -2,6 +2,10 @@
   "name": "Nintendo GameBoy Advanced",
   "abbreviation": "GBA",
   "folder": "gba",
+  "tagConfig": {
+    "backgroundColor": "112 87 255",
+    "borderColor": "112 87 255"
+  },
   "patterns": [
     {
       "glob": "*.(?i){7z,agb,bin,gba,zip}",

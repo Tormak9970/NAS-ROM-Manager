@@ -2,6 +2,10 @@
   "name": "Sony PlaySation 2",
   "abbreviation": "PS2",
   "folder": "ps2",
+  "tagConfig": {
+    "backgroundColor": "0 194 165",
+    "borderColor": "0 194 165"
+  },
   "patterns": [
     {
       "glob": "*.(?i){7z,bin,chd,ciso,cso,dump,elf,gz,img,iso,m3u,mdf,nrg,zip}",

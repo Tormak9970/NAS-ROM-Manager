@@ -2,6 +2,10 @@
   "name": "Sony PlaySation 3",
   "abbreviation": "PS3",
   "folder": "ps3",
+  "tagConfig": {
+    "backgroundColor": "0 117 202",
+    "borderColor": "0 117 202"
+  },
   "patterns": [
     {
       "glob": "*/PS3_GAME/USRDIR/(?i)eboot.bin",

@@ -2,9 +2,8 @@
   import { Icon } from "@component-utils";
   import { Download } from "@icons";
   import { Button } from "@interactables";
-  import { SYSTEM_TAGS_CONFIG } from "@models";
   import { downloadProgressRom, showDownloadProgressModal } from "@stores/Modals";
-  import { libraryGridType } from "@stores/State";
+  import { libraryGridType, systemTagConfigs } from "@stores/State";
   import type { ROM } from "@types";
   import { formatFileSize, GRID_LAYOUTS } from "@utils";
   import RomTag from "./RomTag.svelte";
@@ -15,14 +14,15 @@
 
   let { rom }: RomProps = $props();
 
-  let system = $derived(rom.system.toLowerCase());
+  let system = $derived(rom.system);
 
   let cover = "https://cdn2.steamgriddb.com/thumb/3c64afe806cd466dd1ffecbe3e2e8cce.jpg";
 
   let layout = $derived(GRID_LAYOUTS[$libraryGridType]);
 
   const DEFAULT_COLOR = "var(--m3-scheme-tertiary-container)";
-  let systemTagConfig = $derived(SYSTEM_TAGS_CONFIG[system]);
+  let systemTagConfig = $derived($systemTagConfigs[system]);
+  console.log($systemTagConfigs);
 
   function download() {
     $downloadProgressRom = rom;

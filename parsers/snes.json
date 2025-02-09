@@ -2,6 +2,10 @@
   "name": "Super Nintendo Entertainment System",
   "abbreviation": "SNES",
   "folder": "snes",
+  "tagConfig": {
+    "backgroundColor": "255 51 36",
+    "borderColor": "255 51 36"
+  },
   "patterns": [
     {
       "glob": "*.(?i){7z,bs,bml,fig,sfc,smc,st,zip}",

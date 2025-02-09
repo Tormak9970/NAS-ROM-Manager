@@ -1,9 +1,9 @@
 <script lang="ts">
   import { ModalBody } from "@component-utils";
   import { Button, Checkbox, FileField, Select } from "@interactables";
-  import { systemToParser } from "@models";
   import { showAddRomModal, showUploadProgressModal, uploadProgressConfig } from "@stores/Modals";
   import { libraries, systems } from "@stores/State";
+  import { systemToParser } from "@utils";
 
   let open = $state(true);
   

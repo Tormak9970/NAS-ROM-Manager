@@ -2,6 +2,10 @@
   "name": "Nintendo Wii",
   "abbreviation": "Wii",
   "folder": "wii",
+  "tagConfig": {
+    "backgroundColor": "207 207 207",
+    "borderColor": "207 207 207"
+  },
   "patterns": [
     {
       "glob": "*.(?i){7z,ciso,dol,elf,gcz,iso,rvz,wad,wbfs,wia}",

@@ -13,6 +13,13 @@ pub struct ParserStore {
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[allow(non_snake_case)]
+pub struct SystemTagConfig {
+  pub backgroundColor: String,
+  pub borderColor: String,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+#[allow(non_snake_case)]
 pub struct ParserPattern {
   pub glob: String,
   pub regex: String,
@@ -25,6 +32,7 @@ pub struct System {
   pub fullName: String,
   pub abbreviation: String,
   pub romCount: u64,
+  pub tagConfig: SystemTagConfig,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -33,6 +41,7 @@ pub struct Parser {
   pub name: String,
   pub abbreviation: String,
   pub folder: String,
+  pub tagConfig: SystemTagConfig,
   pub patterns: Vec<ParserPattern>,
 }
 

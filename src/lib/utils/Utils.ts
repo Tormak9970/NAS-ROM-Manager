@@ -231,10 +231,19 @@ export function compareStrings(first: string, second: string) {
  */
 export function formatFileSize(fileSize: number): string {
   if (fileSize < 1000000) {
-    return (fileSize / 1000).toFixed(1) + " Kb";
+    return (fileSize / 1000).toFixed(1) + " KB";
   } else if (fileSize < 1000000000) {
-    return (fileSize / 1000000).toFixed(1) + " Mb";
+    return (fileSize / 1000000).toFixed(1) + " MB";
   } else {
-    return (fileSize / 1000000000).toFixed(1) + " Gb";
+    return (fileSize / 1000000000).toFixed(1) + " GB";
   }
+}
+
+/**
+ * Gets the parser key for the provided system.
+ * @param system The system.
+ * @returns The parser key.
+ */
+export function systemToParser(system: string): string {
+  return system.toLowerCase().replace(/\s/g, "");
 }

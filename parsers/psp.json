@@ -2,6 +2,10 @@
   "name": "Sony PlaySation Portable",
   "abbreviation": "PSP",
   "folder": "psp",
+  "tagConfig": {
+    "backgroundColor": "15 15 15",
+    "borderColor": "15 15 15"
+  },
   "patterns": [
     {
       "glob": "*.(?i){7z,elf,cso,iso,pbp,prx}",

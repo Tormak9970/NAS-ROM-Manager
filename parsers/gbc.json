@@ -2,6 +2,10 @@
   "name": "Nintendo GameBoy Color",
   "abbreviation": "GBC",
   "folder": "gbc",
+  "tagConfig": {
+    "backgroundColor": "217 126 229",
+    "borderColor": "217 126 229"
+  },
   "patterns": [
     {
       "glob": "*.(?i){7z,gb,gbc,dmg,sgb,zip}",

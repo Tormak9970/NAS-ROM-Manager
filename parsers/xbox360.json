@@ -2,6 +2,10 @@
   "name": "Microsoft Xbox 360",
   "abbreviation": "Xbox 360",
   "folder": "xbox360",
+  "tagConfig": {
+    "backgroundColor": "105 217 38",
+    "borderColor": "105 217 38"
+  },
   "patterns": [
     {
       "glob": "*/(?i)default.xex",

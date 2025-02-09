@@ -2,6 +2,10 @@
   "name": "Nintendo DS",
   "abbreviation": "NDS",
   "folder": "nds",
+  "tagConfig": {
+    "backgroundColor": "205 216 53",
+    "borderColor": "205 216 53"
+  },
   "patterns": [
     {
       "glob": "*.(?i){7z,bin,nds,zip}",

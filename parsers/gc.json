@@ -2,6 +2,10 @@
   "name": "Nintendo GameCube",
   "abbreviation": "GC",
   "folder": "gc",
+  "tagConfig": {
+    "backgroundColor": "123 67 226",
+    "borderColor": "123 67 226"
+  },
   "patterns": [
     {
       "glob": "*.(?i){7z,ciso,dol,elf,gcm,gcz,iso,nkit.iso,rvz,wad,wia}",
