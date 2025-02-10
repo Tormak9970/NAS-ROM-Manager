@@ -1,8 +1,10 @@
 use std::{env::var, fs::{self, File}, path::PathBuf, sync::MutexGuard};
-use log::warn;
 use serde_json::{Map, Value};
 
-use crate::websocket::types::{get_default_settings, Settings};
+use crate::websocket::types::{
+  settings::{get_default_settings, Settings},
+  ErrorSender
+};
 
 fn check_settings(settings: &mut Settings, defaults: &Settings) {
   settings.version = defaults.version.clone();
@@ -12,13 +14,19 @@ fn check_settings(settings: &mut Settings, defaults: &Settings) {
 }
 
 /// Checks if the app's settings exist and writes the defaults if they don't.
-fn write_default_if_missing(config_path: &PathBuf, settings_path: &PathBuf, default_settings: &Settings) -> bool {
+fn write_default_if_missing(config_path: &PathBuf, settings_path: &PathBuf, default_settings: &Settings, send_error: &ErrorSender) -> bool {
   let _ = fs::create_dir_all(config_path);
 
   let settings_exists = fs::exists(settings_path);
   if settings_exists.is_err() {
     let err = settings_exists.err().unwrap();
-    warn!("Can't check existence of settings.json: {}", err.to_string());
+
+    send_error(
+      format!("Failed to read settings.json: {}", err.to_string()),
+      "Please ensure NRM has write access to the mounted \"/config\" directory.".to_string(),
+      crate::websocket::types::BackendErrorType::PANIC
+    );
+
     return false;
   }
 
@@ -29,7 +37,12 @@ fn write_default_if_missing(config_path: &PathBuf, settings_path: &PathBuf, defa
 
     if write_res.is_err() {
       let err = write_res.err().unwrap();
-      warn!("Failed to write default settings: {}", err.to_string());
+
+      send_error(
+        format!("Failed to write default settings: {}", err.to_string()),
+        "Please ensure NRM has write access to the mounted \"/config\" directory.".to_string(),
+        crate::websocket::types::BackendErrorType::PANIC
+      );
     }
 
     return false;
@@ -39,39 +52,44 @@ fn write_default_if_missing(config_path: &PathBuf, settings_path: &PathBuf, defa
 }
 
 /// Loads the app's settings from the file system.
-pub fn load_settings() -> Settings {
+pub fn load_settings(send_error: ErrorSender) -> Result<Settings, ()> {
   let default_settings = get_default_settings();
   
   let config_path = PathBuf::from(var("NRM_CONFIG_DIR").ok().unwrap());
   let settings_path = config_path.join("settings.json");
 
-  let settings_exist = write_default_if_missing(&config_path, &settings_path, &default_settings);
+  let settings_exist = write_default_if_missing(&config_path, &settings_path, &default_settings, &send_error);
   if !settings_exist {
-    return default_settings;
+    return Ok(default_settings);
   }
 
   let settings_file_res = File::open(&settings_path);
   if settings_file_res.is_err() {
     let err = settings_file_res.err().unwrap();
-    warn!("Can't read settings.json: {}", err.to_string());
-    return default_settings;
+    
+    send_error(
+      format!("Failed to read settings.json: {}", err.to_string()),
+      "Please ensure NRM has write access to the mounted \"/config\" directory.".to_string(),
+      crate::websocket::types::BackendErrorType::PANIC
+    );
+    return Err(());
   }
 
   let mut saved_settings: Settings = serde_json::from_reader(settings_file_res.ok().unwrap()).unwrap();
 
   check_settings(&mut saved_settings, &default_settings);
 
-  return saved_settings;
+  return Ok(saved_settings);
 }
 
 /// Writes all settings in state to the file system.
-pub fn write_settings(state_settings: MutexGuard<'_, Settings>) -> bool {
+pub fn write_settings(state_settings: MutexGuard<'_, Settings>, send_error: ErrorSender) -> bool {
   let default_settings = get_default_settings();
   
   let config_path = PathBuf::from(var("NRM_CONFIG_DIR").ok().unwrap());
   let settings_path = config_path.join("settings.json");
 
-  let _ = write_default_if_missing(&config_path, &settings_path, &default_settings);
+  let _ = write_default_if_missing(&config_path, &settings_path, &default_settings, &send_error);
 
   let settings = state_settings.clone();
   let settings_str = serde_json::to_string_pretty(&settings).expect("Settings were malformatted.");
@@ -79,7 +97,13 @@ pub fn write_settings(state_settings: MutexGuard<'_, Settings>) -> bool {
   let write_res = fs::write(settings_path, &settings_str);
   if write_res.is_err() {
     let err = write_res.err().unwrap();
-    warn!("Failed to write default settings: {}", err.to_string());
+    
+    send_error(
+      format!("Failed to write default settings: {}", err.to_string()),
+      "Please ensure NRM has write access to the mounted \"/config\" directory.".to_string(),
+      crate::websocket::types::BackendErrorType::PANIC
+    );
+
     return false;
   }
 

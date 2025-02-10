@@ -6,21 +6,23 @@ use tokio::sync::broadcast;
 
 use crate::websocket::{
   auth::authenticate_user,
-  library_manager::{add_library, load_libraries},
+  library_manager::{add_library, load_libraries, parse_added_rom},
   settings::{load_settings, set_setting, write_settings},
   types::{
-    AuthArgs,
-    ModifyLibraryArgs,
-    SetSettingArgs,
-    Settings,
-    SimpleArgs,
-    ParserStore
+    args::{
+      AuthArgs,
+      ModifyLibraryArgs,
+      SetSettingArgs,
+      SimpleArgs,
+      ParseRomArgs
+    },
+    library::ParserStore,
+    settings::Settings,
+    ErrorSender
   },
-  utils::{check_hash, send},
+  utils::{check_hash, send, get_error_sender},
   watcher::Watcher
 };
-
-use super::{library_manager::parse_added_rom, types::ParseRomArgs};
 
 
 fn handle_message(
@@ -31,6 +33,8 @@ fn handle_message(
   watcher: Arc<Mutex<Watcher>>,
   parser_store: Arc<Mutex<ParserStore>>
 ) {
+  let send_error: ErrorSender = get_error_sender(tx.clone());
+
   match message {
     "user_auth" => {
       let args: AuthArgs = serde_json::from_str(data).unwrap();
@@ -49,11 +53,15 @@ fn handle_message(
       }
 
       let mut state_settings = settings.lock().expect("Failed to lock Settings Mutex.");
-      let saved_settings = load_settings();
+      let saved_settings = load_settings(send_error);
 
-      *state_settings = saved_settings.clone();
+      // If loading failed, we've already notfied the frontend of that, so we don't need to here.
+      if saved_settings.is_ok() {
+        let settings = saved_settings.unwrap();
+        *state_settings = settings.clone();
 
-      send(tx, "load_settings", &saved_settings);
+        send(tx, "load_settings", &settings);
+      }
     }
     "write_settings" => {
       let args: SimpleArgs = serde_json::from_str(data).unwrap();
@@ -63,9 +71,13 @@ fn handle_message(
       }
 
       let state_settings = settings.lock().expect("Failed to lock Settings Mutex.");
-      let success = write_settings(state_settings);
+      let success = write_settings(state_settings, send_error);
+
+      // If write failed, we've already notfied the frontend of that, so we don't need to here.
+      if success {
+        send(tx, "write_settings", success);
+      }
       
-      send(tx, "write_settings", success);
     }
     "set_setting" => {
       let args: SetSettingArgs = serde_json::from_str(data).unwrap();
@@ -77,9 +89,12 @@ fn handle_message(
       let mut state_settings = settings.lock().expect("Failed to lock Settings Mutex.");
       set_setting(&mut state_settings, &args.key, args.value);
       
-      let success = write_settings(state_settings);
+      let success = write_settings(state_settings, send_error);
 
-      send(tx, "set_setting", success);
+      // If write failed, we've already notfied the frontend of that, so we don't need to here.
+      if success {
+        send(tx, "set_setting", success);
+      }
     }
     "load_libraries" => {
       let args: SimpleArgs = serde_json::from_str(data).unwrap();
@@ -91,14 +106,17 @@ fn handle_message(
       let state_settings = settings.lock().expect("Failed to lock Settings Mutex.");
       let state_watcher = watcher.lock().expect("Failed to lock Watcher Mutex.");
       let mut state_parsers = parser_store.lock().expect("Failed to lock ParserStore Mutex.");
-      let libraries = load_libraries(
+      let libraries_res = load_libraries(
         &state_settings,
         &state_watcher,
         &mut state_parsers,
-        tx.clone()
+        send_error
       );
 
-      send(tx, "load_libraries", libraries);
+      // If loading failed, we've already notfied the frontend of that, so we don't need to here.
+      if libraries_res.is_ok() {
+        send(tx, "load_libraries", libraries_res.unwrap());
+      }
     }
     "add_library" => {
       let args: ModifyLibraryArgs = serde_json::from_str(data).unwrap();
@@ -109,14 +127,17 @@ fn handle_message(
       
       let state_watcher = watcher.lock().expect("Failed to lock Watcher Mutex.");
       let mut state_parsers = parser_store.lock().expect("Failed to lock ParserStore Mutex.");
-      let library = add_library(
+      let library_res = add_library(
         &args.library,
         &state_watcher,
         &mut state_parsers,
-        tx.clone()
+        send_error
       );
 
-      send(tx, "add_library", library);
+      // If loading failed, we've already notfied the frontend of that, so we don't need to here.
+      if library_res.is_ok() {
+        send(tx, "add_library", library_res.unwrap());
+      }
     }
     "remove_library" => {
       let args: ModifyLibraryArgs = serde_json::from_str(data).unwrap();
@@ -141,9 +162,17 @@ fn handle_message(
       }
 
       let state_parsers = parser_store.lock().expect("Failed to lock ParserStore Mutex.");
-      let rom = parse_added_rom(args.libraryName, args.parser, &args.romPath, &state_parsers);
+      let rom_res = parse_added_rom(
+        args.libraryName,
+        args.parser,
+        &args.romPath,
+        &state_parsers,
+        send_error
+      );
 
-      send(tx, "parse_rom", rom);
+      if rom_res.is_ok() {
+        send(tx, "parse_rom", rom_res.unwrap());
+      }
     }
     "get_sgdb_key" => {
       let args: SimpleArgs = serde_json::from_str(data).unwrap();

@@ -16,7 +16,7 @@
  */
 
 import { goto } from "$app/navigation";
-import type { Library, LoadedLibrary, ROM, Settings } from "@types";
+import { BackendErrorType, type BackendError, type Library, type LoadedLibrary, type ROM, type Settings } from "@types";
 import { get } from "svelte/store";
 import { showErrorSnackbar } from "../../../stores/State";
 
@@ -53,23 +53,33 @@ export class WebsocketController {
 
     // * Handles generic messages such as token expiration.
     WebsocketController.ws.addEventListener("message", (event) => {
-      const parts = event.data.split(" ");
+      const firstSpace = event.data.indexOf(" ");
+      const message = event.data.substring(0, firstSpace);
+      const data = event.data.substring(firstSpace + 1);
 
-      switch(parts[0]) {
-        case "hash_mismatch":
+      switch(message) {
+        case "hash_mismatch": {
           WebsocketController.hash = "";
           onLogout();
           get(showErrorSnackbar)({ message: "Something went wrong verifying your request"});
           break;
-        case "missing_env_variable":
-          const variable = JSON.parse(parts[1]).data;
+        }
+        case "missing_env_variable": {
+          const variable = JSON.parse(data).data;
           const message = `No environment variable ${variable} was found`;
           const fix = `Please check your container to ensure ${variable} is set`;
-          goto(`/error?message=${message}&fix=${fix}`);
+          goto(`/error?message=${message}&fix=${fix}&type=${BackendErrorType.PANIC}`);
           break;
-        case "reload_library":
-          // TODO: implement reloading the libraries. Path that caused the reload will be .data
+        }
+        case "backend_error": {
+          const { message, fix, type } = JSON.parse(data).data as BackendError;
+          goto(`/error?message=${message}&fix=${fix}&type=${BackendErrorType.PANIC}`);
           break;
+        }
+        case "reload_library": {
+          // TODO: implement reloading the libraries. Paths that caused the reload will be .data
+          break;
+        }
       }
     });
   }

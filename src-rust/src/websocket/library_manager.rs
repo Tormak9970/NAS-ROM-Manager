@@ -1,27 +1,18 @@
 use std::{collections::HashMap, env::var, fs::{self, read_dir, File}, path::PathBuf};
 use chrono::{DateTime, Local};
 use log::warn;
-use serde_json::Map;
-use tokio::sync::broadcast;
-
-use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use regex::RegexBuilder;
 use serde::{Deserialize, Serialize};
 use wax::{Glob, Pattern};
 
-use crate::websocket::{
-  types::{
-    Library,
-    Parser,
-    ParserPattern,
-    Settings,
-    ROM,
-    ParserStore
+use super::types::{
+  library::{
+    Library, Parser, ParserPattern, ParserStore, System, ROM
   },
-  watcher::Watcher
+  settings::Settings,
+  ErrorSender
 };
-
-use super::types::System;
+use super::watcher::Watcher;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[allow(non_snake_case)]
@@ -32,25 +23,24 @@ pub struct LoadedLibrary {
 }
 
 /// Loads a library's parsers.
-fn load_parsers(library: &Library, tx: broadcast::Sender<String>) -> HashMap<String, Parser> {
+fn load_parsers(library: &Library, send_error: &ErrorSender) -> HashMap<String, Parser> {
   let mut parsers: HashMap<String, Parser> = HashMap::new();
 
   let mut parsers_path = library.parsersPath.clone();
   if library.useProvidedParsers {
-    let env_parsers_default_res = var("NRM_DEFAULT_PARSERS_DIR");
-    if env_parsers_default_res.is_err() {
-      warn!("No default_parsers variable \"NRM_DEFAULT_PARSERS_DIR\" was found!");
-      tx.send(format!("missing_env_variable NRM_DEFAULT_PARSERS_DIR")).expect("Failed to broadcast message");
-      return parsers;
-    }
-
-    parsers_path = env_parsers_default_res.unwrap();
+    parsers_path = var("NRM_DEFAULT_PARSERS_DIR").expect("Failed to get builtin default parsers env variable");
   }
 
   let entries_res = read_dir(&parsers_path);
   if entries_res.is_err() {
     let err = entries_res.err().unwrap();
-    warn!("Library: \"{}\"; Can't load parsers: {}", library.name, err.to_string());
+    
+    send_error(
+      format!("Library: \"{}\"; Failed to load parsers: {}", library.name, err.to_string()),
+      format!("Please double check that \"{}\" is readable.", parsers_path),
+      crate::websocket::types::BackendErrorType::PANIC
+    );
+    
     return parsers;
   }
 
@@ -157,8 +147,8 @@ fn load_platform(library: &Library, parser: &Parser, path: PathBuf) -> Vec<ROM> 
   return roms;
 }
 
-fn load_library(library: &Library, watcher: &Watcher, tx: broadcast::Sender<String>) -> (LoadedLibrary, HashMap<String, Parser>) {
-  let parsers = load_parsers(library, tx);
+fn load_library(library: &Library, watcher: &Watcher, send_error: &ErrorSender) -> Result<(LoadedLibrary, HashMap<String, Parser>), ()> {
+  let parsers = load_parsers(library, send_error);
   let mut roms: Vec<ROM> = vec![];
   let systems: Vec<System> = parsers.clone().into_values().map(| parser | {
     return System {
@@ -172,15 +162,14 @@ fn load_library(library: &Library, watcher: &Watcher, tx: broadcast::Sender<Stri
   let entries_res = read_dir(&library.path);
   if entries_res.is_err() {
     let err = entries_res.err().unwrap();
-    warn!("Library: \"{}\"; Failed to load: {}", library.name, err.to_string());
-    return (
-      LoadedLibrary {
-        library: library.to_owned(),
-        roms,
-        systems,
-      },
-      parsers
+    
+    send_error(
+      format!("Library: \"{}\"; Failed to load: {}", library.name, err.to_string()),
+      format!("Please double check that there is a library mounted to \"{}\".", library.path),
+      crate::websocket::types::BackendErrorType::WARN
     );
+
+    return Err(());
   }
 
   for dir_entry_res in entries_res.unwrap() {
@@ -210,42 +199,54 @@ fn load_library(library: &Library, watcher: &Watcher, tx: broadcast::Sender<Stri
     }
   }
 
-  return (
+  return Ok((
     LoadedLibrary {
       library: library.to_owned(),
       roms,
       systems,
     },
     parsers
-  );
+  ));
 }
 
 /// Loads the app's libraries.
-pub fn load_libraries(state_settings: &Settings, watcher: &Watcher, parser_store: &mut ParserStore, tx: broadcast::Sender<String>) -> Vec<LoadedLibrary> {
+pub fn load_libraries(state_settings: &Settings, watcher: &Watcher, parser_store: &mut ParserStore, send_error: ErrorSender) -> Result<Vec<LoadedLibrary>, ()> {
   let libraries = &state_settings.libraries;
 
-  let loaded_data: Vec<(LoadedLibrary, HashMap<String, Parser>)> = libraries.par_iter().map_with(watcher, | watcher_par, library | {
-    return load_library(&library, &watcher_par, tx.clone());
-  }).collect();
+  let mut loaded_libraries: Vec<LoadedLibrary> = Vec::new();
 
-  let loaded_libraries: Vec<LoadedLibrary> = loaded_data.iter().map(| (loaded_library, parsers) | {
+  for library in libraries.into_iter() {
+    let load_res = load_library(library, &watcher, &send_error);
+
+    if load_res.is_err() {
+      return Err(());
+    }
+    
+    let (loaded_library, parsers) = load_res.unwrap();
     (*parser_store).libraries.insert(loaded_library.library.name.clone(), parsers.to_owned());
-    return loaded_library.to_owned();
-  }).collect();
 
-  return loaded_libraries;
+    loaded_libraries.push(loaded_library);
+  }
+
+  return Ok(loaded_libraries);
 }
 
 /// Adds a library to the app
-pub fn add_library(library: &Library, watcher: &Watcher, parser_store: &mut ParserStore, tx: broadcast::Sender<String>) -> LoadedLibrary {
-  let (loaded_library, parsers) = load_library(library, watcher, tx);
+pub fn add_library(library: &Library, watcher: &Watcher, parser_store: &mut ParserStore, send_error: ErrorSender) -> Result<LoadedLibrary, ()> {
+  let load_res = load_library(library, watcher, &send_error);
+
+  if load_res.is_err() {
+    return Err(());
+  }
+
+  let (loaded_library, parsers) = load_res.unwrap();
   (*parser_store).libraries.insert(loaded_library.library.name.clone(), parsers.to_owned());
 
-  return loaded_library;
+  return Ok(loaded_library);
 }
 
 /// Parses a ROM's data from its path.
-pub fn parse_added_rom(library_name: String, parser_name: String, rom_path: &str, parser_store: &ParserStore) -> ROM {
+pub fn parse_added_rom(library_name: String, parser_name: String, rom_path: &str, parser_store: &ParserStore, send_error: ErrorSender) -> Result<ROM, ()> {
   let parsers = parser_store.libraries.get(&library_name).expect("Library name was missing from parser map");
   let parser = parsers.get(&parser_name).expect("System abbreviation was missing from parser map");
 
@@ -264,12 +265,12 @@ pub fn parse_added_rom(library_name: String, parser_name: String, rom_path: &str
   
         let path = entry.unwrap().into_path();
   
-        return load_rom(
+        return Ok(load_rom(
           &library_name,
           parser,
           pattern,
           path
-        );
+        ));
       }
     }
   } else {
@@ -279,27 +280,21 @@ pub fn parse_added_rom(library_name: String, parser_name: String, rom_path: &str
       let glob = Glob::new(&pattern.glob).unwrap();
   
       if glob.is_match(filename) {
-        return load_rom(
+        return Ok(load_rom(
           &library_name,
           parser,
           pattern,
           path
-        );
+        ));
       }
     }
   }
 
-  warn!("Adding ROM: ROM should have matched on of the parsers for system \"{}\".", parser_name);
+  send_error(
+    format!("Adding ROM: ROM should have matched on of the parsers for system \"{}\".", parser_name),
+    format!("Please double check that there is a parser for system \"{}\".", parser_name),
+    crate::websocket::types::BackendErrorType::WARN
+  );
 
-  return ROM {
-    title: "ERROR".to_string(),
-    path: "ERROR".to_string(),
-    size: 0,
-    addDate: "ERROR".to_string(),
-    format: "ERROR".to_string(),
-    system: "ERROR".to_string(),
-    systemFullName: "ERROR".to_string(),
-    library: "ERROR".to_string(),
-    downloadStrategy: Map::new(),
-  }
+  return Err(());
 }

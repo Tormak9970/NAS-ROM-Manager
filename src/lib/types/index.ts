@@ -18,11 +18,22 @@ export enum FileSelectionType {
 }
 
 export type FilePickerConfig = {
-  select: FileSelectionType,
-  startPath: string,
-  showFiles?: boolean,
-  filter?: FilePickerFilter,
-  extensions?: string[],
-  showHiddenFiles?: boolean,
-  max?: number,
+  select: FileSelectionType;
+  startPath: string;
+  showFiles?: boolean;
+  filter?: FilePickerFilter;
+  extensions?: string[];
+  showHiddenFiles?: boolean;
+  max?: number;
+}
+
+export type BackendError = {
+  message: string;
+  fix: string;
+  type: BackendErrorType;
+}
+
+export enum BackendErrorType {
+  WARN,
+  PANIC,
 }

@@ -7,10 +7,12 @@ mod watcher;
 mod ws_handler;
 mod file_picker;
 
-use crate::websocket::types::get_default_settings;
-use types::ParserStore;
+use types::{
+  settings::get_default_settings,
+  library::ParserStore
+};
 use warp::Filter;
-use crate::websocket::watcher::Watcher;
+use watcher::Watcher;
 use std::{collections::HashMap, sync::{Arc, Mutex}};
 use tokio::sync::broadcast;
 
