@@ -1,15 +1,20 @@
 <script>
-  import { showAddLibraryModal, showAddRomModal, showControlledModal, showDownloadProgressModal, showEditRomModal, showUploadProgressModal } from "@stores/Modals";
+  import { showAddLibraryModal, showAddRomModal, showControlledModal, showDownloadProgressModal, showEditRomModal, showFilePickerModal, showUploadProgressModal } from "@stores/Modals";
   import AddLibrary from "./AddLibrary.svelte";
   import AddRom from "./AddRom.svelte";
   import Controlled from "./Controlled.svelte";
   import DownloadProgress from "./DownloadProgress.svelte";
   import EditRom from "./EditRom.svelte";
+  import FilePicker from "./FilePicker.svelte";
   import UploadProgress from "./UploadProgress.svelte";
 </script>
 
 {#if $showControlledModal}
   <Controlled />
+{/if}
+
+{#if $showFilePickerModal}
+  <FilePicker />
 {/if}
 
 {#if $showAddLibraryModal}

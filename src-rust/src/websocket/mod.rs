@@ -5,6 +5,7 @@ mod types;
 mod utils;
 mod watcher;
 mod ws_handler;
+mod file_picker;
 
 use crate::websocket::types::get_default_settings;
 use types::ParserStore;

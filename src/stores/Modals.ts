@@ -1,4 +1,4 @@
-import type { ROM, RomUploadConfig } from "@types";
+import type { FilePickerConfig, ROM, RomUploadConfig } from "@types";
 import { writable } from "svelte/store";
 
 export const showControlledModal = writable(false);
@@ -8,6 +8,11 @@ export const controlledModalConfirmText = writable("");
 export const controlledModalConfirm = writable(async () => {});
 export const controlledModalCancelText = writable("");
 export const controlledModalCancel = writable(async () => {});
+
+export const showFilePickerModal = writable(true);
+export const filePickerConfig = writable<FilePickerConfig | null>(null);
+export const filePickerConfirm = writable(async (paths: string[]) => {});
+export const filePickerCancel = writable(async () => {});
 
 export const showAddLibraryModal = writable(false);
 

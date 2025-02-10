@@ -3,7 +3,7 @@
   import { AppController } from "@controllers";
   import { Button, PathField, TextField, Toggle } from "@interactables";
   import { showAddLibraryModal } from "@stores/Modals";
-  import type { Library } from "@types";
+  import { FileSelectionType, type Library } from "@types";
 
   let open = $state(true);
 
@@ -42,13 +42,13 @@
 <ModalBody headline="Add Library" open={open} canClose={false} on:closeEnd={() => { $showAddLibraryModal = false }}>
   <div class="content">
     <TextField name="Library Name" bind:value={libraryName} />
-    <PathField name="Library Path" bind:value={libraryPath} />
+    <PathField name="Library Path" type={FileSelectionType.FOLDER} bind:value={libraryPath} />
     <label class="toggle-label">
       <div class="m3-font-title-medium">Use Default Parsers:</div>
       <Toggle bind:checked={useDefaultParsers} />
     </label>
     {#if !useDefaultParsers}
-      <PathField name="Parser Directory" bind:value={parsersPath} />
+      <PathField name="Parser Directory" type={FileSelectionType.FOLDER} bind:value={parsersPath} />
     {/if}
   </div>
   <div slot="buttons" class="buttons">

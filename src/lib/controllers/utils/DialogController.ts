@@ -1,4 +1,5 @@
-import { controlledModalCancel, controlledModalCancelText, controlledModalConfirm, controlledModalConfirmText, controlledModalMessage, controlledModalTitle, showControlledModal } from "@stores/Modals";
+import { controlledModalCancel, controlledModalCancelText, controlledModalConfirm, controlledModalConfirmText, controlledModalMessage, controlledModalTitle, filePickerCancel, filePickerConfig, filePickerConfirm, showControlledModal, showFilePickerModal } from "@stores/Modals";
+import type { FilePickerConfig } from "@types";
 
 /**
  * Controller class for handling dialog modals.
@@ -41,6 +42,21 @@ export class DialogController {
       controlledModalCancel.set(async () => resolve(false));
 
       showControlledModal.set(true);
+    });
+  }
+
+  /**
+   * Prompts the user to select file/folder paths.
+   * @param config The filepicker config.
+   * @returns The selected paths.
+   */
+  static async openFilePicker(config: FilePickerConfig): Promise<string[]> {
+    return new Promise((resolve) => {
+      filePickerConfig.set(config);
+      filePickerConfirm.set(async (paths: string[]) => resolve(paths));
+      filePickerCancel.set(async () => resolve([]));
+
+      showFilePickerModal.set(true);
     });
   }
 }

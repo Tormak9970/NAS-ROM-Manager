@@ -9,3 +9,20 @@ export type RomUploadConfig = {
   file: File;
   needsUnzip: boolean;
 }
+
+export type FilePickerFilter = RegExp | ((file: File) => boolean);
+
+export enum FileSelectionType {
+  FILE,
+  FOLDER,
+}
+
+export type FilePickerConfig = {
+  select: FileSelectionType,
+  startPath: string,
+  showFiles?: boolean,
+  filter?: FilePickerFilter,
+  extensions?: string[],
+  showHiddenFiles?: boolean,
+  max?: number,
+}
