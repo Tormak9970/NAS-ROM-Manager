@@ -75,7 +75,19 @@ pub fn load_settings(send_error: ErrorSender) -> Result<Settings, ()> {
     return Err(());
   }
 
-  let mut saved_settings: Settings = serde_json::from_reader(settings_file_res.ok().unwrap()).unwrap();
+  let saved_settings_res = serde_json::from_reader(settings_file_res.ok().unwrap());
+  if saved_settings_res.is_err() {
+    let err = saved_settings_res.err().unwrap();
+    
+    send_error(
+      format!("Failed to parse settings.json: {}", err.to_string()),
+      "Please ensure your settings.json follows the proper JSON format listed in the docs.".to_string(),
+      crate::websocket::types::BackendErrorType::PANIC
+    );
+    return Err(());
+  }
+
+  let mut saved_settings: Settings = saved_settings_res.unwrap();
 
   check_settings(&mut saved_settings, &default_settings);
 

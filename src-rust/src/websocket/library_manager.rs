@@ -23,7 +23,7 @@ pub struct LoadedLibrary {
 }
 
 /// Loads a library's parsers.
-fn load_parsers(library: &Library, send_error: &ErrorSender) -> HashMap<String, Parser> {
+fn load_parsers(library: &Library, send_error: &ErrorSender) -> Result<HashMap<String, Parser>, ()> {
   let mut parsers: HashMap<String, Parser> = HashMap::new();
 
   let mut parsers_path = library.parsersPath.clone();
@@ -41,7 +41,7 @@ fn load_parsers(library: &Library, send_error: &ErrorSender) -> HashMap<String, 
       crate::websocket::types::BackendErrorType::PANIC
     );
     
-    return parsers;
+    return Err(());
   }
 
   for parser_entry_res in entries_res.unwrap() {
@@ -68,13 +68,25 @@ fn load_parsers(library: &Library, send_error: &ErrorSender) -> HashMap<String, 
         continue;
       }
 
-      let parser: Parser = serde_json::from_reader(parser_file_res.ok().unwrap()).unwrap();
+      let parser_res = serde_json::from_reader(parser_file_res.ok().unwrap());
+      if parser_res.is_err() {
+        let err = parser_res.err().unwrap();
+        
+        send_error(
+          format!("Failed to parse parser \"{}\": {}", parser_filename, err.to_string()),
+          "Please ensure your settings.json follows the proper JSON format listed in the docs.".to_string(),
+          crate::websocket::types::BackendErrorType::PANIC
+        );
+        return Err(());
+      }
+      
+      let parser: Parser = parser_res.unwrap();
 
       parsers.insert(parser.folder.clone(), parser);
     }
   }
 
-  return parsers;
+  return Ok(parsers);
 }
 
 fn load_rom(library_name: &str, parser: &Parser, pattern: &ParserPattern, path: PathBuf) -> ROM {
@@ -148,7 +160,12 @@ fn load_platform(library: &Library, parser: &Parser, path: PathBuf) -> Vec<ROM> 
 }
 
 fn load_library(library: &Library, watcher: &Watcher, send_error: &ErrorSender) -> Result<(LoadedLibrary, HashMap<String, Parser>), ()> {
-  let parsers = load_parsers(library, send_error);
+  let parsers_res = load_parsers(library, send_error);
+  if parsers_res.is_err() {
+    return Err(());
+  }
+  let parsers = parsers_res.unwrap();
+
   let mut roms: Vec<ROM> = vec![];
   let systems: Vec<System> = parsers.clone().into_values().map(| parser | {
     return System {
