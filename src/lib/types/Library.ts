@@ -8,7 +8,6 @@ export type SystemTagConfig = {
 export type System = {
   fullName: string;
   abbreviation: string;
-  romCount: number;
   tagConfig: SystemTagConfig;
 }
 

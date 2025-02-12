@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2023 Travis Lane (Tormak)
+ * Copyright (C) 2025 Travis Lane (Tormak)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,20 +16,13 @@
  */
 
 import { goto } from "$app/navigation";
+import { LogController } from "@controllers/utils/LogController";
+import { libraries, roms, romsByLibrary, romsBySystem, showErrorSnackbar, systems } from "@stores/State";
 import { BackendErrorType, type BackendError, type Library, type LoadedLibrary, type ROM, type Settings } from "@types";
+import { hash64, systemToParser } from "@utils";
 import { get } from "svelte/store";
-import { showErrorSnackbar } from "../../../stores/State";
 
-/**
- * The available logging levels.
- */
-export enum LogLevel {
-  INFO,
-  WARN,
-  ERROR
-}
-
-type Response<T> = { data: T, }
+type Response<T> = { data: T }
 
 /**
  * Handles wrapping websocket communication into an easy to use JS bindings.
@@ -52,7 +45,7 @@ export class WebsocketController {
     });
 
     // * Handles generic messages such as token expiration.
-    WebsocketController.ws.addEventListener("message", (event) => {
+    WebsocketController.ws.addEventListener("message", async (event) => {
       const firstSpace = event.data.indexOf(" ");
       const message = event.data.substring(0, firstSpace);
       const data = event.data.substring(firstSpace + 1);
@@ -77,7 +70,61 @@ export class WebsocketController {
           break;
         }
         case "reload_library": {
-          // TODO: implement reloading the libraries. Paths that caused the reload will be .data
+          const paths: string[] = JSON.parse(data).data;
+
+          const libraryMap = get(libraries);
+          const libraryList = Object.values(libraryMap);
+          const systemMap = get(systems);
+          const systemList = Object.values(systemMap);
+
+          const romMap = get(roms);
+          const romLibraryMap = get(romsByLibrary);
+          const romSystemMap = get(romsBySystem);
+
+          for (const path of paths) {
+            let libraryName = null;
+
+            for (const library of libraryList) {
+              if (path.startsWith(library.path)) {
+                libraryName = library.name;
+                break;
+              }
+            }
+
+            if (!libraryName) {
+              LogController.log(`\"${path}\" did not start with a library path. Skipping...`);
+              continue;
+            }
+
+            let pathNoLibrary = path.substring(libraryName.length + 1);
+
+            let systemName = null;
+
+            for (const system of systemList) {
+              const parserName = systemToParser(system.abbreviation);
+
+              if (pathNoLibrary.startsWith(parserName)) {
+                systemName = parserName;
+                break;
+              }
+            }
+
+            if (!systemName) {
+              LogController.log(`\"${path}\" did not contain a system. Skipping...`);
+              continue;
+            }
+
+            const rom = await this.parseAddedRom(libraryName, systemName, path);
+            const id = hash64(rom.path);
+
+            romMap[id] = rom;
+            romLibraryMap[libraryName].push(id);
+            romSystemMap[systemName].push(id);
+          }
+          
+          roms.set({ ...romMap });
+          romsByLibrary.set({ ...romLibraryMap });
+          romsBySystem.set({ ...romSystemMap });
           break;
         }
       }

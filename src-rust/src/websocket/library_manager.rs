@@ -171,7 +171,6 @@ fn load_library(library: &Library, watcher: &Watcher, send_error: &ErrorSender) 
     return System {
       abbreviation: parser.abbreviation,
       fullName: parser.name,
-      romCount: 0,
       tagConfig: parser.tagConfig,
     }
   }).collect();

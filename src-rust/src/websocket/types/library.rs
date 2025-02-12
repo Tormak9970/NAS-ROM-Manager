@@ -29,7 +29,6 @@ pub struct ParserPattern {
 pub struct System {
   pub fullName: String,
   pub abbreviation: String,
-  pub romCount: u64,
   pub tagConfig: SystemTagConfig,
 }
 
