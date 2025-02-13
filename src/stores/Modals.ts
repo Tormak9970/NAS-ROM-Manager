@@ -1,4 +1,5 @@
 import type { FilePickerConfig, ROM, RomUploadConfig } from "@types";
+import { localStorageWritable } from "@utils";
 import { writable } from "svelte/store";
 
 export const showControlledModal = writable(false);
@@ -20,6 +21,9 @@ export const showDownloadProgressModal = writable(false);
 export const downloadProgressRom = writable<ROM | null>(null);
 
 export const showAddRomModal = writable(false);
+export const addRomLibrary = localStorageWritable<string>("add-rom-selected-library", "");
+export const addRomSystem = localStorageWritable<string>("add-rom-selected-system", "");
+
 export const showUploadProgressModal = writable(false);
 export const uploadProgressConfig = writable<RomUploadConfig | null>(null);
 

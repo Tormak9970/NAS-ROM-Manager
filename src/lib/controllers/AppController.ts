@@ -68,7 +68,6 @@ export class AppController {
 
       romsLibraryLUT[rom.library].push(id);
       romsSystemLUT[rom.system].push(id);
-      systemMap[rom.system].romCount++;
     }
 
 
@@ -116,8 +115,6 @@ export class AppController {
         delete romMap[id];
         delete romEdits[id];
 
-        const system = systemMap[rom.system];
-        system.romCount--;
         romsSystemLUT[rom.system].splice(romsSystemLUT[rom.system].indexOf(id), 1);
       }
 
@@ -189,7 +186,6 @@ export class AppController {
 
         romsLibraryLUT[rom.library].push(id);
         romsSystemLUT[rom.system].push(id);
-        systemMap[rom.system].romCount++;
       }
     }
 
