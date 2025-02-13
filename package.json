@@ -29,6 +29,7 @@
 	"dependencies": {
 		"@ktibow/iconset-material-symbols": "^0.0.1733470085",
 		"@material/material-color-utilities": "^0.3.0",
+		"@svelte-plugins/datepicker": "^1.0.11",
 		"@types/node": "^22.10.5",
 		"jssha": "^3.3.1",
 		"streamsaver": "^2.0.6",

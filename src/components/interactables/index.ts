@@ -11,6 +11,7 @@ export { default as RadioMenuItem } from "./radio/RadioMenuItem.svelte";
 
 export { default as Button } from "./Button.svelte";
 export { default as Checkbox } from "./Checkbox.svelte";
+export { default as DateField } from "./DateField.svelte";
 export { default as FileField } from "./FileField.svelte";
 export { default as MenuButton } from "./MenuButton.svelte";
 export { default as NumberField } from "./NumberField.svelte";

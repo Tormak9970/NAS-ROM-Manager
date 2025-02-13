@@ -22,7 +22,6 @@
 
   const DEFAULT_COLOR = "var(--m3-scheme-tertiary-container)";
   let systemTagConfig = $derived($systemTagConfigs[system]);
-  console.log($systemTagConfigs);
 
   function download() {
     $downloadProgressRom = rom;

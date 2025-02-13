@@ -1,7 +1,7 @@
 <script lang="ts">
   import { ModalBody } from "@component-utils";
-  import { Button, Checkbox, FileField, Select } from "@interactables";
-  import { editIsPostUpload, romEditingId, showEditRomModal, showUploadProgressModal, uploadProgressConfig } from "@stores/Modals";
+  import { Button, FileField, Select } from "@interactables";
+  import { editIsPostUpload, romEditingId, showEditRomModal } from "@stores/Modals";
   import { libraries, systems } from "@stores/State";
 
   let open = $state(true);
@@ -22,21 +22,15 @@
   let needsUnzip = $state(false);
   let okStructure = $state(false);
 
-  let canUpload = $derived(!!library && !!system && !!file && (!isZip || okStructure));
+  let canSave = $derived(!!library && !!system && !!file && (!isZip || okStructure));
 
   /**
    * Function to run on confirmation.
    */
   async function onSave(): Promise<void> {
-    open = false;
+    // $roms[$romEditingId!] = {
 
-    $uploadProgressConfig = {
-      library: library,
-      system: system,
-      file: file!,
-      needsUnzip: needsUnzip
-    }
-    $showUploadProgressModal = true;
+    // }
   }
 
   /**
@@ -58,20 +52,11 @@
     <Select name="Library" options={libraryOptions} disabled={libraryOptions.length === 1} bind:value={library} />
     <Select name="System" options={systemOptions} disabled={systemOptions.length === 1} bind:value={system} />
     <FileField name="File" on:change={(e) => file = e.detail.value} />
-    {#if file && isZip}
-      <label>
-        <div class="m3-font-title-medium">Unzip after upload:</div>
-        <Checkbox bind:checked={needsUnzip} />
-      </label>
-      <label>
-        <div class="m3-font-title-medium">Zip has <a href="https://github.com/Tormak9970/NAS-ROM-Manager?tab=readme-ov-file#single-root-folder" rel="noopener noreferrer" target="_blank">one root folder</a>:</div>
-        <Checkbox bind:checked={okStructure} />
-      </label>
-    {/if}
+    
   </div>
   <div slot="buttons" class="buttons">
     <Button type="text" on:click={onCancel}>Cancel</Button>
-    <Button type="text" on:click={onSave} disabled={!canUpload}>Save</Button>
+    <Button type="text" on:click={onSave} disabled={!canSave}>Save</Button>
   </div>
 </ModalBody>
 
