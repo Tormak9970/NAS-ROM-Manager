@@ -14,7 +14,6 @@ export type System = {
 export type ROMCustomization = {
   path: string;
   title: string;
-  heroPath: string;
   gridPath: string;
   isFavorite: boolean;
 }

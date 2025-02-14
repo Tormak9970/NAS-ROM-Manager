@@ -1,36 +1,33 @@
 <script lang="ts">
   import { ModalBody } from "@component-utils";
-  import { Button, FileField, Select } from "@interactables";
+  import { Button, Checkbox, TextField } from "@interactables";
   import { editIsPostUpload, romEditingId, showEditRomModal } from "@stores/Modals";
-  import { libraries, systems } from "@stores/State";
+  import { romCustomizations, roms } from "@stores/State";
 
   let open = $state(true);
-  
-  let libraryOptions: SelectItem[] = Object.keys($libraries).map((key) => {
-    return { label: key, value: key };
-  });
 
-  let systemOptions: SelectItem[] = Object.keys($systems).map((key) => {
-    return { label: key, value: key };
-  });
+  let rom = $roms[$romEditingId!];
+  let romCustomization = $romCustomizations[$romEditingId!];
 
-  let library = $state(libraryOptions[0].value);
-  let system = $state(systemOptions[0].value);
-  let file = $state<File | null>(null);
-  
-  let isZip = $derived(file && file.name.endsWith(".zip"));
-  let needsUnzip = $state(false);
-  let okStructure = $state(false);
+  let title = $state(romCustomization?.title ?? rom.title);
+  let isFavorite = $state(romCustomization?.isFavorite ?? false);
 
-  let canSave = $derived(!!library && !!system && !!file && (!isZip || okStructure));
+  let canSave = $derived(!!title);
 
   /**
    * Function to run on confirmation.
    */
   async function onSave(): Promise<void> {
-    // $roms[$romEditingId!] = {
+    if (title !== rom.title || isFavorite) {
+      $romCustomizations[$romEditingId!] = {
+        path: rom.path,
+        title: title !== rom.title ? title : "",
+        gridPath: romCustomization.gridPath ?? "",
+        isFavorite: isFavorite
+      }
 
-    // }
+      $romCustomizations = { ...$romCustomizations };
+    }
   }
 
   /**
@@ -49,10 +46,11 @@
 
 <ModalBody headline={$editIsPostUpload ? "Confirm Details" : "Edit ROM"} open={open} canClose={false} on:closeEnd={closeEnd}>
   <div class="content">
-    <Select name="Library" options={libraryOptions} disabled={libraryOptions.length === 1} bind:value={library} />
-    <Select name="System" options={systemOptions} disabled={systemOptions.length === 1} bind:value={system} />
-    <FileField name="File" on:change={(e) => file = e.detail.value} />
-    
+    <TextField name="Title" bind:value={title} />
+    <label>
+      <div class="m3-font-title-medium">Favorite:</div>
+      <Checkbox bind:checked={isFavorite} />
+    </label>
   </div>
   <div slot="buttons" class="buttons">
     <Button type="text" on:click={onCancel}>Cancel</Button>

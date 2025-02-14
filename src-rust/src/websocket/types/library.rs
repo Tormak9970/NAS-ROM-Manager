@@ -61,7 +61,6 @@ pub struct ROM {
 pub struct ROMCustomization {
   pub path: String,
   pub title: String,
-  pub heroPath: String,
   pub gridPath: String,
   pub isFavorite: bool,
 }

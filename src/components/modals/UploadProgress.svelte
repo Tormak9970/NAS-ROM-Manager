@@ -35,15 +35,15 @@
     
     const { library, system } = $uploadProgressConfig!;
 
-    step = "processing"
+    step = "processing";
 
     const rom = await WebsocketController.parseAddedRom(library, system, romPath);
     const id = hash64(rom.path);
     
-    if (!$romsBySystem[system].includes(id)) {
+    if (!$romsBySystem[rom.system].includes(id)) {
       $roms[id] = rom;
       $romsByLibrary[library].push(id);
-      $romsBySystem[system].push(id);
+      $romsBySystem[rom.system].push(id);
 
       $roms = { ...$roms };
       $romsByLibrary = { ...$romsByLibrary };

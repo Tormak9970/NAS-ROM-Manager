@@ -6,18 +6,26 @@ export default defineConfig({
 
   server: {
     port: 1420,
-    // strictPort: true,
-    // host: "0.0.0.0",
-    // hmr: {
-    //   protocol: "ws",
-    //   host: await internalIpV4(),
-    //   port: 1421,
-    // },
     watch: {
-      // 3. tell vite to ignore watching `src-rust`
-      ignored: ["**/src-rust/**"],
+      ignored: ["**/src-rust/**", "docs/**"],
     },
   },
+
+  envPrefix: ["VITE_", "NRM_"],
+
+  build: {
+    // don't minify for debug builds
+    minify: !process.env.NRM_DEBUG ? "esbuild" : false,
+    // produce sourcemaps for debug builds
+    sourcemap: !!process.env.NRM_DEBUG,
+
+    rollupOptions: {
+      external: [
+        "/public/readme-images"
+      ],
+    },
+  },
+
   define: {
     'APP_VERSION': JSON.stringify(process.env.npm_package_version),
   }
