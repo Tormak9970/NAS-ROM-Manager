@@ -24,6 +24,7 @@ export function isRegEx(filter: FilePickerFilter): filter is RegExp {
 export type FilePickerEntry = {
   path: string;
   name: string;
+  isDir: boolean;
 }
 
 export enum FileSelectionType {

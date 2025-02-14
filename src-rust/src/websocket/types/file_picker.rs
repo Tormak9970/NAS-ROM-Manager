@@ -12,6 +12,7 @@ pub enum FileSelectionType {
 pub struct FilePickerEntry {
   pub path: String,
   pub name: String,
+  pub isDir: bool,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]

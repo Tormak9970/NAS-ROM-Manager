@@ -50,7 +50,8 @@ pub fn get_entries(path: String, config: FilePickerConfig, send_error: ErrorSend
     if metadata.is_dir() {
       entries.push(FilePickerEntry {
         path: entry_path.to_str().unwrap().to_string(),
-        name: entry_name
+        name: entry_name,
+        isDir: true
       });
       continue;
     }
@@ -71,7 +72,8 @@ pub fn get_entries(path: String, config: FilePickerConfig, send_error: ErrorSend
 
     entries.push(FilePickerEntry {
       path: entry_path.to_str().unwrap().to_string(),
-      name: entry_name
+      name: entry_name,
+      isDir: false
     });
   }
 
