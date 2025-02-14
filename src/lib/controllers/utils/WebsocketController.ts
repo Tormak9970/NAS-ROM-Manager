@@ -18,7 +18,7 @@
 import { goto } from "$app/navigation";
 import { LogController } from "@controllers/utils/LogController";
 import { libraries, roms, romsByLibrary, romsBySystem, showErrorSnackbar, systems } from "@stores/State";
-import { BackendErrorType, type BackendError, type Library, type LoadedLibrary, type ROM, type Settings } from "@types";
+import { BackendErrorType, type BackendError, type FilePickerConfig, type FilePickerEntry, type Library, type LoadedLibrary, type ROM, type Settings } from "@types";
 import { hash64, systemToParser } from "@utils";
 import { get } from "svelte/store";
 
@@ -258,6 +258,25 @@ export class WebsocketController {
    */
   static async getSGDBKey(): Promise<string> {
     const res = await WebsocketController.invoke<string>("get_sgdb_key", {});
+    return res.data;
+  }
+  
+  /**
+   * Gets the entries to render for the file picker.
+   * @param path The path to read.
+   * @param config The file picker config.
+   * @returns The list of entries.
+   */
+  static async getFilePickerEntries(path: string, config: FilePickerConfig): Promise<FilePickerEntry[]> {
+    const res = await WebsocketController.invoke<FilePickerEntry[]>("file_picker", {
+      path: path,
+      config: {
+        showFiles: config.showFiles ?? true,
+        extensions: config.extensions,
+        showHiddenFiles: config.showHiddenFiles ?? false,
+        max: config.max ?? 1000,
+      }
+    });
     return res.data;
   }
 }

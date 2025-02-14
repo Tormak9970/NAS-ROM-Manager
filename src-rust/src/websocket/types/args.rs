@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-use super::library::Library;
+use super::{file_picker::FilePickerConfig, library::Library};
 
 // * Interop types
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -39,4 +39,12 @@ pub struct ParseRomArgs {
   pub libraryName: String,
   pub parser: String,
   pub romPath: String,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+#[allow(non_snake_case)]
+pub struct FilePickerArgs {
+  pub passwordHash: String,
+  pub path: String,
+  pub config: FilePickerConfig,
 }

@@ -10,7 +10,21 @@ export type RomUploadConfig = {
   needsUnzip: boolean;
 }
 
-export type FilePickerFilter = RegExp | ((file: File) => boolean);
+export type FilePickerFilter = RegExp | ((file: FilePickerEntry) => boolean);
+
+/**
+ * Checks if a filePickerFilter is a RegEx.
+ * @param filter The filter to check.
+ * @returns True if the filter is a RegEx.
+ */
+export function isRegEx(filter: FilePickerFilter): filter is RegExp {
+  return (filter as RegExp).test !== undefined;
+}
+
+export type FilePickerEntry = {
+  path: string;
+  name: string;
+}
 
 export enum FileSelectionType {
   FILE,
@@ -22,6 +36,9 @@ export type FilePickerConfig = {
   startPath: string;
   showFiles?: boolean;
   filter?: FilePickerFilter;
+  /**
+   * Extensions must be formatted like "svelte" instead of ".svelte".
+   */
   extensions?: string[];
   showHiddenFiles?: boolean;
   max?: number;

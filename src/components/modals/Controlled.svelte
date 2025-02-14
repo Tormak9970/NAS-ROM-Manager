@@ -5,6 +5,16 @@
 
   let open = true;
 
+  function onCloseEnd() {
+    $showControlledModal = false;
+    $controlledModalTitle = "";
+    $controlledModalMessage = "";
+    $controlledModalConfirmText = "";
+    $controlledModalConfirm = async () => {};
+    $controlledModalCancelText = "";
+    $controlledModalCancel = async () => {};
+  }
+
   /**
    * Function to run on confirmation.
    */
@@ -22,7 +32,7 @@
   }
 </script>
 
-<ModalBody headline={$controlledModalTitle} open={open} canClose={false} on:closeEnd={() => { $showControlledModal = false }}>
+<ModalBody headline={$controlledModalTitle} open={open} canClose={false} on:closeEnd={onCloseEnd}>
   <div class="content">
     {$controlledModalMessage}
   </div>

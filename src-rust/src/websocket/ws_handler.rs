@@ -24,6 +24,8 @@ use crate::websocket::{
   watcher::Watcher
 };
 
+use super::{file_picker::get_entries, types::args::FilePickerArgs};
+
 
 fn handle_message(
   message: &str,
@@ -189,14 +191,30 @@ fn handle_message(
         send(tx, "get_sgdb_key", env_api_key_res.unwrap());
       }
     }
+    "file_picker" => {
+      let args: FilePickerArgs = serde_json::from_str(data).unwrap();
+      let valid = check_hash(args.passwordHash, tx.clone());
+      if !valid {
+        return;
+      }
+
+      let file_entries_res = get_entries(
+        args.path,
+        args.config,
+        send_error
+      );
+
+      // If reading failed, we've already notfied the frontend of that, so we don't need to here.
+      if file_entries_res.is_ok() {
+        send(tx, "file_picker", file_entries_res.unwrap());
+      }
+    }
     "demo" => {
       let args: SimpleArgs = serde_json::from_str(data).unwrap();
       let valid = check_hash(args.passwordHash, tx.clone());
       if !valid {
         return;
       }
-
-      // TODO: run the logic here
     }
     _ => {}
   }
