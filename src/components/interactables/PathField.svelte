@@ -9,20 +9,19 @@
   export let extraWrapperOptions: HTMLAttributes<HTMLDivElement> = {};
   export let extraOptions: HTMLInputAttributes = {};
   export let type: FileSelectionType;
-  export let startPath = "";
   export let filter: FilePickerFilter = () => true;
   export let extensions: string[] = [];
   export let name: string;
 
   export let disabled = false;
-  export let value = "";
+  export let value = "/";
 
   const validatePath = (value: string) => isValidWindowsPath(value) || isValidLinuxPath(value);
 
   async function getPathFromDialog() {
     const paths = await DialogController.openFilePicker({
       select: type,
-      startPath: startPath,
+      startPath: value,
       showFiles: type === FileSelectionType.FILE,
       showHiddenFiles: type === FileSelectionType.FILE,
       filter: filter,

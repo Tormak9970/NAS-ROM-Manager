@@ -5,7 +5,7 @@
   import Controlled from "./Controlled.svelte";
   import DownloadProgress from "./DownloadProgress.svelte";
   import EditRom from "./EditRom.svelte";
-  import FilePicker from "./FilePicker.svelte";
+  import FilePicker from "./file-picker/FilePicker.svelte";
   import UploadProgress from "./UploadProgress.svelte";
 </script>
 

@@ -8,10 +8,11 @@
   export let extraWrapperOptions: HTMLDialogAttributes = {};
   export let extraOptions: HTMLAttributes<HTMLDivElement> = {};
   export let icon: IconifyIcon | undefined = undefined;
-  export let headline: string;
+  export let headline: string = "";
   export let open: boolean;
   export let canClose = true;
   export let loading = false;
+  export let headless = false;
 
   const dispatch = createEventDispatcher();
   let dialog: HTMLDialogElement;
@@ -81,7 +82,9 @@
       {#if icon}
         <Icon {icon} />
       {/if}
-      <p class="headline m3-font-headline-small" class:center={icon}>{headline}</p>
+      {#if !headless}
+        <p class="headline m3-font-headline-small" class:center={icon}>{headline}</p>
+      {/if}
       <div class="content m3-font-body-medium" {...extraOptions}>
         <slot />
       </div>
@@ -94,7 +97,7 @@
 
 <style>
   :root {
-    --m3-dialog-shape: var(--m3-util-rounding-extra-large);
+    --m3-dialog-shape: var(--m3-util-rounding-large);
   }
   dialog {
     border: none;

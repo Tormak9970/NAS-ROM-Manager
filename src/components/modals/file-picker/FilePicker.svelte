@@ -1,41 +1,49 @@
 <script lang="ts">
-  import { ModalBody } from "@component-utils";
+  import { Icon, ModalBody } from "@component-utils";
   import { WebsocketController } from "@controllers";
+  import { BackArrow } from "@icons";
   import { Button } from "@interactables";
+  import TextField from "@interactables/TextField.svelte";
   import { LoadingSpinner } from "@layout";
   import { filePickerCancel, filePickerConfig, filePickerConfirm, showFilePickerModal } from "@stores/Modals";
   import { isRegEx, type FilePickerEntry } from "@types";
+  import Entry from "./Entry.svelte";
 
   let config = $filePickerConfig!;
 
   let open = $state(true);
 
   let loading = $state(true);
-  let selected = $state<string | null>(null);
   let entries = $state<FilePickerEntry[]>([]);
+  let lastPath = $state(config.startPath);
   let currentPath = $state(config.startPath);
 
-  // TODO: need to verify this works properly.
   const sortEntries = (a: FilePickerEntry, b: FilePickerEntry) => {
     if (a.isDir && b.isDir) {
-      return a.name > b.name ? 1 : (a.name < b.name) ? -1 : 0;
+      return a.name < b.name ? -1 : (a.name > b.name) ? 1 : 0;
     }
 
     if (!a.isDir && !b.isDir) {
-      return a.name > b.name ? 1 : (a.name < b.name) ? -1 : 0;
+      return a.name < b.name ? -1 : (a.name > b.name) ? 1 : 0;
     }
 
     if (a.isDir && !b.isDir) {
-      return 1;
-    } else {
       return -1;
+    } else {
+      return 1;
     }
   }
 
   $effect(() => {
     loading = true;
     WebsocketController.getFilePickerEntries(currentPath, config).then((results: FilePickerEntry[]) => {
-      let filtered = results;
+      let filtered = results.map((entry: FilePickerEntry) => {
+        return {
+          name: entry.name,
+          path: entry.path.replaceAll(/\\/g, "/"),
+          isDir: entry.isDir
+        }
+      });
 
       if (config.filter) {
         const filter = config.filter;
@@ -47,20 +55,17 @@
       entries = filtered.sort(sortEntries);
 
       loading = false;
-    })
+    });
   });
 
-  function toggleSelectPath(path: string) {
-    if (selected === path) {
-      selected = null;
-      return;
-    }
-
-    selected = path;
+  function select(path: string) {
+    lastPath = currentPath;
+    currentPath = path;
   }
 
-  // WebsocketController.getFilePickerEntries
-  // Filter results with config.filter
+  function goBack() {
+    currentPath = lastPath;
+  }
   
   function onCloseEnd() {
     $showFilePickerModal = false;
@@ -73,7 +78,7 @@
    * Function to run on confirmation.
    */
   async function onConfirm(): Promise<void> {
-    await $filePickerConfirm([selected!]);
+    await $filePickerConfirm([currentPath!]);
     open = false;
   }
 
@@ -86,10 +91,20 @@
   }
 </script>
 
-<ModalBody headline={"Need to hide"} open={open} canClose={false} on:closeEnd={onCloseEnd}>
+<ModalBody headless open={open} canClose={false} on:closeEnd={onCloseEnd}>
   <div class="content">
-    <div class="current-path">
-
+    <div class="header">
+      <Button iconType="full" type="text" disabled={lastPath === currentPath} on:click={goBack}>
+        <Icon icon={BackArrow} />
+      </Button>
+      <TextField
+        name=""
+        value={currentPath}
+        readonly
+        extraWrapperOptions={{
+          style: "height: 2.5rem; width: 100%;"
+        }}
+      />
     </div>
     {#if loading}
       <div class="loading-container">
@@ -97,26 +112,25 @@
       </div>
     {:else}
       <div class="entries">
-        {#each entries as entry (entry.path)}
-          <!-- svelte-ignore a11y_click_events_have_key_events -->
-          <!-- svelte-ignore a11y_no_static_element_interactions -->
-          <!-- svelte-ignore event_directive_deprecated -->
-          <div class="entry" class:selected={entry.path === selected} on:click={() => toggleSelectPath(entry.path)}>
-            {entry.name}
-          </div>
+        {#each entries as entry, i (entry.path)}
+          <Entry
+            entry={entry}
+            index={i}
+            on:select={() => select(entry.path)}
+          />
         {/each}
       </div>
     {/if}
   </div>
   <div slot="buttons" class="buttons">
     <Button type="text" on:click={onCancel}>Cancel</Button>
-    <Button type="text" on:click={onConfirm} disabled={loading || !!selected}>Choose</Button>
+    <Button type="text" on:click={onConfirm} disabled={loading || !currentPath}>Choose</Button>
   </div>
 </ModalBody>
 
 <style>
   .content {
-    max-width: 300px;
+    width: 400px;
   }
 
   .loading-container {
@@ -127,28 +141,35 @@
     gap: 20px;
 
     margin: 0rem 1rem;
-    margin-top: 1rem;
+    margin-top: 2rem;
   }
 
-  .current-path {
+  .header {
+    width: calc(100% + 0.5rem);
 
+    margin-left: -0.5rem;
+
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
   }
 
   .entries {
+    width: 100%;
+    height: 15rem;
 
-  }
+    margin-top: 1rem;
 
-  .entry {
-
-  }
-
-  .selected {
-
+    border-radius: var(--m3-util-rounding-extra-small);
+    overflow: hidden;
+    overflow-y: scroll;
   }
 
   .buttons {
     display: flex;
     align-items: center;
     gap: 20px;
+
+    margin: -0.5rem 0;
   }
 </style>

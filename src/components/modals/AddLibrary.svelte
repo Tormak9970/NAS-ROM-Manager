@@ -8,9 +8,9 @@
   let open = $state(true);
 
   let libraryName = $state("");
-  let libraryPath = $state("");
+  let libraryPath = $state("/");
   let useDefaultParsers = $state(true);
-  let parsersPath = $state("");
+  let parsersPath = $state("/");
 
   let canSave = $derived(!!libraryName && !!libraryPath && (useDefaultParsers || !!parsersPath));
 
@@ -24,7 +24,7 @@
       name: libraryName,
       path: libraryPath,
       useProvidedParsers: useDefaultParsers,
-      parsersPath: parsersPath,
+      parsersPath: useDefaultParsers ? "" : parsersPath,
       romCustomizations: []
     }
 

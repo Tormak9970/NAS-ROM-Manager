@@ -23,8 +23,8 @@ pub fn get_entries(path: String, config: FilePickerConfig, send_error: ErrorSend
     return Err(());
   }
 
-  let has_extensions_filter = config.extensions.is_some();
-  let extensions = if has_extensions_filter { config.extensions.unwrap() } else { Vec::new() };
+  let has_extensions_filter = config.extensions.len() > 0;
+  let extensions = config.extensions;
 
   let mut entries: Vec<FilePickerEntry> = Vec::new();
 
@@ -64,8 +64,12 @@ pub fn get_entries(path: String, config: FilePickerConfig, send_error: ErrorSend
       continue;
     }
 
+    let file_ext_res = entry_path.extension();
+    if file_ext_res.is_none() {
+      continue;
+    }
 
-    let file_ext = entry_path.extension().unwrap().to_str().unwrap().to_string();
+    let file_ext = file_ext_res.unwrap().to_str().unwrap().to_string();
     if has_extensions_filter && !extensions.contains(&file_ext) {
       continue;
     }

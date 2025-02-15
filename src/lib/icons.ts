@@ -68,3 +68,5 @@ export { default as Help } from "@ktibow/iconset-material-symbols/help-rounded";
 
 export { default as CalendarMonth } from "@ktibow/iconset-material-symbols/calendar-month-rounded";
 
+export { default as Draft } from "@ktibow/iconset-material-symbols/draft-rounded";
+

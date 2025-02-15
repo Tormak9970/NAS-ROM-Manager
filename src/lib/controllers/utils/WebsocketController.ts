@@ -272,7 +272,7 @@ export class WebsocketController {
       path: path,
       config: {
         showFiles: config.showFiles ?? true,
-        extensions: config.extensions,
+        extensions: config.extensions ?? [],
         showHiddenFiles: config.showHiddenFiles ?? false,
         max: config.max ?? 1000,
       }

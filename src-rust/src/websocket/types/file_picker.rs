@@ -19,7 +19,7 @@ pub struct FilePickerEntry {
 #[allow(non_snake_case)]
 pub struct FilePickerConfig {
   pub showFiles: bool,
-  pub extensions: Option<Vec<String>>,
+  pub extensions: Vec<String>,
   pub showHiddenFiles: bool,
   pub max: u64,
 }
