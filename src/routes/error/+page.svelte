@@ -1,8 +1,10 @@
 <script lang="ts">
-  import type { PageData } from './$types';
   import { Icon } from "@component-utils";
   import { EmergencyHome } from "@icons";
+  import { Card } from "@layout";
   import { landingPage } from "@stores/State";
+  import { BackendErrorType } from "@types";
+  import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();
 </script>
@@ -12,16 +14,23 @@
 </svelte:head>
 
 <div id="error">
-  <div class="container">
-    <Icon icon={EmergencyHome} width="5rem" height="5rem" />
-    <div class="info">
-      <div>{data.message}</div>
-      <div>{data.fix}</div>
-      <div style:margin-top="0.5rem">
-        Go <a href={$landingPage ?? "/"}>Home</a>
+  <Card type="elevated">
+    <div id="headline"></div>
+    <div class="container">
+      <Icon icon={EmergencyHome} width="4rem" height="4rem" />
+      <div class="info">
+        <div>{data.message}</div>
+        <div>{data.fix}</div>
+        <div class="notice">
+          {#if data.type === BackendErrorType.PANIC.toString()}
+            This error is not recoverable and will require a page refresh or container restart.
+          {:else}
+            Go <a href={$landingPage ?? "/"}>Home</a>
+          {/if}
+        </div>
       </div>
     </div>
-  </div>
+  </Card>
 </div>
 
 <style>
@@ -34,13 +43,18 @@
     align-items: center;
   }
 
+  #headline {
+    width: calc(100% + 2rem);
+    margin: -1rem -1rem 0.5rem -1rem;
+    height: 0.5rem;
+    background-color: rgb(var(--m3-scheme-error));
+  }
+
   .container {
     display: flex;
     align-items: center;
 
     gap: 2rem;
-
-    background-color: rgb(var(--m3-scheme-error));
 
     padding: 1rem;
     padding-right: 1.5rem;
@@ -48,8 +62,6 @@
     border-radius: var(--m3-util-rounding-medium);
 
     font-size: 1.2rem;
-
-    color: rgb(var(--m3-scheme-on-error));
   }
 
   .info {
@@ -63,12 +75,26 @@
     font-size: 1.5rem;
   }
 
-  a, a:visited {
-    font-weight: bold;
-    color: rgb(var(--m3-scheme-on-error));
+  .notice {
+    margin-top: 1.25rem;
+    margin-bottom: -0.75rem;
+    font-size: 1rem;
   }
 
-  a:hover {
-    color: rgb(var(--m3-scheme-on-error) / 0.8);
+  a, a:visited {
+    font-weight: bold;
+    text-decoration: underline;
+  }
+
+  #error :global(svg) {
+    color: rgb(var(--m3-scheme-error));
+  }
+
+  #error :global(.type-elevated) {
+    background-color: rgb(var(--m3-scheme-surface-container));
+    box-shadow:
+      0px 2px 4px -1px rgb(var(--m3-scheme-shadow) / 0.2),
+      0px 4px 5px 0px rgb(var(--m3-scheme-shadow) / 0.14),
+      0px 1px 10px 0px rgb(var(--m3-scheme-shadow) / 0.12);
   }
 </style>

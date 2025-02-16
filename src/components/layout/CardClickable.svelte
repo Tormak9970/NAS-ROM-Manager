@@ -69,7 +69,10 @@
   }
 
   .type-elevated {
-    box-shadow: var(--m3-util-elevation-1);
+    box-shadow:
+      0px 3px 1px -2px rgb(var(--m3-scheme-shadow) / 0.2),
+      0px 2px 2px 0px rgb(var(--m3-scheme-shadow) / 0.14),
+      0px 1px 5px 0px rgb(var(--m3-scheme-shadow) / 0.12);
   }
 
   button {
@@ -81,10 +84,16 @@
   }
   @media (hover: hover) {
     button:hover {
-      box-shadow: var(--m3-util-elevation-1);
+      box-shadow:
+        0px 3px 1px -2px rgb(var(--m3-scheme-shadow) / 0.2),
+        0px 2px 2px 0px rgb(var(--m3-scheme-shadow) / 0.14),
+        0px 1px 5px 0px rgb(var(--m3-scheme-shadow) / 0.12);
     }
     button.type-elevated:hover {
-      box-shadow: var(--m3-util-elevation-2);
+      box-shadow:
+        0px 2px 4px -1px rgb(var(--m3-scheme-shadow) / 0.2),
+        0px 4px 5px 0px rgb(var(--m3-scheme-shadow) / 0.14),
+        0px 1px 10px 0px rgb(var(--m3-scheme-shadow) / 0.12);
     }
     button:hover > .layer {
       background-color: rgb(var(--m3-scheme-on-surface) / 0.08);
