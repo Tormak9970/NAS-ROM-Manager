@@ -23,6 +23,7 @@ export const libraryGridType = writable("portrait");
 export const libraries = writable<Record<string, Library>>({});
 export const systems = writable<Record<string, System>>({});
 export const roms = writable<Record<string, ROM>>({});
+export const emulators = writable<Record<string, string>>({});
 
 export const romCustomizations = writable<Record<string, ROMCustomization>>({});
 

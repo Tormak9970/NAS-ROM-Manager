@@ -1,8 +1,11 @@
 <script lang="ts">
+  import { scrollShadow } from "@directives";
   import { Card } from "@layout";
-  import { libraries, roms, romsBySystem, systems } from "@stores/State";
+  import { emulators, libraries, roms, romsBySystem, systems } from "@stores/State";
+  import Statistic from "@views/dashboard/Statistic.svelte";
 
   let libraryCount = $derived(Object.keys($libraries).length);
+  let emulatorCount = $derived(Object.keys($emulators).length);
   let romCount = $derived(Object.keys($roms).length);
   let systemCount = $derived(Object.keys($systems).length);
 
@@ -10,49 +13,53 @@
   let biggestPlatform = $derived(Object.keys($romsBySystem).reduce((biggest: string, system: string) => {
     return $romsBySystem[system].length > $romsBySystem[biggest].length ? system : biggest;
   }, firstSystem));
+
+  const cardOptions = {
+    style: "width: calc(100% - 2rem); max-width: 25rem;"
+  }
 </script>
 
 <svelte:head>
-	<title>Dashboard</title>
+	<title>Dashboard - NRM</title>
   <meta name="description" content="Your personal NRM Dashboard" />
 </svelte:head>
 
-<div id="dashboard">
-  <Card type="elevated">
-    <div slot="header" class="card-header">Your Collection</div>
-    <div class="body">
-      <ul>
-        <li># Libraries: {libraryCount}</li>
-        <li># ROMs: {romCount}</li>
-        <li># Systems: {systemCount}</li>
-        <li># Emulators: {0}</li>
-        <!-- TODO: seperate -->
-        <li>Biggest Platform: {romCount}</li>
-      </ul>
-    </div>
-  </Card>
-  <Card type="elevated">
-    <div slot="header" class="card-header">Systems</div>
-    <div class="body">
-      <ul>
-        <li># Systems: {systemCount}</li>
-        <!-- TODO: make this a tag -->
-        <li>Biggest System: {biggestPlatform}</li>
-        <!-- TODO: make all system tags render here. -->
-        <li>Systems: {romCount}</li>
-      </ul>
-    </div>
-  </Card>
-  <Card type="elevated">
-    <div slot="header" class="card-header">Server Info</div>
-    <div class="body">
-      <ul>
-        <li>Frontend Version: {systemCount}</li>
-        <li>Backend Version: {romCount}</li>
-        <li>Build Date: {romCount}</li>
-      </ul>
-    </div>
-  </Card>
+<div id="dashboard" use:scrollShadow={{ background: "--m3-scheme-background" }}>
+  <div class="content">
+    <Card type="elevated" extraOptions={cardOptions}>
+      <div class="card-header m3-font-title-medium">Your Collection</div>
+      <div class="body">
+        <ul>
+          <Statistic label="Emulators" value={emulatorCount} />
+          <Statistic label="Libraries" value={libraryCount} />
+          <Statistic label="Systems" value={systemCount} />
+          <Statistic label="ROMs" value={romCount} />
+        </ul>
+      </div>
+    </Card>
+    <Card type="elevated" extraOptions={cardOptions}>
+      <div class="card-header m3-font-title-medium">Systems</div>
+      <div class="body">
+        <ul>
+          <!-- TODO: make this a tag -->
+          <Statistic label="Biggest System" value={biggestPlatform} />
+          <!-- TODO: make all system tags render here. -->
+          <Statistic label="Systems" value={romCount} />
+        </ul>
+      </div>
+    </Card>
+    <Card type="elevated" extraOptions={cardOptions}>
+      <div class="card-header m3-font-title-medium">Server Info</div>
+      <div class="body">
+        <ul>
+          <Statistic label="Frontend Version" value={import.meta.env.NRM_FRONTEND_VERSION} />
+          <Statistic label="Backend Version" value={import.meta.env.NRM_BACKEND_VERSION} />
+          <Statistic label="Build Date" value={import.meta.env.NRM_BUILD_DATE} />
+        </ul>
+      </div>
+    </Card>
+    <div style="width: 100%; height: 70px;"></div>
+  </div>
 </div>
 
 <style>
@@ -60,12 +67,46 @@
     width: 100%;
     height: 100%;
 
+    overflow-y: scroll;
+    overflow-x: hidden;
+  }
+
+  .content {
+    width: 100%;
+    height: fit-content;
+
     display: flex;
-    align-items: center;
     justify-content: center;
+    flex-wrap: wrap;
+
+    gap: 1.5rem;
+    
+    margin-top: 1rem;
+
+    --m3-font-title-medium-size: 1.25rem;
   }
 
   #dashboard :global(.type-elevated) {
     box-shadow: none;
+  }
+
+  .card-header {
+    font-weight: bold;
+  }
+
+  .body {
+    width: 100%;
+
+    margin-bottom: -1rem;
+  }
+
+  ul {
+    width: 100%;
+
+    list-style: none;
+
+    margin-top: 0.5rem;
+
+    padding-left: 0;
   }
 </style>

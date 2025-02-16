@@ -3,7 +3,7 @@
 </script>
 
 <svelte:head>
-	<title>Search</title>
+	<title>Search - NRM</title>
 </svelte:head>
 
 <div id="search">

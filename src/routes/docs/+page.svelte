@@ -3,7 +3,7 @@
 </script>
 
 <svelte:head>
-	<title>Docs</title>
+	<title>Docs - NRM</title>
   <meta name="description" content="Documentation for using NRM." />
 </svelte:head>
 

@@ -3,7 +3,7 @@
 </script>
 
 <svelte:head>
-	<title>Emulators</title>
+	<title>Emulators - NRM</title>
   <meta name="description" content="View the emulators and bios files in your library." />
 </svelte:head>
 

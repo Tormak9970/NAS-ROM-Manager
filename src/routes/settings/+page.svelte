@@ -3,7 +3,7 @@
 </script>
 
 <svelte:head>
-	<title>Settings</title>
+	<title>Settings - NRM</title>
   <meta name="description" content="View and modify the settings of your NRM instance." />
 </svelte:head>
 

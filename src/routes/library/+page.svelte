@@ -10,7 +10,7 @@
 </script>
 
 <svelte:head>
-	<title>Library</title>
+	<title>Library - NRM</title>
   <meta name="description" content="Your personal ROM library." />
 </svelte:head>
 
