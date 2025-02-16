@@ -3,7 +3,7 @@
 </script>
 
 <div
-  class="rom-tag"
+  class="tag"
   class:uppercase={isUppercase}
   style:--background-color={backgroundColor}
   style:--border-color={borderColor ?? backgroundColor}
@@ -12,7 +12,7 @@
 </div>
 
 <style>
-  .rom-tag {
+  .tag {
     background-color: rgb(var(--background-color) / 0.8);
     color: white;
     

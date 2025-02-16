@@ -6,7 +6,8 @@
   import { libraryGridType, systemTagConfigs } from "@stores/State";
   import type { ROM } from "@types";
   import { formatFileSize, GRID_LAYOUTS } from "@utils";
-  import RomTag from "./RomTag.svelte";
+  import SystemTag from "../SystemTag.svelte";
+  import Tag from "../Tag.svelte";
 
   type RomProps = {
     rom: ROM;
@@ -48,7 +49,7 @@
       <div class="title">{rom.title}</div>
       <div class="file-info">
         <div class="size">{formatFileSize(rom.size)}</div>
-        <RomTag backgroundColor="var(--m3-scheme-tertiary-container)">.{rom.format}</RomTag>
+        <Tag backgroundColor="var(--m3-scheme-tertiary-container)">.{rom.format}</Tag>
       </div>
     </div>
     <div style:--m3-button-shape="var(--m3-util-rounding-small)">
@@ -67,13 +68,7 @@
     </div>
   </div>
   <div class="system">
-    <RomTag
-      backgroundColor={systemTagConfig?.backgroundColor ?? DEFAULT_COLOR}
-      borderColor={systemTagConfig?.borderColor ?? DEFAULT_COLOR}
-      isUppercase
-    >
-      <b>{rom.system}</b>
-    </RomTag>
+    <SystemTag system={rom.system} />
   </div>
 </div>
 
