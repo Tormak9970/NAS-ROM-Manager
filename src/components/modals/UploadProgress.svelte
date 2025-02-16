@@ -4,7 +4,7 @@
   import { Button, ProgressIndicator } from "@interactables";
   import { LoadingSpinner } from "@layout";
   import { editIsPostUpload, romEditingId, showEditRomModal, showUploadProgressModal, uploadProgressConfig } from "@stores/Modals";
-  import { roms, romsByLibrary, romsBySystem, showErrorSnackbar, showInfoSnackbar } from "@stores/State";
+  import { roms, romsByLibrary, romsBySystem, showInfoSnackbar, showWarningSnackbar } from "@stores/State";
   import { formatFileSize, hash64 } from "@utils";
   import { onMount } from "svelte";
 
@@ -28,7 +28,7 @@
 
   async function processRom(success: boolean, romPath: string) {
     if (!success) {
-      $showErrorSnackbar({ message: "Upload failed with unkown error" });
+      $showWarningSnackbar({ message: "Upload failed with unkown error" });
       onCancel();
       return;
     }

@@ -25,7 +25,7 @@
   export let textColor: string;
 
   let snackbar: SnackbarData | undefined;
-  let timeoutId: number;
+  let timeoutId: any;
   
   onDestroy(() => {
     clearTimeout(timeoutId);
@@ -53,6 +53,7 @@
   .holder {
     border: 0;
     padding: 0;
+    margin: 0;
 
     width: calc(100% - 2rem);
     max-width: 30rem;

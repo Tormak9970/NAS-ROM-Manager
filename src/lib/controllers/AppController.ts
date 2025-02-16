@@ -1,4 +1,4 @@
-import { libraries, romCustomizations, roms, romsByLibrary, romsBySystem, showErrorSnackbar, showInfoSnackbar, systems, systemTagConfigs } from "@stores/State";
+import { libraries, romCustomizations, roms, romsByLibrary, romsBySystem, showInfoSnackbar, showWarningSnackbar, systems, systemTagConfigs } from "@stores/State";
 import type { Library, ROM, ROMCustomization, System, SystemTagConfig } from "@types";
 import { hash64 } from "@utils";
 import { get } from "svelte/store";
@@ -133,7 +133,7 @@ export class AppController {
 
       get(showInfoSnackbar)({ message: "Library removed" });
     } else {
-      get(showErrorSnackbar)({ message: "Failed to remove library" });
+      get(showWarningSnackbar)({ message: "Failed to remove library" });
     }
   }
 

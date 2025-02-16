@@ -7,13 +7,13 @@
   import { DesktopNav } from "@navigation";
   import MobileNav from "@navigation/MobileNav.svelte";
   import { isSignedIn, rememberMe } from "@stores/Auth";
-  import { isLandscape, showErrorSnackbar, showInfoSnackbar } from "@stores/State";
+  import { isLandscape, showInfoSnackbar, showWarningSnackbar } from "@stores/State";
   import Header from "@views/Header.svelte";
   import { onMount } from "svelte";
   import "../app.css";
   import Modals from "../components/modals/Modals.svelte";
-  import ErrorSnackbar from "../components/snackbars/ErrorSnackbar.svelte";
   import InfoSnackbar from "../components/snackbars/InfoSnackbar.svelte";
+  import WarningSnackbar from "../components/snackbars/WarningSnackbar.svelte";
   import Theme from "../components/theme/Theme.svelte";
   import "../lib/md-defs";
 
@@ -74,7 +74,7 @@
         </div>
       {/if}
       <div
-        style:width={$isLandscape ? (condenseDesktopNav ? "calc(100% - 5rem)" : "calc(100% - 16rem)") : "100%"}
+        style:width={($isLandscape && showDecorations) ? (condenseDesktopNav ? "calc(100% - 5rem)" : "calc(100% - 16rem)") : "100%"}
         style:height={$isLandscape ? "100%" : "calc(100% - 56px)"}
         style:margin-left={$isLandscape ? "1rem" : "0"}
       >
@@ -82,9 +82,9 @@
       </div>
     </div>
   </div>
+  <InfoSnackbar bind:show={$showInfoSnackbar} />
+  <WarningSnackbar bind:show={$showWarningSnackbar} />
 </Theme>
-<InfoSnackbar bind:show={$showInfoSnackbar} />
-<ErrorSnackbar bind:show={$showErrorSnackbar} />
 
 <style>
   .layout {

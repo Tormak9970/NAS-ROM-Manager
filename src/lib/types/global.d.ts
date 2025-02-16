@@ -5,7 +5,7 @@ declare const APP_VERSION: string;
 
 type DialogModalType = "INFO" | "WARNING" | "ERROR";
 
-type ShowErrorOptions = {
+type ShowWarningOptions = {
   message: string;
   faster?: boolean;
 }

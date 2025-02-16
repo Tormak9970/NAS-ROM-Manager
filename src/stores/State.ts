@@ -9,7 +9,7 @@ export const isLandscape = writable(true);
 export const loadedSettings = writable(false);
 
 export const showInfoSnackbar = writable<(data: ShowInfoOptions) => void>();
-export const showErrorSnackbar = writable<(data: ShowErrorOptions) => void>();
+export const showWarningSnackbar = writable<(data: ShowWarningOptions) => void>();
 
 // * Settings stores
 export const palette = writable<Palette>("Auto");

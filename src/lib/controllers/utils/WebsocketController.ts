@@ -15,11 +15,10 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>
  */
 
-import { goto } from "$app/navigation";
 import { LogController } from "@controllers/utils/LogController";
-import { libraries, roms, romsByLibrary, romsBySystem, showErrorSnackbar, systems } from "@stores/State";
+import { libraries, roms, romsByLibrary, romsBySystem, showWarningSnackbar, systems } from "@stores/State";
 import { BackendErrorType, type BackendError, type FilePickerConfig, type FilePickerEntry, type Library, type LoadedLibrary, type ROM, type Settings } from "@types";
-import { hash64, systemToParser } from "@utils";
+import { hash64, showError, systemToParser } from "@utils";
 import { get } from "svelte/store";
 
 type Response<T> = { data: T }
@@ -37,7 +36,14 @@ export class WebsocketController {
    * @param onLogout The callback to run when the app should log out.
    */
   static init(onOpen: () => Promise<void>, onLogout: () => void) {
-    WebsocketController.ws = new WebSocket("ws://127.0.0.1:1500/ws");
+    try {
+      WebsocketController.ws = new WebSocket("ws://127.0.0.1:1500/ws");
+    } catch (e) {
+      const message = `Failed to reach NRM's websocket at ws://127.0.0.1:1500/ws`;
+      const fix = `Please check the backend's logs to see if there was an error, or restart the container`;
+      showError(message, fix, BackendErrorType.PANIC);
+      return;
+    }
 
     WebsocketController.ws.addEventListener("open", () => {
       WebsocketController.ws.send("Hello World!");
@@ -54,19 +60,19 @@ export class WebsocketController {
         case "hash_mismatch": {
           WebsocketController.hash = "";
           onLogout();
-          get(showErrorSnackbar)({ message: "Something went wrong verifying your request"});
+          get(showWarningSnackbar)({ message: "Something went wrong verifying your request"});
           break;
         }
         case "missing_env_variable": {
           const variable = JSON.parse(data).data;
           const message = `No environment variable ${variable} was found`;
           const fix = `Please check your container to ensure ${variable} is set`;
-          goto(`/error?message=${message}&fix=${fix}&type=${BackendErrorType.PANIC}`);
+          showError(message, fix, BackendErrorType.PANIC);
           break;
         }
         case "backend_error": {
           const { message, fix, type } = JSON.parse(data).data as BackendError;
-          goto(`/error?message=${message}&fix=${fix}&type=${BackendErrorType.PANIC}`);
+          showError(message, fix, type);
           break;
         }
         case "reload_library": {

@@ -1,11 +1,11 @@
 <script lang="ts">
-  import jsSHA from "jssha";
-  import { Card } from "@layout";
-  import { TextField, Button, Checkbox } from "@interactables";
   import { AuthController, LogController } from "@controllers";
   import { VisibiityOff, Visibility } from "@icons";
-  import { showErrorSnackbar } from "@stores/State";
+  import { Button, Checkbox, TextField } from "@interactables";
+  import { Card } from "@layout";
   import { rememberMe } from "@stores/Auth";
+  import { showWarningSnackbar } from "@stores/State";
+  import jsSHA from "jssha";
 
   let user = $state("");
   let password = $state("");
@@ -21,7 +21,7 @@
     LogController.log("Authenticated:", result);
 
     if (!result) {
-      $showErrorSnackbar({
+      $showWarningSnackbar({
         message: "Login Failed. Please Try Again"
       });
     }
