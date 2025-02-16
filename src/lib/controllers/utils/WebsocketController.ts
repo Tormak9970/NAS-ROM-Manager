@@ -36,14 +36,13 @@ export class WebsocketController {
    * @param onLogout The callback to run when the app should log out.
    */
   static init(onOpen: () => Promise<void>, onLogout: () => void) {
-    try {
-      WebsocketController.ws = new WebSocket("ws://127.0.0.1:1500/ws");
-    } catch (e) {
+    WebsocketController.ws = new WebSocket("ws://127.0.0.1:1500/ws");
+
+    WebsocketController.ws.addEventListener("error", (e) => {
       const message = `Failed to reach NRM's websocket at ws://127.0.0.1:1500/ws`;
       const fix = `Please check the backend's logs to see if there was an error, or restart the container`;
       showError(message, fix, BackendErrorType.PANIC);
-      return;
-    }
+    });
 
     WebsocketController.ws.addEventListener("open", () => {
       WebsocketController.ws.send("Hello World!");

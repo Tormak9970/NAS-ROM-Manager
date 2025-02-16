@@ -26,7 +26,7 @@
   let showDecorations = $state(false);
 
   $effect(() => {
-    if (!$isSignedIn && page.url.pathname !== '/') {
+    if (!$isSignedIn && page.url.pathname !== '/' && page.url.pathname !== '/error') {
       goto('/');
     } else if (!validatingCredentials && $isSignedIn && page.url.pathname === '/') {
       goto('/loading');
