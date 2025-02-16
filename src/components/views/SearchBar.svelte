@@ -18,7 +18,7 @@
   <input
     class="m3-font-body-large"
     autocomplete="off"
-    placeholder="Search your ROM library"
+    placeholder="Search your library"
     bind:value={searchValue}
     oninput={onInput}
   />

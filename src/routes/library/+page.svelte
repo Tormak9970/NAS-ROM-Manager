@@ -1,8 +1,8 @@
 <script lang="ts">
   import { VirtualGrid } from "@layout";
   import { libraryGridType, roms } from "@stores/State";
-  import Rom from "@views/library/Rom.svelte";
   import { GRID_LAYOUTS } from "@utils";
+  import Rom from "@views/library/Rom.svelte";
 
   let layout = $derived(GRID_LAYOUTS[$libraryGridType]);
 
@@ -22,7 +22,6 @@
     items={romsList}
     columnGap={layout.gap}
     rowGap={layout.gap}
-
     let:entry
   >
     <Rom rom={entry} />

@@ -48,7 +48,7 @@
     <div class="rom-info">
       <div class="title">{rom.title}</div>
       <div class="file-info">
-        <div class="size">{formatFileSize(rom.size)}</div>
+        <div style:font-size=".9rem">{formatFileSize(rom.size)}</div>
         <Tag backgroundColor="var(--m3-scheme-tertiary-container)">.{rom.format}</Tag>
       </div>
     </div>
