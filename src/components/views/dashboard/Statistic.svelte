@@ -1,15 +1,15 @@
 <script lang="ts">
   type Props = {
     label: string;
-    value: string | number;
+    children?: any;
   }
 
-  let { label, value}: Props = $props();
+  let { label, children }: Props = $props();
 </script>
 
 <li>
   <b>{label}</b>
-  <div>{value}</div>
+  <div>{@render children?.()}</div>
 </li>
 
 <style>

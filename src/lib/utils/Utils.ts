@@ -1,5 +1,3 @@
-import { goto } from "$app/navigation";
-import type { BackendErrorType } from "@types";
 
 /**
  * Debounces a function by the provided interval.
@@ -249,14 +247,4 @@ export function formatFileSize(fileSize: number): string {
  */
 export function systemToParser(system: string): string {
   return system.toLowerCase().replace(/\s/g, "");
-}
-
-/**
- * Displays an error.
- * @param message The error message.
- * @param fix The error fix.
- * @param type The type of error.
- */
-export function showError(message: string, fix: string, type: BackendErrorType) {
-  goto(`/error?message=${message}&fix=${fix}&type=${type}`);
 }

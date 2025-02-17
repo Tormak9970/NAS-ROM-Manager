@@ -3,16 +3,16 @@
 </script>
 
 <svelte:head>
-	<title>Docs - NRM</title>
-  <meta name="description" content="Documentation for using NRM." />
+	<title>Systems - NRM</title>
+  <meta name="description" content="Game systems in your library." />
 </svelte:head>
 
-<div id="docs">
+<div id="systems">
   <div class="font-headline-large">Coming Soon</div>
 </div>
 
 <style>
-  #docs {
+  #systems {
     width: 100%;
     height: 100%;
 

@@ -3,6 +3,8 @@
   import { Card } from "@layout";
   import { emulators, libraries, roms, romsBySystem, systems } from "@stores/State";
   import Statistic from "@views/dashboard/Statistic.svelte";
+  import SystemTagCloud from "@views/dashboard/SystemTagCloud.svelte";
+  import SystemTag from "@views/SystemTag.svelte";
 
   let libraryCount = $derived(Object.keys($libraries).length);
   let emulatorCount = $derived(Object.keys($emulators).length);
@@ -30,10 +32,10 @@
       <div class="card-header m3-font-title-medium">Your Collection</div>
       <div class="body">
         <ul>
-          <Statistic label="Emulators" value={emulatorCount} />
-          <Statistic label="Libraries" value={libraryCount} />
-          <Statistic label="Systems" value={systemCount} />
-          <Statistic label="ROMs" value={romCount} />
+          <Statistic label="Emulators">{emulatorCount}</Statistic>
+          <Statistic label="Libraries">{libraryCount}</Statistic>
+          <Statistic label="Systems">{systemCount}</Statistic>
+          <Statistic label="ROMs">{romCount}</Statistic>
         </ul>
       </div>
     </Card>
@@ -41,10 +43,11 @@
       <div class="card-header m3-font-title-medium">Systems</div>
       <div class="body">
         <ul>
-          <!-- TODO: make this a tag -->
-          <Statistic label="Biggest System" value={biggestPlatform} />
-          <!-- TODO: make all system tags render here. -->
-          <Statistic label="Systems" value={romCount} />
+          <Statistic label="Biggest System">
+            <SystemTag system={biggestPlatform} />
+          </Statistic>
+          <Statistic label="Systems"></Statistic>
+          <SystemTagCloud />
         </ul>
       </div>
     </Card>
@@ -52,9 +55,9 @@
       <div class="card-header m3-font-title-medium">Server Info</div>
       <div class="body">
         <ul>
-          <Statistic label="Frontend Version" value={import.meta.env.NRM_FRONTEND_VERSION} />
-          <Statistic label="Backend Version" value={import.meta.env.NRM_BACKEND_VERSION} />
-          <Statistic label="Build Date" value={import.meta.env.NRM_BUILD_DATE} />
+          <Statistic label="Frontend Version">{import.meta.env.NRM_FRONTEND_VERSION}</Statistic>
+          <Statistic label="Backend Version">{import.meta.env.NRM_BACKEND_VERSION}</Statistic>
+          <Statistic label="Build Date">{import.meta.env.NRM_BUILD_DATE}</Statistic>
         </ul>
       </div>
     </Card>

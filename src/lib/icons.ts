@@ -14,6 +14,9 @@ export { default as Library } from "@ktibow/iconset-material-symbols/video-libra
 export { default as AssignmentOutline } from "@ktibow/iconset-material-symbols/assignment-outline-rounded";
 export { default as Assignment } from "@ktibow/iconset-material-symbols/assignment-rounded";
 
+export { default as HostOutline } from "@ktibow/iconset-material-symbols/host-outline-rounded";
+export { default as Host } from "@ktibow/iconset-material-symbols/host-rounded";
+
 // ! Other Icons
 export { default as Close } from "@ktibow/iconset-material-symbols/close-rounded";
 export { default as Pause } from "@ktibow/iconset-material-symbols/pause-rounded";
