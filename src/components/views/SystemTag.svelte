@@ -1,5 +1,6 @@
 <script lang="ts">
   import { systems } from "@stores/State";
+  import { goToSystem } from "@utils";
   import Tag from "@views/Tag.svelte";
 
   let { system }: { system: string } = $props();
@@ -9,10 +10,20 @@
   const DEFAULT_COLOR = "var(--m3-scheme-tertiary-container)";
 </script>
 
+<!-- svelte-ignore a11y_no_static_element_interactions -->
 <Tag
   backgroundColor={systemTagConfig?.backgroundColor ?? DEFAULT_COLOR}
   borderColor={systemTagConfig?.borderColor ?? DEFAULT_COLOR}
   isUppercase
 >
-  <b>{system}</b>
+  <!-- svelte-ignore a11y_click_events_have_key_events -->
+  <!-- svelte-ignore event_directive_deprecated -->
+  <b on:click={() => goToSystem(system)}>{system}</b>
 </Tag>
+
+<style>
+  b:hover {
+    cursor: pointer;
+    text-decoration: underline;
+  }
+</style>
