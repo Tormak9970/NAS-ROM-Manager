@@ -20,14 +20,18 @@ export const landingPage = writable("library");
 export const libraryGridType = writable("portrait");
 
 // * App State
-export const libraries = writable<Record<string, Library>>({});
+export const library = writable<Library>({
+  libraryPath: "",
+  romsDir: "roms",
+  emulatorDir: "emulators",
+  biosDir: "bios"
+});
 export const systems = writable<Record<string, System>>({});
 export const roms = writable<Record<string, ROM>>({});
 export const emulators = writable<Record<string, string>>({});
 
 export const romCustomizations = writable<Record<string, ROMCustomization>>({});
 
-export const romsByLibrary = writable<Record<string, string[]>>({});
 export const romsBySystem = writable<Record<string, string[]>>({});
 
 export const dbFilters = localStorageWritable<DBFilters>("sgdb-filters", DEFAULT_FILTERS);

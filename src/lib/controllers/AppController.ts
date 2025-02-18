@@ -1,5 +1,5 @@
-import { libraries, romCustomizations, roms, romsByLibrary, romsBySystem, showInfoSnackbar, systems, systemTagConfigs } from "@stores/State";
-import type { Library, ROM, ROMCustomization, System, SystemTagConfig } from "@types";
+import { library, romCustomizations, roms, romsBySystem, showInfoSnackbar, systems, systemTagConfigs } from "@stores/State";
+import type { Library, LoadResult } from "@types";
 import { hash64 } from "@utils";
 import { get } from "svelte/store";
 import { ApiController } from "./ApiController";
@@ -17,33 +17,24 @@ export class AppController {
   static async load() {
     await SettingsController.init();
     await ApiController.init();
-    await this.loadLibraries();
+    await this.loadLibrary();
     SettingsController.registerSubs();
   }
 
-  /**
-   * Adds a new library.
-   * @param library The library to add.
-   */
-  static async addLibrary(library: Library) {
-    const loadedLibrary = await WebsocketController.addLibrary(library);
-
-    const libraryMap = get(libraries);
+  private static setStateFromLoadRes(loadRes: LoadResult) {
     const systemMap = get(systems);
     const romMap = get(roms);
     
     const romEdits = get(romCustomizations);
     
-    const romsLibraryLUT = get(romsByLibrary);
     const romsSystemLUT = get(romsBySystem);
     
     const tagConfigs = get(systemTagConfigs);
 
 
-    libraryMap[library.name] = library;
-    romsLibraryLUT[library.name] = [];
+    library.set(loadRes.library);
 
-    for (const system of loadedLibrary.systems) {
+    for (const system of loadRes.systems) {
       if (!systemMap[system.abbreviation]) {
         systemMap[system.abbreviation] = system;
       }
@@ -57,104 +48,52 @@ export class AppController {
       }
     }
 
-    for (const customization of library.romCustomizations) {
+    for (const customization of loadRes.romCustomizations) {
       const id = hash64(customization.path);
       romEdits[id] = customization;
     }
 
-    for (const rom of loadedLibrary.roms) {
+    for (const rom of loadRes.roms) {
       const id = hash64(rom.path);
       romMap[id] = rom;
 
-      romsLibraryLUT[rom.library].push(id);
       romsSystemLUT[rom.system].push(id);
     }
 
 
-    libraries.set({ ...libraryMap });
     systems.set({ ...systemMap });
     roms.set({ ...romMap });
 
     romCustomizations.set({ ...romEdits });
 
-    romsByLibrary.set({ ...romsLibraryLUT });
     romsBySystem.set({ ...romsSystemLUT });
 
     systemTagConfigs.set({ ...tagConfigs });
     
+    
+    LogController.log(`Loaded ${Object.keys(systemMap).length} systems.`);
+    LogController.log(`Loaded ${Object.keys(romMap).length} ROMs.`);
+    
+    get(showInfoSnackbar)({ message: "Library loaded" });
+  }
 
-    LogController.log(`Loaded ${loadedLibrary.roms.length} new ROMs.`);
+  /**
+   * Adds a new library.
+   * @param library The library to add.
+   */
+  static async addLibrary(library: Library) {
+    const loadRes = await WebsocketController.updateLibrary(library);
 
-    get(showInfoSnackbar)({ message: "Library added" });
+    AppController.setStateFromLoadRes(loadRes);
   }
 
   /**
    * Loads the user's libraries.
    */
-  static async loadLibraries() {
-    const loadedLibraries = await WebsocketController.loadLibraries();
+  static async loadLibrary() {
+    const loadRes = await WebsocketController.loadLibrary();
 
-    const libraryMap: Record<string, Library> = {};
-    const systemMap: Record<string, System> = {};
-    const romMap: Record<string, ROM> = {};
-    
-    const romEdits: Record<string, ROMCustomization> = {};
-    
-    const romsLibraryLUT: Record<string, string[]> = {};
-    const romsSystemLUT: Record<string, string[]> = {};
-
-    const tagConfigs: Record<string, SystemTagConfig> = {};
-    
-
-    for (const loadedLibrary of loadedLibraries) {
-      const library = loadedLibrary.library;
-
-      libraryMap[library.name] = library;
-      romsLibraryLUT[library.name] = [];
-
-      for (const system of loadedLibrary.systems) {
-        if (!systemMap[system.abbreviation]) {
-          systemMap[system.abbreviation] = system;
-        }
-
-        if (!romsSystemLUT[system.abbreviation]) {
-          romsSystemLUT[system.abbreviation] = [];
-        }
-
-        if (!tagConfigs[system.abbreviation]) {
-          tagConfigs[system.abbreviation] = system.tagConfig;
-        }
-      }
-
-      for (const customization of library.romCustomizations) {
-        const id = hash64(customization.path);
-        romEdits[id] = customization;
-      }
-
-      for (const rom of loadedLibrary.roms) {
-        const id = hash64(rom.path);
-        romMap[id] = rom;
-
-        romsLibraryLUT[rom.library].push(id);
-        romsSystemLUT[rom.system].push(id);
-      }
-    }
-
-
-    libraries.set(libraryMap);
-    systems.set(systemMap);
-    roms.set(romMap);
-
-    romCustomizations.set(romEdits);
-
-    romsByLibrary.set(romsLibraryLUT);
-    romsBySystem.set(romsSystemLUT);
-
-    systemTagConfigs.set(tagConfigs);
-
-    LogController.log(`Loaded ${Object.keys(libraryMap).length} libraries.`);
-    LogController.log(`Loaded ${Object.keys(systemMap).length} systems.`);
-    LogController.log(`Loaded ${Object.keys(romMap).length} ROMs.`);
+    AppController.setStateFromLoadRes(loadRes);
   }
 
   /**

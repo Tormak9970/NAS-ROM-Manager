@@ -17,7 +17,7 @@
 
 import { LogController } from "@controllers/utils/LogController";
 import { libraries, roms, romsByLibrary, romsBySystem, showWarningSnackbar, systems } from "@stores/State";
-import { BackendErrorType, type BackendError, type FilePickerConfig, type FilePickerEntry, type Library, type LoadedLibrary, type ROM, type Settings } from "@types";
+import { BackendErrorType, type BackendError, type FilePickerConfig, type FilePickerEntry, type Library, type LoadResult, type ROM, type Settings } from "@types";
 import { hash64, showError, systemToParser } from "@utils";
 import { get } from "svelte/store";
 
@@ -217,21 +217,21 @@ export class WebsocketController {
 
 
   /**
-   * Loads the app's libraries.
-   * @returns The loaded libraries data.
+   * Loads the app's library.
+   * @returns The loaded library data.
    */
-  static async loadLibraries(): Promise<LoadedLibrary[]> {
-    const res = await WebsocketController.invoke<LoadedLibrary[]>("load_library", {});
+  static async loadLibrary(): Promise<LoadResult> {
+    const res = await WebsocketController.invoke<LoadResult>("load_library", {});
     return res.data;
   }
 
   /**
-   * Adds a library to the manager.
-   * @param library The library to add.
+   * Updates the app's library.
+   * @param library The updated library.
    * @returns The loaded library data.
    */
-  static async addLibrary(library: Library): Promise<LoadedLibrary> {
-    const res = await WebsocketController.invoke<LoadedLibrary>("update_library", { library });
+  static async updateLibrary(library: Library): Promise<LoadResult> {
+    const res = await WebsocketController.invoke<LoadResult>("update_library", { library });
     return res.data;
   }
 
