@@ -1,4 +1,4 @@
-import type { Collection, Library } from "./Library";
+import type { Library, ROMCustomization } from "./Library";
 
 export type Palette = "Auto" | "Dark" | "Light";
 
@@ -13,6 +13,6 @@ export type Settings = {
   version: string;
   theme: ThemeSettings;
   landingPage: string;
-  libraries: Library[];
-  collections: Collection[];
+  library: Library;
+  romCustomizations: ROMCustomization[];
 }

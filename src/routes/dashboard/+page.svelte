@@ -1,12 +1,11 @@
 <script lang="ts">
   import { scrollShadow } from "@directives";
   import { Card } from "@layout";
-  import { emulators, libraries, roms, romsBySystem, systems } from "@stores/State";
+  import { emulators, roms, romsBySystem, systems } from "@stores/State";
   import Statistic from "@views/dashboard/Statistic.svelte";
   import SystemTagCloud from "@views/dashboard/SystemTagCloud.svelte";
   import SystemTag from "@views/SystemTag.svelte";
 
-  let libraryCount = $derived(Object.keys($libraries).length);
   let emulatorCount = $derived(Object.keys($emulators).length);
   let romCount = $derived(Object.keys($roms).length);
   let systemCount = $derived(Object.keys($systems).length);
@@ -33,7 +32,6 @@
       <div class="body">
         <ul>
           <Statistic label="Emulators">{emulatorCount}</Statistic>
-          <Statistic label="Libraries">{libraryCount}</Statistic>
           <Statistic label="Systems">{systemCount}</Statistic>
           <Statistic label="ROMs">{romCount}</Statistic>
         </ul>

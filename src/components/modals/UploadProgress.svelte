@@ -4,7 +4,7 @@
   import { Button, ProgressIndicator } from "@interactables";
   import { LoadingSpinner } from "@layout";
   import { editIsPostUpload, romEditingId, showEditRomModal, showUploadProgressModal, uploadProgressConfig } from "@stores/Modals";
-  import { roms, romsByLibrary, romsBySystem, showInfoSnackbar, showWarningSnackbar } from "@stores/State";
+  import { roms, romsBySystem, showInfoSnackbar, showWarningSnackbar } from "@stores/State";
   import { formatFileSize, hash64 } from "@utils";
   import { onMount } from "svelte";
 
@@ -33,20 +33,18 @@
       return;
     }
     
-    const { library, system } = $uploadProgressConfig!;
+    const { system } = $uploadProgressConfig!;
 
     step = "processing";
 
-    const rom = await WebsocketController.parseAddedRom(library, system, romPath);
+    const rom = await WebsocketController.parseAddedRom(system, romPath);
     const id = hash64(rom.path);
     
     if (!$romsBySystem[rom.system].includes(id)) {
       $roms[id] = rom;
-      $romsByLibrary[library].push(id);
       $romsBySystem[rom.system].push(id);
 
       $roms = { ...$roms };
-      $romsByLibrary = { ...$romsByLibrary };
       $romsBySystem = { ...$romsBySystem };
     }
 

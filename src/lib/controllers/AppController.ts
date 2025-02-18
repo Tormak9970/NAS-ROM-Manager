@@ -1,3 +1,4 @@
+import { isFirstSetup, showEditLibraryModal } from "@stores/Modals";
 import { library, romCustomizations, roms, romsBySystem, showInfoSnackbar, systems, systemTagConfigs } from "@stores/State";
 import type { Library, LoadResult } from "@types";
 import { hash64 } from "@utils";
@@ -17,7 +18,15 @@ export class AppController {
   static async load() {
     await SettingsController.init();
     await ApiController.init();
-    await this.loadLibrary();
+    
+    const lib = get(library);
+    if (lib.libraryPath === "") {
+      showEditLibraryModal.set(true);
+    } else {
+      isFirstSetup.set(false);
+      await this.loadLibrary();
+    }
+
     SettingsController.registerSubs();
   }
 
@@ -78,10 +87,10 @@ export class AppController {
   }
 
   /**
-   * Adds a new library.
-   * @param library The library to add.
+   * Updates the app's library.
+   * @param library The new library info.
    */
-  static async addLibrary(library: Library) {
+  static async updateLibrary(library: Library) {
     const loadRes = await WebsocketController.updateLibrary(library);
 
     AppController.setStateFromLoadRes(loadRes);

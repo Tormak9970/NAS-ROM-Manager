@@ -15,8 +15,8 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>
  */
 
-import { landingPage, libraries, loadedSettings, palette, themePrimaryColor, useOledPalette } from "@stores/State";
-import type { Library, Settings } from "@types";
+import { landingPage, library, loadedSettings, palette, romCustomizations, themePrimaryColor, useOledPalette } from "@stores/State";
+import type { Settings } from "@types";
 import type { Unsubscriber } from "svelte/store";
 import { LogController } from "./LogController";
 import { WebsocketController } from "./WebsocketController";
@@ -52,6 +52,10 @@ export class SettingsController {
     return this.settings[key as keyof Settings] as T;
   }
 
+  private static async setBackend<T>(key: string, value: T) {
+    return await WebsocketController.setSetting<T>(key, value);
+  }
+
   /**
    * Sets a setting's value.
    * @param key The key of the setting to set.
@@ -59,7 +63,8 @@ export class SettingsController {
    * @returns True if the update was successful, false otherwise.
    */
   static async set<T>(key: string, value: T): Promise<boolean> {
-    return await WebsocketController.setSetting<T>(key, value);
+    this.setOnChange(key)(value);
+    return this.setBackend(key, value);
   }
 
   private static async setStores(): Promise<void> {
@@ -69,6 +74,8 @@ export class SettingsController {
     useOledPalette.set(themeSettings.useOledPalette);
 
     landingPage.set(this.settings.landingPage);
+
+    library.set(this.settings.library);
   }
 
   private static setOnChange<T>(key: string): (value: T) => void {
@@ -82,7 +89,7 @@ export class SettingsController {
 
     return (value: T) => {
       parentObject[lastKey] = value;
-      this.set<T>(key, value);
+      this.setBackend<T>(key, value);
     }
   }
 
@@ -95,11 +102,8 @@ export class SettingsController {
       palette.subscribe(this.setOnChange("theme.palette")),
       useOledPalette.subscribe(this.setOnChange("theme.useOledPalette")),
       landingPage.subscribe(this.setOnChange("landingPage")),
-
-      libraries.subscribe((libraries) => {
-        const libraryList = Object.values(libraries);
-        this.settings.libraries = libraryList;
-        this.set<Library[]>("libraries", libraryList);
+      romCustomizations.subscribe((customizations) => {
+        this.setOnChange("romCustomizations")(Object.values(customizations));
       }),
     ];
   }

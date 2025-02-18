@@ -1,4 +1,4 @@
-import { libraries } from "@stores/State";
+import { library } from "@stores/State";
 import type { ROM, RomUploadConfig } from "@types";
 import { hash64 } from "@utils";
 import streamSaver from "streamsaver";
@@ -190,8 +190,8 @@ export class RestController {
   }
 
 
-  private static async prepareUpload(libraryPath: string, system: string, filename: string): Promise<string> {
-    const filePath = `${libraryPath}/${system}/${filename}`;
+  private static async prepareUpload(libraryPath: string, romsDir: string, system: string, filename: string): Promise<string> {
+    const filePath = `${libraryPath}/${romsDir}/${system}/${filename}`;
 
     const res = await fetch(this.restURL + "/roms/upload/prepare", {
       method: "POST",
@@ -280,10 +280,10 @@ export class RestController {
     onProgress: (progress: number) => void = () => {},
     onEnd: (success: boolean, filePath: string) => void = () => {}
   ) {
-    const { library, system, file, needsUnzip } = uploadConfig;
-    const libraryPath = get(libraries)[library].path;
+    const { system, file, needsUnzip } = uploadConfig;
+    const lib = get(library);
     
-    const filePath = await this.prepareUpload(libraryPath, system, file.name);
+    const filePath = await this.prepareUpload(lib.libraryPath, lib.romDir, system, file.name);
     onStart();
 
     const uploadId = hash64(filePath);
@@ -300,7 +300,7 @@ export class RestController {
     const finalPath = await this.uploadComplete({
       uploadId: uploadId,
       path: filePath,
-      libraryPath: libraryPath,
+      libraryPath: lib.libraryPath,
       system: system,
       unzip: needsUnzip,
     });

@@ -5,7 +5,7 @@
   import { Add, Person } from "@icons";
   import { Button, MenuButton } from "@interactables";
   import { showAddRomModal } from "@stores/Modals";
-  import { isLandscape, libraries, systems } from "@stores/State";
+  import { isLandscape, systems } from "@stores/State";
   import SearchBar from "./SearchBar.svelte";
 
   const menuItems: ContextMenuItem[] = [
@@ -16,7 +16,6 @@
     }
   ];
 
-  let libraryKeys = $derived(Object.keys($libraries));
   let systemKeys = $derived(Object.keys($systems));
 </script>
 
@@ -29,7 +28,7 @@
     {/if}
   </div>
   <div class="buttons">
-    <Button type="text" iconType="full" on:click={() => $showAddRomModal = true} disabled={libraryKeys.length === 0 || systemKeys.length === 0}>
+    <Button type="text" iconType="full" on:click={() => $showAddRomModal = true} disabled={systemKeys.length === 0}>
       <Icon icon={Add}/>
     </Button>
     <MenuButton items={menuItems} icon={Person} />

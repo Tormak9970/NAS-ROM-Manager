@@ -157,7 +157,9 @@ fn load_platform(parser: &Parser, path: PathBuf) -> Vec<ROM> {
 fn load_roms(library: &Library, watcher: &Watcher, parsers: &HashMap<String, Parser>, send_error: &ErrorSender) -> Result<Vec<ROM>, ()> {
   let mut roms: Vec<ROM> = vec![];
 
-  let entries_res = read_dir(&library.romDir);
+  let roms_path = PathBuf::from(&library.libraryPath).join(&library.romDir);
+
+  let entries_res = read_dir(&roms_path);
   if entries_res.is_err() {
     let err = entries_res.err().unwrap();
     

@@ -1,23 +1,15 @@
 <script lang="ts">
   import { ModalBody } from "@component-utils";
   import { Button, Checkbox, FileField, Select } from "@interactables";
-  import { addRomLibrary, addRomSystem, showAddRomModal, showUploadProgressModal, uploadProgressConfig } from "@stores/Modals";
-  import { libraries, systems } from "@stores/State";
+  import { addRomSystem, showAddRomModal, showUploadProgressModal, uploadProgressConfig } from "@stores/Modals";
+  import { systems } from "@stores/State";
   import { systemToParser } from "@utils";
 
   let open = $state(true);
-  
-  let libraryOptions: SelectItem[] = Object.keys($libraries).sort().map((key) => {
-    return { label: key, value: key };
-  });
 
   let systemOptions: SelectItem[] = Object.keys($systems).sort().map((key) => {
     return { label: key, value: systemToParser(key) };
   });
-
-  if ($addRomLibrary === "") {
-    $addRomLibrary = libraryOptions[0].value;
-  }
   
   if ($addRomSystem === "") {
     $addRomSystem = systemOptions[0].value;
@@ -38,7 +30,6 @@
     open = false;
 
     $uploadProgressConfig = {
-      library: $addRomLibrary,
       system: $addRomSystem,
       file: file!,
       needsUnzip: needsUnzip
@@ -56,7 +47,6 @@
 
 <ModalBody headline="Add ROM" open={open} canClose={false} on:closeEnd={() => { $showAddRomModal = false }}>
   <div class="content">
-    <Select name="Library" options={libraryOptions} disabled={libraryOptions.length === 1} bind:value={$addRomLibrary} />
     <Select name="System" options={systemOptions} disabled={systemOptions.length === 1} bind:value={$addRomSystem} />
     <FileField name="File" on:change={(e) => file = e.detail.value} />
     {#if file && isZip}

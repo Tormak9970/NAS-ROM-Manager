@@ -16,7 +16,7 @@
  */
 
 import { LogController } from "@controllers/utils/LogController";
-import { libraries, roms, romsByLibrary, romsBySystem, showWarningSnackbar, systems } from "@stores/State";
+import { library, roms, romsBySystem, showWarningSnackbar, systems } from "@stores/State";
 import { BackendErrorType, type BackendError, type FilePickerConfig, type FilePickerEntry, type Library, type LoadResult, type ROM, type Settings } from "@types";
 import { hash64, showError, systemToParser } from "@utils";
 import { get } from "svelte/store";
@@ -77,31 +77,22 @@ export class WebsocketController {
         case "reload_library": {
           const paths: string[] = JSON.parse(data).data;
 
-          const libraryMap = get(libraries);
-          const libraryList = Object.values(libraryMap);
+          const lib = get(library)
           const systemMap = get(systems);
           const systemList = Object.values(systemMap);
 
           const romMap = get(roms);
-          const romLibraryMap = get(romsByLibrary);
           const romSystemMap = get(romsBySystem);
 
           for (const path of paths) {
             let libraryName = null;
-
-            for (const library of libraryList) {
-              if (path.startsWith(library.path)) {
-                libraryName = library.name;
-                break;
-              }
-            }
 
             if (!libraryName) {
               LogController.log(`\"${path}\" did not start with a library path. Skipping...`);
               continue;
             }
 
-            let pathNoLibrary = path.substring(libraryName.length + 1);
+            let pathNoLibrary = path.substring(lib.libraryPath.length + lib.romDir.length + 1);
 
             let systemName = null;
 
@@ -119,16 +110,14 @@ export class WebsocketController {
               continue;
             }
 
-            const rom = await this.parseAddedRom(libraryName, systemName, path);
+            const rom = await this.parseAddedRom(systemName, path);
             const id = hash64(rom.path);
 
             romMap[id] = rom;
-            romLibraryMap[libraryName].push(id);
             romSystemMap[systemName].push(id);
           }
           
           roms.set({ ...romMap });
-          romsByLibrary.set({ ...romLibraryMap });
           romsBySystem.set({ ...romSystemMap });
           break;
         }

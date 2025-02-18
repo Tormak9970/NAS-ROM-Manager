@@ -15,13 +15,13 @@ export const filePickerConfig = writable<FilePickerConfig | null>(null);
 export const filePickerConfirm = writable(async (paths: string[]) => {});
 export const filePickerCancel = writable(async () => {});
 
-export const showAddLibraryModal = writable(false);
+export const showEditLibraryModal = writable(false);
+export const isFirstSetup = writable(true);
 
 export const showDownloadProgressModal = writable(false);
 export const downloadProgressRom = writable<ROM | null>(null);
 
 export const showAddRomModal = writable(false);
-export const addRomLibrary = localStorageWritable<string>("add-rom-selected-library", "");
 export const addRomSystem = localStorageWritable<string>("add-rom-selected-system", "");
 
 export const showUploadProgressModal = writable(false);
