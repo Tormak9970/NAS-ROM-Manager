@@ -16,3 +16,8 @@ export const GRID_LAYOUTS: Record<string, GRID_LAYOUT> = {
     gap: 30,
   }
 }
+
+export const DETAILS_GRID_SIZE = {
+  width: 162,
+  height: 242,
+}
