@@ -2,11 +2,10 @@ use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 
-type ParserMap = HashMap<String, Parser>;
-
 #[derive(Serialize, Deserialize, Clone, Debug)]
-pub struct ParserStore {
-  pub libraries: HashMap<String, ParserMap>,
+pub struct StateStore {
+  pub library: Library,
+  pub parsers: HashMap<String, Parser>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -52,7 +51,6 @@ pub struct ROM {
   pub format: String,
   pub system: String,
   pub systemFullName: String,
-  pub library: String,
   pub downloadStrategy: Map<String, Value>,
 }
 
@@ -62,17 +60,19 @@ pub struct ROMCustomization {
   pub path: String,
   pub title: String,
   pub gridPath: String,
+  pub sgdbId: String,
+  pub igdbId: String,
+  pub metadata: Map<String, Value>,
   pub isFavorite: bool,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[allow(non_snake_case)]
 pub struct Library {
-  pub name: String,
-  pub path: String,
-  pub useProvidedParsers: bool,
-  pub parsersPath: String,
-  pub romCustomizations: Vec<ROMCustomization>,
+  pub libraryPath: String,
+  pub romDir: String,
+  pub emulatorDir: String,
+  pub biosDir: String,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]

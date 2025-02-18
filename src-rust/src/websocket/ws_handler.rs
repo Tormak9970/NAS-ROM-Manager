@@ -6,7 +6,7 @@ use tokio::sync::broadcast;
 
 use crate::websocket::{
   auth::authenticate_user,
-  library_manager::{add_library, load_libraries, parse_added_rom},
+  library_manager::{parse_library, parse_added_rom},
   settings::{load_settings, set_setting, write_settings},
   types::{
     args::{
@@ -16,7 +16,7 @@ use crate::websocket::{
       SimpleArgs,
       ParseRomArgs
     },
-    library::ParserStore,
+    library::StateStore,
     settings::Settings,
     ErrorSender
   },
@@ -33,7 +33,7 @@ fn handle_message(
   tx: broadcast::Sender<String>,
   settings: Arc<Mutex<Settings>>,
   watcher: Arc<Mutex<Watcher>>,
-  parser_store: Arc<Mutex<ParserStore>>
+  state_store: Arc<Mutex<StateStore>>
 ) {
   let send_error: ErrorSender = get_error_sender(tx.clone());
 
@@ -55,12 +55,14 @@ fn handle_message(
       }
 
       let mut state_settings = settings.lock().expect("Failed to lock Settings Mutex.");
+      let mut state = state_store.lock().expect("Failed to lock State Mutex.");
       let saved_settings = load_settings(send_error);
 
       // If loading failed, we've already notfied the frontend of that, so we don't need to here.
       if saved_settings.is_ok() {
         let settings = saved_settings.unwrap();
         *state_settings = settings.clone();
+        (*state).library = settings.library.clone();
 
         send(tx, "load_settings", &settings);
       }
@@ -98,7 +100,7 @@ fn handle_message(
         send(tx, "set_setting", success);
       }
     }
-    "load_libraries" => {
+    "load_library" => {
       let args: SimpleArgs = serde_json::from_str(data).unwrap();
       let valid = check_hash(args.passwordHash, tx.clone());
       if !valid {
@@ -107,54 +109,47 @@ fn handle_message(
 
       let state_settings = settings.lock().expect("Failed to lock Settings Mutex.");
       let state_watcher = watcher.lock().expect("Failed to lock Watcher Mutex.");
-      let mut state_parsers = parser_store.lock().expect("Failed to lock ParserStore Mutex.");
-      let libraries_res = load_libraries(
-        &state_settings,
+      let mut state = state_store.lock().expect("Failed to lock State Mutex.");
+      let library_res = parse_library(
+        &state_settings.library,
         &state_watcher,
-        &mut state_parsers,
+        &mut state,
         send_error
       );
 
       // If loading failed, we've already notfied the frontend of that, so we don't need to here.
-      if libraries_res.is_ok() {
-        send(tx, "load_libraries", libraries_res.unwrap());
+      if library_res.is_ok() {
+        let mut load_res = library_res.unwrap();
+        load_res.romCustomizations = (&state_settings).romCustomizations.clone();
+
+        send(tx, "load_library", load_res);
       }
     }
-    "add_library" => {
+    "update_library" => {
       let args: ModifyLibraryArgs = serde_json::from_str(data).unwrap();
       let valid = check_hash(args.passwordHash, tx.clone());
       if !valid {
         return;
       }
       
+      let state_settings = settings.lock().expect("Failed to lock Settings Mutex.");
       let state_watcher = watcher.lock().expect("Failed to lock Watcher Mutex.");
-      let mut state_parsers = parser_store.lock().expect("Failed to lock ParserStore Mutex.");
-      let library_res = add_library(
+      let mut state = state_store.lock().expect("Failed to lock State Mutex.");
+      let library_res = parse_library(
         &args.library,
         &state_watcher,
-        &mut state_parsers,
+        &mut state,
         send_error
       );
 
       // If loading failed, we've already notfied the frontend of that, so we don't need to here.
       if library_res.is_ok() {
-        send(tx, "add_library", library_res.unwrap());
+        (*state).library = args.library.clone();
+        let mut load_res = library_res.unwrap();
+        load_res.romCustomizations = (&state_settings).romCustomizations.clone();
+
+        send(tx, "update_library", load_res);
       }
-    }
-    "remove_library" => {
-      let args: ModifyLibraryArgs = serde_json::from_str(data).unwrap();
-      let valid = check_hash(args.passwordHash, tx.clone());
-      if !valid {
-        return;
-      }
-
-      let state_watcher = watcher.lock().expect("Failed to lock Watcher Mutex.");
-      state_watcher.unwatch_library(args.library.path);
-
-      let mut state_parsers = parser_store.lock().expect("Failed to lock ParserStore Mutex.");
-      state_parsers.libraries.remove(&args.library.name);
-
-      send(tx, "remove_library", true);
     }
     "parse_rom" => {
       let args: ParseRomArgs = serde_json::from_str(data).unwrap();
@@ -163,9 +158,8 @@ fn handle_message(
         return;
       }
 
-      let state_parsers = parser_store.lock().expect("Failed to lock ParserStore Mutex.");
+      let state_parsers = state_store.lock().expect("Failed to lock State Mutex.");
       let rom_res = parse_added_rom(
-        args.libraryName,
         args.parser,
         &args.romPath,
         &state_parsers,
@@ -226,7 +220,7 @@ pub async fn handle_connection(
   tx: Arc<Mutex<broadcast::Sender<String>>>,
   settings: Arc<Mutex<Settings>>,
   watcher: Arc<Mutex<Watcher>>,
-  parser_store: Arc<Mutex<ParserStore>>
+  state_store: Arc<Mutex<StateStore>>
 ) {
   let (mut ws_sender, mut ws_receiver) = ws.split();
   let mut rx = tx.lock().unwrap().subscribe();
@@ -252,7 +246,7 @@ pub async fn handle_connection(
             tx.lock().unwrap().to_owned(),
             settings.clone(),
             watcher.clone(),
-            parser_store.clone()
+            state_store.clone()
           );
         }
       },

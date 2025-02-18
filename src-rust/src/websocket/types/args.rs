@@ -36,7 +36,6 @@ pub struct ModifyLibraryArgs {
 #[allow(non_snake_case)]
 pub struct ParseRomArgs {
   pub passwordHash: String,
-  pub libraryName: String,
   pub parser: String,
   pub romPath: String,
 }

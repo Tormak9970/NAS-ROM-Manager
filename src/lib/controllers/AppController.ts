@@ -1,4 +1,4 @@
-import { libraries, romCustomizations, roms, romsByLibrary, romsBySystem, showInfoSnackbar, showWarningSnackbar, systems, systemTagConfigs } from "@stores/State";
+import { libraries, romCustomizations, roms, romsByLibrary, romsBySystem, showInfoSnackbar, systems, systemTagConfigs } from "@stores/State";
 import type { Library, ROM, ROMCustomization, System, SystemTagConfig } from "@types";
 import { hash64 } from "@utils";
 import { get } from "svelte/store";
@@ -86,55 +86,6 @@ export class AppController {
     LogController.log(`Loaded ${loadedLibrary.roms.length} new ROMs.`);
 
     get(showInfoSnackbar)({ message: "Library added" });
-  }
-
-  /**
-   * Removes a new library.
-   * @param library The library to remove.
-   */
-  static async removeLibrary(library: Library) {
-    const success = await WebsocketController.removeLibrary(library);
-
-    if (success) {
-      const libraryMap = get(libraries);
-      const systemMap = get(systems);
-      const romMap = get(roms);
-      
-      const romEdits = get(romCustomizations);
-      
-      const romsLibraryLUT = get(romsByLibrary);
-      const romsSystemLUT = get(romsBySystem);
-
-
-      delete libraryMap[library.name];
-
-      const romList = romsLibraryLUT[library.name];
-      for (const id of romList) {
-        const rom = romMap[id];
-
-        delete romMap[id];
-        delete romEdits[id];
-
-        romsSystemLUT[rom.system].splice(romsSystemLUT[rom.system].indexOf(id), 1);
-      }
-
-      delete romsLibraryLUT[library.name];
-
-
-      libraries.set({ ...libraryMap });
-      systems.set({ ...systemMap });
-      roms.set({ ...romMap });
-
-      romCustomizations.set({ ...romEdits });
-
-      romsByLibrary.set({ ...romsLibraryLUT });
-      romsBySystem.set({ ...romsSystemLUT });
-
-
-      get(showInfoSnackbar)({ message: "Library removed" });
-    } else {
-      get(showWarningSnackbar)({ message: "Failed to remove library" });
-    }
   }
 
   /**

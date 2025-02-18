@@ -1,4 +1,4 @@
-use std::{collections::HashMap, path::PathBuf, sync::{mpsc::{Receiver, Sender}, Arc, Mutex}};
+use std::{path::PathBuf, sync::{mpsc::{Receiver, Sender}, Arc, Mutex}};
 
 use log::{info, warn};
 use notify::{Config, EventKind, RecommendedWatcher, RecursiveMode, Watcher as _};
@@ -7,8 +7,8 @@ use tokio::sync::broadcast;
 use crate::websocket::utils::send;
 
 pub enum WatcherEvent {
-  Add(PathBuf, String),
-  RemoveLibrary(String),
+  Add(PathBuf),
+  Remove(PathBuf),
 }
 
 #[derive(Clone)]
@@ -40,12 +40,6 @@ impl Watcher {
     std::thread::spawn(move || {
       info!("Thread: Starting watcher file listener...");
 
-      // path -> library_path
-      let mut dir_path_map: HashMap<PathBuf, String> = HashMap::new();
-
-      // library_path -> path[]
-      let mut library_map: HashMap<String, Vec<PathBuf>> = HashMap::new();
-
       // Select recommended watcher for debouncer.
       // Using a callback here, could also be a channel.
       let mut watcher = RecommendedWatcher::new(sender, Config::default()).unwrap();
@@ -56,32 +50,13 @@ impl Watcher {
 
         if let Ok(result) = event {
           match result {
-            WatcherEvent::Add(path, library_path) => {
+            WatcherEvent::Add(path) => {
               // * Add watcher to the path.
-              if !library_map.contains_key(library_path.as_str()) {
-                library_map.insert(library_path.clone(), Vec::new());
-              }
-
-              let folders_watching = library_map.get_mut(&library_path).unwrap();
-              if !folders_watching.contains(&path) {
-                let _ = watcher.watch(path.as_path(), RecursiveMode::Recursive);
-
-                folders_watching.push(path.clone());
-              }
-
-              dir_path_map.insert(path, library_path);
+              let _ = watcher.watch(path.as_path(), RecursiveMode::Recursive);
             },
-            WatcherEvent::RemoveLibrary(library_path) => {
-              // * Remove watcher from the library.
-              let paths = library_map.get(&library_path).unwrap();
-
-              for path in paths {
-                let _ = watcher.unwatch(path.as_path());
-
-                dir_path_map.remove(path);
-              }
-
-              library_map.remove(&library_path);
+            WatcherEvent::Remove(path) => {
+              // * Remove path from watcher.
+              let _ = watcher.unwatch(path.as_path());
             }
           }
         }
@@ -122,12 +97,12 @@ impl Watcher {
   }
 
   /// Watches a path.
-  pub fn watch_path(&self, path: PathBuf, library_path: String) {
-    let _ = self.sender.send(WatcherEvent::Add(path, library_path));
+  pub fn watch_path(&self, path: PathBuf) {
+    let _ = self.sender.send(WatcherEvent::Add(path));
   }
 
-  /// Unwatches all paths associated with a given library.
-  pub fn unwatch_library(&self, library_path: String) {
-    let _ = self.sender.send(WatcherEvent::RemoveLibrary(library_path));
+  /// Unwatches a path.
+  pub fn unwatch_path(&self, path: PathBuf) {
+    let _ = self.sender.send(WatcherEvent::Remove(path));
   }
 }

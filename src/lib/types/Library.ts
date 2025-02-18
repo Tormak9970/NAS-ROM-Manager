@@ -23,28 +23,24 @@ export type ROM = {
   path: string;
   size: number;
   format: string;
-  library: string;
   system: string;
   systemFullName: string;
   addDate: string;
   downloadStrategy: DownloadStrategy;
 }
 
-export type LoadedLibrary = {
+export type LoadResult = {
   library: Library;
   roms: ROM[];
+  romCustomizations: ROMCustomization[];
   systems: System[];
 }
 
-/**
- * TODO: eventually add support for emulators, tools, and bios files
- */
 export type Library = {
-  name: string;
-  path: string;
-  useProvidedParsers: boolean;
-  parsersPath: string;
-  romCustomizations: ROMCustomization[];
+  libraryPath: string;
+  romDir: string;
+  emulatorDir: string;
+  biosDir: string;
 }
 
 export type Collection = {

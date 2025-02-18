@@ -1,7 +1,7 @@
 use std::env::var;
 use serde::{Deserialize, Serialize};
 
-use super::library::Library;
+use super::library::{Library, ROMCustomization};
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[allow(non_snake_case)]
@@ -16,15 +16,21 @@ pub fn get_default_settings() -> Settings {
   let version = var("NRM_VERSION").ok().unwrap();
 
   return Settings {
-    FILE_SIG_DO_NOT_EDIT: String::from("dev.travislane.nas-rom-manager"),
+    FILE_SIG_DO_NOT_EDIT: "dev.travislane.nas-rom-manager".to_string(),
     version,
     theme: ThemeSettings {
-      primaryColor: String::from("#a74bf2"),
-      palette: String::from("Auto"),
+      primaryColor: "#a74bf2".to_string(),
+      palette: "Auto".to_string(),
       useOledPalette: false,
     },
-    landingPage: String::from("library"),
-    libraries: Vec::new(),
+    landingPage: "library".to_string(),
+    library: Library {
+      libraryPath: "".to_string(),
+      romDir: "roms".to_string(),
+      emulatorDir: "emulators".to_string(),
+      biosDir: "bios".to_string(),
+    },
+    romCustomizations: Vec::new(),
   };
 }
 
@@ -36,5 +42,6 @@ pub struct Settings {
   pub version: String,
   pub theme: ThemeSettings,
   pub landingPage: String,
-  pub libraries: Vec<Library>,
+  pub library: Library,
+  pub romCustomizations: Vec<ROMCustomization>,
 }

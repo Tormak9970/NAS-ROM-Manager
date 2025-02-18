@@ -221,7 +221,7 @@ export class WebsocketController {
    * @returns The loaded libraries data.
    */
   static async loadLibraries(): Promise<LoadedLibrary[]> {
-    const res = await WebsocketController.invoke<LoadedLibrary[]>("load_libraries", {});
+    const res = await WebsocketController.invoke<LoadedLibrary[]>("load_library", {});
     return res.data;
   }
 
@@ -231,29 +231,18 @@ export class WebsocketController {
    * @returns The loaded library data.
    */
   static async addLibrary(library: Library): Promise<LoadedLibrary> {
-    const res = await WebsocketController.invoke<LoadedLibrary>("add_library", { library });
-    return res.data;
-  }
-
-  /**
-   * Removes a library from the manager.
-   * @param library The library to remove.
-   * @returns True if the library was removed, false otherwise.
-   */
-  static async removeLibrary(library: Library): Promise<boolean> {
-    const res = await WebsocketController.invoke<boolean>("remove_library", { library });
+    const res = await WebsocketController.invoke<LoadedLibrary>("update_library", { library });
     return res.data;
   }
 
   /**
    * Parses all of the necessary data from an uploaded rom's path.
-   * @param libraryName The name of the library the rom belongs to.
    * @param parser The parser for the rom's system.
    * @param romPath The rom's path.
    * @returns The parsed rom data.
    */
-  static async parseAddedRom(libraryName: string, parser: string, romPath: string): Promise<ROM> {
-    const res = await WebsocketController.invoke<ROM>("parse_rom", { libraryName, parser, romPath });
+  static async parseAddedRom(parser: string, romPath: string): Promise<ROM> {
+    const res = await WebsocketController.invoke<ROM>("parse_rom", { parser, romPath });
     return res.data;
   }
 
