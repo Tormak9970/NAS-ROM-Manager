@@ -82,11 +82,11 @@
 
     scale: 1;
 
-    transition: scale 0.2s, border 0.2s;
+    transition: transform 0.2s, border 0.2s;
   }
 
   .rom:hover {
-    scale: 1.05;
+    transform: scale(1.05);
     border: 1px solid rgb(var(--m3-scheme-outline));
   }
 
