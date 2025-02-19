@@ -4,8 +4,7 @@
   import { ContextMenu } from "@component-utils";
   import MediaQuery from "@component-utils/MediaQuery.svelte";
   import { AuthController, WebsocketController } from "@controllers";
-  import { DesktopNav } from "@navigation";
-  import MobileNav from "@navigation/MobileNav.svelte";
+  import { LandscapeNav, PortraitNav } from "@navigation";
   import { isSignedIn, rememberMe } from "@stores/Auth";
   import { isLandscape, showInfoSnackbar, showWarningSnackbar } from "@stores/State";
   import Header from "@views/Header.svelte";
@@ -67,9 +66,9 @@
       {#if showDecorations}
         <div class="nav" style:width={$isLandscape ? (condenseDesktopNav ? "4rem" : "15rem") : "100%"}>
           {#if $isLandscape}
-            <DesktopNav condenseNav={condenseDesktopNav} />
+            <LandscapeNav condenseNav={condenseDesktopNav} />
           {:else}
-            <MobileNav />
+            <PortraitNav />
           {/if}
         </div>
       {/if}

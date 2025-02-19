@@ -15,7 +15,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>
  */
 
-import { landingPage, library, loadedSettings, palette, romCustomizations, themePrimaryColor, useOledPalette } from "@stores/State";
+import { landingPage, landscapeViews, library, loadedSettings, palette, portraitViews, reducedMotion, romCustomizations, saveMetadataAlongside, themePrimaryColor, useOledPalette } from "@stores/State";
 import type { Settings } from "@types";
 import type { Unsubscriber } from "svelte/store";
 import { LogController } from "./LogController";
@@ -52,10 +52,6 @@ export class SettingsController {
     return this.settings[key as keyof Settings] as T;
   }
 
-  private static async setBackend<T>(key: string, value: T) {
-    return await WebsocketController.setSetting<T>(key, value);
-  }
-
   /**
    * Sets a setting's value.
    * @param key The key of the setting to set.
@@ -64,18 +60,7 @@ export class SettingsController {
    */
   static async set<T>(key: string, value: T): Promise<boolean> {
     this.setOnChange(key)(value);
-    return this.setBackend(key, value);
-  }
-
-  private static async setStores(): Promise<void> {
-    const themeSettings = this.settings.theme;
-    themePrimaryColor.set(themeSettings.primaryColor);
-    palette.set(themeSettings.palette);
-    useOledPalette.set(themeSettings.useOledPalette);
-
-    landingPage.set(this.settings.landingPage);
-
-    library.set(this.settings.library);
+    return await WebsocketController.setSetting<T>(key, value);
   }
 
   private static setOnChange<T>(key: string): (value: T) => void {
@@ -89,8 +74,28 @@ export class SettingsController {
 
     return (value: T) => {
       parentObject[lastKey] = value;
-      this.setBackend<T>(key, value);
+      WebsocketController.setSetting<T>(key, value);
     }
+  }
+
+  private static async setStores(): Promise<void> {
+    const theme = this.settings.theme;
+    themePrimaryColor.set(theme.primaryColor);
+    palette.set(theme.palette);
+    useOledPalette.set(theme.useOledPalette);
+
+    const navigation = this.settings.navigation;
+    landingPage.set(navigation.landingPage);
+    landscapeViews.set(navigation.landscapeViews);
+    portraitViews.set(navigation.portraitViews);
+    
+    const metadata = this.settings.metadata;
+    saveMetadataAlongside.set(metadata.saveAlongsideROMs);
+    
+    const accessibility = this.settings.accessibility;
+    reducedMotion.set(accessibility.reducedMotion);
+
+    library.set(this.settings.library);
   }
 
   /**
@@ -101,7 +106,15 @@ export class SettingsController {
       themePrimaryColor.subscribe(this.setOnChange("theme.primaryColor")),
       palette.subscribe(this.setOnChange("theme.palette")),
       useOledPalette.subscribe(this.setOnChange("theme.useOledPalette")),
-      landingPage.subscribe(this.setOnChange("landingPage")),
+
+      landingPage.subscribe(this.setOnChange("navigation.landingPage")),
+      landscapeViews.subscribe(this.setOnChange("navigation.landscapeViews")),
+      portraitViews.subscribe(this.setOnChange("navigation.portraitViews")),
+
+      saveMetadataAlongside.subscribe(this.setOnChange("metadata.saveAlongsideROMs")),
+
+      reducedMotion.subscribe(this.setOnChange("accessibility.reducedMotion")),
+
       romCustomizations.subscribe((customizations) => {
         this.setOnChange("romCustomizations")(Object.values(customizations));
       }),

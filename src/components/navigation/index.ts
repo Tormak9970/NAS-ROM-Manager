@@ -1,5 +1,5 @@
 export { default as NavList } from "./NavList.svelte";
 export { default as NavListButton } from "./NavListButton.svelte";
 
-export { default as DesktopNav } from "./DesktopNav.svelte";
-export { default as MobileNav } from "./MobileNav.svelte";
+export { default as LandscapeNav } from "./LandscapeNav.svelte";
+export { default as PortraitNav } from "./PortraitNav.svelte";

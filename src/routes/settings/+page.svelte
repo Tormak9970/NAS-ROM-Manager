@@ -1,4 +1,7 @@
 <script lang="ts">
+  import { BackHandOutline, DonutLarge, GridViewOutline, InterestsOutline } from "@icons";
+  import SettingsBody from "@views/settings/SettingsBody.svelte";
+  import SettingsNavButton from "@views/settings/SettingsNavButton.svelte";
 
 </script>
 
@@ -7,17 +10,29 @@
   <meta name="description" content="View and modify the settings of your NRM instance." />
 </svelte:head>
 
-<div id="settings">
-  <div class="font-headline-large">Coming Soon</div>
-</div>
-
-<style>
-  #settings {
-    width: 100%;
-    height: 100%;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-</style>
+<SettingsBody title="Settings">
+  <SettingsNavButton
+    icon={InterestsOutline}
+    label="Appearance"
+    route="/settings/appearance"
+    description="Manage the app's appearance settings"
+  />
+  <SettingsNavButton
+    icon={GridViewOutline}
+    label="Layout"
+    route="/settings/layout"
+    description="Manage the app's layout and views"
+  />
+  <SettingsNavButton
+    icon={DonutLarge}
+    label="Metadata"
+    route="/settings/metadata"
+    description="Manage how rom metadata is saved"
+  />
+  <SettingsNavButton
+    icon={BackHandOutline}
+    label="Accessibility"
+    route="/settings/accessibility"
+    description="Manage the app's accessibility settings"
+  />
+</SettingsBody>

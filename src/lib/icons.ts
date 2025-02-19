@@ -17,6 +17,12 @@ export { default as Assignment } from "@ktibow/iconset-material-symbols/assignme
 export { default as HostOutline } from "@ktibow/iconset-material-symbols/host-outline-rounded";
 export { default as Host } from "@ktibow/iconset-material-symbols/host-rounded";
 
+// ! Settings icons
+export { default as BackHandOutline } from "@ktibow/iconset-material-symbols/back-hand-outline-rounded";
+export { default as DonutLarge } from "@ktibow/iconset-material-symbols/donut-large-rounded";
+export { default as GridViewOutline } from "@ktibow/iconset-material-symbols/grid-view-outline-rounded";
+export { default as InterestsOutline } from "@ktibow/iconset-material-symbols/interests-outline-rounded";
+
 // ! Other Icons
 export { default as Close } from "@ktibow/iconset-material-symbols/close-rounded";
 export { default as Pause } from "@ktibow/iconset-material-symbols/pause-rounded";

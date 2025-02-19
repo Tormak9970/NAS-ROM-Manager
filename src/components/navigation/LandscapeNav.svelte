@@ -1,16 +1,25 @@
 <script lang="ts">
+  import { goto } from "$app/navigation";
+  import { page } from '$app/state';
+  import { landscapeRoutes, type Route } from "$lib/routes";
+  import { landscapeViews } from "@stores/State";
   import NavList from "./NavList.svelte";
   import NavListButton from "./NavListButton.svelte";
-  import { desktopViews } from "$lib/routes";
 
-  import { page } from '$app/state';  
-  import { goto } from "$app/navigation";
 
   let { condenseNav = false } = $props();
+
+  let routes = $derived($landscapeViews.reduce((filtered: Route[], view: string) => {
+    const route = landscapeRoutes[view];
+
+    if (route) filtered.push(route);
+
+    return filtered;
+  }, []));
 </script>
 
 <NavList type="rail">
-  {#each desktopViews as view}
+  {#each routes as view}
     {@const selected = view.path === page.url.pathname}
     <NavListButton
       type="rail"

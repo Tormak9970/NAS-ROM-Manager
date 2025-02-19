@@ -34,3 +34,11 @@ export function goToSystem(system: string) {
 export function goToEmulator(emulator: string) {
   goto(`/emulators/${emulator}`);
 }
+
+/**
+ * Navigates to the provided settings page.
+ * @param setting The settings page to navigate to.
+ */
+export function goToSetting(setting: string) {
+  goto(`/settings/${setting}`);
+}

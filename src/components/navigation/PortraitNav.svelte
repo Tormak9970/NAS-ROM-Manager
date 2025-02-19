@@ -1,15 +1,23 @@
 <script lang="ts">
-  import { mobileViews } from "$lib/routes";
-  import NavList from "./NavList.svelte";
-  import NavListButton from "./NavListButton.svelte";
-    
   import { goto } from "$app/navigation";
   import { page } from '$app/state';
+  import { portraitRoutes, type Route } from "$lib/routes";
+  import { portraitViews } from "@stores/State";
+  import NavList from "./NavList.svelte";
+  import NavListButton from "./NavListButton.svelte";
+
+  let routes = $derived($portraitViews.reduce((filtered: Route[], view: string) => {
+    const route = portraitRoutes[view];
+
+    if (route) filtered.push(route);
+
+    return filtered;
+  }, []));
 </script>
 
 <div class="view-nav">
   <NavList type="bar" extraOptions={{ style: "padding: 0.75rem 0.5rem; height: 56px;" }}>
-    {#each mobileViews as view}
+    {#each routes as view}
       {@const selected = view.path === page.url.pathname}
       <NavListButton
         type="bar"
