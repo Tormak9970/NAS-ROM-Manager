@@ -1,7 +1,6 @@
 <script lang="ts">
   import { BackHandOutline, DonutLarge, GridViewOutline, InterestsOutline } from "@icons";
-  import SettingsBody from "@views/settings/SettingsBody.svelte";
-  import SettingsNavButton from "@views/settings/SettingsNavButton.svelte";
+  import { SettingsBody, SettingsNavButton } from "@views/settings";
 
 </script>
 

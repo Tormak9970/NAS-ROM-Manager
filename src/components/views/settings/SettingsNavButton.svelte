@@ -1,9 +1,8 @@
 <script lang="ts">
-    import { goto } from "$app/navigation";
-    import { Icon } from "@component-utils";
-    import type { IconifyIcon } from "@iconify/types";
-    import { CardClickable } from "@layout";
-  // import { push } from "svelte-spa-router";
+  import { goto } from "$app/navigation";
+  import { Icon } from "@component-utils";
+  import type { IconifyIcon } from "@iconify/types";
+  import { CardClickable } from "@layout";
 
   export let icon: IconifyIcon;
   export let label: string;

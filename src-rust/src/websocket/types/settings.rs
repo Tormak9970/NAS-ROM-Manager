@@ -18,7 +18,7 @@ pub fn get_default_settings() -> Settings {
     navigation: NavigationSettings {
       landingPage: "library".to_string(),
       landscapeViews: vec!["Dashboard".to_string(), "Library".to_string(), "Systems".to_string(), "Emulators".to_string(), "Settings".to_string()],
-      portraitViews: vec!["Dashboard".to_string(), "Library".to_string(), "Search".to_string(), "System".to_string(), "Settings".to_string()],
+      portraitViews: vec!["Dashboard".to_string(), "Library".to_string(), "Search".to_string(), "Systems".to_string(), "Settings".to_string()],
     },
     metadata: MetadataSettings {
       saveAlongsideROMs: false,

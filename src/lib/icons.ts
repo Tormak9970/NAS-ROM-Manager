@@ -23,6 +23,8 @@ export { default as DonutLarge } from "@ktibow/iconset-material-symbols/donut-la
 export { default as GridViewOutline } from "@ktibow/iconset-material-symbols/grid-view-outline-rounded";
 export { default as InterestsOutline } from "@ktibow/iconset-material-symbols/interests-outline-rounded";
 
+export { default as MotionBlur } from "@ktibow/iconset-material-symbols/motion-blur-rounded";
+
 // ! Other Icons
 export { default as Close } from "@ktibow/iconset-material-symbols/close-rounded";
 export { default as Pause } from "@ktibow/iconset-material-symbols/pause-rounded";

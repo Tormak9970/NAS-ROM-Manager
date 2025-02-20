@@ -6,13 +6,14 @@
   export let label: string;
   export let description: string;
   export let icon: IconifyIcon | undefined = undefined;
+  export let iconSize: string = "1.5rem";
 </script>
 
-<CardClickable type="transparent" on:click extraOptions={{ style: "width: calc(100% - 10px); display: flex; position: relative; padding: 10px; padding-left: 0px; border-radius: 10px; margin: 2px 0px;" }}>
+<CardClickable type="transparent" on:click extraOptions={{ style: "width: 100%;" }}>
   <div class="content">
     <div class="icon-container">
       {#if icon}
-        <Icon icon={icon} height="24px" width="24px" />
+        <Icon icon={icon} height={iconSize} width={iconSize} />
       {/if}
     </div>
     <div class="info">

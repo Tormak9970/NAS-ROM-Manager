@@ -18,7 +18,7 @@ export const themePrimaryColor = writable("#a74bf2");
 
 export const landingPage = writable("library");
 export const landscapeViews = writable(["Dashboard", "Library", "Systems", "Emulators", "Settings"]);
-export const portraitViews = writable(["Dashboard", "Library", "Search", "System", "Settings"]);
+export const portraitViews = writable(["Dashboard", "Library", "Search", "Systems", "Settings"]);
 export const libraryGridType = writable("portrait");
 
 export const saveMetadataAlongside = writable(false);
