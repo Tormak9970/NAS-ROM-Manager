@@ -11,13 +11,11 @@ export { default as GameAsset } from "@ktibow/iconset-material-symbols/videogame
 export { default as LibraryOutline } from "@ktibow/iconset-material-symbols/video-library-outline-rounded";
 export { default as Library } from "@ktibow/iconset-material-symbols/video-library-rounded";
 
-export { default as AssignmentOutline } from "@ktibow/iconset-material-symbols/assignment-outline-rounded";
-export { default as Assignment } from "@ktibow/iconset-material-symbols/assignment-rounded";
-
 export { default as HostOutline } from "@ktibow/iconset-material-symbols/host-outline-rounded";
 export { default as Host } from "@ktibow/iconset-material-symbols/host-rounded";
 
 // ! Settings icons
+export { default as AssignmentOutline } from "@ktibow/iconset-material-symbols/assignment-outline-rounded";
 export { default as BackHandOutline } from "@ktibow/iconset-material-symbols/back-hand-outline-rounded";
 export { default as DonutLarge } from "@ktibow/iconset-material-symbols/donut-large-rounded";
 export { default as GridViewOutline } from "@ktibow/iconset-material-symbols/grid-view-outline-rounded";
@@ -32,6 +30,15 @@ export { default as BrightnessMedium } from "@ktibow/iconset-material-symbols/br
 export { default as DarkMode } from "@ktibow/iconset-material-symbols/dark-mode-rounded";
 export { default as LightMode } from "@ktibow/iconset-material-symbols/light-mode-rounded";
 export { default as Palette } from "@ktibow/iconset-material-symbols/palette";
+
+export { default as BugReport } from "@ktibow/iconset-material-symbols/bug-report-outline-rounded";
+export { default as Bug } from "@ktibow/iconset-material-symbols/bug-report-rounded";
+export { default as EditDocument } from "@ktibow/iconset-material-symbols/edit-document-rounded";
+export { default as License } from "@ktibow/iconset-material-symbols/license-outline-rounded";
+export { default as Person } from "@ktibow/iconset-material-symbols/person-rounded";
+export { default as Star } from "@ktibow/iconset-material-symbols/star-rounded";
+
+export { default as Route } from "@ktibow/iconset-material-symbols/route";
 
 // ! Other Icons
 export { default as Close } from "@ktibow/iconset-material-symbols/close-rounded";
@@ -61,12 +68,6 @@ export { default as Edit } from "@ktibow/iconset-material-symbols/edit-outline-r
 
 export { default as Refresh } from "@ktibow/iconset-material-symbols/refresh-rounded";
 
-export { default as BugReport } from "@ktibow/iconset-material-symbols/bug-report-outline-rounded";
-export { default as Bug } from "@ktibow/iconset-material-symbols/bug-report-rounded";
-
-export { default as Person } from "@ktibow/iconset-material-symbols/person-rounded";
-export { default as Star } from "@ktibow/iconset-material-symbols/star-rounded";
-
 export { default as Sort } from "@ktibow/iconset-material-symbols/sort-rounded";
 
 export { default as Checkmark } from "@ktibow/iconset-material-symbols/check";
@@ -83,4 +84,6 @@ export { default as Help } from "@ktibow/iconset-material-symbols/help-rounded";
 export { default as CalendarMonth } from "@ktibow/iconset-material-symbols/calendar-month-rounded";
 
 export { default as Draft } from "@ktibow/iconset-material-symbols/draft-rounded";
+
+export { default as DragIndicator } from "@ktibow/iconset-material-symbols/drag-indicator";
 

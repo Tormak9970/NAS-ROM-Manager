@@ -7,11 +7,20 @@
   export let icon: IconifyIcon;
   export let label: string;
   export let route: string;
+  export let isExternal = false;
   export let description: string;
+
+  function navigate() {
+    if (isExternal) {
+      open(route, "_blank");
+    } else {
+      goto(route);
+    }
+  }
 </script>
 
 <div class="settings-entry">
-  <CardClickable type="elevated" on:click={() => goto(route)} extraOptions={{ style: "width: 100%; display: flex; position: relative; padding: 10px;" }}>
+  <CardClickable type="elevated" on:click={navigate} extraOptions={{ style: "width: 100%; display: flex; position: relative; padding: 10px;" }}>
     <div class="content">
       <div class="icon-container">
         <Icon icon={icon} height="1.5rem" width="1.5rem" />

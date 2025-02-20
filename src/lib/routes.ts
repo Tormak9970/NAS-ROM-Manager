@@ -8,7 +8,7 @@ export type Route = {
   path: string;
 }
 
-export const landscapeRoutes: Record<string, Route> = {
+export const routes: Record<string, Route> = {
   "Dashboard": {
     label: "Dashboard",
     path: "/dashboard",
@@ -39,37 +39,10 @@ export const landscapeRoutes: Record<string, Route> = {
     selectedIcon: Settings,
     icon: SettingsOutline 
   },
-}
-
-export const portraitRoutes: Record<string, Route> = {
-  "Dashboard": {
-    label: "Dashboard",
-    path: "/dashboard",
-    selectedIcon: Dashboard,
-    icon: DashboardOutline
-  },
-  "Library": {
-    label: "Library",
-    path: "/library",
-    selectedIcon: Library,
-    icon: LibraryOutline
-  },
   "Search": {
     label: "Search",
     path: "/search",
     selectedIcon: Search,
     icon: Search
-  },
-  "Systems": {
-    label: "Systems",
-    path: "/systems",
-    selectedIcon: GameAsset,
-    icon: GameAssetOutline
-  },
-  "Settings": {
-    label: "Settings",
-    path: "/settings",
-    selectedIcon: Settings,
-    icon: SettingsOutline 
   },
 }

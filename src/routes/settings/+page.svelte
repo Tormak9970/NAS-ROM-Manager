@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { BackHandOutline, DonutLarge, GridViewOutline, InfoOutline, InterestsOutline } from "@icons";
+  import { AssignmentOutline, BackHandOutline, DonutLarge, GridViewOutline, InfoOutline, InterestsOutline } from "@icons";
   import { SettingsBody, SettingsNavButton } from "@views/settings";
 
 </script>
@@ -33,6 +33,13 @@
     label="Accessibility"
     route="/settings/accessibility"
     description="Manage the app's accessibility settings"
+  />
+  <SettingsNavButton
+    icon={AssignmentOutline}
+    label="Documentation"
+    route="https://github.com/Tormak9970/NAS-ROM-Manager"
+    isExternal
+    description="View the app's documentation"
   />
   <SettingsNavButton
     icon={InfoOutline}

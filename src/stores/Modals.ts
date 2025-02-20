@@ -18,6 +18,9 @@ export const filePickerCancel = writable(async () => {});
 export const showEditLibraryModal = writable(false);
 export const isFirstSetup = writable(true);
 
+export const showEditRouteOrderModal = writable(false);
+export const isLandscapeRoutes = writable(true);
+
 export const showDownloadProgressModal = writable(false);
 export const downloadProgressRom = writable<ROM | null>(null);
 

@@ -36,7 +36,7 @@
           options={options}
           bind:value={value}
           extraWrapperOptions={{
-            style: "height: 3rem; min-width: 12rem;"
+            style: "height: 3rem; min-width: 9rem;"
           }}
           extraOptions={{
             style: ""

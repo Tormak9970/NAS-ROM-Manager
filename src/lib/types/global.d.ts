@@ -2,7 +2,6 @@
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {
-  readonly NRM_FRONTEND_VERSION: string;
   readonly NRM_BACKEND_VERSION: string;
   readonly NRM_BUILD_DATE: string;
 }
@@ -11,7 +10,7 @@ interface ImportMeta {
   readonly env: ImportMetaEnv
 }
 
-declare const APP_VERSION: string;
+declare const NRM_FRONTEND_VERSION: string;
 
 type DialogModalType = "INFO" | "WARNING" | "ERROR";
 

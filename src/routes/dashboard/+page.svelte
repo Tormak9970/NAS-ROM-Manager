@@ -53,7 +53,7 @@
       <div class="card-header m3-font-title-medium">Server Info</div>
       <div class="body">
         <ul>
-          <Statistic label="Frontend Version">{import.meta.env.NRM_FRONTEND_VERSION}</Statistic>
+          <Statistic label="Frontend Version">{NRM_FRONTEND_VERSION}</Statistic>
           <Statistic label="Backend Version">{import.meta.env.NRM_BACKEND_VERSION}</Statistic>
           <Statistic label="Build Date">{import.meta.env.NRM_BUILD_DATE}</Statistic>
         </ul>

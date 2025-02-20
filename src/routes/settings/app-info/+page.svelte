@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { BugReport, EditDocument, InfoOutline, License, Person, Star } from "@icons";
+  import { ButtonSetting, SettingsBody, TextSetting } from "@views/settings";
 
 </script>
 
@@ -7,17 +9,11 @@
   <meta name="description" content="View and modify the navigation settings of NRM." />
 </svelte:head>
 
-<div id="settings">
-  <div class="font-headline-large">Coming Soon</div>
-</div>
-
-<style>
-  #settings {
-    width: 100%;
-    height: 100%;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-</style>
+<SettingsBody title="App Info">
+  <TextSetting label="Version" description={NRM_FRONTEND_VERSION} icon={InfoOutline} />
+  <TextSetting label="Developer" description="Travis Lane" icon={Person} />
+  <ButtonSetting label="View Changelog" description="View the changes made in each release" icon={EditDocument} on:click={() => open("https://github.com/Tormak9970/NAS-ROM-Manager/blob/main/CHANGELOG.md", "_blank")} />
+  <ButtonSetting label="GitHub" description="View the app's source and star it!" icon={Star} on:click={() => open("https://github.com/Tormak9970/NAS-ROM-Manager", "_blank")} />
+  <ButtonSetting label="Report Bugs" description="Ran into an issue? Let me know!" icon={BugReport} on:click={() => open("https://github.com/Tormak9970/NAS-ROM-Manager/issues/new/choose", "_blank")} />
+  <ButtonSetting label="Licensing" description="GPL v3.0" icon={License} on:click={() => open("https://github.com/Tormak9970/NAS-ROM-Manager/blob/main/LICENSE", "_blank")} />
+</SettingsBody>
