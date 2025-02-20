@@ -10,7 +10,7 @@
   export let description: string;
 </script>
 
-<div class="settings-nav-button">
+<div class="settings-entry">
   <CardClickable type="elevated" on:click={() => goto(route)} extraOptions={{ style: "width: 100%; display: flex; position: relative; padding: 10px;" }}>
     <div class="content">
       <div class="icon-container">
@@ -27,19 +27,13 @@
 </div>
 
 <style>
-  .settings-nav-button {
-    width: calc(100% - 1rem);
-    max-width: 600px;
-    margin: 0 0.5rem;
-  }
-
   .content {
     width: 100%; 
     display: flex;
     align-items: center;
   }
   
-  .settings-nav-button :global(.type-elevated) {
+  .settings-entry :global(.type-elevated) {
     background-color: rgb(var(--m3-scheme-surface-container));
     box-shadow: none;
   }

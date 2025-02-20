@@ -1,5 +1,7 @@
 <script lang="ts">
-
+  import { CloudDownload } from "@icons";
+  import { saveMetadataAlongside } from "@stores/State";
+  import { SettingsBody, ToggleSetting } from "@views/settings";
 </script>
 
 <svelte:head>
@@ -7,17 +9,12 @@
   <meta name="description" content="View and modify the metadata settings of NRM." />
 </svelte:head>
 
-<div id="settings">
-  <div class="font-headline-large">Coming Soon</div>
-</div>
-
-<style>
-  #settings {
-    width: 100%;
-    height: 100%;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-</style>
+<SettingsBody title="Metadata">
+  <ToggleSetting
+    icon={CloudDownload}
+    iconSize="1.5rem"
+    label="Save ROM Metadata with ROMs"
+    description="Saves ROM metadata in files with the ROMs."
+    bind:checked={$saveMetadataAlongside}
+  />
+</SettingsBody>

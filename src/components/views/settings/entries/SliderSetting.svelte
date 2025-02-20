@@ -3,6 +3,7 @@
   import type { IconifyIcon } from "@iconify/types";
   import { Slider } from "@interactables";
   import { Card } from "@layout";
+  import { isLandscape } from "@stores/State";
   import type { Spring } from "svelte/motion";
 
   export let label: string;
@@ -17,27 +18,31 @@
   let valueDisplayed: Spring<number>;
 </script>
 
-<Card type="transparent" extraOptions={{ style: "width: 100%;" }}>
-  <div class="content">
-    <div class="icon-container">
-      {#if icon}
-        <Icon icon={icon} height={iconSize} width={iconSize} />
-      {/if}
-    </div>
-    <div class="info">
-      <div class="font-label">{label}</div>
-      <div class="font-body description">
-        {description}
-      </div>
-      <div class="slider-container">
-        <div style="width: 90%;">
-          <Slider min={min} max={max} step={step} bind:value={value} bind:valueDisplayed={valueDisplayed} />
+<div class="settings-entry">
+  <Card type="transparent" extraOptions={{ style: "width: 100%;" }}>
+    <div class="content">
+      {#if $isLandscape}
+        <div class="icon-container">
+          {#if icon}
+            <Icon icon={icon} height={iconSize} width={iconSize} />
+          {/if}
         </div>
-        <div style="width: 10%;">{$valueDisplayed?.toFixed(0)}</div>
+      {/if}
+      <div class="info">
+        <div class="font-label">{label}</div>
+        <div class="font-body description">
+          {description}
+        </div>
+        <div class="slider-container">
+          <div style="width: 90%;">
+            <Slider min={min} max={max} step={step} bind:value={value} bind:valueDisplayed={valueDisplayed} />
+          </div>
+          <div style="width: 10%;">{$valueDisplayed?.toFixed(0)}</div>
+        </div>
       </div>
     </div>
-  </div>
-</Card>
+  </Card>
+</div>
 
 <style>
   .content {

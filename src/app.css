@@ -315,3 +315,9 @@ a, a:visited {
 a:hover {
   color: rgb(var(--m3-scheme-primary) / 0.8);
 }
+
+.settings-entry {
+  width: calc(100% - 1rem);
+  max-width: 600px;
+  margin: 0 0.5rem;
+}

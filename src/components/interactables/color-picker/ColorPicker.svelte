@@ -1,8 +1,8 @@
 <script lang="ts">
 	import ColorPicker from 'svelte-awesome-color-picker';
-  import Wrapper from './Wrapper.svelte';
-  import Input from './Input.svelte';
-  import TextInput from './TextInput.svelte';
+	import Input from './Input.svelte';
+	import TextInput from './TextInput.svelte';
+	import Wrapper from './Wrapper.svelte';
 
   export let hex: string;
 </script>

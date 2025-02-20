@@ -3,6 +3,7 @@
   import type { IconifyIcon } from "@iconify/types";
   import { Select } from "@interactables";
   import { Card } from "@layout";
+  import { isLandscape } from "@stores/State";
 
   export let label: string;
   export let description: string;
@@ -12,35 +13,39 @@
   export let value: string;
 </script>
 
-<Card type="transparent" extraOptions={{ style: "width: 100%;" }}>
-  <div class="content" style:--m3-util-background="var(--m3-scheme-background)">
-    <div class="icon-container">
-      {#if icon}
-        <Icon icon={icon} height={iconSize} width={iconSize} />
+<div class="settings-entry">
+  <Card type="transparent" extraOptions={{ style: "width: 100%;" }}>
+    <div class="content" style:--m3-util-background="var(--m3-scheme-background)">
+      {#if $isLandscape}
+        <div class="icon-container">
+          {#if icon}
+            <Icon icon={icon} height={iconSize} width={iconSize} />
+          {/if}
+        </div>
       {/if}
-    </div>
-    <div class="info">
-      <div class="font-label">{label}</div>
-      <div class="font-body description">
-        {description}
+      <div class="info">
+        <div class="font-label">{label}</div>
+        <div class="font-body description">
+          {description}
+        </div>
+      </div>
+      <!-- svelte-ignore a11y-label-has-associated-control -->
+      <div class="action-container">
+        <Select
+          name={label}
+          options={options}
+          bind:value={value}
+          extraWrapperOptions={{
+            style: "height: 3rem; min-width: 12rem;"
+          }}
+          extraOptions={{
+            style: ""
+          }}
+        />
       </div>
     </div>
-    <!-- svelte-ignore a11y-label-has-associated-control -->
-    <div class="action-container">
-      <Select
-        name={label}
-        options={options}
-        bind:value={value}
-        extraWrapperOptions={{
-          style: "height: 3rem; min-width: 12rem;"
-        }}
-        extraOptions={{
-          style: ""
-        }}
-      />
-    </div>
-  </div>
-</Card>
+  </Card>
+</div>
 
 <style>
   .content {

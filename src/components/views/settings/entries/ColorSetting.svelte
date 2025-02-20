@@ -3,6 +3,7 @@
   import type { IconifyIcon } from "@iconify/types";
   import { ColorPicker } from "@interactables";
   import { Card } from "@layout";
+  import { isLandscape } from "@stores/State";
 
   export let label: string;
   export let description: string;
@@ -11,25 +12,29 @@
   export let color: string;
 </script>
 
-<Card type="transparent" extraOptions={{ style: "width: 100%;" }}>
-  <div class="content">
-    <div class="icon-container">
-      {#if icon}
-        <Icon icon={icon} height={iconSize} width={iconSize} />
+<div class="settings-entry">
+  <Card type="transparent" extraOptions={{ style: "width: 100%;" }}>
+    <div class="content">
+      {#if $isLandscape}
+        <div class="icon-container">
+          {#if icon}
+            <Icon icon={icon} height={iconSize} width={iconSize} />
+          {/if}
+        </div>
       {/if}
-    </div>
-    <div class="info">
-      <div class="font-label">{label}</div>
-      <div class="font-body description">
-        {description}
+      <div class="info">
+        <div class="font-label">{label}</div>
+        <div class="font-body description">
+          {description}
+        </div>
       </div>
+      <!-- svelte-ignore a11y-label-has-associated-control -->
+      <label class="color-container">
+        <ColorPicker bind:hex={color} />
+      </label>
     </div>
-    <!-- svelte-ignore a11y-label-has-associated-control -->
-    <label class="color-container">
-      <ColorPicker bind:hex={color} />
-    </label>
-  </div>
-</Card>
+  </Card>
+</div>
 
 <style>
   .content {

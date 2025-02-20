@@ -25,6 +25,13 @@ export { default as InterestsOutline } from "@ktibow/iconset-material-symbols/in
 
 export { default as MotionBlur } from "@ktibow/iconset-material-symbols/motion-blur-rounded";
 
+export { default as CloudDownload } from "@ktibow/iconset-material-symbols/cloud-download-rounded";
+
+export { default as BrightnessMedium } from "@ktibow/iconset-material-symbols/brightness-medium-rounded";
+export { default as DarkMode } from "@ktibow/iconset-material-symbols/dark-mode-rounded";
+export { default as LightMode } from "@ktibow/iconset-material-symbols/light-mode-rounded";
+export { default as Palette } from "@ktibow/iconset-material-symbols/palette";
+
 // ! Other Icons
 export { default as Close } from "@ktibow/iconset-material-symbols/close-rounded";
 export { default as Pause } from "@ktibow/iconset-material-symbols/pause-rounded";
@@ -52,11 +59,6 @@ export { default as Today } from "@ktibow/iconset-material-symbols/today-rounded
 export { default as Edit } from "@ktibow/iconset-material-symbols/edit-outline-rounded";
 
 export { default as Refresh } from "@ktibow/iconset-material-symbols/refresh-rounded";
-
-export { default as BrightnessMedium } from "@ktibow/iconset-material-symbols/brightness-medium-rounded";
-export { default as DarkMode } from "@ktibow/iconset-material-symbols/dark-mode-rounded";
-export { default as LightMode } from "@ktibow/iconset-material-symbols/light-mode-rounded";
-export { default as Palette } from "@ktibow/iconset-material-symbols/palette";
 
 export { default as BugReport } from "@ktibow/iconset-material-symbols/bug-report-outline-rounded";
 export { default as Bug } from "@ktibow/iconset-material-symbols/bug-report-rounded";

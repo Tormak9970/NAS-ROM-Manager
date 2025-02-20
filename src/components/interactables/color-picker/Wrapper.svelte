@@ -11,7 +11,7 @@
 	export let isDialog: boolean;
 
   onMount(() => {
-    wrapper.anchorElement = wrapper.parentElement?.childNodes[0];
+    wrapper.anchorElement = wrapper.parentElement?.childNodes[1];
   });
 </script>
 
