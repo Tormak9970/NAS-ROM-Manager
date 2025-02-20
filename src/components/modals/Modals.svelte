@@ -14,7 +14,7 @@
   <Controlled />
 {/if}
 
-{#if showEditRouteOrderModal}
+{#if $showEditRouteOrderModal}
   <EditRouteOrder />
 {/if}
 

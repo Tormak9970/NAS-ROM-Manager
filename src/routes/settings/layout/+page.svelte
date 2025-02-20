@@ -38,7 +38,7 @@
     label="Edit Mobile Routes"
     description="Edit the order of mobile navigation menu"
     on:click={() => {
-      $isLandscapeRoutes = true;
+      $isLandscapeRoutes = false;
       $showEditRouteOrderModal = true;
     }}
   />
