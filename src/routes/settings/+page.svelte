@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { BackHandOutline, DonutLarge, GridViewOutline, InterestsOutline } from "@icons";
+  import { BackHandOutline, DonutLarge, GridViewOutline, InfoOutline, InterestsOutline } from "@icons";
   import { SettingsBody, SettingsNavButton } from "@views/settings";
 
 </script>
@@ -33,5 +33,11 @@
     label="Accessibility"
     route="/settings/accessibility"
     description="Manage the app's accessibility settings"
+  />
+  <SettingsNavButton
+    icon={InfoOutline}
+    label="App Info"
+    route="/settings/app-info"
+    description="View information about the app"
   />
 </SettingsBody>

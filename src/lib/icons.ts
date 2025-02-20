@@ -21,6 +21,7 @@ export { default as Host } from "@ktibow/iconset-material-symbols/host-rounded";
 export { default as BackHandOutline } from "@ktibow/iconset-material-symbols/back-hand-outline-rounded";
 export { default as DonutLarge } from "@ktibow/iconset-material-symbols/donut-large-rounded";
 export { default as GridViewOutline } from "@ktibow/iconset-material-symbols/grid-view-outline-rounded";
+export { default as InfoOutline } from "@ktibow/iconset-material-symbols/info-outline-rounded";
 export { default as InterestsOutline } from "@ktibow/iconset-material-symbols/interests-outline-rounded";
 
 export { default as MotionBlur } from "@ktibow/iconset-material-symbols/motion-blur-rounded";
