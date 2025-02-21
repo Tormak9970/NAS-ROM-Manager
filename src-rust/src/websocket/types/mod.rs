@@ -19,3 +19,10 @@ impl Into<usize> for BackendErrorType {
 }
 
 pub type ErrorSender = Box<dyn Fn(String, String, BackendErrorType)>;
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+#[allow(non_snake_case)]
+pub struct AvailableStorage {
+  pub usedSpace: u64,
+  pub totalSpace: u64,
+}

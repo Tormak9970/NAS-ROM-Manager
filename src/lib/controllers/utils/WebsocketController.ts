@@ -17,7 +17,7 @@
 
 import { LogController } from "@controllers/utils/LogController";
 import { library, roms, romsBySystem, showWarningSnackbar, systems } from "@stores/State";
-import { BackendErrorType, type BackendError, type FilePickerConfig, type FilePickerEntry, type Library, type LoadResult, type ROM, type Settings } from "@types";
+import { BackendErrorType, type AvailableStorage, type BackendError, type FilePickerConfig, type FilePickerEntry, type Library, type LoadResult, type ROM, type Settings } from "@types";
 import { hash64, showError, systemToParser } from "@utils";
 import { get } from "svelte/store";
 
@@ -260,6 +260,15 @@ export class WebsocketController {
         max: config.max ?? 1000,
       }
     });
+    return res.data;
+  }
+  
+  /**
+   * Gets info about used and total space available.
+   * @returns The storage info.
+   */
+  static async getStorageInfo(): Promise<AvailableStorage> {
+    const res = await WebsocketController.invoke<AvailableStorage>("available_storage", {});
     return res.data;
   }
 }

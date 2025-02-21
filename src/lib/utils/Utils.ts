@@ -235,8 +235,10 @@ export function formatFileSize(fileSize: number): string {
     return (fileSize / 1000).toFixed(1) + " KB";
   } else if (fileSize < 1000000000) {
     return (fileSize / 1000000).toFixed(1) + " MB";
-  } else {
+  } else if (fileSize < 1000000000000) {
     return (fileSize / 1000000000).toFixed(1) + " GB";
+  } else {
+    return (fileSize / 1000000000000).toFixed(1) + " TB";
   }
 }
 

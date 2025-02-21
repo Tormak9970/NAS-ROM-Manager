@@ -7,6 +7,7 @@ mod watcher;
 mod ws_handler;
 mod file_picker;
 
+use sysinfo::Disks;
 use types::{
   settings::get_default_settings,
   library::StateStore
@@ -20,6 +21,10 @@ use tokio::sync::broadcast;
 pub fn initialize_websocket_api() -> impl Filter<Extract = (impl warp::Reply,), Error = warp::Rejection> + Clone {
   let tx = Arc::new(Mutex::new(broadcast::channel(100).0));
   let settings = Arc::new(Mutex::new(get_default_settings()));
+  
+  sysinfo::set_open_files_limit(0);
+  let disks = Arc::new(Mutex::new(Disks::new()));
+
   let state_store = Arc::new(Mutex::new(StateStore {
     library: get_default_settings().library,
     parsers: HashMap::new()
@@ -27,6 +32,7 @@ pub fn initialize_websocket_api() -> impl Filter<Extract = (impl warp::Reply,), 
 
   let tx_ws = tx.clone();
   let settings_ws = settings.clone();
+  let disks_ws = disks.clone();
   let state_store_ws = state_store.clone();
 
   let watcher_core = Watcher::new();
@@ -41,11 +47,13 @@ pub fn initialize_websocket_api() -> impl Filter<Extract = (impl warp::Reply,), 
       let tx = tx_ws.clone();
       let settings = settings_ws.clone();
       let watcher = watcher_ws.clone();
+      let disks = disks_ws.clone();
       let state_store = state_store_ws.clone();
 
       ws.on_upgrade(move |websocket| ws_handler::handle_connection(
         websocket,
         tx,
+        disks,
         settings,
         watcher,
         state_store

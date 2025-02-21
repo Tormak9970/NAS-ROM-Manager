@@ -9,6 +9,11 @@ export type RomUploadConfig = {
   needsUnzip: boolean;
 }
 
+export type AvailableStorage = {
+  usedSpace: number;
+  totalSpace: number;
+}
+
 export type FilePickerFilter = RegExp | ((file: FilePickerEntry) => boolean);
 
 /**

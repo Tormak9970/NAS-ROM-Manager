@@ -3,6 +3,7 @@ use log::warn;
 use warp::filters::ws::{Message, WebSocket};
 use std::{env::var, sync::{Arc, Mutex}};
 use tokio::sync::broadcast;
+use sysinfo::{DiskRefreshKind, Disks};
 
 use crate::websocket::{
   auth::authenticate_user,
@@ -24,13 +25,14 @@ use crate::websocket::{
   watcher::Watcher
 };
 
-use super::{file_picker::get_entries, types::args::FilePickerArgs};
+use super::{file_picker::get_entries, types::{args::FilePickerArgs, AvailableStorage}};
 
 
 fn handle_message(
   message: &str,
   data: &str,
   tx: broadcast::Sender<String>,
+  disks: Arc<Mutex<Disks>>,
   settings: Arc<Mutex<Settings>>,
   watcher: Arc<Mutex<Watcher>>,
   state_store: Arc<Mutex<StateStore>>
@@ -203,6 +205,33 @@ fn handle_message(
         send(tx, "file_picker", file_entries_res.unwrap());
       }
     }
+    "available_storage" => {
+      let args: SimpleArgs = serde_json::from_str(data).unwrap();
+      let valid = check_hash(args.passwordHash, tx.clone());
+      if !valid {
+        return;
+      }
+
+      let mut state_disks = disks.lock().expect("Failed to lock Disks");
+      
+      let disk_refresh_kind = DiskRefreshKind::nothing().with_storage();
+      state_disks.refresh_specifics(true, disk_refresh_kind);
+
+      let mut available_space: u64 = 0;
+      let mut total_space: u64 = 0;
+
+      for disk in state_disks.list() {
+        available_space += disk.available_space();
+        total_space += disk.total_space();
+      }
+
+      let info = AvailableStorage {
+        usedSpace: total_space - available_space,
+        totalSpace: total_space,
+      };
+
+      send(tx, "available_storage", info);
+    }
     "demo" => {
       let args: SimpleArgs = serde_json::from_str(data).unwrap();
       let valid = check_hash(args.passwordHash, tx.clone());
@@ -218,6 +247,7 @@ fn handle_message(
 pub async fn handle_connection(
   ws: WebSocket,
   tx: Arc<Mutex<broadcast::Sender<String>>>,
+  disks: Arc<Mutex<Disks>>,
   settings: Arc<Mutex<Settings>>,
   watcher: Arc<Mutex<Watcher>>,
   state_store: Arc<Mutex<StateStore>>
@@ -244,6 +274,7 @@ pub async fn handle_connection(
             message,
             data,
             tx.lock().unwrap().to_owned(),
+            disks.clone(),
             settings.clone(),
             watcher.clone(),
             state_store.clone()

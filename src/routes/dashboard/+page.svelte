@@ -3,6 +3,7 @@
   import { Card } from "@layout";
   import { emulators, roms, romsBySystem, systems } from "@stores/State";
   import Statistic from "@views/dashboard/Statistic.svelte";
+  import StorageIndicator from "@views/dashboard/StorageIndicator.svelte";
   import SystemTagCloud from "@views/dashboard/SystemTagCloud.svelte";
   import SystemTag from "@views/SystemTag.svelte";
 
@@ -59,17 +60,7 @@
         </ul>
       </div>
     </Card>
-    <Card type="elevated" extraOptions={cardOptions}>
-      <div class="card-header m3-font-title-medium">Storage</div>
-      <div class="body" style="margin: 0.5rem  0 -.25rem 0;">
-        <!-- TODO: real time storage monitoring. Show amount available and amount used by NRM. -->
-        <Card type="filled" extraOptions={{ style: "width: 100%" }}>
-          <div class="storage-tracker">
-            <!-- TODO: real time storage monitoring. Show amount available and amount used by NRM. -->
-          </div>
-        </Card>
-      </div>
-    </Card>
+    <StorageIndicator extraOptions={cardOptions} />
     <div style="width: 100%; height: 70px;"></div>
   </div>
 </div>
