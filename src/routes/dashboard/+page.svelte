@@ -61,7 +61,7 @@
       </div>
     </Card>
     <StorageIndicator extraOptions={cardOptions} />
-    <div style="width: 100%; height: 70px;"></div>
+    <div style="width: 100%; height: 0.5rem;"></div>
   </div>
 </div>
 
