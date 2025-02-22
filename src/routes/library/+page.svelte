@@ -6,7 +6,7 @@
 
   let layout = $derived(GRID_LAYOUTS[$libraryGridType]);
 
-  let romsList = $derived(Object.values($roms));
+  let romIdList = $derived(Object.keys($roms));
 </script>
 
 <svelte:head>
@@ -19,12 +19,12 @@
     name="library"
     itemHeight={layout.height} 
     itemWidth={layout.width}
-    items={romsList}
+    items={romIdList}
     columnGap={layout.gap}
     rowGap={layout.gap}
     let:entry
   >
-    <Rom rom={entry} />
+    <Rom romId={entry} />
   </VirtualGrid>
 </div>
 

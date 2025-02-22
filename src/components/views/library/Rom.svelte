@@ -1,28 +1,28 @@
 <script lang="ts">
   import { Icon } from "@component-utils";
+  import { SGDBController } from "@controllers";
   import { Download } from "@icons";
   import { Button } from "@interactables";
-  import { downloadProgressRom, showDownloadProgressModal } from "@stores/Modals";
-  import { libraryGridType, systemTagConfigs } from "@stores/State";
-  import type { ROM } from "@types";
-  import { formatFileSize, GRID_LAYOUTS } from "@utils";
+  import { downloadProgressRom, romEditingId, showDownloadProgressModal, showEditRomModal } from "@stores/Modals";
+  import { libraryGridType, romCustomizations, roms } from "@stores/State";
+  import type { ROMCustomization } from "@types";
+  import { formatFileSize, GRID_LAYOUTS, hash64 } from "@utils";
+  import { onMount } from "svelte";
   import SystemTag from "../SystemTag.svelte";
   import Tag from "../Tag.svelte";
 
   type RomProps = {
-    rom: ROM;
+    romId: string;
   }
 
-  let { rom }: RomProps = $props();
+  let { romId }: RomProps = $props();
 
-  let system = $derived(rom.system);
+  let rom = $derived($roms[romId]);
+  let romCustomization: ROMCustomization = $derived($romCustomizations[romId]);
 
-  let cover = "https://cdn2.steamgriddb.com/thumb/3c64afe806cd466dd1ffecbe3e2e8cce.jpg";
+  let coverLoading = $state(true);
 
   let layout = $derived(GRID_LAYOUTS[$libraryGridType]);
-
-  const DEFAULT_COLOR = "var(--m3-scheme-tertiary-container)";
-  let systemTagConfig = $derived($systemTagConfigs[system]);
 
   function download() {
     $downloadProgressRom = rom;
@@ -30,8 +30,16 @@
   }
 
   function openEditModal() {
-
+    $romEditingId = hash64(rom.path);
+    $showEditRomModal = true;
   }
+
+  onMount(async () => {
+    if (romCustomization.sgdbId === "") {
+      const sgdbId = await SGDBController.chooseSteamGridGameId(romId, rom.title);
+      console.log("sgdbId:", sgdbId);
+    }
+  });
 </script>
 
 <!-- svelte-ignore a11y_click_events_have_key_events -->
@@ -40,7 +48,7 @@
   class="rom"
   style:width="{layout.width - 2}px"
   style:height="{layout.height - 2}px"
-  style:--cover-url='url("{cover}")'
+  style:--cover-url='url("{romCustomization.gridPath}")'
   onclick={openEditModal}
 >
   <div class="cover"></div>

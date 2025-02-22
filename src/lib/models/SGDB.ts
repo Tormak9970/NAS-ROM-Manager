@@ -15,16 +15,13 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>
  */
 import { requestTimeoutLength } from "@stores/State";
-import type { GridResults, SGDBGame, SGDBGetGameOptions, SGDBImageOptions, SGDBOptions } from "@types";
+import type { GridResults, SGDBGame, SGDBImageOptions, SGDBOptions } from "@types";
 
 
 export class RequestError extends Error {
-  response: Response;
-
-  constructor(message: string, response: Response) {
+  constructor(message: string) {
     super(message);
     this.name = "Request Error"
-    this.response = response;
   }
 }
 
@@ -119,17 +116,17 @@ export class SGDB {
       options = Object.assign({}, options, { formData: formData });
     }
 
-    let response = await fetch(`${this.baseURL}${usePublic ? "public" : "v2"}${url}${strParams ? `?${strParams}` : ""}`, options);
+    try {
+      let response = await fetch(`${this.baseURL}${usePublic ? "public" : "v2"}${url}${strParams ? `?${strParams}` : ""}`, options);
 
-    if (response.ok) {
       const data = await response.json();
       if (data.success) {
         return data;
       } else {
-        throw new RequestError(data.errors?.join(", ") ?? "Unknown SteamGridDB error.", response);
+        throw new RequestError(data.errors?.join(", ") ?? "Unknown SteamGridDB error.");
       }
-    } else {
-      throw new RequestError(response.statusText ?? "SteamGridDB error.", response);
+    } catch (error: any) {
+      throw new RequestError(error.message ?? "SteamGridDB error.");
     }
   }
 
@@ -140,40 +137,6 @@ export class SGDB {
    */
   async searchGame(query: string): Promise<SGDBGame[]> {
     return (await this.handleRequest("GET", `/search/autocomplete/${encodeURIComponent(query)}`)).data;
-  }
-
-  /**
-   * Gets information for a game.
-   * @param options The SGDB request options
-   * @param params Optional request parameters.
-   * @returns A promise resolving to the game's information.
-   */
-  async getGame(options: any, params?: SGDBGetGameOptions): Promise<SGDBGame> {
-    if (params) {
-      return (await this.handleRequest("GET", `/games/${options.type}/${options.id}`, this.buildQuery(params))).data;
-    }
-    
-    return (await this.handleRequest("GET", `/games/${options.type}/${options.id}`)).data;
-  }
-
-  /**
-   * Gets information for a game given its id.
-   * @param id The game's id.
-   * @param params Optional request parameters.
-   * @returns A promise resolving to the game's information.
-   */
-  async getGameById(id: number, params?: SGDBGetGameOptions): Promise<SGDBGame> {
-    return this.getGame({id: id, type: "id"}, params);
-  }
-
-  /**
-   * Gets information for a steam game given its id.
-   * @param id The game's id.
-   * @param params Optional request parameters.
-   * @returns A promise resolving to the game's information.
-   */
-  async getGameBySteamAppId(id: number, params?: SGDBGetGameOptions): Promise<SGDBGame> {
-    return this.getGame({id: id, type: "steam"}, params);
   }
 
   /**
@@ -230,332 +193,6 @@ export class SGDB {
       humor: humor,
       epilepsy: epilepsy,
       page: page
-    });
-  }
-
-  /**
-   * Gets a list of grids based on the provided steam game id and filters.
-   * @param id The game's id.
-   * @param styles List of styles to include.
-   * @param dimensions List of dimensions to include.
-   * @param mimes List of mimes to include.
-   * @param types List of types to include.
-   * @param nsfw Whether the result should include nsfw images.
-   * @param humor Whether the result should include humor images.
-   * @param epilepsy Whether the result should include epilepsy images.
-   * @param page The page of results to get.
-   * @returns A promise resolving to a list of grids for the desired steam game matching the provided filters.
-   */
-  async getGridsBySteamAppId(
-    id: number,
-    styles?: string[],
-    dimensions?: string[],
-    mimes?: string[],
-    types?: string[],
-    nsfw?: string,
-    humor?: string,
-    epilepsy?: string,
-    page?: number
-  ): Promise<GridResults> {
-    return this.getGrids({
-      type: "steam",
-      id: id,
-      styles: styles,
-      dimensions: dimensions,
-      mimes: mimes,
-      types: types,
-      nsfw: nsfw,
-      humor: humor,
-      epilepsy: epilepsy,
-      page: page
-    });
-  }
-
-  /**
-   * Gets heros for a game given its platform and id.
-   * @param options The SGDB request options.
-   * @returns A promise resolving to the game's heros.
-   */
-  async getHeroes(options: SGDBImageOptions): Promise<GridResults> {
-    const results = await this.handleRequest("GET", `/heroes/${options.type}/${options.id}`, this.buildQuery(options));
-
-    const grids = results.data.map((img: any) => {
-      img.isAnimated = img.thumb.includes('.webm');
-      return img;
-    });
-
-    return {
-      images: grids,
-      page: results.page,
-      total: results.total,
-    };
-  }
-
-  /**
-   * Gets a list of heroes based on the provided game id and filters.
-   * @param id The game's id.
-   * @param styles List of styles to include.
-   * @param dimensions List of dimensions to include.
-   * @param mimes List of mimes to include.
-   * @param types List of types to include.
-   * @param nsfw Whether the result should include nsfw images.
-   * @param humor Whether the result should include humor images.
-   * @param epilepsy Whether the result should include epilepsy images.
-   * @param page The page of results to get.
-   * @returns A promise resolving to a list of heroes for the desired game matching the provided filters.
-   */
-  async getHeroesById(
-    id: number,
-    styles?: string[],
-    dimensions?: string[],
-    mimes?: string[],
-    types?: string[],
-    nsfw?: string,
-    humor?: string,
-    epilepsy?: string,
-    page?: number
-  ): Promise<GridResults> {
-    return this.getHeroes({
-      type: "game",
-      id: id,
-      styles: styles,
-      dimensions: dimensions,
-      mimes: mimes,
-      types: types,
-      nsfw: nsfw,
-      humor: humor,
-      epilepsy: epilepsy,
-      page: page
-    });
-  }
-
-  /**
-   * Gets a list of heroes based on the provided steam game id and filters.
-   * @param id The game's id.
-   * @param styles List of styles to include.
-   * @param dimensions List of dimensions to include.
-   * @param mimes List of mimes to include.
-   * @param types List of types to include.
-   * @param nsfw Whether the result should include nsfw images.
-   * @param humor Whether the result should include humor images.
-   * @param epilepsy Whether the result should include epilepsy images.
-   * @param page The page of results to get.
-   * @returns A promise resolving to a list of heroes for the desired steam game matching the provided filters.
-   */
-  async getHeroesBySteamAppId(
-    id: number,
-    styles?: string[],
-    dimensions?: string[],
-    mimes?: string[],
-    types?: string[],
-    nsfw?: string,
-    humor?: string,
-    epilepsy?: string,
-    page?: number
-  ): Promise<GridResults> {
-    return this.getHeroes({
-      type: "steam",
-      id: id,
-      styles: styles,
-      dimensions: dimensions,
-      mimes: mimes,
-      types: types,
-      nsfw: nsfw,
-      humor: humor,
-      epilepsy: epilepsy,
-      page: page
-    });
-  }
-
-  /**
-   * Gets icons for a game given its platform and id.
-   * @param options The SGDB request options.
-   * @returns A promise resolving to the game's icons.
-   */
-  async getIcons(options: SGDBImageOptions): Promise<GridResults> {
-    const results = await this.handleRequest("GET", `/icons/${options.type}/${options.id}`, this.buildQuery(options));
-
-    const grids = results.data.map((img: any) => {
-      img.isAnimated = img.thumb.includes('.webm');
-      return img;
-    });
-
-    return {
-      images: grids,
-      page: results.page,
-      total: results.total,
-    };
-  }
-
-  /**
-   * Gets a list of icons based on the provided game id and filters.
-   * @param id The game's id.
-   * @param styles List of styles to include.
-   * @param dimensions List of dimensions to include.
-   * @param mimes List of mimes to include.
-   * @param types List of types to include.
-   * @param nsfw Whether the result should include nsfw images.
-   * @param humor Whether the result should include humor images.
-   * @param epilepsy Whether the result should include epilepsy images.
-   * @param page The page of results to get.
-   * @returns A promise resolving to a list of heroes for the desired game matching the provided filters.
-   */
-  async getIconsById(
-    id: number,
-    styles?: string[],
-    dimensions?: string[],
-    mimes?: string[],
-    types?: string[],
-    nsfw?: string,
-    humor?: string,
-    epilepsy?: string,
-    page?: number
-  ): Promise<GridResults> {
-    return this.getIcons({
-      type: "game",
-      id: id,
-      styles: styles,
-      dimensions: dimensions,
-      mimes: mimes,
-      types: types,
-      nsfw: nsfw,
-      humor: humor,
-      epilepsy: epilepsy,
-      page: page
-    });
-  }
-
-  /**
-   * Gets a list of icons based on the provided steam game id and filters.
-   * @param id The game's id.
-   * @param styles List of styles to include.
-   * @param dimensions List of dimensions to include.
-   * @param mimes List of mimes to include.
-   * @param types List of types to include.
-   * @param nsfw Whether the result should include nsfw images.
-   * @param humor Whether the result should include humor images.
-   * @param epilepsy Whether the result should include epilepsy images.
-   * @param page The page of results to get.
-   * @returns A promise resolving to a list of icons for the desired steam game matching the provided filters.
-   */
-  async getIconsBySteamAppId(
-    id: number,
-    styles?: string[],
-    dimensions?: string[],
-    mimes?: string[],
-    types?: string[],
-    nsfw?: string,
-    humor?: string,
-    epilepsy?: string,
-    page?: number
-  ): Promise<GridResults> {
-    return this.getIcons({
-      type: "steam",
-      id: id,
-      styles: styles,
-      dimensions: dimensions,
-      mimes: mimes,
-      types: types,
-      nsfw: nsfw,
-      humor: humor,
-      epilepsy: epilepsy,
-      page: page
-    });
-  }
-
-  /**
-   * Gets logos for a game given its platform and id.
-   * @param options The SGDB request options.
-   * @returns A promise resolving to the game's logos.
-   */
-  async getLogos(options: SGDBImageOptions): Promise<GridResults> {
-    const results = await this.handleRequest("GET", `/logos/${options.type}/${options.id}`, this.buildQuery(options));
-
-    const grids = results.data.map((img: any) => {
-      img.isAnimated = img.thumb.includes('.webm');
-      return img;
-    });
-
-    return {
-      images: grids,
-      page: results.page,
-      total: results.total,
-    };
-  }
-
-  /**
-   * Gets a list of logos based on the provided game id and filters.
-   * @param id The game's id.
-   * @param styles List of styles to include.
-   * @param dimensions List of dimensions to include.
-   * @param mimes List of mimes to include.
-   * @param types List of types to include.
-   * @param nsfw Whether the result should include nsfw images.
-   * @param humor Whether the result should include humor images.
-   * @param epilepsy Whether the result should include epilepsy images.
-   * @param page The page of results to get.
-   * @returns A promise resolving to a list of logos for the desired game matching the provided filters.
-   */
-  async getLogosById(
-    id: number,
-    styles?: string[],
-    dimensions?: string[],
-    mimes?: string[],
-    types?: string[],
-    nsfw?: string,
-    humor?: string,
-    epilepsy?: string,
-    page?: number
-  ): Promise<GridResults> {
-    return this.getLogos({
-      type: "game",
-      id: id,
-      styles: styles,
-      dimensions: dimensions,
-      mimes: mimes,
-      types: types,
-      nsfw: nsfw,
-      humor: humor,
-      epilepsy: epilepsy,
-      page: page
-    });
-  }
-
-  /**
-   * Gets a list of logos based on the provided steam game id and filters.
-   * @param id The game's id.
-   * @param styles List of styles to include.
-   * @param dimensions List of dimensions to include.
-   * @param mimes List of mimes to include.
-   * @param types List of types to include.
-   * @param nsfw Whether the result should include nsfw images.
-   * @param humor Whether the result should include humor images.
-   * @param epilepsy Whether the result should include epilepsy images.
-   * @param page The page of results to get.
-   * @returns A promise resolving to a list of logos for the desired steam game matching the provided filters.
-   */
-  async getLogosBySteamAppId(
-    id: number,
-    styles?: string[],
-    dimensions?: string[],
-    mimes?: string[],
-    types?: string[],
-    nsfw?: string,
-    humor?: string,
-    epilepsy?: string,
-    page?: number
-  ): Promise<GridResults> {
-    return this.getLogos({
-      type: "steam",
-      id: id,
-      styles: styles,
-      dimensions: dimensions,
-      mimes: mimes,
-      types: types,
-      nsfw: nsfw,
-      humor: humor,
-      epilepsy: epilepsy,
-      page: page,
     });
   }
 }

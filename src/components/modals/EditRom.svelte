@@ -9,8 +9,11 @@
   let rom = $roms[$romEditingId!];
   let romCustomization = $romCustomizations[$romEditingId!];
 
-  let title = $state(romCustomization?.title ?? rom.title);
-  let isFavorite = $state(romCustomization?.isFavorite ?? false);
+  let title = $state(romCustomization.title);
+  let sgdbId = $state(romCustomization.sgdbId);
+  let igdbId = $state(romCustomization.igdbId);
+  let gridPath = $state(romCustomization.gridPath);
+  let isFavorite = $state(romCustomization.isFavorite);
 
   let canSave = $derived(!!title);
 
@@ -21,8 +24,11 @@
     if (title !== rom.title || isFavorite) {
       $romCustomizations[$romEditingId!] = {
         path: rom.path,
-        title: title !== rom.title ? title : "",
-        gridPath: romCustomization.gridPath ?? "",
+        title: title,
+        gridPath: gridPath,
+        sgdbId: sgdbId,
+        igdbId: igdbId,
+        metadata: romCustomization.metadata,
         isFavorite: isFavorite
       }
 

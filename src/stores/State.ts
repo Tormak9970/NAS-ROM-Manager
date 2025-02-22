@@ -1,5 +1,5 @@
 import { DEFAULT_FILTERS } from "@models";
-import type { DBFilters, Library, Palette, ROM, ROMCustomization, System, SystemTagConfig } from "@types";
+import type { DBFilter, Library, Palette, ROM, ROMCustomization, SGDBGame, System, SystemTagConfig } from "@types";
 import { localStorageWritable } from "@utils";
 import { writable } from "svelte/store";
 
@@ -10,6 +10,9 @@ export const loadedSettings = writable(false);
 
 export const showInfoSnackbar = writable<(data: ShowInfoOptions) => void>();
 export const showWarningSnackbar = writable<(data: ShowWarningOptions) => void>();
+
+export const steamGridSearchCache = writable<{ [appid: string]: SGDBGame[] }>({});
+export const hasMorePagesCache = writable<{ [steamGridId: string]: boolean }>({});
 
 // * Settings stores
 export const palette = writable<Palette>("Auto");
@@ -40,6 +43,6 @@ export const romCustomizations = writable<Record<string, ROMCustomization>>({});
 
 export const romsBySystem = writable<Record<string, string[]>>({});
 
-export const dbFilters = localStorageWritable<DBFilters>("sgdb-filters", DEFAULT_FILTERS);
+export const dbFilters = localStorageWritable<DBFilter>("sgdb-filters", DEFAULT_FILTERS);
 
 export const systemTagConfigs = writable<Record<string, SystemTagConfig>>({});

@@ -6,6 +6,7 @@ mod utils;
 mod watcher;
 mod ws_handler;
 mod file_picker;
+mod sgdb;
 
 use sysinfo::Disks;
 use types::{

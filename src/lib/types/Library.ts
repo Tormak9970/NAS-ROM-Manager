@@ -15,6 +15,9 @@ export type ROMCustomization = {
   path: string;
   title: string;
   gridPath: string;
+  sgdbId: string;
+  igdbId: string;
+  metadata: Record<string, string>;
   isFavorite: boolean;
 }
 

@@ -3,7 +3,8 @@ import { library, romCustomizations, roms, romsBySystem, showInfoSnackbar, syste
 import type { Library, LoadResult } from "@types";
 import { hash64 } from "@utils";
 import { get } from "svelte/store";
-import { ApiController } from "./ApiController";
+import { IGDBController } from "./IGDBController";
+import { SGDBController } from "./SGDBController";
 import { LogController } from "./utils/LogController";
 import { SettingsController } from "./utils/SettingsController";
 import { WebsocketController } from "./utils/WebsocketController";
@@ -17,7 +18,8 @@ export class AppController {
    */
   static async load() {
     await SettingsController.init();
-    await ApiController.init();
+    await SGDBController.init();
+    await IGDBController.init();
     
     const lib = get(library);
     if (lib.libraryPath === "") {
@@ -65,6 +67,18 @@ export class AppController {
     for (const rom of loadRes.roms) {
       const id = hash64(rom.path);
       romMap[id] = rom;
+
+      if (!romEdits[id]) {
+        romEdits[id] = {
+          path: rom.path,
+          title: rom.title,
+          gridPath: "",
+          sgdbId: "",
+          igdbId: "",
+          metadata: {},
+          isFavorite: false,
+        }
+      }
 
       romsSystemLUT[rom.system].push(id);
     }

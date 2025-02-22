@@ -1,12 +1,3 @@
-export enum GridTypes {
-  CAPSULE="Capsule",
-  WIDE_CAPSULE="Wide Capsule",
-}
-
-export type GridTypesMap<T> = {
-  [key in GridTypes]: T;
-}
-
 export type DBFilter = {
   styles: Record<string, boolean>;
   dimensions?: Record<string, boolean>;
@@ -14,8 +5,6 @@ export type DBFilter = {
   types: Record<string, boolean>;
   oneoftag: Record<string, boolean>;
 };
-
-export type DBFilters = GridTypesMap<DBFilter>;
 
 export interface SGDBGame {
   id: number;
