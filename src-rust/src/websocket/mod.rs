@@ -6,7 +6,6 @@ mod utils;
 mod watcher;
 mod ws_handler;
 mod file_picker;
-mod sgdb;
 
 use sysinfo::Disks;
 use types::{
@@ -31,10 +30,12 @@ pub fn initialize_websocket_api() -> impl Filter<Extract = (impl warp::Reply,), 
     parsers: HashMap::new()
   }));
 
+
   let tx_ws = tx.clone();
   let settings_ws = settings.clone();
   let disks_ws = disks.clone();
   let state_store_ws = state_store.clone();
+
 
   let watcher_core = Watcher::new();
   watcher_core.init(tx.lock().unwrap().to_owned());
@@ -42,6 +43,7 @@ pub fn initialize_websocket_api() -> impl Filter<Extract = (impl warp::Reply,), 
   let watcher_arc = Arc::new(Mutex::new(watcher_core));
   let watcher_ws = watcher_arc.clone();
 
+  
   let ws_route = warp::path("ws")
     .and(warp::ws())
     .map(move |ws: warp::ws::Ws| {

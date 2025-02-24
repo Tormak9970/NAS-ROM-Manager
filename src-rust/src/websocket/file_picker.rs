@@ -1,5 +1,3 @@
-// check https://github.com/SteamDeckHomebrew/decky-loader/blob/543ee3d19ed41a951eabd90ccbf81e221f54ae3d/backend/decky_loader/utilities.py#L312 for ref
-
 use std::{fs::read_dir, path::PathBuf};
 
 use log::warn;

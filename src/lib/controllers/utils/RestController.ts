@@ -1,6 +1,6 @@
-import { library } from "@stores/State";
-import type { ROM, RomUploadConfig } from "@types";
-import { hash64 } from "@utils";
+import { library, showWarningSnackbar } from "@stores/State";
+import { BackendErrorType, type GridResults, type ROM, type RomUploadConfig, type SGDBGame } from "@types";
+import { hash64, showError } from "@utils";
 import streamSaver from "streamsaver";
 import { get } from "svelte/store";
 import { LogController } from "./LogController";
@@ -83,13 +83,11 @@ export class RestController {
 
 
   private static async getMetadata(data: ROMDownload): Promise<{ size: number, path: string }> {
-    const res = await fetch(this.restURL + "/roms/download/metadata", {
+    const res = await fetch(this.restURL + `/roms/download/metadata?romPath=${encodeURIComponent(data.path)}&romParent=${encodeURIComponent(data.parent)}`, {
       method: "GET",
       mode: "cors",
       headers: {
         "Accept": "application/json, text/plain, */*",
-        "Rom-Path": data.path,
-        "Rom-Parent": data.parent,
       }
     });
 
@@ -135,10 +133,9 @@ export class RestController {
       const range = `bytes=${downloaded}-${end}`;
       const length = end - downloaded;
 
-      const response = await fetch(this.restURL + "/roms/download", {
+      const response = await fetch(this.restURL + `/roms/download?romPath=${encodeURIComponent(path)}`, {
         headers: {
           "Range": range,
-          "Rom-Path": path,
         }
       });
 
@@ -193,12 +190,11 @@ export class RestController {
   private static async prepareUpload(libraryPath: string, romsDir: string, system: string, filename: string): Promise<string> {
     const filePath = `${libraryPath}/${romsDir}/${system}/${filename}`;
 
-    const res = await fetch(this.restURL + "/roms/upload/prepare", {
+    const res = await fetch(this.restURL + `/roms/upload/prepare?romPath=${encodeURIComponent(filePath)}`, {
       method: "POST",
       mode: "cors",
       headers: {
         "Accept": "application/json, text/plain, */*",
-        "Rom-Path": filePath,
       }
     });
 
@@ -241,14 +237,13 @@ export class RestController {
 
       const data = file.slice(sent, end + 1);
 
-      const response = await fetch(this.restURL + "/roms/upload", {
+      const response = await fetch(this.restURL + `/roms/upload?romPath=${encodeURIComponent(path)}`, {
         method: "POST",
         mode: "cors",
         headers: {
           "Range": range,
           "Content-Length": length.toString(),
           "Upload-Id": uploadId,
-          "Rom-Path": path,
           "File-Size": fileSize.toString(),
           "Content-Type": "application/octet-stream"
         },
@@ -313,12 +308,11 @@ export class RestController {
    * @returns Whether the delete was successful.
    */
   static async deleteRom(rom: ROM): Promise<boolean> {
-    const res = await fetch(this.restURL + `/roms/delete`, {
+    const res = await fetch(this.restURL + `/roms/delete?romPath=${encodeURIComponent(rom.path)}`, {
       method: "DELETE",
       mode: "cors",
       headers: {
-        "Accept": "text/plain, */*",
-        "Rom-Path": rom.path
+        "Accept": "text/plain, */*"
       },
     });
 
@@ -327,6 +321,74 @@ export class RestController {
     } else {
       LogController.error(`Failed to delete rom ${rom.path}:`, res.statusText);
       return false;
+    }
+  }
+  
+  
+  /**
+   * Initializes the SGDB Client.
+   * @returns True if the client was initialized.
+   */
+  static async initSGDBClient(): Promise<boolean> {
+    const res = await fetch(this.restURL + "/proxy/sgdb/init", {
+      method: "POST",
+      mode: "cors",
+    });
+
+    if (res.ok) {
+      return true;
+    } else {
+      showError(
+        "No environment variable SGDB_API_KEY was found",
+        "Please check your container to ensure SGDB_API_KEY is set",
+        BackendErrorType.PANIC
+      );
+
+      return false;
+    }
+  }
+
+  /**
+   * Gets the SGDB grids for the given game and page.
+   * @param id The id of the game to get grids for.
+   * @param page The results page.
+   * @returns The list of grids.
+   */
+  static async getSGDBGridsById(id: string, page: number): Promise<GridResults> {
+    const res = await fetch(this.restURL + "/proxy/sgdb/grids", {
+      headers: {
+        "SGDB-Game-Id": id,
+        "SGDB-Results-Page": page.toString(),
+      }
+    });
+
+    if (res.ok) {
+      return await res.json();
+    } else {
+      get(showWarningSnackbar)({ message: "Error getting grids from SGDB."})
+
+      return {
+        images: [],
+        total: 0,
+        page: page,
+      };
+    }
+  }
+  
+  /**
+   * Searches SGDB for games matching the query.
+   * @param query The query to search for.
+   * @returns The search results.
+   */
+  static async searchSGDBForTitle(query: string): Promise<SGDBGame[]> {
+    const res = await fetch(this.restURL + `/proxy/sgdb/search?query=${encodeURIComponent(query)}`);
+
+    if (res.ok) {
+      return await res.json();
+    } else {
+      get(showWarningSnackbar)({ message: "Error getting SGDB id."})
+
+      return [];
     }
   }
 }

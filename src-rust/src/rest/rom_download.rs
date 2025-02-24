@@ -1,4 +1,4 @@
-use std::{ffi::OsStr, io::SeekFrom, path::{Path, PathBuf}};
+use std::{collections::HashMap, ffi::OsStr, io::SeekFrom, path::{Path, PathBuf}};
 
 use log::warn;
 use serde_json::{Map, Value};
@@ -8,7 +8,19 @@ use warp::{reject::Rejection, reply::Reply};
 use super::{types::ROMDownload, zip::pack_zip};
 
 /// Gets the needed metadata for downloading a rom, and zips its folder if necessary.
-pub async fn get_rom_metadata(path: String, parent: String) -> Result<impl Reply, Rejection> {
+pub async fn get_rom_metadata(query_params: HashMap<String, String>) -> Result<impl Reply, Rejection> {
+  if !query_params.contains_key("romPath") {
+    warn!("Get ROM Metadata: Missing query param romPath");
+    return Err(warp::reject::reject());
+  }
+  let path = query_params.get("romPath").unwrap().to_owned();
+
+  if !query_params.contains_key("romParent") {
+    warn!("Get ROM Metadata: Missing query param romParent");
+    return Err(warp::reject::reject());
+  }
+  let parent = query_params.get("romParent").unwrap().to_owned();
+  
   let mut file_path = PathBuf::from(&path);
 
 
@@ -58,7 +70,14 @@ pub async fn get_rom_metadata(path: String, parent: String) -> Result<impl Reply
 }
 
 /// Handles downloading a rom.
-pub async fn download_rom(path: String, range_header: Option<String>) -> Result<impl Reply, Rejection> {
+pub async fn download_rom(query_params: HashMap<String, String>, range_header: Option<String>) -> Result<impl Reply, Rejection> {
+  if !query_params.contains_key("romPath") {
+    warn!("Download ROM: Missing query param romPath");
+    return Err(warp::reject::reject());
+  }
+  let path = query_params.get("romPath").unwrap().to_owned();
+
+
   let file_path = Path::new(&path);
 
   let file = File::open(file_path).await.map_err(|_| warp::reject())?;
@@ -110,8 +129,14 @@ pub async fn download_rom_complete(data: ROMDownload) -> Result<impl Reply, Reje
 }
 
 /// Handles deleting a rom.
-pub async fn delete_rom(rom_path: String) -> Result<impl Reply, Rejection> {
-  tokio::fs::remove_file(&rom_path).await.map_err(|e| {
+pub async fn delete_rom(query_params: HashMap<String, String>) -> Result<impl Reply, Rejection> {
+  if !query_params.contains_key("romPath") {
+    warn!("Delete ROM: Missing query param romPath");
+    return Err(warp::reject::reject());
+  }
+  let path = query_params.get("romPath").unwrap().to_owned();
+  
+  tokio::fs::remove_file(&path).await.map_err(|e| {
     warn!("Error deleting rom file: {}", e);
     warp::reject::reject()
   })?;

@@ -1,17 +1,14 @@
-import { RequestError, SGDB } from "@models";
 import { hasMorePagesCache, showWarningSnackbar, steamGridSearchCache } from "@stores/State";
-import type { SGDBGame, SGDBImage } from "@types";
+import type { GridResults, SGDBGame, SGDBImage } from "@types";
 import { get } from "svelte/store";
 import { LogController } from "./utils/LogController";
-import { WebsocketController } from "./utils/WebsocketController";
+import { RestController } from "./utils/RestController";
 
 /**
  * The sgdb api controller.
  */
 export class SGDBController {
   private static readonly SGDB_GRID_RESULT_LIMIT = 50;
-
-  private static client: SGDB;
 
   private static gridsCache: { [steamGridId: string]: SGDBImage[] } = {};
   private static currentGridCountCache: { [steamGridId: string]: number } = {};
@@ -21,10 +18,7 @@ export class SGDBController {
    * Initializes the api controller.
    */
   static async init(): Promise<void> {
-    const key = await WebsocketController.getSGDBKey();
-    console.log("key:", key)
-
-    this.client = new SGDB(key);
+    await RestController.initSGDBClient();
   }
 
   /**
@@ -56,8 +50,7 @@ export class SGDBController {
     try {
       LogController.log(`Need to fetch page ${page} for ${steamGridAppId}.`);
 
-      // @ts-expect-error This will always be a function on this.client
-      const gridResults: GridResults = await this.client.getGridsById(steamGridAppId, undefined, undefined, undefined, [ "static", "animated" ], "any", "any", "any", page);
+      const gridResults: GridResults = await RestController.getSGDBGridsById(steamGridAppId, page);
       
       this.gridsCache[steamGridAppId] = this.gridsCache[steamGridAppId].concat(gridResults.images);
       this.currentGridCountCache[steamGridAppId] = this.gridsCache[steamGridAppId].length;
@@ -90,7 +83,8 @@ export class SGDBController {
 
     if (!results) {
       try {
-        results = await this.client!.searchGame(gameName);
+        results = await RestController.searchSGDBForTitle(gameName);
+        console.log(gameName, results);
         searchCache[romId] = results;
       } catch (e: any) {
         LogController.warn(`Error searching for game on SGDB. Game: ${gameName}. Error: ${e.message}.`);
@@ -120,10 +114,9 @@ export class SGDBController {
    */
   static async searchForGame(query: string): Promise<SGDBGame[]> {
     try {
-      return await this.client.searchGame(query);
+      return await RestController.searchSGDBForTitle(query);
     } catch (e: any) {
-      const error = e as RequestError;
-      LogController.warn(`SGDB Search Request "${query}" timed out. Message: ${error.message}`);
+      LogController.warn(`SGDB Search Request "${query}" timed out.`);
       return [];
     }
   }

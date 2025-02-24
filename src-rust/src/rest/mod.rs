@@ -3,8 +3,9 @@ mod rom_download;
 mod rom_upload;
 mod types;
 mod zip;
+mod sgdb;
 
-use std::{fs::remove_file, str::FromStr, thread};
+use std::{collections::HashMap, fs::remove_file, str::FromStr, thread};
 
 use chrono::Utc;
 use covers::{delete_cover, upload_cover};
@@ -12,8 +13,9 @@ use cron::Schedule;
 use log::{info, warn};
 use rom_download::{delete_rom, download_rom, download_rom_complete, get_rom_metadata};
 use rom_upload::{prepare_rom_upload, rom_upload_complete, upload_rom};
-use types::{CoverUpload, ROMDownload, ROMUploadComplete, StreamStore};
-use warp::{Filter, http::Method};
+use sgdb::{init_sgdb_client, sgdb_get_grids_by_id, sgdb_search_game};
+use types::{CoverUpload, ROMDownload, ROMUploadComplete, SGDBClientStore, StreamStore};
+use warp::{http::Method, Filter};
 
 fn json_cover_upload() -> impl Filter<Extract = (CoverUpload,), Error = warp::Rejection> + Clone {
   warp::body::content_length_limit(50 * 1024 * 1024).and(warp::body::json())
@@ -43,11 +45,11 @@ pub fn initialize_rest_api(cover_cache_dir: String, cleanup_schedule: String) ->
       "Range",
       "Content-Type",
       "Cover-Extension",
-      "Rom-Path",
-      "Rom-Parent",
       "File-Length",
       "Upload-Id",
-      "File-Size"
+      "File-Size",
+      "SGDB-Game-Id",
+      "SGDB-Results-Page",
     ])
     .allow_methods(&[
       Method::GET,
@@ -80,15 +82,14 @@ pub fn initialize_rest_api(cover_cache_dir: String, cleanup_schedule: String) ->
   // * GET ROM Metadata (rest/roms/download/metadata)
   let get_rom_download_metadata = warp::path!("rest" / "roms" / "download" / "metadata")
     .and(warp::get())
-    .and(warp::filters::header::header("Rom-Path"))
-    .and(warp::filters::header::header("Rom-Parent"))
+    .and(warp::query::<HashMap<String, String>>())
     .and_then(get_rom_metadata)
     .with(&cors);
 
   // * GET ROM (rest/roms/download)
   let rom_download_route = warp::path!("rest" / "roms" / "download")
     .and(warp::get())
-    .and(warp::filters::header::header("Rom-Path"))
+    .and(warp::query::<HashMap<String, String>>())
     .and(warp::header::optional::<String>("range"))
     .and_then(download_rom)
     .with(&cors);
@@ -108,7 +109,7 @@ pub fn initialize_rest_api(cover_cache_dir: String, cleanup_schedule: String) ->
   // * POST Prepare ROM Upload (rest/roms/upload/prepare)
   let prepare_upload_rom_route = warp::path!("rest" / "roms" / "upload" / "prepare")
     .and(warp::post())
-    .and(warp::filters::header::header("Rom-Path"))
+    .and(warp::query::<HashMap<String, String>>())
     .and_then(prepare_rom_upload)
     .with(&cors);
   
@@ -117,6 +118,7 @@ pub fn initialize_rest_api(cover_cache_dir: String, cleanup_schedule: String) ->
     .and(warp::post())
     .and(warp::filters::body::stream())
     .and(upload_store_filter.clone())
+    .and(warp::query::<HashMap<String, String>>())
     .and(warp::filters::header::headers_cloned())
     .and_then(upload_rom)
     .with(&cors);
@@ -133,8 +135,33 @@ pub fn initialize_rest_api(cover_cache_dir: String, cleanup_schedule: String) ->
   // * DELETE ROM (rest/roms)
   let delete_rom_route = warp::path!("rest" / "roms" / "delete")
     .and(warp::delete())
-    .and(warp::filters::header::header("Rom-Path"))
+    .and(warp::query::<HashMap<String, String>>())
     .and_then(delete_rom)
+    .with(&cors);
+
+
+  let sgdb_client_store = SGDBClientStore::new();
+  let sgdb_client_store_filter = warp::any().map(move || sgdb_client_store.clone());
+
+  let sgdb_init_route = warp::path!("rest" / "proxy" / "sgdb" / "init")
+    .and(warp::post())
+    .and(sgdb_client_store_filter.clone())
+    .and_then(init_sgdb_client)
+    .with(&cors);
+  
+  let sgdb_get_grids_route = warp::path!("rest" / "proxy" / "sgdb" / "grids")
+    .and(warp::get())
+    .and(sgdb_client_store_filter.clone())
+    .and(warp::filters::header::header("SGDB-Game-Id"))
+    .and(warp::filters::header::header("SGDB-Results-Page"))
+    .and_then(sgdb_get_grids_by_id)
+    .with(&cors);
+  
+  let sgdb_search_game_route = warp::path!("rest" / "proxy" / "sgdb" / "search")
+    .and(warp::get())
+    .and(sgdb_client_store_filter.clone())
+    .and(warp::query::<HashMap<String, String>>())
+    .and_then(sgdb_search_game)
     .with(&cors);
 
   
@@ -147,7 +174,10 @@ pub fn initialize_rest_api(cover_cache_dir: String, cleanup_schedule: String) ->
     .or(prepare_upload_rom_route)
     .or(upload_rom_route)
     .or(upload_rom_complete_route)
-    .or(delete_rom_route);
+    .or(delete_rom_route)
+    .or(sgdb_init_route)
+    .or(sgdb_get_grids_route)
+    .or(sgdb_search_game_route);
 
 
   let cleanup_upload_store = upload_store.clone();

@@ -2,7 +2,6 @@ pub mod settings;
 pub mod args;
 pub mod library;
 pub mod file_picker;
-pub mod sgdb;
 
 use serde::{Deserialize, Serialize};
 

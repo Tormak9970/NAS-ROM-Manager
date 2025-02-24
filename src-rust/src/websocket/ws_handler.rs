@@ -1,7 +1,6 @@
 use futures_util::{SinkExt, StreamExt};
-use log::warn;
 use warp::filters::ws::{Message, WebSocket};
-use std::{env::var, sync::{Arc, Mutex}};
+use std::sync::{Arc, Mutex};
 use tokio::sync::broadcast;
 use sysinfo::{DiskRefreshKind, Disks};
 
@@ -15,17 +14,18 @@ use crate::websocket::{
       ModifyLibraryArgs,
       SetSettingArgs,
       SimpleArgs,
-      ParseRomArgs
+      ParseRomArgs,
+      FilePickerArgs
     },
     library::StateStore,
     settings::Settings,
-    ErrorSender
+    ErrorSender,
+    AvailableStorage
   },
   utils::{check_hash, send, get_error_sender},
-  watcher::Watcher
+  watcher::Watcher,
+  file_picker::get_entries
 };
-
-use super::{file_picker::get_entries, types::{args::FilePickerArgs, AvailableStorage}};
 
 
 fn handle_message(
@@ -160,31 +160,16 @@ fn handle_message(
         return;
       }
 
-      let state_parsers = state_store.lock().expect("Failed to lock State Mutex.");
+      let state = state_store.lock().expect("Failed to lock State Mutex.");
       let rom_res = parse_added_rom(
         args.parser,
         &args.romPath,
-        &state_parsers,
+        &state,
         send_error
       );
 
       if rom_res.is_ok() {
         send(tx, "parse_rom", rom_res.unwrap());
-      }
-    }
-    "get_sgdb_key" => {
-      let args: SimpleArgs = serde_json::from_str(data).unwrap();
-      let valid = check_hash(args.passwordHash, tx.clone());
-      if !valid {
-        return;
-      }
-
-      let env_api_key_res = var("SGDB_API_KEY");
-      if env_api_key_res.is_err() {
-        warn!("No environment variable \"SGDB_API_KEY\" was found!");
-        send(tx, "missing_env_variable", "SGDB_API_KEY");
-      } else {
-        send(tx, "get_sgdb_key", env_api_key_res.unwrap());
       }
     }
     "file_picker" => {

@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::{collections::HashMap, path::PathBuf};
 
 use bytes::Buf;
 use futures::{Stream, StreamExt};
@@ -12,7 +12,13 @@ use crate::rest::zip::unpack_zip;
 use super::types::{ROMUploadComplete, StreamProgress, StreamStore};
 
 /// Prepares for the upload of a rom
-pub async fn prepare_rom_upload(path: String) -> Result<impl Reply, Rejection> {
+pub async fn prepare_rom_upload(query_params: HashMap<String, String>) -> Result<impl Reply, Rejection> {
+  if !query_params.contains_key("romPath") {
+    warn!("Prepare ROM upload: Missing query param romPath");
+    return Err(warp::reject::reject());
+  }
+  let path = query_params.get("romPath").unwrap().to_owned();
+  
   tokio::fs::File::create(&path).await.map_err(|e| {
     warn!("Error creating file: {}", e);
     warp::reject::reject()
@@ -25,6 +31,7 @@ pub async fn prepare_rom_upload(path: String) -> Result<impl Reply, Rejection> {
 pub async fn upload_rom(
   mut body: impl Stream<Item = Result<impl Buf, warp::Error>> + Unpin + Send + Sync,
   streams_store: StreamStore,
+  query_params: HashMap<String, String>,
   headers: HeaderMap
 ) -> Result<impl Reply, Rejection> {
   let content_type = headers.get("content-type").unwrap().to_str().unwrap();
@@ -54,8 +61,12 @@ pub async fn upload_rom(
   let chunk_size = end - start;
 
   let upload_id = headers.get("upload-id").unwrap().to_str().unwrap().to_string();
-  let file_path = headers.get("rom-path").unwrap().to_str().unwrap().to_string();
 
+  if !query_params.contains_key("romPath") {
+    warn!("Upload ROM: Missing query param romPath");
+    return Err(warp::reject::reject());
+  }
+  let file_path = query_params.get("romPath").unwrap().to_owned();
   
   let mut file = OpenOptions::new()
     .write(true)

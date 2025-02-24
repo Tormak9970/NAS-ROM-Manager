@@ -1,8 +1,12 @@
+pub mod sgdb;
+
 use serde::{Deserialize, Serialize};
 use tokio::sync::RwLock;
 
 use std::collections::HashMap;
 use std::sync::Arc;
+
+use super::sgdb::SGDBClient;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[allow(non_snake_case)]
@@ -51,6 +55,19 @@ impl StreamStore {
   pub fn new() -> Self {
     StreamStore {
       streams: Arc::new(RwLock::new(HashMap::new())),
+    }
+  }
+}
+
+#[derive(Clone)]
+pub struct SGDBClientStore {
+  pub client: Arc<RwLock<SGDBClient>>
+}
+
+impl SGDBClientStore {
+  pub fn new() -> Self {
+    SGDBClientStore {
+      client: Arc::new(RwLock::new(SGDBClient::new("".to_string(), 5000))),
     }
   }
 }

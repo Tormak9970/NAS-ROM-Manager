@@ -234,15 +234,6 @@ export class WebsocketController {
     const res = await WebsocketController.invoke<ROM>("parse_rom", { parser, romPath });
     return res.data;
   }
-
-  /**
-   * Gets the user's SGDB api key.
-   * @returns The user's SGDB api key.
-   */
-  static async getSGDBKey(): Promise<string> {
-    const res = await WebsocketController.invoke<string>("get_sgdb_key", {});
-    return res.data;
-  }
   
   /**
    * Gets the entries to render for the file picker.

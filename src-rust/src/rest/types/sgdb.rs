@@ -7,7 +7,7 @@ pub struct SGDBGame {
   pub name: String,
   pub types: Vec<String>,
   pub verified: bool,
-  pub numResultPages: u64,
+  // pub numResultPages: u64,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -57,13 +57,4 @@ pub struct SGDBImage {
 
   pub lock: bool,
   // is_deleted: bool,
-}
-
-#[derive(Serialize, Deserialize, Clone, Debug)]
-#[allow(non_snake_case)]
-pub struct SGDBGridTotals {
-  pub grids: u64,
-  pub heroes: u64,
-  pub logos: u64,
-  pub icons: u64,
 }
