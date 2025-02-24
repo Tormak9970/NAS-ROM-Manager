@@ -1,5 +1,5 @@
 import { isFirstSetup, showEditLibraryModal } from "@stores/Modals";
-import { library, romCustomizations, roms, romsBySystem, showInfoSnackbar, systems, systemTagConfigs } from "@stores/State";
+import { library, loadedLibrary, romCustomizations, roms, romsBySystem, showInfoSnackbar, systems, systemTagConfigs } from "@stores/State";
 import type { Library, LoadResult } from "@types";
 import { hash64 } from "@utils";
 import { get } from "svelte/store";
@@ -32,7 +32,7 @@ export class AppController {
     SettingsController.registerSubs();
   }
 
-  private static setStateFromLoadRes(loadRes: LoadResult) {
+  private static async setStateFromLoadRes(loadRes: LoadResult) {
     const systemMap = get(systems);
     const romMap = get(roms);
     
@@ -80,6 +80,10 @@ export class AppController {
         }
       }
 
+      if (romEdits[id].sgdbId === "") {
+        romEdits[id].sgdbId = await SGDBController.chooseSteamGridGameId(id, rom.title);
+      }
+
       romsSystemLUT[rom.system].push(id);
     }
 
@@ -107,7 +111,8 @@ export class AppController {
   static async updateLibrary(library: Library) {
     const loadRes = await WebsocketController.updateLibrary(library);
 
-    AppController.setStateFromLoadRes(loadRes);
+    await AppController.setStateFromLoadRes(loadRes);
+    loadedLibrary.set(true);
   }
 
   /**
@@ -116,7 +121,8 @@ export class AppController {
   static async loadLibrary() {
     const loadRes = await WebsocketController.loadLibrary();
 
-    AppController.setStateFromLoadRes(loadRes);
+    await AppController.setStateFromLoadRes(loadRes);
+    loadedLibrary.set(true);
   }
 
   /**

@@ -1,13 +1,11 @@
 <script lang="ts">
   import { Icon } from "@component-utils";
-  import { SGDBController } from "@controllers";
   import { Download } from "@icons";
   import { Button } from "@interactables";
   import { downloadProgressRom, romEditingId, showDownloadProgressModal, showEditRomModal } from "@stores/Modals";
   import { libraryGridType, romCustomizations, roms } from "@stores/State";
   import type { ROMCustomization } from "@types";
   import { formatFileSize, GRID_LAYOUTS, hash64 } from "@utils";
-  import { onMount } from "svelte";
   import SystemTag from "../SystemTag.svelte";
   import Tag from "../Tag.svelte";
 
@@ -19,6 +17,7 @@
 
   let rom = $derived($roms[romId]);
   let romCustomization: ROMCustomization = $derived($romCustomizations[romId]);
+  console.log("sgdbId:", romCustomization.sgdbId);
 
   let coverLoading = $state(true);
 
@@ -33,13 +32,6 @@
     $romEditingId = hash64(rom.path);
     $showEditRomModal = true;
   }
-
-  onMount(async () => {
-    if (romCustomization.sgdbId === "") {
-      const sgdbId = await SGDBController.chooseSteamGridGameId(romId, rom.title);
-      console.log("sgdbId:", sgdbId);
-    }
-  });
 </script>
 
 <!-- svelte-ignore a11y_click_events_have_key_events -->

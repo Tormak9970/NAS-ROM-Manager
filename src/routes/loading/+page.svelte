@@ -1,17 +1,24 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
   import { LoadingSpinner } from "@layout";
-  import { loadedSettings, landingPage } from "@stores/State";
+  import { landingPage, loadedLibrary, loadedSettings } from "@stores/State";
+  import type { PageData } from './$types';
+  
+  let { data }: { data: PageData } = $props();
 
   $effect(() => {
     if ($loadedSettings) {
+      goto(`/loading?message=${encodeURIComponent("Loading Library...")}`);
+    }
+
+    if ($loadedLibrary) {
       goto(`/${$landingPage}`);
     }
   });
 </script>
 
 <svelte:head>
-	<title>Loading...</title>
+	<title>{data.message ?? "Loading..."}</title>
 </svelte:head>
 
 <div id="loading">

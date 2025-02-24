@@ -3,7 +3,7 @@
   import { AppController, SettingsController } from "@controllers";
   import { Button, PathField, TextField } from "@interactables";
   import { isFirstSetup, showEditLibraryModal } from "@stores/Modals";
-  import { library } from "@stores/State";
+  import { library, loadedLibrary } from "@stores/State";
   import { FileSelectionType, type Library } from "@types";
 
   let open = $state(true);
@@ -28,6 +28,7 @@
       biosDir: biosDir
     }
 
+    $loadedLibrary = false;
     AppController.updateLibrary(newLibrary);
     $library = newLibrary;
     SettingsController.set("library", newLibrary);

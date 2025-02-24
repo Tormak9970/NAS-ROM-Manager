@@ -28,7 +28,7 @@
     if (!$isSignedIn && page.url.pathname !== '/' && page.url.pathname !== '/error') {
       goto('/');
     } else if (!validatingCredentials && $isSignedIn && page.url.pathname === '/') {
-      goto('/loading');
+      goto(`/loading?message=${encodeURIComponent("Loading Settings...")}`);
     }
 
     showDecorations = page.url.pathname !== '/' && page.url.pathname !== '/loading' && page.url.pathname !== '/error';
