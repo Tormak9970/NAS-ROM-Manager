@@ -6,6 +6,7 @@ use serde_json::{Map, Value};
 pub struct StateStore {
   pub library: Library,
   pub parsers: HashMap<String, Parser>,
+  pub metadata: HashMap<String, ROMMetadata>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -56,8 +57,7 @@ pub struct ROM {
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[allow(non_snake_case)]
-pub struct ROMCustomization {
-  pub path: String,
+pub struct ROMMetadata {
   pub title: String,
   pub coverPath: String,
   pub thumbPath: String,

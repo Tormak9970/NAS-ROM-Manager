@@ -1,7 +1,7 @@
 use std::env::var;
 use serde::{Deserialize, Serialize};
 
-use super::library::{Library, ROMCustomization};
+use super::library::Library;
 
 /// Gets the default values of the settings object.
 pub fn get_default_settings() -> Settings {
@@ -31,8 +31,7 @@ pub fn get_default_settings() -> Settings {
       romDir: "roms".to_string(),
       emulatorDir: "emulators".to_string(),
       biosDir: "bios".to_string(),
-    },
-    romCustomizations: Vec::new(),
+    }
   };
 }
 
@@ -74,6 +73,5 @@ pub struct Settings {
   pub navigation: NavigationSettings,
   pub metadata: MetadataSettings,
   pub accessibility: AccessibilitySettings,
-  pub library: Library,
-  pub romCustomizations: Vec<ROMCustomization>,
+  pub library: Library
 }

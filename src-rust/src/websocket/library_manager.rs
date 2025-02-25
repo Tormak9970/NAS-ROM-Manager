@@ -7,7 +7,7 @@ use wax::{Glob, Pattern};
 
 use super::types::{
   library::{
-    Library, Parser, ParserPattern, ROMCustomization, StateStore, System, ROM
+    Library, Parser, ParserPattern, StateStore, System, ROM
   },
   ErrorSender
 };
@@ -18,7 +18,6 @@ use super::watcher::Watcher;
 pub struct LoadResult {
   pub library: Library,
   pub roms: Vec<ROM>,
-  pub romCustomizations: Vec<ROMCustomization>,
   pub systems: Vec<System>,
 }
 
@@ -226,7 +225,6 @@ fn load_library(library: &Library, watcher: &Watcher, send_error: &ErrorSender) 
     LoadResult {
       library: library.to_owned(),
       roms: roms_res.unwrap(),
-      romCustomizations: Vec::new(),
       systems,
     },
     parsers

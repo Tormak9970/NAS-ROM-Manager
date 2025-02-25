@@ -1,6 +1,6 @@
 import { isFirstSetup, showEditLibraryModal } from "@stores/Modals";
-import { library, loadedLibrary, romCustomizations, roms, romsBySystem, showInfoSnackbar, systems, systemTagConfigs } from "@stores/State";
-import type { Library, LoadResult } from "@types";
+import { library, loadedLibrary, romMetadata, roms, romsBySystem, showInfoSnackbar, systems, systemTagConfigs } from "@stores/State";
+import type { Library, LoadResult, ROMMetadata } from "@types";
 import { hash64 } from "@utils";
 import { get } from "svelte/store";
 import { IGDBController } from "./IGDBController";
@@ -32,11 +32,11 @@ export class AppController {
     SettingsController.registerSubs();
   }
 
-  private static async setStateFromLoadRes(loadRes: LoadResult) {
+  private static async setStateFromLoadRes(loadRes: LoadResult, metadata: Record<string, ROMMetadata>) {
     const systemMap = get(systems);
     const romMap = get(roms);
     
-    const romEdits = get(romCustomizations);
+    const romEdits = metadata;
     
     const romsSystemLUT = get(romsBySystem);
     
@@ -59,18 +59,12 @@ export class AppController {
       }
     }
 
-    for (const customization of loadRes.romCustomizations) {
-      const id = hash64(customization.path);
-      romEdits[id] = customization;
-    }
-
     for (const rom of loadRes.roms) {
       const id = hash64(rom.path);
       romMap[id] = rom;
 
       if (!romEdits[id]) {
         romEdits[id] = {
-          path: rom.path,
           title: rom.title,
           coverPath: "",
           thumbPath: "",
@@ -92,7 +86,7 @@ export class AppController {
     systems.set({ ...systemMap });
     roms.set({ ...romMap });
 
-    romCustomizations.set({ ...romEdits });
+    romMetadata.set({ ...romEdits });
 
     romsBySystem.set({ ...romsSystemLUT });
 
@@ -110,9 +104,10 @@ export class AppController {
    * @param library The new library info.
    */
   static async updateLibrary(library: Library) {
+    const metadata = await WebsocketController.getMetadata();
     const loadRes = await WebsocketController.updateLibrary(library);
 
-    await AppController.setStateFromLoadRes(loadRes);
+    await AppController.setStateFromLoadRes(loadRes, metadata);
     loadedLibrary.set(true);
   }
 
@@ -120,9 +115,10 @@ export class AppController {
    * Loads the user's libraries.
    */
   static async loadLibrary() {
+    const metadata = await WebsocketController.getMetadata();
     const loadRes = await WebsocketController.loadLibrary();
 
-    await AppController.setStateFromLoadRes(loadRes);
+    await AppController.setStateFromLoadRes(loadRes, metadata);
     loadedLibrary.set(true);
   }
 

@@ -6,6 +6,7 @@ mod utils;
 mod watcher;
 mod ws_handler;
 mod file_picker;
+mod metadata;
 
 use sysinfo::Disks;
 use types::{
@@ -27,7 +28,8 @@ pub fn initialize_websocket_api() -> impl Filter<Extract = (impl warp::Reply,), 
 
   let state_store = Arc::new(Mutex::new(StateStore {
     library: get_default_settings().library,
-    parsers: HashMap::new()
+    parsers: HashMap::new(),
+    metadata: HashMap::new()
   }));
 
 

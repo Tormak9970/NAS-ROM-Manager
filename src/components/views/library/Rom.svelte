@@ -3,8 +3,8 @@
   import { Download } from "@icons";
   import { Button } from "@interactables";
   import { downloadProgressRom, romEditingId, showDownloadProgressModal, showEditRomModal } from "@stores/Modals";
-  import { libraryGridType, romCustomizations, roms } from "@stores/State";
-  import type { ROMCustomization } from "@types";
+  import { libraryGridType, romMetadata, roms } from "@stores/State";
+  import type { ROMMetadata } from "@types";
   import { formatFileSize, GRID_LAYOUTS, hash64 } from "@utils";
   import SystemTag from "../SystemTag.svelte";
   import Tag from "../Tag.svelte";
@@ -16,7 +16,7 @@
   let { romId }: RomProps = $props();
 
   let rom = $derived($roms[romId]);
-  let romCustomization: ROMCustomization = $derived($romCustomizations[romId]);
+  let metadata: ROMMetadata = $derived($romMetadata[romId]);
 
   let layout = $derived(GRID_LAYOUTS[$libraryGridType]);
 
@@ -37,7 +37,7 @@
   class="rom"
   style:width="{layout.width - 2}px"
   style:height="{layout.height - 2}px"
-  style:--cover-url='url("{romCustomization.thumbPath === "No Grids" ? "" : romCustomization.thumbPath}")'
+  style:--cover-url='url("{metadata.thumbPath === "No Grids" ? "" : metadata.thumbPath}")'
   onclick={openEditModal}
 >
   <div class="cover"></div>

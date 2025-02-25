@@ -15,7 +15,8 @@ use crate::websocket::{
       SetSettingArgs,
       SimpleArgs,
       ParseRomArgs,
-      FilePickerArgs
+      FilePickerArgs,
+      MetadataArgs
     },
     library::StateStore,
     settings::Settings,
@@ -26,6 +27,8 @@ use crate::websocket::{
   watcher::Watcher,
   file_picker::get_entries
 };
+
+use super::metadata::{load_metadata, write_metadata};
 
 
 fn handle_message(
@@ -83,7 +86,6 @@ fn handle_message(
       if success {
         send(tx, "write_settings", success);
       }
-      
     }
     "set_setting" => {
       let args: SetSettingArgs = serde_json::from_str(data).unwrap();
@@ -121,10 +123,7 @@ fn handle_message(
 
       // If loading failed, we've already notfied the frontend of that, so we don't need to here.
       if library_res.is_ok() {
-        let mut load_res = library_res.unwrap();
-        load_res.romCustomizations = (&state_settings).romCustomizations.clone();
-
-        send(tx, "load_library", load_res);
+        send(tx, "load_library", library_res.unwrap());
       }
     }
     "update_library" => {
@@ -134,7 +133,6 @@ fn handle_message(
         return;
       }
       
-      let state_settings = settings.lock().expect("Failed to lock Settings Mutex.");
       let state_watcher = watcher.lock().expect("Failed to lock Watcher Mutex.");
       let mut state = state_store.lock().expect("Failed to lock State Mutex.");
       let library_res = parse_library(
@@ -147,10 +145,41 @@ fn handle_message(
       // If loading failed, we've already notfied the frontend of that, so we don't need to here.
       if library_res.is_ok() {
         (*state).library = args.library.clone();
-        let mut load_res = library_res.unwrap();
-        load_res.romCustomizations = (&state_settings).romCustomizations.clone();
 
-        send(tx, "update_library", load_res);
+        send(tx, "update_library", library_res.unwrap());
+      }
+    }
+    "load_metadata" => {
+      let args: SimpleArgs = serde_json::from_str(data).unwrap();
+      let valid = check_hash(args.passwordHash, tx.clone());
+      if !valid {
+        return;
+      }
+      
+      let mut state = state_store.lock().expect("Failed to lock State Mutex.");
+      let metadata_res = load_metadata(send_error);
+
+      // If loading failed, we've already notfied the frontend of that, so we don't need to here.
+      if metadata_res.is_ok() {
+        let metadata = metadata_res.unwrap();
+        (*state).metadata = metadata.clone();
+
+        send(tx, "load_metadata", &metadata);
+      }
+    }
+    "save_metadata" => {
+      let args: MetadataArgs = serde_json::from_str(data).unwrap();
+      let valid = check_hash(args.passwordHash, tx.clone());
+      if !valid {
+        return;
+      }
+      
+      let mut state = state_store.lock().expect("Failed to lock State Mutex.");
+      let success = write_metadata(&args.data, send_error);
+
+      if success {
+        (*state).metadata = args.data;
+        send(tx, "save_metadata", success);
       }
     }
     "parse_rom" => {

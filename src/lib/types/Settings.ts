@@ -1,4 +1,4 @@
-import type { Library, ROMCustomization } from "./Library";
+import type { Library } from "./Library";
 
 export type Palette = "Auto" | "Dark" | "Light";
 
@@ -30,5 +30,4 @@ export type Settings = {
   metadata: MetadataSettings;
   accessibility: AccessibilitySettings;
   library: Library;
-  romCustomizations: ROMCustomization[];
 }

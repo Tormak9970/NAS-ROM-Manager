@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { AssignmentOutline, BackHandOutline, DonutLarge, GridViewOutline, InfoOutline, InterestsOutline } from "@icons";
+  import { AssignmentOutline, BackHandOutline, GridViewOutline, InfoOutline, InterestsOutline } from "@icons";
   import { SettingsBody, SettingsNavButton } from "@views/settings";
 
 </script>
@@ -22,12 +22,12 @@
     route="/settings/layout"
     description="Manage the app's layout and views"
   />
-  <SettingsNavButton
+  <!-- <SettingsNavButton
     icon={DonutLarge}
     label="Metadata"
     route="/settings/metadata"
     description="Manage how rom metadata is saved"
-  />
+  /> -->
   <SettingsNavButton
     icon={BackHandOutline}
     label="Accessibility"

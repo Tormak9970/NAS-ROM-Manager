@@ -11,8 +11,7 @@ export type System = {
   tagConfig: SystemTagConfig;
 }
 
-export type ROMCustomization = {
-  path: string;
+export type ROMMetadata = {
   title: string;
   coverPath: string;
   thumbPath: string;
@@ -36,7 +35,6 @@ export type ROM = {
 export type LoadResult = {
   library: Library;
   roms: ROM[];
-  romCustomizations: ROMCustomization[];
   systems: System[];
 }
 

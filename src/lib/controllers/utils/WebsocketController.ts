@@ -17,7 +17,7 @@
 
 import { LogController } from "@controllers/utils/LogController";
 import { library, roms, romsBySystem, showWarningSnackbar, systems } from "@stores/State";
-import { BackendErrorType, type AvailableStorage, type BackendError, type FilePickerConfig, type FilePickerEntry, type Library, type LoadResult, type ROM, type Settings } from "@types";
+import { BackendErrorType, type AvailableStorage, type BackendError, type FilePickerConfig, type FilePickerEntry, type Library, type LoadResult, type ROM, type ROMMetadata, type Settings } from "@types";
 import { hash64, showError, systemToParser } from "@utils";
 import { get } from "svelte/store";
 
@@ -204,6 +204,26 @@ export class WebsocketController {
     return res.data;
   }
 
+  
+  /**
+   * Gets the rom metadata from the server.
+   * @returns The rom metadata.
+   */
+  static async getMetadata(): Promise<Record<string, ROMMetadata>> {
+    const res = await WebsocketController.invoke<Record<string, ROMMetadata>>("load_metadata", {});
+    return res.data;
+  }
+  
+  /**
+   * Saves the rom metadata to the server.
+   * @param data The metadata to save.
+   * @returns True if the save was a success.
+   */
+  static async saveMetadata(data: Record<string, ROMMetadata>): Promise<boolean> {
+    const res = await WebsocketController.invoke<boolean>("save_metadata", { data });
+    return res.data;
+  }
+  
 
   /**
    * Loads the app's library.

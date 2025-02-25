@@ -2,18 +2,19 @@
   import { ModalBody } from "@component-utils";
   import { Button, Checkbox, TextField } from "@interactables";
   import { editIsPostUpload, romEditingId, showEditRomModal } from "@stores/Modals";
-  import { romCustomizations, roms } from "@stores/State";
+  import { romMetadata, roms } from "@stores/State";
 
   let open = $state(true);
 
   let rom = $roms[$romEditingId!];
-  let romCustomization = $romCustomizations[$romEditingId!];
+  let metadata = $romMetadata[$romEditingId!];
 
-  let title = $state(romCustomization.title);
-  let sgdbId = $state(romCustomization.sgdbId);
-  let igdbId = $state(romCustomization.igdbId);
-  let gridPath = $state(romCustomization.gridPath);
-  let isFavorite = $state(romCustomization.isFavorite);
+  let title = $state(metadata.title);
+  let sgdbId = $state(metadata.sgdbId);
+  let igdbId = $state(metadata.igdbId);
+  let coverPath = $state(metadata.coverPath);
+  let thumbPath = $state(metadata.thumbPath);
+  let isFavorite = $state(metadata.isFavorite);
 
   let canSave = $derived(!!title);
 
@@ -22,17 +23,17 @@
    */
   async function onSave(): Promise<void> {
     if (title !== rom.title || isFavorite) {
-      $romCustomizations[$romEditingId!] = {
-        path: rom.path,
+      $romMetadata[$romEditingId!] = {
         title: title,
-        gridPath: gridPath,
+        coverPath: coverPath,
+        thumbPath: thumbPath,
         sgdbId: sgdbId,
         igdbId: igdbId,
-        metadata: romCustomization.metadata,
+        metadata: metadata.metadata,
         isFavorite: isFavorite
       }
 
-      $romCustomizations = { ...$romCustomizations };
+      $romMetadata = { ...$romMetadata };
     }
   }
 
