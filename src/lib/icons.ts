@@ -87,3 +87,4 @@ export { default as Draft } from "@ktibow/iconset-material-symbols/draft-rounded
 
 export { default as DragIndicator } from "@ktibow/iconset-material-symbols/drag-indicator";
 
+export { default as Landscape } from "@ktibow/iconset-material-symbols/landscape-rounded";
