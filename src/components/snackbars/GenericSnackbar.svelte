@@ -1,6 +1,7 @@
 <script lang="ts">
   import { Icon } from "@component-utils";
   import { Close } from "@icons";
+  import { isLandscape } from "@stores/State";
   import { onDestroy } from "svelte";
   import { fly } from "svelte/transition";
 
@@ -33,7 +34,7 @@
 </script>
 
 {#if snackbar}
-  <dialog class="holder" open style:--m3-util-bottom-offset="0px" style:padding-bottom="1rem" in:fly={{ y: 100, duration: 300 }} out:fly={{ y: 100, duration: 400 }}>
+  <dialog class="holder" open style:--m3-util-bottom-offset="{!$isLandscape ? 56 : 0}px" style:padding-bottom="{!$isLandscape ? 0.7 : 1}rem" in:fly={{ y: 100, duration: 300 }} out:fly={{ y: 100, duration: 400 }}>
     <div class="m3-container" style:--background-color={backgroundColor} style:--text-color={textColor}>
       <p class="m3-font-body-medium">{snackbar.message}</p>
       {#if snackbar.closable}
