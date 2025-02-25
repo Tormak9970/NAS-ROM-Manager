@@ -8,7 +8,6 @@ export const requestTimeoutLength = 5000;
 export const isLandscape = writable(true);
 export const loadedSettings = writable(false);
 export const loadedLibrary = writable(false);
-export const checkRomArtwork = localStorageWritable("check-rom-artwork", true);
 
 export const showInfoSnackbar = writable<(data: ShowInfoOptions) => void>();
 export const showWarningSnackbar = writable<(data: ShowWarningOptions) => void>();

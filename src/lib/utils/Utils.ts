@@ -1,3 +1,4 @@
+import type { DBFilter, SGDBImage } from "@types";
 
 /**
  * Debounces a function by the provided interval.
@@ -249,4 +250,30 @@ export function formatFileSize(fileSize: number): string {
  */
 export function systemToParser(system: string): string {
   return system.toLowerCase().replace(/\s/g, "");
+}
+
+/**
+ * Filters the grids based on the user's chosen filters.
+ * @param allGrids The list of all grids.
+ * @param filters The filters object.
+ * @returns The list of filtered grids.
+ */
+export function filterGrids(allGrids: SGDBImage[], filters: DBFilter): SGDBImage[] {
+  const gridStyles = Object.keys(filters.styles).filter((style) => filters.styles[style]);
+  const dimensions = Object.keys(filters.dimensions!).filter((dimension) => filters.dimensions![dimension]);
+  const imageFormats = Object.keys(filters.mimes).filter((imgType) => filters.mimes[imgType]);
+  const animationTypes = Object.keys(filters.types).filter((gridType) => filters.types[gridType]);
+  const humorAllowed = filters.oneoftag.humor;
+  const epilepsyAllowed = filters.oneoftag.epilepsy;
+  const nsfwAllowed = filters.oneoftag.nsfw;
+
+  return allGrids.filter((grid: SGDBImage) => {
+    return gridStyles.includes(grid.style)
+      && dimensions.includes(`${grid.width}x${grid.height}`)
+      && imageFormats.includes(grid.mime)
+      && (grid.isAnimated ? animationTypes.includes("animated") : animationTypes.includes("static"))
+      && (grid.humor ? humorAllowed : true)
+      && (grid.epilepsy ? epilepsyAllowed : true)
+      && (grid.nsfw ? nsfwAllowed : true);
+  });
 }
