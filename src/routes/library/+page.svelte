@@ -25,7 +25,6 @@
           if (grids.length) {
             const first = grids[0];
             customization.gridPath = await RestController.cacheCover(first.url.toString(), romId);
-            // TODO: sleep here for a moment
           } else {
             customization.gridPath = "No Grids";
           }

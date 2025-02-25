@@ -23,6 +23,7 @@
 
 <div id="loading">
   <LoadingSpinner extraOptions={{ style: "width: 5rem; height: 5rem;"}} />
+  <div class="m3-font-title-large text">{data.message ?? "Loading..."}</div>
 </div>
 
 <style>
@@ -33,5 +34,11 @@
     display: flex;
     justify-content: center;
     align-items: center;
+
+    gap: 0.5rem;
+  }
+
+  .text {
+    font-size: 1.25rem;
   }
 </style>
