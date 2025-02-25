@@ -8,7 +8,7 @@ import { RestController } from "./utils/RestController";
  * The sgdb api controller.
  */
 export class SGDBController {
-  private static readonly SGDB_GRID_RESULT_LIMIT = 50;
+  private static readonly SGDB_GRID_RESULT_LIMIT = 25;
 
   private static gridsCache: { [steamGridId: string]: SGDBImage[] } = {};
   private static currentGridCountCache: { [steamGridId: string]: number } = {};
@@ -22,12 +22,12 @@ export class SGDBController {
   }
 
   /**
-   * Gets the grids for a non steam game.
+   * Fetches the SGDB covers for the provided title.
    * @param steamGridAppId The sgdb appId of the app to get.
    * @returns A promise resolving to a list of grids.
    * ? Logging complete.
    */
-  static async fetchGrids(steamGridAppId: string): Promise<SGDBImage[]> {
+  static async getCoversForGame(steamGridAppId: string): Promise<SGDBImage[]> {
     if (!this.gridsCache[steamGridAppId]) this.gridsCache[steamGridAppId] = [];
     if (!this.currentGridCountCache[steamGridAppId]) this.currentGridCountCache[steamGridAppId] = 0;
     if (!this.totalGridCountCache[steamGridAppId]) this.totalGridCountCache[steamGridAppId] = 0;
@@ -119,14 +119,5 @@ export class SGDBController {
       LogController.warn(`SGDB Search Request "${query}" timed out.`);
       return [];
     }
-  }
-
-  /**
-   * Fetches the SGDB covers for the provided title.
-   * @param title The title to fetch the covers for.
-   * @returns The fetched covers.
-   */
-  static async getCoversForGame(title: string): Promise<SGDBImage[]> {
-    return []
   }
 }

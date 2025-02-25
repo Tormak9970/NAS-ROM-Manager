@@ -13,13 +13,8 @@ struct ResponseGeneric<T> {
 }
 
 #[derive(Clone, Deserialize)]
-struct Images {
-  images: Vec<SGDBImage>,
-}
-
-#[derive(Clone, Deserialize)]
 struct Results {
-  pub data: Images,
+  pub data: Vec<SGDBImage>,
   pub page: u64,
   pub total: u64,
 }
@@ -128,7 +123,7 @@ impl SGDBClient {
     }
     let results = res.unwrap();
 
-    let grids = results.data.images.into_iter().map(| mut img | {
+    let grids = results.data.into_iter().map(| mut img | {
       img.isAnimated = img.thumb.contains(".webm");
       return img;
     }).collect();

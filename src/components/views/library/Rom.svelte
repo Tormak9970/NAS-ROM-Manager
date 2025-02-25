@@ -17,9 +17,6 @@
 
   let rom = $derived($roms[romId]);
   let romCustomization: ROMCustomization = $derived($romCustomizations[romId]);
-  console.log("sgdbId:", romCustomization.sgdbId);
-
-  let coverLoading = $state(true);
 
   let layout = $derived(GRID_LAYOUTS[$libraryGridType]);
 
@@ -40,7 +37,7 @@
   class="rom"
   style:width="{layout.width - 2}px"
   style:height="{layout.height - 2}px"
-  style:--cover-url='url("{romCustomization.gridPath}")'
+  style:--cover-url='url("{romCustomization.gridPath === "No Grids" ? "" : romCustomization.gridPath}")'
   onclick={openEditModal}
 >
   <div class="cover"></div>
