@@ -72,7 +72,8 @@ export class AppController {
         romEdits[id] = {
           path: rom.path,
           title: rom.title,
-          gridPath: "",
+          coverPath: "",
+          thumbPath: "",
           sgdbId: "",
           igdbId: "",
           metadata: {},

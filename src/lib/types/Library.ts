@@ -14,7 +14,8 @@ export type System = {
 export type ROMCustomization = {
   path: string;
   title: string;
-  gridPath: string;
+  coverPath: string;
+  thumbPath: string;
   sgdbId: string;
   igdbId: string;
   metadata: Record<string, string>;

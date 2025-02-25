@@ -37,7 +37,7 @@
   class="rom"
   style:width="{layout.width - 2}px"
   style:height="{layout.height - 2}px"
-  style:--cover-url='url("{romCustomization.gridPath === "No Grids" ? "" : romCustomization.gridPath}")'
+  style:--cover-url='url("{romCustomization.thumbPath === "No Grids" ? "" : romCustomization.thumbPath}")'
   onclick={openEditModal}
 >
   <div class="cover"></div>

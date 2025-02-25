@@ -24,42 +24,46 @@ type ROMUploadComplete = {
 export class RestController {
   private static readonly STREAM_CHUNK_SIZE = 10 * 1024 * 1024;
 
-  private static restURL = "http://127.0.0.1:1500/rest";
+  private static readonly COVER_BASE_URL = "http://127.0.0.1:1500/rest/covers";
+  private static readonly BASE_URL = "http://127.0.0.1:1500/rest";
 
 
   /**
    * Deletes the cover for a title.
-   * @param url The url of the cover to delete.
+   * @param coverUrl The url of the full cover to delete.
+   * @param thumbUrl The url of the thumb cover to delete.
    * @param id The id of the title whose cover is being deleted.
    * @returns Whether the cover was successfully deleted.
    */
-  static async deleteCover(url: string, id: string): Promise<boolean> {
-    const res = await fetch(this.restURL + `/covers/${id}`, {
+  static async deleteCover(coverUrl: string, thumbUrl: string, id: string): Promise<boolean> {
+    const res = await fetch(this.BASE_URL + `/covers/${id}`, {
       method: "DELETE",
       mode: "cors",
       headers: {
         "Accept": "application/json, text/plain, */*",
         "Content-Type": "application/json",
-        "Cover-Extension": url.substring(url.lastIndexOf(".") + 1)
+        "Cover-Extension": coverUrl.substring(coverUrl.lastIndexOf(".") + 1),
+        "Thumb-Extension": thumbUrl.substring(thumbUrl.lastIndexOf(".") + 1)
       },
     });
 
     if (res.ok) {
       return true;
     } else {
-      LogController.error(`Failed to delete cover ${url}:`, res.statusText);
+      LogController.error(`Failed to delete covers for ${id}:`, res.statusText);
       return false;
     }
   }
 
   /**
    * Caches the cover for a title.
-   * @param url The url of the cover to cache.
+   * @param coverUrl The url of the cover to cache.
+   * @param thumbUrl The url of the cover preview to cache.
    * @param id The id of the title whose cover is being cached.
    * @returns The path to the cached cover.
    */
-  static async cacheCover(url: string, id: string): Promise<string> {
-    const res = await fetch(this.restURL + `/covers/${id}`, {
+  static async cacheCover(coverUrl: string, thumbUrl: string, id: string): Promise<[string, string]> {
+    const res = await fetch(this.BASE_URL + `/covers/${id}`, {
       method: "POST",
       mode: "cors",
       headers: {
@@ -67,23 +71,31 @@ export class RestController {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        url: url,
-        ext: url.substring(url.lastIndexOf(".") + 1),
+        coverUrl: coverUrl,
+        coverExt: coverUrl.substring(coverUrl.lastIndexOf(".") + 1),
+        thumbUrl: thumbUrl,
+        thumbExt: thumbUrl.substring(thumbUrl.lastIndexOf(".") + 1),
         timeout: 5000,
       })
     });
 
     if (res.ok) {
-      return await res.text();
+      const images = await res.text();
+      const [thumb, full] = images.split(",");
+      
+      return [
+        `${this.COVER_BASE_URL}/thumb/${thumb}`,
+        `${this.COVER_BASE_URL}/full/${full}`,
+      ];
     } else {
-      LogController.error(`Failed to cache cover ${url}:`, res.statusText);
-      return "";
+      LogController.error(`Failed to cache cover ${coverUrl}:`, res.statusText);
+      return ["", ""];
     }
   }
 
 
   private static async getMetadata(data: ROMDownload): Promise<{ size: number, path: string }> {
-    const res = await fetch(this.restURL + `/roms/download/metadata?romPath=${encodeURIComponent(data.path)}&romParent=${encodeURIComponent(data.parent)}`, {
+    const res = await fetch(this.BASE_URL + `/roms/download/metadata?romPath=${encodeURIComponent(data.path)}&romParent=${encodeURIComponent(data.parent)}`, {
       method: "GET",
       mode: "cors",
       headers: {
@@ -100,7 +112,7 @@ export class RestController {
   }
 
   private static async notifyDownloadComplete(data: ROMDownload) {
-    const res = await fetch(this.restURL + "/roms/download/complete", {
+    const res = await fetch(this.BASE_URL + "/roms/download/complete", {
       method: "POST",
       mode: "cors",
       headers: {
@@ -133,7 +145,7 @@ export class RestController {
       const range = `bytes=${downloaded}-${end}`;
       const length = end - downloaded;
 
-      const response = await fetch(this.restURL + `/roms/download?romPath=${encodeURIComponent(path)}`, {
+      const response = await fetch(this.BASE_URL + `/roms/download?romPath=${encodeURIComponent(path)}`, {
         headers: {
           "Range": range,
         }
@@ -190,7 +202,7 @@ export class RestController {
   private static async prepareUpload(libraryPath: string, romsDir: string, system: string, filename: string): Promise<string> {
     const filePath = `${libraryPath}/${romsDir}/${system}/${filename}`;
 
-    const res = await fetch(this.restURL + `/roms/upload/prepare?romPath=${encodeURIComponent(filePath)}`, {
+    const res = await fetch(this.BASE_URL + `/roms/upload/prepare?romPath=${encodeURIComponent(filePath)}`, {
       method: "POST",
       mode: "cors",
       headers: {
@@ -207,7 +219,7 @@ export class RestController {
   }
 
   private static async uploadComplete(data: ROMUploadComplete) {
-    const res = await fetch(this.restURL + "/roms/upload/complete", {
+    const res = await fetch(this.BASE_URL + "/roms/upload/complete", {
       method: "POST",
       mode: "cors",
       headers: {
@@ -237,7 +249,7 @@ export class RestController {
 
       const data = file.slice(sent, end + 1);
 
-      const response = await fetch(this.restURL + `/roms/upload?romPath=${encodeURIComponent(path)}`, {
+      const response = await fetch(this.BASE_URL + `/roms/upload?romPath=${encodeURIComponent(path)}`, {
         method: "POST",
         mode: "cors",
         headers: {
@@ -308,7 +320,7 @@ export class RestController {
    * @returns Whether the delete was successful.
    */
   static async deleteRom(rom: ROM): Promise<boolean> {
-    const res = await fetch(this.restURL + `/roms/delete?romPath=${encodeURIComponent(rom.path)}`, {
+    const res = await fetch(this.BASE_URL + `/roms/delete?romPath=${encodeURIComponent(rom.path)}`, {
       method: "DELETE",
       mode: "cors",
       headers: {
@@ -330,7 +342,7 @@ export class RestController {
    * @returns True if the client was initialized.
    */
   static async initSGDBClient(): Promise<boolean> {
-    const res = await fetch(this.restURL + "/proxy/sgdb/init", {
+    const res = await fetch(this.BASE_URL + "/proxy/sgdb/init", {
       method: "POST",
       mode: "cors",
     });
@@ -355,7 +367,7 @@ export class RestController {
    * @returns The list of grids.
    */
   static async getSGDBGridsById(id: string, page: number): Promise<GridResults> {
-    const res = await fetch(this.restURL + "/proxy/sgdb/grids", {
+    const res = await fetch(this.BASE_URL + "/proxy/sgdb/grids", {
       headers: {
         "SGDB-Game-Id": id,
         "SGDB-Results-Page": page.toString(),
@@ -381,7 +393,7 @@ export class RestController {
    * @returns The search results.
    */
   static async searchSGDBForTitle(query: string): Promise<SGDBGame[]> {
-    const res = await fetch(this.restURL + `/proxy/sgdb/search?query=${encodeURIComponent(query)}`);
+    const res = await fetch(this.BASE_URL + `/proxy/sgdb/search?query=${encodeURIComponent(query)}`);
 
     if (res.ok) {
       return await res.json();

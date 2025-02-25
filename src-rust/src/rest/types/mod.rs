@@ -11,8 +11,10 @@ use super::sgdb::SGDBClient;
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[allow(non_snake_case)]
 pub struct CoverUpload {
-  pub url: String,
-  pub ext: String,
+  pub coverUrl: String,
+  pub coverExt: String,
+  pub thumbUrl: String,
+  pub thumbExt: String,
   pub timeout: u64,
 }
 

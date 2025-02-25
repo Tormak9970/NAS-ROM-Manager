@@ -59,7 +59,8 @@ pub struct ROM {
 pub struct ROMCustomization {
   pub path: String,
   pub title: String,
-  pub gridPath: String,
+  pub coverPath: String,
+  pub thumbPath: String,
   pub sgdbId: String,
   pub igdbId: String,
   pub metadata: Map<String, Value>,

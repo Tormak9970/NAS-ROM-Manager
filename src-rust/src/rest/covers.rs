@@ -36,38 +36,57 @@ async fn download_url(url: String, dest_path: &str, timeout: u64) -> Result<(), 
 
 /// Handles uploading a rom cover to the cache.
 pub async fn upload_cover(rom_id: String, cover_cache_dir: String, data: CoverUpload) -> Result<impl Reply, Rejection> {
-  let url = data.url;
+  let cover_file_path = format!("{}/full/{}.{}", cover_cache_dir, rom_id, data.coverExt);
 
-  let file_path = format!("{}/{}.{}", cover_cache_dir, rom_id, data.ext);
-
-  download_url(url, &file_path, data.timeout)
+  download_url(data.coverUrl, &cover_file_path, data.timeout)
     .await
     .map_err(|_e| {
       warp::reject::reject()
     })?;
 
-  info!("Created file: {}", file_path);
+  info!("Created full cover file: {}", cover_file_path);
+
+  let thumb_file_path = format!("{}/thumb/{}.{}", cover_cache_dir, rom_id, data.thumbExt);
+
+  download_url(data.thumbUrl, &thumb_file_path, data.timeout)
+    .await
+    .map_err(|_e| {
+      warp::reject::reject()
+    })?;
+
+  info!("Created thumb cover file: {}", thumb_file_path);
 
   let response = warp::http::Response::builder()
     .status(200)
     .header("Content-Type", "text/plain")
     .header("Access-Control-Allow-Origin", "*")
-    .body(format!("http://127.0.0.1:1500/rest/covers/{}.{}", rom_id, data.ext))
+    .body(format!("{}.{},{}.{}", rom_id, data.thumbExt, rom_id, data.coverExt))
     .map_err(|_| warp::reject())?;
 
   return Ok(response);
 }
 
 /// Handles deleting a rom cover from the cache.
-pub async fn delete_cover(rom_id: String, cover_cache_dir: String, cover_ext: String) -> Result<impl Reply, Rejection> {
-  let file_path = format!("{}/{}.{}", cover_cache_dir, rom_id, cover_ext);
+pub async fn delete_cover(rom_id: String, cover_cache_dir: String, cover_ext: String, thumb_ext: String) -> Result<impl Reply, Rejection> {
+  let cover_file_path = format!("{}/full/{}.{}", cover_cache_dir, rom_id, cover_ext);
 
-  tokio::fs::remove_file(&file_path).await.map_err(|e| {
-    warn!("Error deleting file: {}", e);
+  tokio::fs::remove_file(&cover_file_path).await.map_err(|e| {
+    warn!("Error deleting full cover file: {}", e);
     warp::reject::reject()
   })?;
 
-  info!("Removed file: {}", file_path);
+  info!("Removed full cover file: {}", cover_file_path);
+
+
+  let thumb_file_path = format!("{}/thumb/{}.{}", cover_cache_dir, rom_id, thumb_ext);
+
+  tokio::fs::remove_file(&thumb_file_path).await.map_err(|e| {
+    warn!("Error deleting thumb cover file: {}", e);
+    warp::reject::reject()
+  })?;
+
+  info!("Removed thumb cover file: {}", thumb_file_path);
+
 
   return Ok(warp::reply::with_header("success", "Access-Control-Allow-Origin", "*"));
 }

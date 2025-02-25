@@ -21,15 +21,19 @@
     for (const romId of romIdList) {
       const customization = $romCustomizations[romId];
 
-      if (customization.gridPath === "") {
+      if (customization.thumbPath === "") {
         const grids = await SGDBController.getCoversForGame(customization.sgdbId);
         const filtered = filterGrids(grids, $dbFilters);
         
         if (filtered.length) {
           const first = filtered[0];
-          customization.gridPath = await RestController.cacheCover(first.url.toString(), romId);
+          const images = await RestController.cacheCover(first.url.toString(), first.thumb.toString(), romId);
+          
+          customization.thumbPath = images[0];
+          customization.coverPath = images[1];
         } else {
-          customization.gridPath = "No Grids";
+          customization.thumbPath = "No Grids";
+          customization.coverPath = "No Grids";
         }
 
         $romCustomizations[romId] = customization;

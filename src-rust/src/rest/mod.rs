@@ -45,6 +45,7 @@ pub fn initialize_rest_api(cover_cache_dir: String, cleanup_schedule: String) ->
       "Range",
       "Content-Type",
       "Cover-Extension",
+      "Thumb-Extension",
       "File-Length",
       "Upload-Id",
       "File-Size",
@@ -75,6 +76,7 @@ pub fn initialize_rest_api(cover_cache_dir: String, cleanup_schedule: String) ->
     .and(warp::delete())
     .and(cache_dir_filter.clone())
     .and(warp::filters::header::header("Cover-Extension"))
+    .and(warp::filters::header::header("Thumb-Extension"))
     .and_then(delete_cover)
     .with(&cors);
 
