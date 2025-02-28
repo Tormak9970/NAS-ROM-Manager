@@ -83,12 +83,12 @@
     background-color: rgb(var(--m3-scheme-surface-container-low));
     color: rgb(var(--m3-scheme-on-surface));
 
-    border-radius: 0 var(--m3-bottom-sheet-shape) var(--m3-bottom-sheet-shape) 0;
+    border-radius: var(--m3-bottom-sheet-shape) 0 0 var(--m3-bottom-sheet-shape);
     border: none;
 
     padding: 0;
 
-    margin-left: 0;
+    margin-right: 0;
     margin-top: 0;
     margin-bottom: 0;
   }

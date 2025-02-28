@@ -1,6 +1,6 @@
 export type DBFilter = {
   styles: Record<string, boolean>;
-  dimensions?: Record<string, boolean>;
+  dimensions: Record<string, boolean>;
   mimes: Record<string, boolean>;
   types: Record<string, boolean>;
   oneoftag: Record<string, boolean>;

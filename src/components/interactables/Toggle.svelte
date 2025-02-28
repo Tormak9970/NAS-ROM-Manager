@@ -41,6 +41,7 @@
       if (e.code == "ArrowLeft") checked = false;
       if (e.code == "ArrowRight") checked = true;
     }}
+    on:change
   />
   <div class="layer">
     <Icon icon={Checkmark} />

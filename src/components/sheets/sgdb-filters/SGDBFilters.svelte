@@ -1,0 +1,52 @@
+<script lang="ts">
+  import { scrollShadow } from "@directives";
+  import { SideSheet } from "@layout";
+  import { dbFilters } from "@stores/State";
+  import type { DBFilter } from "@types";
+  import FilterSection from "./FilterSection.svelte";
+  
+  let sections = $derived(Object.keys($dbFilters) as (keyof DBFilter)[]);
+</script>
+
+<SideSheet width={300}>
+  <div class="label m3-font-title-large">SGDB Filters</div>
+  <div class="filters-wrapper">
+    <div class="filters" use:scrollShadow={{ background: "--m3-scheme-surface-container-low" }}>
+      <div class="filters-inner">
+        {#each sections as section}
+          <FilterSection section={section} />
+        {/each}
+      </div>
+    </div>
+  </div>
+</SideSheet>
+
+<style>
+  .label {
+    margin-bottom: 1rem;
+  }
+
+  .filters-wrapper {
+    width: 100%;
+    height: calc(100% - 50px);
+    
+    position: relative;
+  }
+
+  .filters {
+    width: 100%;
+    height: 100%;
+
+    overflow-x: hidden;
+    overflow-y: scroll;
+  }
+
+  .filters-inner {
+    width: calc(100% - 0.5rem);
+    
+    display: flex;
+    flex-direction: column;
+
+    gap: 1.25rem;
+  }
+</style>

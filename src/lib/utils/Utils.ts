@@ -70,50 +70,6 @@ export function throttle(func: any, wait: number, immediate = false) {
   }
 }
 
-function prefixIfNeeded(time: number): string {
-  return time < 10 ? "0" + time.toFixed(0) : time.toFixed(0)
-}
-
-/**
- * Formats a duration into an easy to read format.
- * @param totalSeconds The total time in seconds.
- * @returns The formatted time.
- */
-export function formatTime(totalSeconds: number): string {
-  const hours = Math.floor(totalSeconds / (60 * 60));
-  const minutes = Math.floor((totalSeconds - hours * 60 * 60) / 60);
-  const seconds = totalSeconds % 60;
-  return `${hours !== 0 ? hours + ":" + prefixIfNeeded(minutes) : minutes}:${prefixIfNeeded(seconds)}`;
-}
-
-/**
- * Capitalizes each word in the phrase.
- * @param phrase The phrase to capitalize.
- */
-export function capitalizeEachWord(phrase: string): string {
-  const words = phrase.split(" ");
-  return words.map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
-}
-/**
- * Normalizes a string.
- * @param value The string to normalize.
- */
-export function normalizeString(value: string): string {
-  const accentMap: Record<string, string> = {
-    "ą": "a",
-    "ć": "c",
-    "ę": "e",
-    "ł": "l",
-    "ń": "n",
-    "ó": "o",
-    "ś": "s",
-    "ź": "z",
-    "ż": "z"
-  };
-  
-  return value.normalize("NFD").replace(/[ąćęłńóśźż]/g, (matched) => accentMap[matched]);
-}
-
 // cyrb53 (c) 2018 bryc (github.com/bryc). License: Public domain. Attribution appreciated.
 // A fast and simple 64-bit (or 53-bit) string hash function with decent collision resistance.
 // Largely inspired by MurmurHash2/3, but with a focus on speed/simplicity.
@@ -189,58 +145,6 @@ export function swap<T>(array: T[], moveIndex: number, toIndex: number) {
  */
 export function clamp(value: number, lower: number, upper: number): number {
   return Math.min(upper, Math.max(value, lower));
-}
-
-/**
- * Compares two strings. (from https://github.com/cemerick/jsdifflib)
- * @param first The first string.
- * @param second The second string.
- * @returns A float [0, 1] representing how similar the strings are.
- */
-export function compareStrings(first: string, second: string) {
-  first = first.replace(/\s+/g, '');
-	second = second.replace(/\s+/g, '');
-
-	if (first === second) return 1; // identical or empty
-	if (first.length < 2 || second.length < 2) return 0; // if either is a 0-letter or 1-letter string
-
-	let firstBigrams = new Map();
-	for (let i = 0; i < first.length - 1; i++) {
-		const bigram = first.substring(i, i + 2);
-		const count = firstBigrams.has(bigram) ? firstBigrams.get(bigram) + 1 : 1;
-
-		firstBigrams.set(bigram, count);
-	}
-
-	let intersectionSize = 0;
-	for (let i = 0; i < second.length - 1; i++) {
-		const bigram = second.substring(i, i + 2);
-		const count = firstBigrams.has(bigram) ? firstBigrams.get(bigram) : 0;
-
-		if (count > 0) {
-			firstBigrams.set(bigram, count - 1);
-			intersectionSize++;
-		}
-	}
-
-	return (2.0 * intersectionSize) / (first.length + second.length - 2);
-}
-
-/**
- * Formats a file's size using Kb, Mb, Gb, etc.
- * @param fileSize The file size.
- * @returns The formatted size.
- */
-export function formatFileSize(fileSize: number): string {
-  if (fileSize < 1000000) {
-    return (fileSize / 1000).toFixed(1) + " KB";
-  } else if (fileSize < 1000000000) {
-    return (fileSize / 1000000).toFixed(1) + " MB";
-  } else if (fileSize < 1000000000000) {
-    return (fileSize / 1000000000).toFixed(1) + " GB";
-  } else {
-    return (fileSize / 1000000000000).toFixed(1) + " TB";
-  }
 }
 
 /**

@@ -93,7 +93,7 @@ body {
   --m3-util-rounding-extra-large: 1.75rem;
   --m3-util-rounding-full: 100rem;
 
-  --m3-font: Roboto, system-ui, sans-serif;
+  --m3-font: 'Google-sans', system-ui, sans-serif;
 }
 .m3-font-display-large,
 .m3-font-display-medium,

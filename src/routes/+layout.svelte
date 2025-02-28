@@ -11,6 +11,7 @@
   import { onMount } from "svelte";
   import "../app.css";
   import Modals from "../components/modals/Modals.svelte";
+  import Sheets from "../components/sheets/Sheets.svelte";
   import InfoSnackbar from "../components/snackbars/InfoSnackbar.svelte";
   import WarningSnackbar from "../components/snackbars/WarningSnackbar.svelte";
   import Theme from "../components/theme/Theme.svelte";
@@ -58,6 +59,7 @@
 <Theme>
   <ContextMenu />
   <Modals />
+  <Sheets />
   <div class="layout">
     {#if showDecorations}
       <Header />
