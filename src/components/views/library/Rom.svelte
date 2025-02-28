@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Icon } from "@component-utils";
-  import { Download } from "@icons";
+  import { Download, Landscape } from "@icons";
   import { Button } from "@interactables";
   import { downloadProgressRom, romEditingId, showDownloadProgressModal, showEditRomModal } from "@stores/Modals";
   import { libraryGridType, romMetadata, roms } from "@stores/State";
@@ -40,6 +40,11 @@
   style:--cover-url='url("{metadata.thumbPath === "No Grids" ? "" : metadata.thumbPath}")'
   onclick={openEditModal}
 >
+  {#if metadata.thumbPath === "No Grids"}
+    <div class="placeholder">
+      <Icon icon={Landscape} height="1.5rem" width="1.5rem" />
+    </div>
+  {/if}
   <div class="cover"></div>
   <div class="overlay">
     <div class="rom-info">
@@ -99,6 +104,21 @@
     background-image: var(--cover-url);
     background-repeat: no-repeat;
     background-size: contain;
+  }
+
+  .placeholder {
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+    border-radius: var(--m3-util-rounding-medium);
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
   }
 
   .overlay {
