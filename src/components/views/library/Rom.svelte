@@ -168,13 +168,13 @@
     top: 0.1rem;
     right: 0.1rem;
 
-    --m3-scheme-primary: 255 49 49;
-    
     opacity: 0;
     transition: opacity 0.15s;
   }
 
   .favorite.visible {
+    --m3-scheme-primary: 255 49 49;
+
     opacity: 1;
   }
 
