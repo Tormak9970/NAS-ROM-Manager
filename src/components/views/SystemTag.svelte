@@ -18,7 +18,7 @@
 >
   <!-- svelte-ignore a11y_click_events_have_key_events -->
   <!-- svelte-ignore event_directive_deprecated -->
-  <b on:click={() => goToSystem(system)}>{system}</b>
+  <b on:click|stopPropagation={() => goToSystem(system)}>{system}</b>
 </Tag>
 
 <style>
