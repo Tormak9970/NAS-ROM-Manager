@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Icon } from "@component-utils";
-  import { Download, Landscape } from "@icons";
+  import { Download, FavoriteOff, FavoriteOn, Landscape } from "@icons";
   import { Button } from "@interactables";
   import { downloadProgressRom, romEditingId, showDownloadProgressModal, showEditRomModal } from "@stores/Modals";
   import { libraryGridType, romMetadata, roms } from "@stores/State";
@@ -19,6 +19,7 @@
   let metadata: ROMMetadata = $derived($romMetadata[romId]);
 
   let layout = $derived(GRID_LAYOUTS[$libraryGridType]);
+  let isFavorite = $derived(metadata.isFavorite);
 
   function download() {
     $downloadProgressRom = rom;
@@ -28,6 +29,11 @@
   function openEditModal() {
     $romEditingId = hash64(rom.path);
     $showEditRomModal = true;
+  }
+
+  function toggleFavorite() {
+    $romMetadata[romId].isFavorite = !isFavorite;
+    $romMetadata = { ...$romMetadata };
   }
 </script>
 
@@ -71,6 +77,11 @@
   </div>
   <div class="system">
     <SystemTag system={rom.system} />
+  </div>
+  <div class="favorite" class:visible={isFavorite}>
+    <Button iconType="full" type="text" size="2rem" iconSize="1.25rem" on:click={toggleFavorite}>
+      <Icon icon={isFavorite ? FavoriteOn : FavoriteOff} />
+    </Button>
   </div>
 </div>
 
@@ -150,6 +161,25 @@
     position: absolute;
     top: 0.3rem;
     left: 0.4rem;
+  }
+  
+  .favorite {
+    position: absolute;
+    top: 0.1rem;
+    right: 0.1rem;
+
+    --m3-scheme-primary: 255 49 49;
+    
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+
+  .favorite.visible {
+    opacity: 1;
+  }
+
+  .rom:hover .favorite {
+    opacity: 1;
   }
 
   .rom-info {
