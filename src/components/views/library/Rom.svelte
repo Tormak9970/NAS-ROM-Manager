@@ -2,10 +2,11 @@
   import { Icon } from "@component-utils";
   import { Download, FavoriteOff, FavoriteOn, Landscape } from "@icons";
   import { Button } from "@interactables";
-  import { downloadProgressRom, romEditingId, showDownloadProgressModal, showEditRomModal } from "@stores/Modals";
+  import { downloadProgressRom, showDownloadProgressModal } from "@stores/Modals";
   import { libraryGridType, romMetadata, roms } from "@stores/State";
   import type { ROMMetadata } from "@types";
-  import { formatFileSize, GRID_LAYOUTS, hash64 } from "@utils";
+  import { formatFileSize, goToROM, GRID_LAYOUTS } from "@utils";
+  import Cover from "../Cover.svelte";
   import SystemTag from "../SystemTag.svelte";
   import Tag from "../Tag.svelte";
 
@@ -26,11 +27,6 @@
     $showDownloadProgressModal = true;
   }
 
-  function openEditModal() {
-    $romEditingId = hash64(rom.path);
-    $showEditRomModal = true;
-  }
-
   function toggleFavorite() {
     $romMetadata[romId].isFavorite = !isFavorite;
     $romMetadata = { ...$romMetadata };
@@ -43,15 +39,14 @@
   class="rom"
   style:width="{layout.width - 2}px"
   style:height="{layout.height - 2}px"
-  style:--cover-url='url("{metadata.thumbPath === "No Grids" ? "" : metadata.thumbPath}")'
-  onclick={openEditModal}
+  onclick={() => goToROM(romId)}
 >
   {#if metadata.thumbPath === "No Grids"}
     <div class="placeholder">
       <Icon icon={Landscape} height="1.5rem" width="1.5rem" />
     </div>
   {/if}
-  <div class="cover"></div>
+  <Cover romId={romId} />
   <div class="overlay">
     <div class="rom-info">
       <div class="title">{rom.title}</div>
@@ -101,20 +96,6 @@
   .rom:hover {
     transform: scale(1.05);
     border: 1px solid rgb(var(--m3-scheme-outline));
-  }
-
-  .cover {
-    position: absolute;
-    top: 0;
-    left: 0;
-
-    width: 100%;
-    height: 100%;
-    border-radius: var(--m3-util-rounding-medium);
-
-    background-image: var(--cover-url);
-    background-repeat: no-repeat;
-    background-size: contain;
   }
 
   .placeholder {

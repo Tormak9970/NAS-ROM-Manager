@@ -1,5 +1,7 @@
 import { writable, type Updater, type Writable } from "svelte/store";
 
+import { browser } from '$app/environment';
+
 export type LocalStorageWritable<T> = Writable<T>;
 
 /**
@@ -9,6 +11,10 @@ export type LocalStorageWritable<T> = Writable<T>;
  * @returns The store.
  */
 export function localStorageWritable<T>(key: string, defaultValue: T): LocalStorageWritable<T> {
+  if (!browser) {
+    return writable<T>(defaultValue);
+  }
+
   const locallyStored = localStorage.getItem(key);
   const currentValue: T = locallyStored ? JSON.parse(locallyStored).data : defaultValue;
 

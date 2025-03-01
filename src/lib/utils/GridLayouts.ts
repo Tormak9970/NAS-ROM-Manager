@@ -17,7 +17,4 @@ export const GRID_LAYOUTS: Record<string, GRID_LAYOUT> = {
   }
 }
 
-export const DETAILS_GRID_SIZE = {
-  width: 162,
-  height: 242,
-}
+export const DETAILS_ASPECT_RATIO = 1.5;
