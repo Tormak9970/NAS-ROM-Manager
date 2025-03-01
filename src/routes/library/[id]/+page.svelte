@@ -2,7 +2,7 @@
   import { Icon } from "@component-utils";
   import { Download, Edit, FavoriteOff, FavoriteOn } from "@icons";
   import Button from "@interactables/Button.svelte";
-  import { downloadProgressRom, showDownloadProgressModal } from "@stores/Modals";
+  import { downloadProgressRom, romEditingId, showDownloadProgressModal, showEditRomModal } from "@stores/Modals";
   import { isLandscape, romMetadata, roms } from "@stores/State";
   import { GRID_LAYOUTS } from "@utils";
   import Cover from "@views/Cover.svelte";
@@ -22,6 +22,11 @@
   function toggleFavorite() {
     $romMetadata[id].isFavorite = !isFavorite;
     $romMetadata = { ...$romMetadata };
+  }
+  
+  function editRom() {
+    $romEditingId = id;
+    $showEditRomModal = true;
   }
 
   function download() {
@@ -58,11 +63,9 @@
       </div>
     </div>
     <div class="controls" class:portrait style:--m3-button-shape="var(--m3-util-rounding-small)">
-      <!-- TODO: favorite -->
       <Button iconType="full" type="text" on:click={toggleFavorite}>
         <Icon icon={isFavorite ? FavoriteOn : FavoriteOff} />
       </Button>
-      <!-- TODO: download -->
       <Button
         type="filled"
         iconType="left"
@@ -71,8 +74,7 @@
         <Icon icon={Download} />
         Download
       </Button>
-      <!-- TODO: edit -->
-      <Button iconType="full" type="filled">
+      <Button iconType="full" type="filled" on:click={editRom}>
         <Icon icon={Edit} />
       </Button>
     </div>
