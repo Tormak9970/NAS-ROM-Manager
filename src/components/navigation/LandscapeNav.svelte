@@ -19,7 +19,7 @@
 
 <NavList type="rail">
   {#each landscapeRoutes as view}
-    {@const selected = view.path === page.url.pathname}
+    {@const selected = page.url.pathname.startsWith(view.path)}
     <NavListButton
       type="rail"
       icon={selected ? view.selectedIcon : view.icon}

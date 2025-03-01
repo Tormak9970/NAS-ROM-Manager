@@ -18,7 +18,7 @@
 <div class="view-nav">
   <NavList type="bar" extraOptions={{ style: "padding: 0.75rem 0.5rem; height: 56px;" }}>
     {#each portraitRoutes as view}
-      {@const selected = view.path === page.url.pathname}
+      {@const selected = page.url.pathname.startsWith(view.path)}
       <NavListButton
         type="bar"
         icon={selected ? view.selectedIcon : view.icon}
