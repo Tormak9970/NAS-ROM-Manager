@@ -1,4 +1,5 @@
 pub mod sgdb;
+pub mod igdb;
 
 use serde::{Deserialize, Serialize};
 use tokio::sync::RwLock;

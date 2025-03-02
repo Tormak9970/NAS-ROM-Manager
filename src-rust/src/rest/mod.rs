@@ -4,6 +4,7 @@ mod rom_upload;
 mod types;
 mod zip;
 mod sgdb;
+mod igdb;
 
 use std::{collections::HashMap, fs::remove_file, str::FromStr, thread};
 
