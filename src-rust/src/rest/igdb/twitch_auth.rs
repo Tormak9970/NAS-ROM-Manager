@@ -22,11 +22,11 @@ fn get_current_seconds() -> u64 {
 
 impl TwitchAuth {
   /// Creates a new TwitchAuth
-  pub fn new(client_id: String, client_secret: String, timeout: u64) -> TwitchAuth {
+  pub fn new(timeout: u64) -> TwitchAuth {
     let mut params = HashMap::new();
 
-    params.insert("client_id".to_string(), client_id);
-    params.insert("client_secret".to_string(), client_secret);
+    params.insert("client_id".to_string(), "".to_string());
+    params.insert("client_secret".to_string(), "".to_string());
     params.insert("grant_type".to_string(), "client_credentials".to_string());
 
     let http_client_res = Client::builder()
@@ -47,13 +47,14 @@ impl TwitchAuth {
   }
 
   /// Initializes the TwitchAuth client.
-  pub fn init(&mut self) -> Result<(), String> {
+  pub fn init(&mut self) -> Result<String, String> {
     let client_id_res = var("IGDB_CLIENT_ID");
     if client_id_res.is_err() {
       warn!("No environment variable \"IGDB_CLIENT_ID\" was found!");
       return Err("No environment variable \"IGDB_CLIENT_ID\" was found!".to_string());
     }
-    self.params.insert("client_id".to_string(), client_id_res.unwrap());
+    let client_id = client_id_res.unwrap();
+    self.params.insert("client_id".to_string(), client_id.clone());
 
     let client_secret_res = var("IGDB_CLIENT_SECRET");
     if client_secret_res.is_err() {
@@ -62,7 +63,7 @@ impl TwitchAuth {
     }
     self.params.insert("client_secret".to_string(), client_secret_res.unwrap());
 
-    return Ok(());
+    return Ok(client_id);
   }
 
   async fn get_updated_token(&mut self) -> Result<String, String> {
