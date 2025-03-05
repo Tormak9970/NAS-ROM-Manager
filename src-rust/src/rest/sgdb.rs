@@ -68,20 +68,10 @@ impl SGDBClient {
 
   /// Makes a request.
   async fn handle_request<T: DeserializeOwned>(&self, url: String, params: Option<HashMap<String, String>>) -> Result<T, String> {
-    let mut stringified_params: String = "".to_string();
-
-    if params.is_some() {
-      params.unwrap().into_iter().for_each(| (param, val) | {
-        let entry = format!("&{param}={val}");
-        stringified_params.push_str(&entry);
-      });
-      let without_mark = (&stringified_params[1..]).to_string();
-      
-      stringified_params = "?".to_string();
-      stringified_params.push_str(&without_mark);
-    }
+    let entries: Vec<(String, String)> = params.unwrap_or(HashMap::new()).clone().into_iter().collect();
     
-    let response_res = self.client.get(format!("{}v2{}{}", self.base_url, url, stringified_params)).send().await;
+    let response_res = self.client.get(format!("{}v2{}", self.base_url, url))
+      .query(&entries).send().await;
 
     if response_res.is_ok() {
       let response = response_res.ok().expect("Failed to get response from ok result.");

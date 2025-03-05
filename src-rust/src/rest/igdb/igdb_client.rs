@@ -1,6 +1,6 @@
 use std::{collections::HashMap, time::Duration};
 
-use reqwest::{header::{self, HeaderMap, HeaderValue}, Client};
+use reqwest::{header::{self, HeaderMap, HeaderValue}, Client, ClientBuilder, RequestBuilder, StatusCode};
 use serde::de::DeserializeOwned;
 use serde_json::{Map, Value};
 
@@ -135,10 +135,9 @@ impl IGDBClient {
       return Err(client_id_res.err().unwrap().to_string());
     }
 
-    let http_client_res = Client::builder()
+    let client_res = Client::builder()
       .timeout(Duration::from_secs(timeout))
       .build();
-    let http_client: Client = http_client_res.expect("Failed to make the reqwest client.");
 
     return Ok(IGDBClient {
       token: "".to_string(),
@@ -149,49 +148,108 @@ impl IGDBClient {
       games_endpoint: format!("{}/games", &base_url),
       search_endpoint: format!("{}/search", &base_url),
       twitch_auth,
-      client: http_client,
+      client: client_res.expect("Failed to make the reqwest client."),
       timeout,
     });
   }
 
-  /// Updates the client's api key.
-  pub fn update_token(&mut self) {
+  /// Updates the client's api token.
+  pub fn update_token(&mut self, token: String) {
     let mut headers = HeaderMap::new();
-
-    // TODO: token set here
-    let token = "".to_string();
 
     headers.insert(header::AUTHORIZATION, HeaderValue::try_from(format!("Bearer {token}")).unwrap());
     headers.insert("Client-ID", HeaderValue::try_from(self.client_id.clone()).unwrap());
     headers.insert(header::ACCEPT, HeaderValue::from_static("application/json"));
 
-    let http_client_res = Client::builder()
+    let client_res = Client::builder()
       .timeout(Duration::from_secs(self.timeout))
       .default_headers(headers)
       .build();
-    let http_client: Client = http_client_res.expect("Failed to make the reqwest client.");
 
-    self.client = http_client;
+    self.client = client_res.expect("Failed to make the reqwest client.");
     self.token = token;
   }
 
+  /// Checks to make sure the token is still valid
+  async fn check_oauth(&mut self) -> Result<(), String> {
+    let token_res = self.twitch_auth.get_oauth_token().await;
+    if token_res.is_err() {
+      return Err(token_res.err().unwrap().to_string());
+    }
+    let token = token_res.unwrap();
+
+    if token != self.token {
+      self.update_token(token);
+    }
+
+    return Ok(());
+  }
+
   /// Makes a request.
-  async fn handle_request<T: DeserializeOwned>(&self, url: String, params: HashMap<String, String>) -> Result<T, String> {
+  async fn handle_request<T: DeserializeOwned>(&mut self, url: String, params: HashMap<String, String>) -> Result<T, String> {
+    let update_res = self.check_oauth().await;
+    if update_res.is_err() {
+      return Err(update_res.err().unwrap().to_string());
+    }
+
     let entries: Vec<(String, String)> = params.clone().into_iter().collect();
     
-    let response_res = self.client.get(url)
+    let response_res = self.client.get(&url)
       .query(&entries).send().await;
 
-    if response_res.is_ok() {
-      let response = response_res.ok().expect("Failed to get response from ok result.");
-      let data: T = response.json().await.expect("Data should have been of type");
-  
-      return Ok(data);
-    } else {
+    if response_res.is_err() {
       let err = response_res.err().expect("Request failed, error should have existed.");
       return Err(err.to_string());
     }
+
+    let mut response = response_res.ok().expect("Failed to get response from ok result.");
+    
+
+    if response.status() == StatusCode::UNAUTHORIZED {
+      let update_res = self.check_oauth().await;
+      if update_res.is_err() {
+        return Err(update_res.err().unwrap().to_string());
+      }
+
+      let response_res = self.client.get(&url)
+        .query(&entries).send().await;
+
+      if response_res.is_err() {
+        let err = response_res.err().expect("Request failed, error should have existed.");
+        return Err(err.to_string());
+      }
+
+      response = response_res.ok().expect("Failed to get response from ok result.");
+    }
+
+    
+    if response.status() != StatusCode::OK {
+      return Err(response.error_for_status().err().unwrap().to_string());
+    }
+
+    let data: T = response.json().await.expect("Data should have been of type");
+
+    return Ok(data);
   }
 
 
+  pub async fn search_rom(&mut self) {
+
+  }
+
+  async fn get_platform(&mut self) {
+    
+  }
+
+  pub async fn get_rom_by_id(&mut self) {
+
+  }
+
+  async fn get_matched_rom_by_id(&mut self) {
+
+  }
+
+  async fn get_matched_roms_by_name(&mut self) {
+
+  }
 }
