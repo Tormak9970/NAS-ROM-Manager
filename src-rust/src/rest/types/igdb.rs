@@ -3,56 +3,61 @@ use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
+#[allow(non_snake_case)]
 pub struct IGDBMetadataPlatform {
-  pub igdb_id: String,
+  pub igdbId: String,
   pub name: String,
   pub abbreviation: String,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
+#[allow(non_snake_case)]
 pub struct IGDBAgeRating {
   pub rating: String,
   pub category: String,
-  pub rating_cover_url: String,
+  pub ratingCoverUrl: String,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
+#[allow(non_snake_case)]
 pub struct IGDBRelatedGame {
   pub id: String,
   pub name: String,
   pub slug: String,
   pub r#type: String,
-  pub cover_url: String,
-  pub thumb_url: String,
+  pub coverUrl: String,
+  pub thumbUrl: String,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
+#[allow(non_snake_case)]
 pub struct IGDBMetadata {
-  pub total_rating: String,
-  pub aggregated_rating: String,
-  pub first_release_date: u64,
+  pub totalRating: String,
+  pub aggregatedRating: String,
+  pub firstReleaseDate: u64,
   pub genres: Vec<String>,
   pub franchises: Vec<String>,
-  pub alternative_names: Vec<String>,
+  pub alternativeNames: Vec<String>,
   pub collections: Vec<String>,
   pub companies: Vec<String>,
   pub game_modes: Vec<String>,
-  pub age_ratings: Vec<IGDBAgeRating>,
+  pub ageRatings: Vec<IGDBAgeRating>,
   pub platforms: Vec<IGDBMetadataPlatform>,
   pub expansions: Vec<IGDBRelatedGame>,
   pub dlcs: Vec<IGDBRelatedGame>,
-  pub similar_games: Vec<IGDBRelatedGame>,
+  pub similarGames: Vec<IGDBRelatedGame>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
+#[allow(non_snake_case)]
 pub struct IGDBRom {
-  pub igdb_id: Option<String>,
+  pub igdbId: Option<String>,
   pub slug: Option<String>,
   pub name: Option<String>,
   pub summary: Option<String>,
-  pub url_cover: Option<String>,
-  pub url_thumb: Option<String>,
-  pub igdb_metadata: Option<IGDBMetadata>,
+  pub coverUrl: Option<String>,
+  pub thumbUrl: Option<String>,
+  pub metadata: Option<IGDBMetadata>,
 }
 
 pub const GAMES_FIELDS: [&'static str; 33] = [
@@ -107,7 +112,7 @@ impl Into<IGDBAgeRating> for IGDBAgeRatingStatic<'_> {
     return IGDBAgeRating {
       rating: self.rating.to_string(),
       category: self.category.to_string(),
-      rating_cover_url: self.rating_cover_url.to_string(),
+      ratingCoverUrl: self.rating_cover_url.to_string(),
     }
   }
 }

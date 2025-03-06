@@ -35,8 +35,8 @@ fn map_to_related_game(games: &Vec<IGDBRelatedGameResponse>, relation_type: &str
       id: game.id.clone().unwrap_or("".to_string()),
       slug: game.slug.clone().unwrap_or("".to_string()),
       name: game.name.clone().unwrap_or("".to_string()),
-      cover_url,
-      thumb_url,
+      coverUrl: cover_url,
+      thumbUrl: thumb_url,
       r#type: relation_type.to_string(),
     }
   }).collect(); 
@@ -63,7 +63,7 @@ fn extract_metadata_from_response(rom: IGDBRomResponse) -> IGDBMetadata {
     let abbreviation = platform.get("abbreviation").unwrap_or(&default_string).as_str().unwrap().to_string();
 
     return IGDBMetadataPlatform {
-      igdb_id: id,
+      igdbId: id,
       name,
       abbreviation,
     }
@@ -76,20 +76,20 @@ fn extract_metadata_from_response(rom: IGDBRomResponse) -> IGDBMetadata {
   }).map(| age_rating | age_rating.to_owned().into()).collect(); 
 
   return IGDBMetadata {
-    total_rating: format!("{:.2}", rom.total_rating.unwrap_or("0.0".to_string()).parse::<u64>().unwrap()),
-    aggregated_rating: format!("{:.2}", rom.aggregated_rating.unwrap_or("0.0".to_string()).parse::<u64>().unwrap()),
-    first_release_date: rom.first_release_date.unwrap_or("0".to_string()).parse::<u64>().expect("Should have been able to parse release date"),
+    totalRating: format!("{:.2}", rom.total_rating.unwrap_or("0.0".to_string()).parse::<u64>().unwrap()),
+    aggregatedRating: format!("{:.2}", rom.aggregated_rating.unwrap_or("0.0".to_string()).parse::<u64>().unwrap()),
+    firstReleaseDate: rom.first_release_date.unwrap_or("0".to_string()).parse::<u64>().expect("Should have been able to parse release date"),
     genres: map_to_name(&rom.genres),
     franchises,
-    alternative_names: map_to_name(&rom.alternative_names),
+    alternativeNames: map_to_name(&rom.alternative_names),
     collections: map_to_name(&rom.collections),
     game_modes: map_to_name(&rom.game_modes),
     companies,
     platforms,
-    age_ratings,
+    ageRatings: age_ratings,
     expansions: map_to_related_game(&rom.expansions, "expansion"),
     dlcs: map_to_related_game(&rom.dlcs, "dlc"),
-    similar_games: map_to_related_game(&rom.similar_games, "similar"),
+    similarGames: map_to_related_game(&rom.similar_games, "similar"),
   };
 }
 
@@ -258,13 +258,13 @@ impl IGDBClient {
     let cover_url = thumb_url.replace("t_thumb", "t_1080p");
 
     return Ok(IGDBRom {
-      igdb_id: rom.id.clone(),
+      igdbId: rom.id.clone(),
       slug: rom.slug.clone(),
       name: rom.name.clone(),
       summary: rom.summary.clone(),
-      url_cover: Some(cover_url),
-      url_thumb: Some(thumb_url),
-      igdb_metadata: Some(extract_metadata_from_response(rom)),
+      coverUrl: Some(cover_url),
+      thumbUrl: Some(thumb_url),
+      metadata: Some(extract_metadata_from_response(rom)),
     });
   }
 
@@ -280,13 +280,13 @@ impl IGDBClient {
 
     if roms.len() == 0 {
       return Ok(IGDBRom {
-        igdb_id: None,
+        igdbId: None,
         slug: None,
         name: None,
         summary: None,
-        url_cover: None,
-        url_thumb: None,
-        igdb_metadata: None,
+        coverUrl: None,
+        thumbUrl: None,
+        metadata: None,
       });
     }
     let rom = roms[0].clone();
@@ -295,13 +295,13 @@ impl IGDBClient {
     let cover_url = thumb_url.replace("t_thumb", "t_1080p");
 
     return Ok(IGDBRom {
-      igdb_id: rom.id.clone(),
+      igdbId: rom.id.clone(),
       slug: rom.slug.clone(),
       name: rom.name.clone(),
       summary: rom.summary.clone(),
-      url_cover: Some(cover_url),
-      url_thumb: Some(thumb_url),
-      igdb_metadata: Some(extract_metadata_from_response(rom)),
+      coverUrl: Some(cover_url),
+      thumbUrl: Some(thumb_url),
+      metadata: Some(extract_metadata_from_response(rom)),
     });
   }
 }

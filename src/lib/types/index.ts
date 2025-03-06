@@ -1,4 +1,5 @@
 export * from "./DownloadStrategy";
+export * from "./IGDB";
 export * from "./Library";
 export * from "./Settings";
 export * from "./SGDB";

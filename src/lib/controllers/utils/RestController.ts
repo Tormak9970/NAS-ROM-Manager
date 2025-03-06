@@ -1,5 +1,5 @@
 import { library, showWarningSnackbar } from "@stores/State";
-import { BackendErrorType, type GridResults, type ROM, type RomUploadConfig, type SGDBGame } from "@types";
+import { BackendErrorType, type GridResults, type IGDBGame, type ROM, type RomUploadConfig, type SGDBGame } from "@types";
 import { hash64, showError } from "@utils";
 import streamSaver from "streamsaver";
 import { get } from "svelte/store";
@@ -401,6 +401,68 @@ export class RestController {
       get(showWarningSnackbar)({ message: "Error getting SGDB id."})
 
       return [];
+    }
+  }
+  
+  
+  /**
+   * Initializes the IGDB Client.
+   * @returns True if the client was initialized.
+   */
+  static async initIGDBClient(): Promise<boolean> {
+    const res = await fetch(this.BASE_URL + "/proxy/igdb/init", {
+      method: "POST",
+      mode: "cors",
+    });
+
+    if (res.ok) {
+      return true;
+    } else {
+      showError(
+        "Environment variable IGDB_CLIENT_ID or IGDB_CLIENT_SECRET was missing",
+        "Please check your container to ensure IGDB_CLIENT_ID and IGDB_CLIENT_SECRET are set",
+        BackendErrorType.PANIC
+      );
+
+      return false;
+    }
+  }
+
+  /**
+   * Gets the IGDB metadata for the given game.
+   * @param id The id of the game to get grids for.
+   * @returns The list of grids.
+   */
+  static async getIGDBMetadataById(id: string): Promise<IGDBGame | null> {
+    const res = await fetch(this.BASE_URL + "/proxy/sgdb/metadata", {
+      headers: {
+        "IGDB-Game-Id": id,
+      }
+    });
+
+    if (res.ok) {
+      return await res.json();
+    } else {
+      get(showWarningSnackbar)({ message: "Error getting metadata from IGDB."})
+
+      return null;
+    }
+  }
+  
+  /**
+   * Searches IGDB for games matching the query.
+   * @param query The query to search for.
+   * @returns The best match for the search.
+   */
+  static async searchIGDBForTitle(query: string, igdbPlatformId: string): Promise<IGDBGame | null> {
+    const res = await fetch(this.BASE_URL + `/proxy/igdb/search?query=${encodeURIComponent(query)}&platform-id=${igdbPlatformId}`);
+
+    if (res.ok) {
+      return await res.json();
+    } else {
+      get(showWarningSnackbar)({ message: "Error getting IGDB id."})
+
+      return null;
     }
   }
 }
