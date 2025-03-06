@@ -1,5 +1,6 @@
 <script lang="ts">
   import { Icon } from "@component-utils";
+  import { IGDBController } from "@controllers";
   import { Download, Edit, FavoriteOff, FavoriteOn } from "@icons";
   import Button from "@interactables/Button.svelte";
   import { downloadProgressRom, romEditingId, showDownloadProgressModal, showEditRomModal } from "@stores/Modals";
@@ -7,6 +8,7 @@
   import { GRID_LAYOUTS } from "@utils";
   import Cover from "@views/Cover.svelte";
   import SystemTag from "@views/SystemTag.svelte";
+  import { onMount } from "svelte";
   import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();
@@ -33,6 +35,10 @@
     $downloadProgressRom = rom;
     $showDownloadProgressModal = true;
   }
+
+  onMount(() => {
+    IGDBController.searchForGame(rom.title, "130").then((res) => console.log("res:", res));
+  })
 </script>
 
 <svelte:head>

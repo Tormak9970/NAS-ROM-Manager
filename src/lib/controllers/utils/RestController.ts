@@ -434,7 +434,7 @@ export class RestController {
    * @returns The list of grids.
    */
   static async getIGDBMetadataById(id: string): Promise<IGDBGame | null> {
-    const res = await fetch(this.BASE_URL + "/proxy/sgdb/metadata", {
+    const res = await fetch(this.BASE_URL + "/proxy/igdb/metadata", {
       headers: {
         "IGDB-Game-Id": id,
       }

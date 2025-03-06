@@ -5,7 +5,7 @@ use serde_json::{Map, Value};
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[allow(non_snake_case)]
 pub struct IGDBMetadataPlatform {
-  pub igdbId: String,
+  pub igdbId: u64,
   pub name: String,
   pub abbreviation: String,
 }
@@ -21,7 +21,7 @@ pub struct IGDBAgeRating {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[allow(non_snake_case)]
 pub struct IGDBRelatedGame {
-  pub id: String,
+  pub id: u64,
   pub name: String,
   pub slug: String,
   pub r#type: String,
@@ -38,20 +38,17 @@ pub struct IGDBMetadata {
   pub genres: Vec<String>,
   pub franchises: Vec<String>,
   pub alternativeNames: Vec<String>,
-  pub collections: Vec<String>,
   pub companies: Vec<String>,
   pub game_modes: Vec<String>,
   pub ageRatings: Vec<IGDBAgeRating>,
   pub platforms: Vec<IGDBMetadataPlatform>,
-  pub expansions: Vec<IGDBRelatedGame>,
-  pub dlcs: Vec<IGDBRelatedGame>,
   pub similarGames: Vec<IGDBRelatedGame>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[allow(non_snake_case)]
 pub struct IGDBRom {
-  pub igdbId: Option<String>,
+  pub igdbId: u64,
   pub slug: Option<String>,
   pub name: Option<String>,
   pub summary: Option<String>,
@@ -60,7 +57,7 @@ pub struct IGDBRom {
   pub metadata: Option<IGDBMetadata>,
 }
 
-pub const GAMES_FIELDS: [&'static str; 33] = [
+pub const GAMES_FIELDS: [&'static str; 24] = [
   "id",
   "name",
   "slug",
@@ -77,17 +74,8 @@ pub const GAMES_FIELDS: [&'static str; 33] = [
   "genres.name",
   "franchise.name",
   "franchises.name",
-  "collections.name",
   "game_modes.name",
   "involved_companies.company.name",
-  "expansions.id",
-  "expansions.slug",
-  "expansions.name",
-  "expansions.cover.url",
-  "dlcs.id",
-  "dlcs.name",
-  "dlcs.slug",
-  "dlcs.cover.url",
   "similar_games.id",
   "similar_games.slug",
   "similar_games.name",
@@ -327,7 +315,7 @@ pub struct IGDBInvolvedCompanyResponse {
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct IGDBRelatedGameResponse {
-  pub id: Option<String>,
+  pub id: u64,
   pub name: Option<String>,
   pub slug: Option<String>,
   pub cover: IGDBCoverResponse,
@@ -335,26 +323,23 @@ pub struct IGDBRelatedGameResponse {
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct IGDBRomResponse {
-  pub id: Option<String>,
+  pub id: u64,
   pub slug: Option<String>,
   pub name: Option<String>,
   pub cover: Option<IGDBCoverResponse>,
   pub summary: Option<String>,
-  pub total_rating: Option<String>,
-  pub aggregated_rating: Option<String>,
-  pub first_release_date: Option<String>,
+  pub total_rating: Option<f32>,
+  pub aggregated_rating: Option<f32>,
+  pub first_release_date: Option<u64>,
   pub genres: Vec<IGDBNamedResponse>,
   pub franchise: Option<IGDBNamedResponse>,
-  pub franchises: Vec<IGDBNamedResponse>,
-  pub alternative_names: Vec<IGDBNamedResponse>,
-  pub involved_companies: Vec<IGDBInvolvedCompanyResponse>,
-  pub collections: Vec<IGDBNamedResponse>,
-  pub game_modes: Vec<IGDBNamedResponse>,
-  pub platforms: Vec<Map<String, Value>>,
-  pub age_ratings: Vec<Map<String, Value>>,
-  pub expansions: Vec<IGDBRelatedGameResponse>,
-  pub dlcs: Vec<IGDBRelatedGameResponse>,
-  pub similar_games: Vec<IGDBRelatedGameResponse>,
+  pub franchises: Option<Vec<IGDBNamedResponse>>,
+  pub alternative_names: Option<Vec<IGDBNamedResponse>>,
+  pub involved_companies: Option<Vec<IGDBInvolvedCompanyResponse>>,
+  pub game_modes: Option<Vec<IGDBNamedResponse>>,
+  pub platforms: Option<Vec<Map<String, Value>>>,
+  pub age_ratings: Option<Vec<Map<String, Value>>>,
+  pub similar_games: Option<Vec<IGDBRelatedGameResponse>>,
 }
 
 pub type IGDBRomsResponse = Vec<IGDBRomResponse>;
@@ -363,7 +348,7 @@ pub type IGDBRomsResponse = Vec<IGDBRomResponse>;
 // ? Search
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct IGDBSearchGameResponse {
-  pub id: String,
+  pub id: u64,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]

@@ -2,6 +2,7 @@ use std::{collections::HashMap, env::var, time::{Duration, SystemTime, UNIX_EPOC
 
 use log::warn;
 use reqwest::Client;
+use serde_json::{Map, Value};
 
 
 #[derive(Clone, Debug)]
@@ -67,18 +68,18 @@ impl TwitchAuth {
   async fn get_updated_token(&mut self) -> Result<String, String> {
     let entries: Vec<(String, String)> = self.params.clone().into_iter().collect();
     
-    let response_res = self.client.get(&self.base_url)
+    let response_res = self.client.post(&self.base_url)
       .query(&entries)
       .send().await;
 
     if response_res.is_ok() {
       let response = response_res.ok().expect("Failed to get response from ok result.");
-      let data: HashMap<String, String> = response.json().await.expect("Data should have been of type");
+      let data: Map<String, Value> = response.json().await.expect("Data should have been of type");
 
-      let token = data.get("access_token").unwrap().to_owned();
-      let expires_in = data.get("expires_in").unwrap().to_owned();
+      let token = data.get("access_token").unwrap().to_owned().as_str().unwrap().to_owned();
+      let expires_in = data.get("expires_in").unwrap().to_owned().as_u64().unwrap_or(0);
 
-      self.expires_in = expires_in.parse::<u64>().unwrap_or(0);
+      self.expires_in = expires_in;
   
       return Ok(token);
     } else {
@@ -94,6 +95,7 @@ impl TwitchAuth {
       let new_token = self.get_updated_token().await;
 
       if new_token.is_err() {
+        warn!("Error getting twitch oauth token!");
         return Err(new_token.err().unwrap().to_string());
       }
 

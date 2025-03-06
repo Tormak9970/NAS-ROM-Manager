@@ -1,5 +1,6 @@
 use std::time::Duration;
 
+use log::info;
 use reqwest::{header::{self, HeaderMap, HeaderValue}, Client, StatusCode};
 use serde::de::DeserializeOwned;
 use serde_json::Value;
@@ -32,7 +33,7 @@ fn map_to_related_game(games: &Vec<IGDBRelatedGameResponse>, relation_type: &str
     let cover_url = thumb_url.replace("t_thumb", "t_1080p");
     
     return IGDBRelatedGame {
-      id: game.id.clone().unwrap_or("".to_string()),
+      id: game.id.clone(),
       slug: game.slug.clone().unwrap_or("".to_string()),
       name: game.name.clone().unwrap_or("".to_string()),
       coverUrl: cover_url,
@@ -52,13 +53,13 @@ fn extract_metadata_from_response(rom: IGDBRomResponse) -> IGDBMetadata {
   let mut franchises: Vec<String> = vec![
     rom.franchise.unwrap_or(default_named.clone()).name.unwrap_or("".to_string())
   ];
-  let mut other_francises = map_to_name(&rom.franchises);
+  let mut other_francises = map_to_name(&rom.franchises.unwrap_or(vec![]));
   franchises.append(&mut other_francises);
 
-  let companies: Vec<String> = rom.involved_companies.iter().filter_map(| company | company.company.name.clone()).collect();
+  let companies: Vec<String> = rom.involved_companies.unwrap_or(vec![]).iter().filter_map(| company | company.company.name.clone()).collect();
 
-  let platforms: Vec<IGDBMetadataPlatform> = rom.platforms.iter().map(| platform | {
-    let id = platform.get("id").unwrap_or(&default_string).as_str().unwrap().to_string();
+  let platforms: Vec<IGDBMetadataPlatform> = rom.platforms.unwrap_or(vec![]).iter().map(| platform | {
+    let id = platform.get("id").unwrap_or(&default_string).as_u64().unwrap();
     let name = platform.get("name").unwrap_or(&default_string).as_str().unwrap().to_string();
     let abbreviation = platform.get("abbreviation").unwrap_or(&default_string).as_str().unwrap().to_string();
 
@@ -69,27 +70,24 @@ fn extract_metadata_from_response(rom: IGDBRomResponse) -> IGDBMetadata {
     }
   }).collect();
   
-  let age_ratings: Vec<IGDBAgeRating> = rom.age_ratings.iter().filter_map(| rating | {
+  let age_ratings: Vec<IGDBAgeRating> = rom.age_ratings.unwrap_or(vec![]).iter().filter_map(| rating | {
     let rating_id = rating.get("rating").expect("rating_map should have had rating prop.").as_str().unwrap_or("None");
 
     return IGDB_AGE_RATINGS.get(rating_id);
   }).map(| age_rating | age_rating.to_owned().into()).collect(); 
 
   return IGDBMetadata {
-    totalRating: format!("{:.2}", rom.total_rating.unwrap_or("0.0".to_string()).parse::<u64>().unwrap()),
-    aggregatedRating: format!("{:.2}", rom.aggregated_rating.unwrap_or("0.0".to_string()).parse::<u64>().unwrap()),
-    firstReleaseDate: rom.first_release_date.unwrap_or("0".to_string()).parse::<u64>().expect("Should have been able to parse release date"),
+    totalRating: format!("{:.2}", rom.total_rating.unwrap_or(0.0)),
+    aggregatedRating: format!("{:.2}", rom.aggregated_rating.unwrap_or(0.0)),
+    firstReleaseDate: rom.first_release_date.unwrap_or(0),
     genres: map_to_name(&rom.genres),
     franchises,
-    alternativeNames: map_to_name(&rom.alternative_names),
-    collections: map_to_name(&rom.collections),
-    game_modes: map_to_name(&rom.game_modes),
+    alternativeNames: map_to_name(&rom.alternative_names.unwrap_or(vec![])),
+    game_modes: map_to_name(&rom.game_modes.unwrap_or(vec![])),
     companies,
     platforms,
     ageRatings: age_ratings,
-    expansions: map_to_related_game(&rom.expansions, "expansion"),
-    dlcs: map_to_related_game(&rom.dlcs, "dlc"),
-    similarGames: map_to_related_game(&rom.similar_games, "similar"),
+    similarGames: map_to_related_game(&rom.similar_games.unwrap_or(vec![]), "similar"),
   };
 }
 
@@ -178,7 +176,7 @@ impl IGDBClient {
       return Err(update_res.err().unwrap().to_string());
     }
     
-    let response_res = self.client.get(&url)
+    let response_res = self.client.post(&url)
       .body(body.clone()).send().await;
 
     if response_res.is_err() {
@@ -217,6 +215,7 @@ impl IGDBClient {
   }
 
   async fn search_rom_helper(&mut self, query: &str, igdb_platform_id: &str) -> Result<IGDBRomResponse, String> {
+    //  & game.category=(0,8,9,10,11)
     let body = format!("fields {}; where game.platforms=[{}] & (name ~ *\"{}\"* | alternative_name ~ *\"{}\"*);", get_fields(&SEARCH_FIELDS), igdb_platform_id, query, query);
     let search_res = self.handle_request::<Vec<IGDBSearchResponse>>(self.search_endpoint.clone(), body).await;
 
@@ -280,7 +279,7 @@ impl IGDBClient {
 
     if roms.len() == 0 {
       return Ok(IGDBRom {
-        igdbId: None,
+        igdbId: 0,
         slug: None,
         name: None,
         summary: None,

@@ -31,8 +31,6 @@ export type IGDBMetadata = {
   game_modes: string[];
   ageRatings: IGDBAgeRating[];
   platforms: IGDBMetadataPlatform[];
-  expansions: IGDBRelatedGame[];
-  dlcs: IGDBRelatedGame[];
   similarGames: IGDBRelatedGame[];
 }
 

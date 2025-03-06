@@ -84,7 +84,6 @@ export class SGDBController {
     if (!results) {
       try {
         results = await RestController.searchSGDBForTitle(gameName);
-        console.log(gameName, results);
         searchCache[romId] = results;
       } catch (e: any) {
         LogController.warn(`Error searching for game on SGDB. Game: ${gameName}. Error: ${e.message}.`);
