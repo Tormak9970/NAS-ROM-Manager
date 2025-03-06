@@ -210,38 +210,56 @@ impl IGDBClient {
     return Ok(data);
   }
 
-  async fn search_rom_helper(&mut self, query: &str, igdb_platform_id: &str) -> Result<Vec<IGDBRomResponse>, String> {
+  async fn search_rom_helper(&mut self, query: &str, igdb_platform_id: &str) -> Result<IGDBRomResponse, String> {
     let body = format!("fields {}; where game.platforms=[{}] & (name ~ *\"{}\"* | alternative_name ~ *\"{}\"*);", get_fields(&SEARCH_FIELDS), igdb_platform_id, query, query);
     let search_res = self.handle_request::<Vec<IGDBSearchResponse>>(self.search_endpoint.clone(), body).await;
 
-    // let rom_res = self.handle_request::<Vec<IGDBSearchResponse>>(self.games_endpoint.clone(), body).await;
+    if search_res.is_err() {
+      return Err(search_res.err().unwrap());
+    }
+    let results = search_res.unwrap();
 
-    return Err("temp".to_string());
+    if results.len() == 0 {
+      return Err(format!("Search for \"{}\" returned 0 results.", query));
+    }
+
+    let data_body = format!("fields {}; where id={};", get_fields(&GAMES_FIELDS), results[0].game.id);
+
+    let rom_res = self.handle_request::<Vec<IGDBRomResponse>>(self.games_endpoint.clone(), data_body).await;
+    if rom_res.is_err() {
+      return Err(rom_res.err().unwrap());
+    }
+    let roms = rom_res.unwrap();
+    
+    if roms.len() == 0 {
+      return Err(format!("Linking Roms for Search: \"{}\" returned 0 results.", query));
+    }
+
+    return Ok(roms[0].clone());
   }
 
   /// Gets the rom matching the search query from IGDB.
-  pub async fn search_rom(&mut self, query: String, igdb_platform_id: String) -> Result<Vec<IGDBRom>, String> {
+  pub async fn search_for_rom(&mut self, query: String, igdb_platform_id: String) -> Result<IGDBRom, String> {
     let cleaned_query = remove_special_chars(&query);
 
-    let roms_res = self.search_rom_helper(&cleaned_query, &igdb_platform_id).await;
-    if roms_res.is_err() {
-      return Err(roms_res.err().unwrap().to_string());
+    let rom_res = self.search_rom_helper(&cleaned_query, &igdb_platform_id).await;
+    if rom_res.is_err() {
+      return Err(rom_res.err().unwrap().to_string());
     }
+    let rom = rom_res.unwrap();
     
-    return Ok(roms_res.unwrap().into_iter().map(| rom | {
-      let thumb_url = rom.cover.clone().unwrap_or(IGDBCoverResponse { url: None }).url.clone().unwrap_or("".to_string());
-      let cover_url = thumb_url.replace("t_thumb", "t_1080p");
+    let thumb_url = rom.cover.clone().unwrap_or(IGDBCoverResponse { url: None }).url.clone().unwrap_or("".to_string());
+    let cover_url = thumb_url.replace("t_thumb", "t_1080p");
 
-      return IGDBRom {
-        igdb_id: rom.id.clone(),
-        slug: rom.slug.clone(),
-        name: rom.name.clone(),
-        summary: rom.summary.clone(),
-        url_cover: Some(cover_url),
-        url_thumb: Some(thumb_url),
-        igdb_metadata: Some(extract_metadata_from_response(rom)),
-      };
-    }).collect());
+    return Ok(IGDBRom {
+      igdb_id: rom.id.clone(),
+      slug: rom.slug.clone(),
+      name: rom.name.clone(),
+      summary: rom.summary.clone(),
+      url_cover: Some(cover_url),
+      url_thumb: Some(thumb_url),
+      igdb_metadata: Some(extract_metadata_from_response(rom)),
+    });
   }
 
   /// Gets a rom by its IGDB id.
