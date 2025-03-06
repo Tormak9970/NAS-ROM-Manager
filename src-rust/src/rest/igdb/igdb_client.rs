@@ -96,9 +96,8 @@ fn extract_metadata_from_response(rom: IGDBRomResponse) -> IGDBMetadata {
 #[derive(Clone, Debug)]
 pub struct IGDBClient {
   token: String,
-  client_id: String,
+  pub client_id: String,
   timeout: u64,
-  base_url: String,
   games_endpoint: String,
   search_endpoint: String,
   twitch_auth: TwitchAuth,
@@ -107,30 +106,37 @@ pub struct IGDBClient {
 
 impl IGDBClient {
   /// Creates a new IGDB Client
-  pub fn new(timeout: u64) -> Result<IGDBClient, String> {
+  pub fn new(timeout: u64) -> IGDBClient {
     let base_url = "https://api.igdb.com/v4".to_string();
 
-    let mut twitch_auth = TwitchAuth::new(timeout);
-    let client_id_res = twitch_auth.init();
-
-    if client_id_res.is_err() {
-      return Err(client_id_res.err().unwrap().to_string());
-    }
+    let twitch_auth = TwitchAuth::new(timeout);
 
     let client_res = Client::builder()
       .timeout(Duration::from_secs(timeout))
       .build();
 
-    return Ok(IGDBClient {
+    return IGDBClient {
       token: "".to_string(),
-      client_id: client_id_res.unwrap(),
-      base_url: base_url.clone(),
+      client_id: "".to_string(),
       games_endpoint: format!("{}/games", &base_url),
       search_endpoint: format!("{}/search", &base_url),
       twitch_auth,
       client: client_res.expect("Failed to make the reqwest client."),
       timeout,
-    });
+    };
+  }
+
+  /// Initialies the IGDB Client
+  pub fn init(&mut self) -> Result<(), String> {
+    let client_id_res = self.twitch_auth.init();
+
+    if client_id_res.is_err() {
+      return Err(client_id_res.err().unwrap().to_string());
+    }
+
+    self.client_id = client_id_res.unwrap();
+
+    return Ok(());
   }
 
   /// Updates the client's api token.
@@ -239,8 +245,8 @@ impl IGDBClient {
   }
 
   /// Gets the rom matching the search query from IGDB.
-  pub async fn search_for_rom(&mut self, query: String, igdb_platform_id: String) -> Result<IGDBRom, String> {
-    let cleaned_query = remove_special_chars(&query);
+  pub async fn search_game(&mut self, query: &str, igdb_platform_id: String) -> Result<IGDBRom, String> {
+    let cleaned_query = remove_special_chars(query);
 
     let rom_res = self.search_rom_helper(&cleaned_query, &igdb_platform_id).await;
     if rom_res.is_err() {
@@ -263,7 +269,7 @@ impl IGDBClient {
   }
 
   /// Gets a rom by its IGDB id.
-  pub async fn get_rom_by_id(&mut self, igdb_id: String) -> Result<IGDBRom, String> {
+  pub async fn get_metadata_by_id(&mut self, igdb_id: String) -> Result<IGDBRom, String> {
     let body = format!("fields {}; where id={};", get_fields(&GAMES_FIELDS), igdb_id);
     let roms_res = self.handle_request::<IGDBRomsResponse>(self.games_endpoint.clone(), body).await;
 

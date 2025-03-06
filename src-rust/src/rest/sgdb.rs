@@ -155,7 +155,7 @@ pub async fn sgdb_get_grids_by_id(sgdb_client_store: SGDBClientStore, sgdb_id: S
   })?;
   
   let page = results_page.parse::<u16>().map_err(|e| {
-    warn!("error parsing SGDB-Game-Id: {}", e);
+    warn!("error parsing SGDB-Result-Page: {}", e);
     warp::reject::reject()
   })?;
 

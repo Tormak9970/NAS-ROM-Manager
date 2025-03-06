@@ -12,7 +12,6 @@ pub struct TwitchAuth {
   expires_in: u64,
   last_checked: u64,
   token: String,
-  timeout: u64,
 }
 
 fn get_current_seconds() -> u64 {
@@ -42,7 +41,6 @@ impl TwitchAuth {
       expires_in: 0,
       last_checked: get_current_seconds(),
       token: "".to_string(),
-      timeout,
     };
   }
 

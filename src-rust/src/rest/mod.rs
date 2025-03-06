@@ -11,11 +11,12 @@ use std::{collections::HashMap, fs::remove_file, str::FromStr, thread};
 use chrono::Utc;
 use covers::{delete_cover, upload_cover};
 use cron::Schedule;
+use igdb::{igdb_get_metadata_by_id, igdb_search_game, init_igdb_client};
 use log::{info, warn};
 use rom_download::{delete_rom, download_rom, download_rom_complete, get_rom_metadata};
 use rom_upload::{prepare_rom_upload, rom_upload_complete, upload_rom};
 use sgdb::{init_sgdb_client, sgdb_get_grids_by_id, sgdb_search_game};
-use types::{CoverUpload, ROMDownload, ROMUploadComplete, SGDBClientStore, StreamStore};
+use types::{CoverUpload, IGDBClientStore, ROMDownload, ROMUploadComplete, SGDBClientStore, StreamStore};
 use warp::{http::Method, Filter};
 
 fn json_cover_upload() -> impl Filter<Extract = (CoverUpload,), Error = warp::Rejection> + Clone {
@@ -52,6 +53,7 @@ pub fn initialize_rest_api(cover_cache_dir: String, cleanup_schedule: String) ->
       "File-Size",
       "SGDB-Game-Id",
       "SGDB-Results-Page",
+      "IGDB-Game-Id",
     ])
     .allow_methods(&[
       Method::GET,
@@ -167,6 +169,31 @@ pub fn initialize_rest_api(cover_cache_dir: String, cleanup_schedule: String) ->
     .and_then(sgdb_search_game)
     .with(&cors);
 
+
+  
+  let igdb_client_store = IGDBClientStore::new();
+  let igdb_client_store_filter = warp::any().map(move || igdb_client_store.clone());
+
+  let igdb_init_route = warp::path!("rest" / "proxy" / "igdb" / "init")
+    .and(warp::post())
+    .and(igdb_client_store_filter.clone())
+    .and_then(init_igdb_client)
+    .with(&cors);
+  
+  let igdb_get_metadata_route = warp::path!("rest" / "proxy" / "igdb" / "metadata")
+    .and(warp::get())
+    .and(igdb_client_store_filter.clone())
+    .and(warp::filters::header::header("IGDB-Game-Id"))
+    .and_then(igdb_get_metadata_by_id)
+    .with(&cors);
+  
+  let igdb_search_game_route = warp::path!("rest" / "proxy" / "igdb" / "search")
+    .and(warp::get())
+    .and(igdb_client_store_filter.clone())
+    .and(warp::query::<HashMap<String, String>>())
+    .and_then(igdb_search_game)
+    .with(&cors);
+
   
   let http_routes = get_cover_route
     .or(upload_cover_route)
@@ -180,7 +207,10 @@ pub fn initialize_rest_api(cover_cache_dir: String, cleanup_schedule: String) ->
     .or(delete_rom_route)
     .or(sgdb_init_route)
     .or(sgdb_get_grids_route)
-    .or(sgdb_search_game_route);
+    .or(sgdb_search_game_route)
+    .or(igdb_init_route)
+    .or(igdb_get_metadata_route)
+    .or(igdb_search_game_route);
 
 
   let cleanup_upload_store = upload_store.clone();

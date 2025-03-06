@@ -7,6 +7,7 @@ use tokio::sync::RwLock;
 use std::collections::HashMap;
 use std::sync::Arc;
 
+use super::igdb::igdb_client::IGDBClient;
 use super::sgdb::SGDBClient;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -71,6 +72,19 @@ impl SGDBClientStore {
   pub fn new() -> Self {
     SGDBClientStore {
       client: Arc::new(RwLock::new(SGDBClient::new("".to_string(), 5000))),
+    }
+  }
+}
+
+#[derive(Clone)]
+pub struct IGDBClientStore {
+  pub client: Arc<RwLock<IGDBClient>>
+}
+
+impl IGDBClientStore {
+  pub fn new() -> Self {
+    IGDBClientStore {
+      client: Arc::new(RwLock::new(IGDBClient::new(5000))),
     }
   }
 }
