@@ -1,46 +1,40 @@
-use std::{collections::HashMap, time::Duration};
+use std::time::Duration;
 
-use reqwest::{header::{self, HeaderMap, HeaderValue}, Client, ClientBuilder, RequestBuilder, StatusCode};
+use reqwest::{header::{self, HeaderMap, HeaderValue}, Client, StatusCode};
 use serde::de::DeserializeOwned;
-use serde_json::{Map, Value};
+use serde_json::Value;
 
-use crate::rest::types::igdb::{IGDBAgeRating, IGDBMetadata, IGDBMetadataPlatform, IGDBRelatedGame, IGDB_AGE_RATINGS};
+use crate::rest::types::igdb::{IGDBAgeRating, IGDBCoverResponse, IGDBMetadata, IGDBMetadataPlatform, IGDBNamedResponse, IGDBRelatedGame, IGDBRelatedGameResponse, IGDBRom, IGDBRomResponse, IGDBRomsResponse, IGDBSearchResponse, GAMES_FIELDS, IGDB_AGE_RATINGS, SEARCH_FIELDS};
 
-use super::twitch_auth::{self, TwitchAuth};
+use super::twitch_auth::TwitchAuth;
+
+fn get_fields(fields: &[&str]) -> String {
+  return fields.join(",");
+}
 
 fn remove_special_chars(query: &str) -> String {
   return query.replace("\u{2122}", "")        // Remove trademark symbol
     .replace("\u{00a9}", "")                  // Remove copywrite symbol
     .replace("\u{00ae}", "")                  // Remove registered symbol
     .replace("\u{2120}", "")                  // Remove service mark symbol
+    .replace("\u{003A}", "")                  // Remove colon symbol
     .trim()                                               
     .to_string();
 }
 
-fn map_to_name(rom: &Map<String, Value>, field: &str, default: &Value) -> Vec<String> {
-  return rom.get(field).unwrap_or(default).as_array().unwrap().iter().map(| entry | {
-    entry.as_object().expect(format!("{} should have been object", field).as_str()).get("name").unwrap().as_str().unwrap().to_owned()
-  }).collect(); 
+fn map_to_name(list: &Vec<IGDBNamedResponse>) -> Vec<String> {
+  return list.iter().filter_map(| entry | entry.name.clone()).collect(); 
 }
 
-fn map_to_related_game(rom: &Map<String, Value>, field: &str, relation_type: &str, default: &Value) -> Vec<IGDBRelatedGame> {
-  let default_string: Value = Value::String("".to_string());
-  
-  return rom.get(field).unwrap_or(default).as_array().unwrap().iter().map(| entry | {
-    let entry_map = entry.as_object().expect("entry should have been a map.");
-
-    let id = entry_map.get("id").unwrap_or(&default_string).as_str().unwrap().to_string();
-    let slug = entry_map.get("slug").unwrap_or(&default_string).as_str().unwrap().to_string();
-    let name = entry_map.get("name").unwrap_or(&default_string).as_str().unwrap().to_string();
-
-    let cover_map = entry_map.get("cover").unwrap_or(&default_string).as_object().expect("cover should have been a map.");
-    let thumb_url = cover_map.get("url").unwrap_or(&default_string).as_str().unwrap().to_string();
+fn map_to_related_game(games: &Vec<IGDBRelatedGameResponse>, relation_type: &str) -> Vec<IGDBRelatedGame> {
+  return games.iter().map(| game | {
+    let thumb_url = game.cover.url.clone().unwrap_or("".to_string());
     let cover_url = thumb_url.replace("t_thumb", "t_1080p");
     
     return IGDBRelatedGame {
-      id,
-      slug,
-      name,
+      id: game.id.clone().unwrap_or("".to_string()),
+      slug: game.slug.clone().unwrap_or("".to_string()),
+      name: game.name.clone().unwrap_or("".to_string()),
       cover_url,
       thumb_url,
       r#type: relation_type.to_string(),
@@ -48,64 +42,54 @@ fn map_to_related_game(rom: &Map<String, Value>, field: &str, relation_type: &st
   }).collect(); 
 }
 
-fn extract_metadata_from_igdb_rom(rom: Map<String, Value>) -> IGDBMetadata {
-  let default_rating: Value = 0.0f64.into();
+fn extract_metadata_from_response(rom: IGDBRomResponse) -> IGDBMetadata {
   let default_string: Value = Value::String("".to_string());
-  let default_map: Value = Value::Object(Map::new());
-  let default_array: Value = Value::Array(vec![]);
+
+  let default_named = IGDBNamedResponse {
+    name: Some("".to_string()),
+  };
 
   let mut franchises: Vec<String> = vec![
-    rom.get("franchise").unwrap_or(&default_map).as_object().unwrap().get("name").unwrap_or(&default_string).as_str().unwrap().to_string()
+    rom.franchise.unwrap_or(default_named.clone()).name.unwrap_or("".to_string())
   ];
-  let mut other_francises = map_to_name(&rom, "franchises", &default_array);
+  let mut other_francises = map_to_name(&rom.franchises);
   franchises.append(&mut other_francises);
 
-  let companies: Vec<String> = rom.get("involved_companies").unwrap_or(&default_array).as_array().unwrap().iter().map(| company | {
-    company.as_object().expect("involved_companies should have been object")
-    .get("company").unwrap().as_object().unwrap()
-    .get("name").unwrap().as_str().unwrap().to_owned()
-  }).collect();
+  let companies: Vec<String> = rom.involved_companies.iter().filter_map(| company | company.company.name.clone()).collect();
 
-  let platforms: Vec<IGDBMetadataPlatform> = rom.get("platforms").unwrap_or(&default_array).as_array().unwrap().iter().map(| platform | {
-    let platform_map = platform.as_object().expect("platform should have been a map.");
-    let id = platform_map.get("id").unwrap_or(&default_string).as_str().unwrap().to_string();
-    let name = platform_map.get("name").unwrap_or(&default_string).as_str().unwrap().to_string();
+  let platforms: Vec<IGDBMetadataPlatform> = rom.platforms.iter().map(| platform | {
+    let id = platform.get("id").unwrap_or(&default_string).as_str().unwrap().to_string();
+    let name = platform.get("name").unwrap_or(&default_string).as_str().unwrap().to_string();
+    let abbreviation = platform.get("abbreviation").unwrap_or(&default_string).as_str().unwrap().to_string();
 
     return IGDBMetadataPlatform {
       igdb_id: id,
       name,
+      abbreviation,
     }
   }).collect();
   
-  let age_ratings: Vec<IGDBAgeRating> = rom.get("age_ratings").unwrap_or(&default_array).as_array().unwrap().iter().filter_map(| rating | {
-    let rating_map = rating.as_object().expect("rating should have been a map.");
-    let rating_id = rating_map.get("rating").expect("rating_map should have had rating prop.").as_str().unwrap_or("None");
+  let age_ratings: Vec<IGDBAgeRating> = rom.age_ratings.iter().filter_map(| rating | {
+    let rating_id = rating.get("rating").expect("rating_map should have had rating prop.").as_str().unwrap_or("None");
 
     return IGDB_AGE_RATINGS.get(rating_id);
   }).map(| age_rating | age_rating.to_owned().into()).collect(); 
 
   return IGDBMetadata {
-    total_rating: format!("{:.2}", rom.get("total_rating").unwrap_or(&default_rating).as_f64().unwrap_or(0.0)),
-    aggregated_rating: format!("{:.2}", rom.get("aggregated_rating").unwrap_or(&default_rating).as_f64().unwrap_or(0.0)),
-    first_release_date: match rom.get("first_release_date") {
-      Some(first_release_date) => {
-        first_release_date.as_str().unwrap_or("0").to_string().parse::<u64>().expect("Should have been able to parse release date")
-      },
-      None => {
-        0u64
-      }
-    },
-    genres: map_to_name(&rom, "genres", &default_array),
+    total_rating: format!("{:.2}", rom.total_rating.unwrap_or("0.0".to_string()).parse::<u64>().unwrap()),
+    aggregated_rating: format!("{:.2}", rom.aggregated_rating.unwrap_or("0.0".to_string()).parse::<u64>().unwrap()),
+    first_release_date: rom.first_release_date.unwrap_or("0".to_string()).parse::<u64>().expect("Should have been able to parse release date"),
+    genres: map_to_name(&rom.genres),
     franchises,
-    alternative_names: map_to_name(&rom, "alternative_names", &default_array),
-    collections: map_to_name(&rom, "collections", &default_array),
-    game_modes: map_to_name(&rom, "game_modes", &default_array),
+    alternative_names: map_to_name(&rom.alternative_names),
+    collections: map_to_name(&rom.collections),
+    game_modes: map_to_name(&rom.game_modes),
     companies,
     platforms,
     age_ratings,
-    expansions: map_to_related_game(&rom, "expansions", "expansion", &default_array),
-    dlcs: map_to_related_game(&rom, "dlcs", "dlc", &default_array),
-    similar_games: map_to_related_game(&rom, "similar_games", "similar", &default_array),
+    expansions: map_to_related_game(&rom.expansions, "expansion"),
+    dlcs: map_to_related_game(&rom.dlcs, "dlc"),
+    similar_games: map_to_related_game(&rom.similar_games, "similar"),
   };
 }
 
@@ -115,8 +99,6 @@ pub struct IGDBClient {
   client_id: String,
   timeout: u64,
   base_url: String,
-  platform_endpoint: String,
-  platform_version_endpoint: String,
   games_endpoint: String,
   search_endpoint: String,
   twitch_auth: TwitchAuth,
@@ -143,8 +125,6 @@ impl IGDBClient {
       token: "".to_string(),
       client_id: client_id_res.unwrap(),
       base_url: base_url.clone(),
-      platform_endpoint: format!("{}/platforms", &base_url),
-      platform_version_endpoint: format!("{}/platform_versions", &base_url),
       games_endpoint: format!("{}/games", &base_url),
       search_endpoint: format!("{}/search", &base_url),
       twitch_auth,
@@ -186,16 +166,14 @@ impl IGDBClient {
   }
 
   /// Makes a request.
-  async fn handle_request<T: DeserializeOwned>(&mut self, url: String, params: HashMap<String, String>) -> Result<T, String> {
+  async fn handle_request<T: DeserializeOwned>(&mut self, url: String, body: String) -> Result<T, String> {
     let update_res = self.check_oauth().await;
     if update_res.is_err() {
       return Err(update_res.err().unwrap().to_string());
     }
-
-    let entries: Vec<(String, String)> = params.clone().into_iter().collect();
     
     let response_res = self.client.get(&url)
-      .query(&entries).send().await;
+      .body(body.clone()).send().await;
 
     if response_res.is_err() {
       let err = response_res.err().expect("Request failed, error should have existed.");
@@ -212,7 +190,7 @@ impl IGDBClient {
       }
 
       let response_res = self.client.get(&url)
-        .query(&entries).send().await;
+      .body(body).send().await;
 
       if response_res.is_err() {
         let err = response_res.err().expect("Request failed, error should have existed.");
@@ -232,24 +210,74 @@ impl IGDBClient {
     return Ok(data);
   }
 
+  async fn search_rom_helper(&mut self, query: &str, igdb_platform_id: &str) -> Result<Vec<IGDBRomResponse>, String> {
+    let body = format!("fields {}; where game.platforms=[{}] & (name ~ *\"{}\"* | alternative_name ~ *\"{}\"*);", get_fields(&SEARCH_FIELDS), igdb_platform_id, query, query);
+    let search_res = self.handle_request::<Vec<IGDBSearchResponse>>(self.search_endpoint.clone(), body).await;
 
-  pub async fn search_rom(&mut self) {
+    // let rom_res = self.handle_request::<Vec<IGDBSearchResponse>>(self.games_endpoint.clone(), body).await;
 
+    return Err("temp".to_string());
   }
 
-  async fn get_platform(&mut self) {
+  /// Gets the rom matching the search query from IGDB.
+  pub async fn search_rom(&mut self, query: String, igdb_platform_id: String) -> Result<Vec<IGDBRom>, String> {
+    let cleaned_query = remove_special_chars(&query);
+
+    let roms_res = self.search_rom_helper(&cleaned_query, &igdb_platform_id).await;
+    if roms_res.is_err() {
+      return Err(roms_res.err().unwrap().to_string());
+    }
     
+    return Ok(roms_res.unwrap().into_iter().map(| rom | {
+      let thumb_url = rom.cover.clone().unwrap_or(IGDBCoverResponse { url: None }).url.clone().unwrap_or("".to_string());
+      let cover_url = thumb_url.replace("t_thumb", "t_1080p");
+
+      return IGDBRom {
+        igdb_id: rom.id.clone(),
+        slug: rom.slug.clone(),
+        name: rom.name.clone(),
+        summary: rom.summary.clone(),
+        url_cover: Some(cover_url),
+        url_thumb: Some(thumb_url),
+        igdb_metadata: Some(extract_metadata_from_response(rom)),
+      };
+    }).collect());
   }
 
-  pub async fn get_rom_by_id(&mut self) {
+  /// Gets a rom by its IGDB id.
+  pub async fn get_rom_by_id(&mut self, igdb_id: String) -> Result<IGDBRom, String> {
+    let body = format!("fields {}; where id={};", get_fields(&GAMES_FIELDS), igdb_id);
+    let roms_res = self.handle_request::<IGDBRomsResponse>(self.games_endpoint.clone(), body).await;
 
-  }
+    if roms_res.is_err() {
+      return Err(roms_res.err().unwrap().to_string());
+    }
+    let roms = roms_res.unwrap();
 
-  async fn get_matched_rom_by_id(&mut self) {
+    if roms.len() == 0 {
+      return Ok(IGDBRom {
+        igdb_id: None,
+        slug: None,
+        name: None,
+        summary: None,
+        url_cover: None,
+        url_thumb: None,
+        igdb_metadata: None,
+      });
+    }
+    let rom = roms[0].clone();
 
-  }
+    let thumb_url = rom.cover.clone().unwrap_or(IGDBCoverResponse { url: None }).url.clone().unwrap_or("".to_string());
+    let cover_url = thumb_url.replace("t_thumb", "t_1080p");
 
-  async fn get_matched_roms_by_name(&mut self) {
-
+    return Ok(IGDBRom {
+      igdb_id: rom.id.clone(),
+      slug: rom.slug.clone(),
+      name: rom.name.clone(),
+      summary: rom.summary.clone(),
+      url_cover: Some(cover_url),
+      url_thumb: Some(thumb_url),
+      igdb_metadata: Some(extract_metadata_from_response(rom)),
+    });
   }
 }

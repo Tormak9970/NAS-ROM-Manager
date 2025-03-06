@@ -1,24 +1,12 @@
 use phf::phf_map;
 use serde::{Deserialize, Serialize};
-
-#[derive(Serialize, Deserialize, Clone, Debug)]
-pub struct IGDBPlatform {
-  pub slug: String,
-  pub igdb_id: Option<String>,
-  pub name: Option<String>,
-  pub category: Option<String>,
-  pub generation: Option<String>,
-  pub family_name: Option<String>,
-  pub family_slug: Option<String>,
-  pub url: Option<String>,
-  pub url_logo: Option<String>,
-  pub logo_path: Option<String>,
-}
+use serde_json::{Map, Value};
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct IGDBMetadataPlatform {
   pub igdb_id: String,
   pub name: String,
+  pub abbreviation: String,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -64,22 +52,10 @@ pub struct IGDBRom {
   pub summary: Option<String>,
   pub url_cover: Option<String>,
   pub url_thumb: Option<String>,
-  pub url_screenshots: Option<Vec<String>>,
-  pub igdb_metadata: Vec<IGDBMetadata>,
+  pub igdb_metadata: Option<IGDBMetadata>,
 }
 
-pub const PLATFORMS_FIELDS: [&'static str; 8] = [
-  "id",
-  "name",
-  "category",
-  "generation",
-  "url",
-  "platform_family.name",
-  "platform_family.slug",
-  "platform_logo.url",
-];
-
-pub const GAMES_FIELDS: [&'static str; 49] = [
+pub const GAMES_FIELDS: [&'static str; 33] = [
   "id",
   "name",
   "slug",
@@ -89,8 +65,8 @@ pub const GAMES_FIELDS: [&'static str; 49] = [
   "first_release_date",
   "artworks.url",
   "cover.url",
-  "screenshots.url",
   "platforms.id",
+  "platforms.abbreviation",
   "platforms.name",
   "alternative_names.name",
   "genres.name",
@@ -103,26 +79,10 @@ pub const GAMES_FIELDS: [&'static str; 49] = [
   "expansions.slug",
   "expansions.name",
   "expansions.cover.url",
-  "expanded_games.id",
-  "expanded_games.slug",
-  "expanded_games.name",
-  "expanded_games.cover.url",
   "dlcs.id",
   "dlcs.name",
   "dlcs.slug",
   "dlcs.cover.url",
-  "remakes.id",
-  "remakes.slug",
-  "remakes.name",
-  "remakes.cover.url",
-  "remasters.id",
-  "remasters.slug",
-  "remasters.name",
-  "remasters.cover.url",
-  "ports.id",
-  "ports.slug",
-  "ports.name",
-  "ports.cover.url",
   "similar_games.id",
   "similar_games.slug",
   "similar_games.name",
@@ -132,17 +92,6 @@ pub const GAMES_FIELDS: [&'static str; 49] = [
 ];
 
 pub const SEARCH_FIELDS: [&'static str; 2] = ["game.id", "name"];
-
-
-pub static IGDB_PLATFORM_CATEGORIES: phf::Map<&'static str, &'static str> = phf_map! {
-  "0" => "Unknown",
-  "1" => "Console",
-  "2" => "Arcade",
-  "3" => "Platform",
-  "4" => "Operative System",
-  "5" => "Portable Console",
-  "6" => "Computer",
-};
 
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -345,3 +294,93 @@ pub static IGDB_AGE_RATINGS: phf::Map<&'static str, IGDBAgeRatingStatic<'static>
     rating_cover_url: "https://www.igdb.com/icons/rating_icons/acb/acb_rc.png",
   },
 };
+
+pub enum GameCategory {
+  MainGame = 0,
+  DlcAddon = 1,
+  Expansion = 2,
+  Bundle = 3,
+  StandaloneExpansion = 4,
+  Mod = 5,
+  Episode = 6,
+  Season = 7,
+  Remake = 8,
+  Remaster = 9,
+  ExpandedGame = 10,
+  Port = 11,
+  Fork = 12,
+  Pack = 13,
+  Update = 14,
+}
+
+
+
+// ! Response types
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct IGDBLogoResponse {
+  pub url: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct IGDBNamedResponse {
+  pub name: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct IGDBCoverResponse {
+  pub url: Option<String>,
+}
+
+
+// ? Roms
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct IGDBInvolvedCompanyResponse {
+  pub company: IGDBNamedResponse,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct IGDBRelatedGameResponse {
+  pub id: Option<String>,
+  pub name: Option<String>,
+  pub slug: Option<String>,
+  pub cover: IGDBCoverResponse,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct IGDBRomResponse {
+  pub id: Option<String>,
+  pub slug: Option<String>,
+  pub name: Option<String>,
+  pub cover: Option<IGDBCoverResponse>,
+  pub summary: Option<String>,
+  pub total_rating: Option<String>,
+  pub aggregated_rating: Option<String>,
+  pub first_release_date: Option<String>,
+  pub genres: Vec<IGDBNamedResponse>,
+  pub franchise: Option<IGDBNamedResponse>,
+  pub franchises: Vec<IGDBNamedResponse>,
+  pub alternative_names: Vec<IGDBNamedResponse>,
+  pub involved_companies: Vec<IGDBInvolvedCompanyResponse>,
+  pub collections: Vec<IGDBNamedResponse>,
+  pub game_modes: Vec<IGDBNamedResponse>,
+  pub platforms: Vec<Map<String, Value>>,
+  pub age_ratings: Vec<Map<String, Value>>,
+  pub expansions: Vec<IGDBRelatedGameResponse>,
+  pub dlcs: Vec<IGDBRelatedGameResponse>,
+  pub similar_games: Vec<IGDBRelatedGameResponse>,
+}
+
+pub type IGDBRomsResponse = Vec<IGDBRomResponse>;
+
+
+// ? Search
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct IGDBSearchGameResponse {
+  pub id: String,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct IGDBSearchResponse {
+  pub name: String,
+  pub game: IGDBSearchGameResponse,
+}
