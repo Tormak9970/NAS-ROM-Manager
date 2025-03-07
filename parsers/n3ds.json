@@ -1,6 +1,7 @@
 {
   "name": "Nintendo 3DS",
   "abbreviation": "N3DS",
+  "igdbPlatformId": "37",
   "folder": "n3ds",
   "tagConfig": {
     "backgroundColor": "240 143 57",

@@ -1,6 +1,7 @@
 {
   "name": "Microsoft Xbox 360",
   "abbreviation": "Xbox 360",
+  "igdbPlatformId": "12",
   "folder": "xbox360",
   "tagConfig": {
     "backgroundColor": "105 217 38",

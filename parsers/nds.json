@@ -1,6 +1,7 @@
 {
   "name": "Nintendo DS",
   "abbreviation": "NDS",
+  "igdbPlatformId": "20",
   "folder": "nds",
   "tagConfig": {
     "backgroundColor": "205 216 53",

@@ -1,6 +1,7 @@
 {
   "name": "Nintendo GameBoy",
   "abbreviation": "GB",
+  "igdbPlatformId": "33",
   "folder": "gb",
   "tagConfig": {
     "backgroundColor": "86 44 6",

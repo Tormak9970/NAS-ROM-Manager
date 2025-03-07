@@ -1,6 +1,7 @@
 {
   "name": "Super Nintendo Entertainment System",
   "abbreviation": "SNES",
+  "igdbPlatformId": "19",
   "folder": "snes",
   "tagConfig": {
     "backgroundColor": "255 51 36",

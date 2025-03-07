@@ -1,6 +1,7 @@
 {
   "name": "Nintendo WiiU",
   "abbreviation": "WiiU",
+  "igdbPlatformId": "41",
   "folder": "wiiu",
   "tagConfig": {
     "backgroundColor": "0 228 212",

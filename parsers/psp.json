@@ -1,6 +1,7 @@
 {
   "name": "Sony PlaySation Portable",
   "abbreviation": "PSP",
+  "igdbPlatformId": "38",
   "folder": "psp",
   "tagConfig": {
     "backgroundColor": "15 15 15",

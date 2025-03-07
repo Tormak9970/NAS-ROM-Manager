@@ -212,6 +212,7 @@ fn load_library(library: &Library, watcher: &Watcher, send_error: &ErrorSender) 
     return System {
       abbreviation: parser.abbreviation,
       fullName: parser.name,
+      igdbPlatformId: parser.igdbPlatformId,
       tagConfig: parser.tagConfig,
     }
   }).collect();

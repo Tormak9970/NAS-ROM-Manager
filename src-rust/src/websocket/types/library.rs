@@ -29,6 +29,7 @@ pub struct ParserPattern {
 pub struct System {
   pub fullName: String,
   pub abbreviation: String,
+  pub igdbPlatformId: String,
   pub tagConfig: SystemTagConfig,
 }
 
@@ -37,6 +38,7 @@ pub struct System {
 pub struct Parser {
   pub name: String,
   pub abbreviation: String,
+  pub igdbPlatformId: String,
   pub folder: String,
   pub tagConfig: SystemTagConfig,
   pub patterns: Vec<ParserPattern>,

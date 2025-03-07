@@ -1,6 +1,7 @@
 {
   "name": "Nintendo GameCube",
   "abbreviation": "GC",
+  "igdbPlatformId": "21",
   "folder": "gc",
   "tagConfig": {
     "backgroundColor": "123 67 226",

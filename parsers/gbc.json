@@ -1,6 +1,7 @@
 {
   "name": "Nintendo GameBoy Color",
   "abbreviation": "GBC",
+  "igdbPlatformId": "22",
   "folder": "gbc",
   "tagConfig": {
     "backgroundColor": "217 126 229",

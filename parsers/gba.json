@@ -1,6 +1,7 @@
 {
   "name": "Nintendo GameBoy Advanced",
   "abbreviation": "GBA",
+  "igdbPlatformId": "24",
   "folder": "gba",
   "tagConfig": {
     "backgroundColor": "112 87 255",

@@ -1,6 +1,7 @@
 {
   "name": "Nintendo Wii",
   "abbreviation": "Wii",
+  "igdbPlatformId": "5",
   "folder": "wii",
   "tagConfig": {
     "backgroundColor": "207 207 207",

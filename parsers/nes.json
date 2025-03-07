@@ -1,6 +1,7 @@
 {
   "name": "Nintendo Entertainment System",
   "abbreviation": "NES",
+  "igdbPlatformId": "18",
   "folder": "nes",
   "tagConfig": {
     "backgroundColor": "165 165 165",

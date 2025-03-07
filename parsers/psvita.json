@@ -1,6 +1,7 @@
 {
   "name": "Sony PlaySation Vita",
   "abbreviation": "PSVita",
+  "igdbPlatformId": "46",
   "folder": "psvita",
   "tagConfig": {
     "backgroundColor": "1 30 98",

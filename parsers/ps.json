@@ -1,6 +1,7 @@
 {
   "name": "Sony PlaySation",
   "abbreviation": "PS",
+  "igdbPlatformId": "7",
   "folder": "ps",
   "tagConfig": {
     "backgroundColor": "165 165 165",

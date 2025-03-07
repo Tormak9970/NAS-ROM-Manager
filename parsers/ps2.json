@@ -1,6 +1,7 @@
 {
   "name": "Sony PlaySation 2",
   "abbreviation": "PS2",
+  "igdbPlatformId": "8",
   "folder": "ps2",
   "tagConfig": {
     "backgroundColor": "0 194 165",

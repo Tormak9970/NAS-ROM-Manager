@@ -1,6 +1,7 @@
 {
   "name": "Nintendo Switch",
   "abbreviation": "Switch",
+  "igdbPlatformId": "130",
   "folder": "switch",
   "tagConfig": {
     "backgroundColor": "228 0 15",
