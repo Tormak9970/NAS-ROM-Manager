@@ -4,7 +4,8 @@
   import { Download, Edit, FavoriteOff, FavoriteOn } from "@icons";
   import Button from "@interactables/Button.svelte";
   import { downloadProgressRom, romEditingId, showDownloadProgressModal, showEditRomModal } from "@stores/Modals";
-  import { isLandscape, romMetadata, roms } from "@stores/State";
+  import { isLandscape, romMetadata, roms, systems } from "@stores/State";
+  import { NO_IGDB_RESULTS } from "@types";
   import { GRID_LAYOUTS } from "@utils";
   import Cover from "@views/Cover.svelte";
   import SystemTag from "@views/SystemTag.svelte";
@@ -17,6 +18,7 @@
 
   let rom = $derived($roms[id]);
   let metadata = $derived($romMetadata[id]);
+  let system = $derived($systems[rom.system]);
 
   let portrait = $derived(!$isLandscape);
   let isFavorite = $derived(metadata.isFavorite);
@@ -39,7 +41,7 @@
   }
 
   async function loadMetadata() {
-    const ids = await IGDBController.searchForGame(rom.title, "130");
+    const ids = await IGDBController.searchForGame(rom.title, system.igdbPlatformId);
     
     if (ids.length > 0) {
       metadata.igdbId = ids[0].igdbId.toString();
@@ -48,6 +50,8 @@
       metadata.metadata = igdbMetadata;
 
       $romMetadata = { ...$romMetadata };
+    } else {
+      metadata.igdbId = NO_IGDB_RESULTS;
     }
 
     isLoading = false;
@@ -108,6 +112,7 @@
   </div>
   <div class="body">
     <!-- TODO: display loading indicator while metadata is loading -->
+    <!-- TODO: if metadata.igdbId === NO_IGDB_RESULTS, display italicized "No Metadata for <b>title</b> was found" -->
   </div>
 </div>
 

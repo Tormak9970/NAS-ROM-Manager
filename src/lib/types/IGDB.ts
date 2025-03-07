@@ -48,3 +48,5 @@ export type IGDBSearchResult = {
   igdbId: string;
   name: string;
 }
+
+export const NO_IGDB_RESULTS = "NO RESULTS";
