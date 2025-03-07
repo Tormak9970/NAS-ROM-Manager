@@ -1,5 +1,5 @@
 import { isFirstSetup, showEditLibraryModal } from "@stores/Modals";
-import { library, loadedLibrary, romMetadata, roms, romsBySystem, showInfoSnackbar, systems, systemTagConfigs } from "@stores/State";
+import { library, loadedLibrary, romMetadata, roms, romsBySystem, systems, systemTagConfigs } from "@stores/State";
 import type { Library, LoadResult, ROMMetadata } from "@types";
 import { hash64 } from "@utils";
 import { get } from "svelte/store";
@@ -95,8 +95,6 @@ export class AppController {
     
     LogController.log(`Loaded ${Object.keys(systemMap).length} systems.`);
     LogController.log(`Loaded ${Object.keys(romMap).length} ROMs.`);
-    
-    get(showInfoSnackbar)({ message: "Library loaded" });
   }
 
   /**

@@ -1,4 +1,7 @@
+import { goto } from "$app/navigation";
 import { isSignedIn, username } from "@stores/Auth";
+import { landingPage } from "@stores/State";
+import { get } from "svelte/store";
 import { AppController } from "./AppController";
 import { WebsocketController } from "./utils/WebsocketController";
 
@@ -20,7 +23,11 @@ export class AuthController {
       sessionStorage.setItem("user", user);
       username.set(user);
       isSignedIn.set(true);
-      AppController.load();
+      AppController.load().then(() => {
+        if (window.location.pathname === '/') {
+          goto(`/${get(landingPage)}`);
+        }
+      });
     }
 
     return success;

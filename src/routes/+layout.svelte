@@ -3,12 +3,10 @@
   import { page } from '$app/state';
   import { ContextMenu } from "@component-utils";
   import MediaQuery from "@component-utils/MediaQuery.svelte";
-  import { AuthController, WebsocketController } from "@controllers";
   import { LandscapeNav, PortraitNav } from "@navigation";
-  import { isSignedIn, rememberMe } from "@stores/Auth";
+  import { isSignedIn } from "@stores/Auth";
   import { isLandscape, showInfoSnackbar, showWarningSnackbar } from "@stores/State";
   import Header from "@views/Header.svelte";
-  import { onMount } from "svelte";
   import "../app.css";
   import Modals from "../components/modals/Modals.svelte";
   import Sheets from "../components/sheets/Sheets.svelte";
@@ -21,36 +19,14 @@
 
   let condenseDesktopNav = $state(false);
 
-  let validatingCredentials = $state(true);
-
   let showDecorations = $state(false);
 
   $effect(() => {
+    showDecorations = page.url.pathname !== '/' && page.url.pathname !== '/loading' && page.url.pathname !== '/error';
+
     if (!$isSignedIn && page.url.pathname !== '/' && page.url.pathname !== '/error') {
       goto('/');
-    } else if (!validatingCredentials && $isSignedIn && page.url.pathname === '/') {
-      goto(`/loading?message=${encodeURIComponent("Loading Settings...")}`);
     }
-
-    showDecorations = page.url.pathname !== '/' && page.url.pathname !== '/loading' && page.url.pathname !== '/error';
-  });
-
-  onMount(() => {
-    WebsocketController.init(
-      async () => {
-        const user = sessionStorage.getItem("user");
-        const hash = sessionStorage.getItem("hash");
-
-        if (user && hash && $rememberMe) {
-          await AuthController.authenticate(user, hash).then(() => {
-            validatingCredentials = false;
-          });
-        } else {
-          validatingCredentials = false;
-        }
-      },
-      AuthController.logout
-    );
   });
 </script>
 
