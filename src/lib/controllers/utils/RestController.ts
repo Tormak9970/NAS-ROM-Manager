@@ -1,5 +1,5 @@
 import { library, showWarningSnackbar } from "@stores/State";
-import { BackendErrorType, type GridResults, type IGDBGame, type ROM, type RomUploadConfig, type SGDBGame } from "@types";
+import { BackendErrorType, type GridResults, type IGDBGame, type IGDBSearchResult, type ROM, type RomUploadConfig, type SGDBGame } from "@types";
 import { hash64, showError } from "@utils";
 import streamSaver from "streamsaver";
 import { get } from "svelte/store";
@@ -454,7 +454,7 @@ export class RestController {
    * @param query The query to search for.
    * @returns The best match for the search.
    */
-  static async searchIGDBForTitle(query: string, igdbPlatformId: string): Promise<IGDBGame | null> {
+  static async searchIGDBForTitle(query: string, igdbPlatformId: string): Promise<IGDBSearchResult[]> {
     const res = await fetch(this.BASE_URL + `/proxy/igdb/search?query=${encodeURIComponent(query)}&platform-id=${igdbPlatformId}`);
 
     if (res.ok) {
@@ -462,7 +462,7 @@ export class RestController {
     } else {
       get(showWarningSnackbar)({ message: "Error getting IGDB id."})
 
-      return null;
+      return [];
     }
   }
 }

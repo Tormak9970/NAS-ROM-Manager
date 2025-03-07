@@ -63,7 +63,7 @@ pub struct ROMMetadata {
   pub thumbPath: String,
   pub sgdbId: String,
   pub igdbId: String,
-  pub metadata: Map<String, Value>,
+  pub metadata: Option<Value>,
   pub isFavorite: bool,
 }
 

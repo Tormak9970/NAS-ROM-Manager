@@ -70,11 +70,10 @@ pub async fn igdb_search_game(igdb_client_store: IGDBClientStore, query_params: 
   let res = igdb_client_store.client.write().await.search_game(&query, igdb_platform_id).await;
 
   if res.is_err() {
-    warn!("IGDB Search Game Error: {}", res.err().unwrap());
-    return Err(warp::reject::reject());
+    warn!("IGDB Search Game Error: {}", res.clone().err().unwrap());
   }
 
-  let results = res.unwrap();
+  let results = res.unwrap_or(vec![]);
 
   let response = warp::http::Response::builder()
     .status(200)

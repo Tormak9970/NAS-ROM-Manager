@@ -1,4 +1,5 @@
 import type { DownloadStrategy } from "./DownloadStrategy";
+import type { IGDBGame } from "./IGDB";
 
 export type SystemTagConfig = {
   backgroundColor: string;
@@ -17,7 +18,7 @@ export type ROMMetadata = {
   thumbPath: string;
   sgdbId: string;
   igdbId: string;
-  metadata: Record<string, string>;
+  metadata: IGDBGame | null;
   isFavorite: boolean;
 }
 

@@ -70,7 +70,7 @@ export class AppController {
           thumbPath: "",
           sgdbId: "",
           igdbId: "",
-          metadata: {},
+          metadata: null,
           isFavorite: false,
         }
       }

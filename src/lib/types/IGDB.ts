@@ -43,3 +43,8 @@ export type IGDBGame = {
   thumbUrl: string | null;
   metadata: IGDBMetadata | null;
 }
+
+export type IGDBSearchResult = {
+  igdbId: string;
+  name: string;
+}

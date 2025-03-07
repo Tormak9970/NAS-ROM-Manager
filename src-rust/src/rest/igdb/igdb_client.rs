@@ -5,7 +5,7 @@ use reqwest::{header::{self, HeaderMap, HeaderValue}, Client, StatusCode};
 use serde::de::DeserializeOwned;
 use serde_json::Value;
 
-use crate::rest::types::igdb::{IGDBAgeRating, IGDBCoverResponse, IGDBMetadata, IGDBMetadataPlatform, IGDBNamedResponse, IGDBRelatedGame, IGDBRelatedGameResponse, IGDBRom, IGDBRomResponse, IGDBRomsResponse, IGDBSearchResponse, GAMES_FIELDS, IGDB_AGE_RATINGS, SEARCH_FIELDS};
+use crate::rest::types::igdb::{IGDBAgeRating, IGDBCoverResponse, IGDBSearchResult, IGDBMetadata, IGDBMetadataPlatform, IGDBNamedResponse, IGDBRelatedGame, IGDBRelatedGameResponse, IGDBRom, IGDBRomResponse, IGDBRomsResponse, IGDBSearchResponse, GAMES_FIELDS, IGDB_AGE_RATINGS, SEARCH_FIELDS};
 
 use super::twitch_auth::TwitchAuth;
 
@@ -18,7 +18,8 @@ fn remove_special_chars(query: &str) -> String {
     .replace("\u{00a9}", "")                  // Remove copywrite symbol
     .replace("\u{00ae}", "")                  // Remove registered symbol
     .replace("\u{2120}", "")                  // Remove service mark symbol
-    .replace("\u{003A}", "")                  // Remove colon symbol
+    .replace(":", "")                         // Remove colon symbol
+    .replace(".", "")                         // Remove period symbol
     .trim()                                               
     .to_string();
 }
@@ -214,9 +215,14 @@ impl IGDBClient {
     return Ok(data);
   }
 
-  async fn search_rom_helper(&mut self, query: &str, igdb_platform_id: &str) -> Result<IGDBRomResponse, String> {
+  /// Gets the rom matching the search query from IGDB.
+  pub async fn search_game(&mut self, query: &str, igdb_platform_id: String) -> Result<Vec<IGDBSearchResult>, String> {
+    let cleaned_query = remove_special_chars(query);
+
     //  & game.category=(0,8,9,10,11)
-    let body = format!("fields {}; where game.platforms=[{}] & (name ~ *\"{}\"* | alternative_name ~ *\"{}\"*);", get_fields(&SEARCH_FIELDS), igdb_platform_id, query, query);
+    let body = format!("fields {}; where game.platforms=[{}] & game.category=(0,8,9,10,11) & (name ~ *\"{}\"* | alternative_name ~ *\"{}\"*);", get_fields(&SEARCH_FIELDS), igdb_platform_id, cleaned_query, cleaned_query);
+    info!("IGDB Search: getting results for query=\"{}\", platform=\"{}\"", cleaned_query.clone(), igdb_platform_id);
+
     let search_res = self.handle_request::<Vec<IGDBSearchResponse>>(self.search_endpoint.clone(), body).await;
 
     if search_res.is_err() {
@@ -225,51 +231,22 @@ impl IGDBClient {
     let results = search_res.unwrap();
 
     if results.len() == 0 {
-      return Err(format!("Search for \"{}\" returned 0 results.", query));
+      return Err(format!("Search for \"{}\" returned 0 results.", cleaned_query));
     }
 
-    let data_body = format!("fields {}; where id={};", get_fields(&GAMES_FIELDS), results[0].game.id);
-
-    let rom_res = self.handle_request::<Vec<IGDBRomResponse>>(self.games_endpoint.clone(), data_body).await;
-    if rom_res.is_err() {
-      return Err(rom_res.err().unwrap());
-    }
-    let roms = rom_res.unwrap();
-    
-    if roms.len() == 0 {
-      return Err(format!("Linking Roms for Search: \"{}\" returned 0 results.", query));
-    }
-
-    return Ok(roms[0].clone());
-  }
-
-  /// Gets the rom matching the search query from IGDB.
-  pub async fn search_game(&mut self, query: &str, igdb_platform_id: String) -> Result<IGDBRom, String> {
-    let cleaned_query = remove_special_chars(query);
-
-    let rom_res = self.search_rom_helper(&cleaned_query, &igdb_platform_id).await;
-    if rom_res.is_err() {
-      return Err(rom_res.err().unwrap().to_string());
-    }
-    let rom = rom_res.unwrap();
-    
-    let thumb_url = rom.cover.clone().unwrap_or(IGDBCoverResponse { url: None }).url.clone().unwrap_or("".to_string());
-    let cover_url = thumb_url.replace("t_thumb", "t_1080p");
-
-    return Ok(IGDBRom {
-      igdbId: rom.id.clone(),
-      slug: rom.slug.clone(),
-      name: rom.name.clone(),
-      summary: rom.summary.clone(),
-      coverUrl: Some(cover_url),
-      thumbUrl: Some(thumb_url),
-      metadata: Some(extract_metadata_from_response(rom)),
-    });
+    return Ok(results.iter().map(| result | {
+      return IGDBSearchResult {
+        igdbId: result.game.id,
+        name: result.name.clone(),
+      }
+    }).collect());
   }
 
   /// Gets a rom by its IGDB id.
   pub async fn get_metadata_by_id(&mut self, igdb_id: String) -> Result<IGDBRom, String> {
     let body = format!("fields {}; where id={};", get_fields(&GAMES_FIELDS), igdb_id);
+    info!("IGDB Metadata: getting metadata for id=\"{}\"", igdb_id.clone());
+
     let roms_res = self.handle_request::<IGDBRomsResponse>(self.games_endpoint.clone(), body).await;
 
     if roms_res.is_err() {

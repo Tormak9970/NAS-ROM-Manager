@@ -57,6 +57,13 @@ pub struct IGDBRom {
   pub metadata: Option<IGDBMetadata>,
 }
 
+#[derive(Serialize, Deserialize, Clone, Debug)]
+#[allow(non_snake_case)]
+pub struct IGDBSearchResult {
+  pub igdbId: u64,
+  pub name: String,
+}
+
 pub const GAMES_FIELDS: [&'static str; 24] = [
   "id",
   "name",

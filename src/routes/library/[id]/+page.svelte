@@ -20,6 +20,8 @@
 
   let portrait = $derived(!$isLandscape);
   let isFavorite = $derived(metadata.isFavorite);
+
+  let isLoading = $state(true);
   
   function toggleFavorite() {
     $romMetadata[id].isFavorite = !isFavorite;
@@ -36,9 +38,28 @@
     $showDownloadProgressModal = true;
   }
 
+  async function loadMetadata() {
+    const ids = await IGDBController.searchForGame(rom.title, "130");
+    
+    if (ids.length > 0) {
+      metadata.igdbId = ids[0].igdbId.toString();
+
+      const igdbMetadata = await IGDBController.getMetadata(metadata.igdbId);
+      metadata.metadata = igdbMetadata;
+
+      $romMetadata = { ...$romMetadata };
+    }
+
+    isLoading = false;
+  }
+
   onMount(() => {
-    IGDBController.searchForGame(rom.title, "130").then((res) => console.log("res:", res));
-  })
+    if (metadata.igdbId === "") {
+      loadMetadata();
+    } else {
+      isLoading = false;
+    }
+  });
 </script>
 
 <svelte:head>
@@ -86,7 +107,7 @@
     </div>
   </div>
   <div class="body">
-
+    <!-- TODO: display loading indicator while metadata is loading -->
   </div>
 </div>
 
