@@ -11,37 +11,37 @@ export type Route = {
 export const routes: Record<string, Route> = {
   "Dashboard": {
     label: "Dashboard",
-    path: "/dashboard",
+    path: "/app/dashboard",
     selectedIcon: Dashboard,
     icon: DashboardOutline
   },
   "Library": {
     label: "Library",
-    path: "/library",
+    path: "/app/library",
     selectedIcon: Library,
     icon: LibraryOutline
   },
   "Systems": {
     label: "Systems",
-    path: "/systems",
+    path: "/app/systems",
     selectedIcon: GameAsset,
     icon: GameAssetOutline
   },
   "Emulators": {
     label: "Emulators",
-    path: "/emulators",
+    path: "/app/emulators",
     selectedIcon: Host,
     icon: HostOutline
   },
   "Settings": {
     label: "Settings",
-    path: "/settings",
+    path: "/app/settings",
     selectedIcon: Settings,
     icon: SettingsOutline 
   },
   "Search": {
     label: "Search",
-    path: "/search",
+    path: "/app/search",
     selectedIcon: Search,
     icon: Search
   },

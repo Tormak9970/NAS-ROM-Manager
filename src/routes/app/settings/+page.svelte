@@ -13,25 +13,25 @@
   <SettingsNavButton
     icon={InterestsOutline}
     label="Appearance"
-    route="/settings/appearance"
+    route="/app/settings/appearance"
     description="Manage the app's appearance settings"
   />
   <SettingsNavButton
     icon={GridViewOutline}
     label="Layout"
-    route="/settings/layout"
+    route="/app/settings/layout"
     description="Manage the app's layout and views"
   />
   <!-- <SettingsNavButton
     icon={DonutLarge}
     label="Metadata"
-    route="/settings/metadata"
+    route="/app/settings/metadata"
     description="Manage how rom metadata is saved"
   /> -->
   <SettingsNavButton
     icon={BackHandOutline}
     label="Accessibility"
-    route="/settings/accessibility"
+    route="/app/settings/accessibility"
     description="Manage the app's accessibility settings"
   />
   <SettingsNavButton
@@ -44,7 +44,7 @@
   <SettingsNavButton
     icon={InfoOutline}
     label="App Info"
-    route="/settings/app-info"
+    route="/app/settings/app-info"
     description="View information about the app"
   />
 </SettingsBody>

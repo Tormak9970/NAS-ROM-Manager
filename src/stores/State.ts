@@ -6,6 +6,8 @@ import { writable } from "svelte/store";
 export const requestTimeoutLength = 5000;
 
 export const isLandscape = writable(true);
+
+export const loadedApp = writable(false);
 export const loadedSettings = writable(false);
 export const loadedLibrary = writable(false);
 

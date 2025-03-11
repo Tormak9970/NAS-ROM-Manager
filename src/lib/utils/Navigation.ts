@@ -16,7 +16,7 @@ export function showError(message: string, fix: string, type: BackendErrorType) 
  * @param id The id of the ROM to navigate to.
  */
 export function goToROM(id: string) {
-  goto(`/library/${id}`);
+  goto(`/app/library/${id}`);
 }
 
 /**
@@ -24,7 +24,7 @@ export function goToROM(id: string) {
  * @param system The system to navigate to.
  */
 export function goToSystem(system: string) {
-  goto(`/systems/${system}`);
+  goto(`/app/systems/${system}`);
 }
 
 /**
@@ -32,7 +32,7 @@ export function goToSystem(system: string) {
  * @param emulator The emulator to navigate to.
  */
 export function goToEmulator(emulator: string) {
-  goto(`/emulators/${emulator}`);
+  goto(`/app/emulators/${emulator}`);
 }
 
 /**
@@ -40,5 +40,5 @@ export function goToEmulator(emulator: string) {
  * @param setting The settings page to navigate to.
  */
 export function goToSetting(setting: string) {
-  goto(`/settings/${setting}`);
+  goto(`/app/settings/${setting}`);
 }

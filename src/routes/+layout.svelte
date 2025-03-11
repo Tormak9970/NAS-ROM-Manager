@@ -3,10 +3,10 @@
   import { page } from '$app/state';
   import { ContextMenu } from "@component-utils";
   import MediaQuery from "@component-utils/MediaQuery.svelte";
-  import { LandscapeNav, PortraitNav } from "@navigation";
-  import { isSignedIn } from "@stores/Auth";
-  import { isLandscape, showInfoSnackbar, showWarningSnackbar } from "@stores/State";
-  import Header from "@views/Header.svelte";
+  import { AuthController, WebsocketController } from "@controllers";
+  import { isSignedIn, rememberMe } from "@stores/Auth";
+  import { isLandscape, loadedApp, showInfoSnackbar, showWarningSnackbar } from "@stores/State";
+  import { onMount } from "svelte";
   import "../app.css";
   import Modals from "../components/modals/Modals.svelte";
   import Sheets from "../components/sheets/Sheets.svelte";
@@ -17,80 +17,44 @@
 
 	let { children } = $props();
 
-  let condenseDesktopNav = $state(false);
-
-  let showDecorations = $state(false);
-
   $effect(() => {
-    showDecorations = page.url.pathname !== '/' && page.url.pathname !== '/loading' && page.url.pathname !== '/error';
-
     if (!$isSignedIn && page.url.pathname !== '/' && page.url.pathname !== '/error') {
       goto('/');
     }
   });
+
+  onMount(() => {
+    WebsocketController.init(
+      async () => {
+        const user = sessionStorage.getItem("user");
+        const hash = sessionStorage.getItem("hash");
+
+        if (user && hash && $rememberMe) {
+          await AuthController.authenticate(user, hash);
+        }
+
+        $loadedApp = true;
+      },
+      AuthController.logout
+    );
+  });
 </script>
 
 <MediaQuery query="(orientation:landscape)" bind:matches={$isLandscape} />
-<MediaQuery query="(max-width: 1200px)" bind:matches={condenseDesktopNav} />
 <Theme>
   <ContextMenu />
   <Modals />
   <Sheets />
-  <div class="layout">
-    {#if showDecorations}
-      <Header />
-    {/if}
-    <div class="page-body" class:mobile={!$isLandscape}>
-      {#if showDecorations}
-        <div class="nav" style:width={$isLandscape ? (condenseDesktopNav ? "4rem" : "15rem") : "100%"}>
-          {#if $isLandscape}
-            <LandscapeNav condenseNav={condenseDesktopNav} />
-          {:else}
-            <PortraitNav />
-          {/if}
-        </div>
-      {/if}
-      <div
-        style:width={($isLandscape && showDecorations) ? (condenseDesktopNav ? "calc(100% - 5rem)" : "calc(100% - 16rem)") : "100%"}
-        style:height={$isLandscape ? "100%" : "calc(100% - 56px)"}
-        style:margin-left={$isLandscape ? "1rem" : "0"}
-      >
-        {@render children()}
-      </div>
-    </div>
+  <div id="root-layout">
+    {@render children()}
   </div>
   <InfoSnackbar bind:show={$showInfoSnackbar} />
   <WarningSnackbar bind:show={$showWarningSnackbar} />
 </Theme>
 
 <style>
-  .layout {
+  #root-layout {
     width: 100%;
     height: 100%;
-  }
-
-  .page-body {
-    width: calc(100% - 1rem);
-    height: calc(100% - 1rem - 60px);
-
-    padding: 0.5rem;
-
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-    align-items: flex-start;
-  }
-
-  .mobile {
-    flex-direction: column-reverse;
-    align-items: center;
-
-    padding: 0;
-    width: 100%;
-    height: calc(100% - 60px);
-  }
-
-  .mobile .nav {
-    width: 100%;
   }
 </style>
