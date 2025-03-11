@@ -6,10 +6,10 @@
   import { libraryGridType, romMetadata, roms } from "@stores/State";
   import type { ROMMetadata } from "@types";
   import { formatFileSize, goToROM, GRID_LAYOUTS } from "@utils";
+  import SystemTag from "@views/SystemTag.svelte";
+  import Tag from "@views/Tag.svelte";
   import { fade } from "svelte/transition";
   import Cover from "../Cover.svelte";
-  import SystemTag from "../SystemTag.svelte";
-  import Tag from "../Tag.svelte";
 
   type RomProps = {
     romId: string;
@@ -96,7 +96,7 @@
   }
 
   .rom:hover {
-    transform: scale(1.05);
+    transform: scale(1.04);
     border: 1px solid rgb(var(--m3-scheme-outline));
   }
 
