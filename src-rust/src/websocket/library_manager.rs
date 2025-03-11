@@ -25,7 +25,7 @@ pub struct LoadResult {
 fn load_parsers(send_error: &ErrorSender) -> Result<HashMap<String, Parser>, ()> {
   let mut parsers: HashMap<String, Parser> = HashMap::new();
 
-  let parsers_path = var("NRM_DEFAULT_PARSERS_DIR").expect("Failed to get builtin default parsers env variable");
+  let parsers_path = var("NRM_PARSERS_DIR").expect("Failed to get builtin default parsers env variable");
 
   let entries_res = read_dir(&parsers_path);
   if entries_res.is_err() {
