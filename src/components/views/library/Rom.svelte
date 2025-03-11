@@ -6,6 +6,7 @@
   import { libraryGridType, romMetadata, roms } from "@stores/State";
   import type { ROMMetadata } from "@types";
   import { formatFileSize, goToROM, GRID_LAYOUTS } from "@utils";
+  import { fade } from "svelte/transition";
   import Cover from "../Cover.svelte";
   import SystemTag from "../SystemTag.svelte";
   import Tag from "../Tag.svelte";
@@ -40,6 +41,7 @@
   style:width="{layout.width - 2}px"
   style:height="{layout.height - 2}px"
   onclick={() => goToROM(romId)}
+  in:fade={{ duration: 200 }}
 >
   {#if metadata.thumbPath === "No Grids"}
     <div class="placeholder">
