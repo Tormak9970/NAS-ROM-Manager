@@ -4,6 +4,16 @@ export type IGDBMetadataPlatform = {
   abbreviation: string;
 }
 
+export const RATINGS_COUNTRIES: Record<string, string> = {
+    PEGI: "EU",
+    ESRB: "U.S. & CA",
+    CERO: "JP",
+    USK: "DE",
+    GRAC: "KR",
+    CLASS_IND: "BR",
+    ACB: "AU"
+}
+
 export type IGDBWebsite = {
   url: string;
   type: string;

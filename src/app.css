@@ -139,6 +139,14 @@ a:hover {
   margin-bottom: 0.5rem;
 }
 
+.details h3 {
+  font-size: 1.25rem;
+  line-height: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+  margin-bottom: 0.5rem;
+}
+
 .details .body-text {
   line-height: 1.5rem;
 

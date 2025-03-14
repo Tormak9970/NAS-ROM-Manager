@@ -278,31 +278,46 @@ pub static IGDB_AGE_RATINGS: phf::Map<&'static str, IGDBAgeRatingStatic<'static>
     rating_cover_url: "https://www.igdb.com/icons/rating_icons/class_ind/class_ind_12.png",
   },
   "31" => IGDBAgeRatingStatic {
+    rating: "CLASS_IND_Fourteen",
+    category: "CLASS_IND",
+    rating_cover_url: "https://www.igdb.com/icons/rating_icons/class_ind/class_ind_14.png",
+  },
+  "32" => IGDBAgeRatingStatic {
+    rating: "CLASS_IND_Eighteen",
+    category: "CLASS_IND",
+    rating_cover_url: "https://www.igdb.com/icons/rating_icons/class_ind/class_ind_16.png",
+  },
+  "33" => IGDBAgeRatingStatic {
+    rating: "CLASS_IND_Twelve",
+    category: "CLASS_IND",
+    rating_cover_url: "https://www.igdb.com/icons/rating_icons/class_ind/class_ind_18.png",
+  },
+  "34" => IGDBAgeRatingStatic {
     rating: "ACB_G",
     category: "ACB",
     rating_cover_url: "https://www.igdb.com/icons/rating_icons/acb/acb_g.png",
   },
-  "32" => IGDBAgeRatingStatic {
+  "35" => IGDBAgeRatingStatic {
     rating: "ACB_PG",
     category: "ACB",
     rating_cover_url: "https://www.igdb.com/icons/rating_icons/acb/acb_pg.png",
   },
-  "33" => IGDBAgeRatingStatic {
+  "36" => IGDBAgeRatingStatic {
     rating: "ACB_M",
     category: "ACB",
     rating_cover_url: "https://www.igdb.com/icons/rating_icons/acb/acb_m.png",
   },
-  "34" => IGDBAgeRatingStatic {
+  "37" => IGDBAgeRatingStatic {
     rating: "ACB_MA15",
     category: "ACB",
-    rating_cover_url: "https://www.igdb.com/icons/rating_icons/acb/acb_ma15.png",
+    rating_cover_url: "https://www.igdb.com/icons/rating_icons/acb/acb_ma_15.png",
   },
-  "35" => IGDBAgeRatingStatic {
+  "38" => IGDBAgeRatingStatic {
     rating: "ACB_R18",
     category: "ACB",
-    rating_cover_url: "https://www.igdb.com/icons/rating_icons/acb/acb_r18.png",
+    rating_cover_url: "https://www.igdb.com/icons/rating_icons/acb/acb_r_18.png",
   },
-  "36" => IGDBAgeRatingStatic {
+  "39" => IGDBAgeRatingStatic {
     rating: "ACB_RC",
     category: "ACB",
     rating_cover_url: "https://www.igdb.com/icons/rating_icons/acb/acb_rc.png",
