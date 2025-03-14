@@ -4,6 +4,11 @@ export type IGDBMetadataPlatform = {
   abbreviation: string;
 }
 
+export type IGDBWebsite = {
+  url: string;
+  type: string;
+}
+
 export type IGDBAgeRating = {
   rating: string;
   category: string;
@@ -26,13 +31,15 @@ export type IGDBMetadata = {
   franchises: string[];
   alternativeNames: string[];
   collections: string[];
-  companies: string[];
+  developers: string[];
+  publishers: string[];
   gameModes: string[];
   languages: string[];
   ageRatings: IGDBAgeRating[];
   platforms: IGDBMetadataPlatform[];
   dlcs: IGDBRelatedGame[];
   expansions: IGDBRelatedGame[];
+  websites: IGDBWebsite[];
 }
 
 export type IGDBGame = {
@@ -40,7 +47,6 @@ export type IGDBGame = {
   slug: string;
   name: string;
   summary: string | null;
-  status: string | null;
   coverUrl: string | null;
   thumbUrl: string | null;
   metadata: IGDBMetadata | null;

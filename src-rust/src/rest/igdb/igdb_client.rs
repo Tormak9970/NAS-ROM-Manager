@@ -5,7 +5,7 @@ use reqwest::{header::{self, HeaderMap, HeaderValue}, Client, StatusCode};
 use serde::de::DeserializeOwned;
 use serde_json::Value;
 
-use crate::rest::types::igdb::{IGDBAgeRating, IGDBCoverResponse, IGDBMetadata, IGDBMetadataPlatform, IGDBNamedResponse, IGDBRelatedGame, IGDBRelatedGameResponse, IGDBRom, IGDBRomResponse, IGDBRomsResponse, IGDBSearchResponse, IGDBSearchResult, GAMES_FIELDS, IGDB_AGE_RATINGS, SEARCH_FIELDS};
+use crate::rest::types::igdb::{IGDBAgeRating, IGDBCoverResponse, IGDBMetadata, IGDBMetadataPlatform, IGDBNamedResponse, IGDBRelatedGame, IGDBRelatedGameResponse, IGDBRom, IGDBRomResponse, IGDBRomsResponse, IGDBSearchResponse, IGDBSearchResult, IGDBWebsite, GAMES_FIELDS, IGDB_AGE_RATINGS, IGDB_WEBSITE_TYPES, SEARCH_FIELDS};
 
 use super::twitch_auth::TwitchAuth;
 
@@ -51,7 +51,16 @@ fn extract_metadata_from_response(rom: IGDBRomResponse) -> IGDBMetadata {
   let mut other_francises = map_to_name(&rom.franchises.unwrap_or(vec![]));
   franchises.append(&mut other_francises);
 
-  let companies: Vec<String> = rom.involved_companies.unwrap_or(vec![]).iter().map(| company | company.company.name.clone()).collect();
+  let mut developers: Vec<String> = vec![];
+  let mut publishers: Vec<String> = vec![];
+  rom.involved_companies.unwrap_or(vec![]).iter().for_each(| company | {
+    if company.developer {
+      developers.push(company.company.name.clone());
+    } else if company.publisher {
+      publishers.push(company.company.name.clone());
+    }
+  });
+  
   let languages: Vec<String> = rom.language_supports.unwrap_or(vec![]).iter().map(| language | language.language.native_name.clone()).collect();
 
   let platforms: Vec<IGDBMetadataPlatform> = rom.platforms.unwrap_or(vec![]).iter().map(| platform | {
@@ -70,7 +79,21 @@ fn extract_metadata_from_response(rom: IGDBRomResponse) -> IGDBMetadata {
     let rating = rating.rating_category.to_string();
 
     return IGDB_AGE_RATINGS.get(&rating);
-  }).map(| age_rating | age_rating.to_owned().into()).collect(); 
+  }).map(| age_rating | age_rating.to_owned().into()).collect();
+
+  let websites: Vec<IGDBWebsite> = rom.websites.unwrap_or(vec![]).iter().filter_map(| website | {
+    let category = website.category.to_string();
+    let website_type = IGDB_WEBSITE_TYPES.get(&category);
+
+    if website_type.is_some() {
+      return Some(IGDBWebsite {
+        url: website.url.clone(),
+        r#type: website_type.unwrap().to_string()
+      });
+    } else {
+      return None;
+    }
+  }).collect();
 
   return IGDBMetadata {
     totalRating: format!("{:.2}", rom.total_rating.unwrap_or(0.0)),
@@ -80,12 +103,14 @@ fn extract_metadata_from_response(rom: IGDBRomResponse) -> IGDBMetadata {
     franchises,
     gameModes: map_to_name(&rom.game_modes.unwrap_or(vec![])),
     keywords: map_to_name(&rom.keywords.unwrap_or(vec![])),
-    companies,
+    developers,
+    publishers,
     platforms,
     languages,
     ageRatings: age_ratings,
     dlcs: map_to_related_game(&rom.dlcs.unwrap_or(vec![]), "dlc"),
     expansions: map_to_related_game(&rom.expansions.unwrap_or(vec![]), "expansion"),
+    websites,
   };
 }
 
@@ -256,7 +281,6 @@ impl IGDBClient {
         igdbId: 0,
         slug: None,
         name: None,
-        status: None,
         summary: None,
         coverUrl: None,
         thumbUrl: None,
@@ -272,10 +296,6 @@ impl IGDBClient {
       igdbId: rom.id.clone(),
       slug: rom.slug.clone(),
       name: rom.name.clone(),
-      status: match rom.game_status {
-        Some(ref status) => Some(status.status.clone()),
-        None => None
-      },
       summary: rom.summary.clone(),
       coverUrl: Some(cover_url),
       thumbUrl: Some(thumb_url),

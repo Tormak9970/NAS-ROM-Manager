@@ -12,6 +12,13 @@ pub struct IGDBMetadataPlatform {
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[allow(non_snake_case)]
+pub struct IGDBWebsite {
+  pub url: String,
+  pub r#type: String,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+#[allow(non_snake_case)]
 pub struct IGDBAgeRating {
   pub rating: String,
   pub category: String,
@@ -36,13 +43,15 @@ pub struct IGDBMetadata {
   pub genres: Vec<String>,
   pub franchises: Vec<String>,
   pub keywords: Vec<String>,
-  pub companies: Vec<String>,
+  pub developers: Vec<String>,
+  pub publishers: Vec<String>,
   pub gameModes: Vec<String>,
   pub languages: Vec<String>,
   pub ageRatings: Vec<IGDBAgeRating>,
   pub platforms: Vec<IGDBMetadataPlatform>,
   pub dlcs: Vec<IGDBRelatedGame>,
   pub expansions: Vec<IGDBRelatedGame>,
+  pub websites: Vec<IGDBWebsite>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -52,7 +61,6 @@ pub struct IGDBRom {
   pub slug: Option<String>,
   pub name: Option<String>,
   pub summary: Option<String>,
-  pub status: Option<String>,
   pub coverUrl: Option<String>,
   pub thumbUrl: Option<String>,
   pub metadata: Option<IGDBMetadata>,
@@ -70,23 +78,22 @@ pub const GAMES_FIELDS: [&'static str; 29] = [
   "name",
   "slug",
   "summary",
-  "game_status.status",
   "keywords.name",
   "total_rating",
   "aggregated_rating",
   "first_release_date",
   "language_supports.language.native_name",
-  "artworks.url",
   "cover.url",
   "platforms.id",
   "platforms.abbreviation",
   "platforms.name",
-  "alternative_names.name",
   "genres.name",
   "franchise.name",
   "franchises.name",
   "game_modes.name",
   "involved_companies.company.name",
+  "involved_companies.developer",
+  "involved_companies.publisher",
   "dlcs.id",
   "dlcs.slug",
   "dlcs.name",
@@ -94,7 +101,8 @@ pub const GAMES_FIELDS: [&'static str; 29] = [
   "expansions.slug",
   "expansions.name",
   "age_ratings.rating_category",
-  "videos.video_id",
+  "websites.category",
+  "websites.url"
 ];
 
 pub const SEARCH_FIELDS: [&'static str; 2] = ["game.id", "name"];
@@ -301,6 +309,27 @@ pub static IGDB_AGE_RATINGS: phf::Map<&'static str, IGDBAgeRatingStatic<'static>
   },
 };
 
+pub static IGDB_WEBSITE_TYPES: phf::Map<&'static str, &'static str> = phf_map! {
+  "1" => "official",
+  "2" => "wikia",
+  "3" => "wikipedia",
+  "4" => "facebook",
+  "5" => "twitter",
+  "6" => "twitch",
+  "8" => "instagram",
+  "9" => "youtube",
+  "10" => "iphone",
+  "11" => "ipad",
+  "12" => "android",
+  "13" => "steam",
+  "14" => "reddit",
+  "15" => "itch",
+  "16" => "epicgames",
+  "17" => "gog",
+  "18" => "discord",
+  "19" => "bluesky",
+};
+
 
 
 // ! Response types
@@ -330,6 +359,8 @@ pub struct IGDBAgeRatingResponse {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct IGDBInvolvedCompanyResponse {
   pub company: IGDBNamedResponse,
+  pub publisher: bool,
+  pub developer: bool,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -343,11 +374,6 @@ pub struct IGDBLanguageResponse {
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
-pub struct IGDBGameStatusResponse {
-  pub status: String,
-}
-
-#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct IGDBRelatedGameResponse {
   pub id: u64,
   pub name: Option<String>,
@@ -355,11 +381,16 @@ pub struct IGDBRelatedGameResponse {
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct IGDBWebsiteResponse {
+  pub category: u64,
+  pub url: String,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct IGDBRomResponse {
   pub id: u64,
   pub slug: Option<String>,
   pub name: Option<String>,
-  pub game_status: Option<IGDBGameStatusResponse>,
   pub keywords: Option<Vec<IGDBNamedResponse>>,
   pub cover: Option<IGDBCoverResponse>,
   pub summary: Option<String>,
@@ -377,6 +408,7 @@ pub struct IGDBRomResponse {
   pub age_ratings: Option<Vec<IGDBAgeRatingResponse>>,
   pub expansions: Option<Vec<IGDBRelatedGameResponse>>,
   pub dlcs: Option<Vec<IGDBRelatedGameResponse>>,
+  pub websites: Option<Vec<IGDBWebsiteResponse>>,
 }
 
 pub type IGDBRomsResponse = Vec<IGDBRomResponse>;
