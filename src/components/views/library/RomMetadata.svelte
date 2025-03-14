@@ -8,9 +8,9 @@
   let { metadata }: Props = $props();
 </script>
 
-<div class="metadata">
+<div class="details metadata">
   <div class="text-info">
-    <h1 class="m3-font-headline-large">Overview</h1>
+    <h2>Overview</h2>
     <div class="summary body-text">{metadata.metadata?.summary ?? "No overview was available"}</div>
     
   </div>
@@ -23,19 +23,5 @@
 </div>
 
 <style>
-  .font-label-large {
-    font-size: 1.1rem;
-    line-height: 1.25rem;
-    letter-spacing: 0.00625rem;
-    font-weight: 500;
-  }
-
-  /* TODO: move this to app.css once finalized */
-  .body-text {
-    /* TODO: taller line spacing */
-
-    color: rgb(var(--m3-scheme-on-surface-variant));
-    
-    /* TODO: larger font size */
-  }
+  
 </style>
