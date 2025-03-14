@@ -2,7 +2,7 @@
   import { Icon } from "@component-utils";
   import MediaQuery from "@component-utils/MediaQuery.svelte";
   import { IGDBController } from "@controllers";
-  import { Download, Edit, FavoriteOff, FavoriteOn } from "@icons";
+  import { BackArrow, Download, Edit, FavoriteOff, FavoriteOn } from "@icons";
   import Button from "@interactables/Button.svelte";
   import { LoadingSpinner } from "@layout";
   import { downloadProgressRom, romEditingId, showDownloadProgressModal, showEditRomModal } from "@stores/Modals";
@@ -77,7 +77,7 @@
 </script>
 
 <svelte:head>
-	<title>{rom.title}</title>
+	<title>{metadata.title || rom.title}</title>
   <meta name="description" content="Your personal ROM library." />
 </svelte:head>
 
@@ -86,7 +86,11 @@
 <div id="rom-entry">
   <div class="header" class:portrait>
     {#if portrait}
-      <!-- TODO: display back button -->
+      <div class="back-button">
+        <Button iconType="full" type="text" size="2.75rem" iconSize="1.75rem" on:click={() => window.history.back()}>
+          <Icon icon={BackArrow} />
+        </Button>
+      </div>
     {/if}
     <div class="cover" style="height: {GRID_LAYOUTS.portrait.height * 1.2}px;">
       <Cover romId={id} />
@@ -117,7 +121,7 @@
       </Button>
     </div>
   </div>
-  <div class="body">
+  <div class="body" class:portrait>
     {#if isLoading}
       <div class="loading-container">
         <LoadingSpinner /> <div class="font-headline-small">Loading Metadata...</div>
@@ -144,11 +148,20 @@
     display: flex;
     align-items: flex-end;
 
+    position: relative;
+
     gap: 1rem;
   }
   .header.portrait {
     flex-direction: column;
     align-items: center;
+  }
+
+  .back-button {
+    position: absolute;
+
+    left: 1rem;
+    top: 0.75rem;
   }
 
   .portrait .title {
@@ -177,6 +190,8 @@
   .header-metadata {
     white-space: pre;
     font-size: 0.9rem;
+
+    color: rgb(var(--m3-scheme-on-surface-variant));
   }
 
   .controls {
@@ -196,6 +211,11 @@
   .body {
     width: 100%;
     margin-top: 2rem;
+  }
+
+  .body.portrait {
+    padding: 0rem 1rem;
+    width: calc(100% - 2rem);
   }
   
   .loading-container {

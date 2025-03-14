@@ -33,7 +33,9 @@
   /* TODO: move this to app.css once finalized */
   .body-text {
     /* TODO: taller line spacing */
-    /* TODO: slightly dimmer text */
+
+    color: rgb(var(--m3-scheme-on-surface-variant));
+    
     /* TODO: larger font size */
   }
 </style>
