@@ -76,7 +76,7 @@ export class AppController {
       }
 
       if (romEdits[id].sgdbId === "") {
-        romEdits[id].sgdbId = await SGDBController.chooseSteamGridGameId(id, rom.title);
+        romEdits[id].sgdbId = await SGDBController.chooseSteamGridGameId(id, romEdits[id].title || rom.title);
       }
 
       romsSystemLUT[rom.system].push(id);

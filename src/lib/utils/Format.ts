@@ -15,6 +15,19 @@ export function formatFileSize(fileSize: number): string {
   }
 }
 
+/**
+ * Formats a date into the format: "month day, year".
+ * @param dateNumber The date as the number of seconds from the epoch.
+ * @returns The formatted date.
+ */
+export function formatDateNumber(dateNumber: number): string {
+  const date = new Date(dateNumber * 1000);
+
+  return date.toLocaleString("default", {
+    dateStyle: 'medium'
+  });
+}
+
 function prefixIfNeeded(time: number): string {
   return time < 10 ? "0" + time.toFixed(0) : time.toFixed(0)
 }

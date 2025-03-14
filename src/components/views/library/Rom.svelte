@@ -98,6 +98,7 @@
   .rom:hover {
     transform: scale(1.04);
     border: 1px solid rgb(var(--m3-scheme-outline));
+    cursor: pointer;
   }
 
   .placeholder {

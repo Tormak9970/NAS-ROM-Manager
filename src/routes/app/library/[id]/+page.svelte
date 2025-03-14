@@ -1,13 +1,14 @@
 <script lang="ts">
   import { Icon } from "@component-utils";
+  import MediaQuery from "@component-utils/MediaQuery.svelte";
   import { IGDBController } from "@controllers";
   import { Download, Edit, FavoriteOff, FavoriteOn } from "@icons";
   import Button from "@interactables/Button.svelte";
   import { LoadingSpinner } from "@layout";
   import { downloadProgressRom, romEditingId, showDownloadProgressModal, showEditRomModal } from "@stores/Modals";
-  import { isLandscape, romMetadata, roms, systems } from "@stores/State";
+  import { romMetadata, roms, systems } from "@stores/State";
   import { NO_IGDB_RESULTS } from "@types";
-  import { GRID_LAYOUTS } from "@utils";
+  import { formatDateNumber, formatFileSize, GRID_LAYOUTS } from "@utils";
   import Cover from "@views/Cover.svelte";
   import RomMetadata from "@views/library/RomMetadata.svelte";
   import SystemTag from "@views/SystemTag.svelte";
@@ -22,7 +23,14 @@
   let metadata = $derived($romMetadata[id]);
   let system = $derived($systems[rom.system]);
 
-  let portrait = $derived(!$isLandscape);
+  let releaseDate = $derived(metadata.metadata?.metadata?.firstReleaseDate);
+  let genres = $derived(metadata.metadata?.metadata?.genres);
+
+  $effect(() => {
+    console.log(metadata);
+  });
+
+  let portrait = $state(false);
   let isFavorite = $derived(metadata.isFavorite);
 
   let isLoading = $state(true);
@@ -43,7 +51,7 @@
   }
 
   async function loadMetadata() {
-    const ids = await IGDBController.searchForGame(rom.title, system.igdbPlatformId);
+    const ids = await IGDBController.searchForGame(metadata.title || rom.title, system.igdbPlatformId);
     
     if (ids.length > 0) {
       metadata.igdbId = ids[0].igdbId.toString();
@@ -73,15 +81,14 @@
   <meta name="description" content="Your personal ROM library." />
 </svelte:head>
 
+<MediaQuery query="(max-width: 900px)" bind:matches={portrait} />
+
 <div id="rom-entry">
   <div class="header" class:portrait>
     {#if portrait}
       <!-- TODO: display back button -->
     {/if}
-    <div
-      class="cover"
-      style="height: {GRID_LAYOUTS.portrait.height * 1.2}px;"
-    >
+    <div class="cover" style="height: {GRID_LAYOUTS.portrait.height * 1.2}px;">
       <Cover romId={id} />
     </div>
     <div class="info" class:portrait>
@@ -89,10 +96,8 @@
       <div class="title m3-font-headline-{portrait ? "small" : "medium"}">
         {metadata.title || rom.title}
       </div>
-      <div class="metadata">
-        <!-- TODO: release year -->
-        <!-- TODO: size -->
-        <!-- TODO: genres -->
+      <div class="header-metadata">
+        {releaseDate && releaseDate !== 0 ? formatDateNumber(releaseDate) : "Unkown"}  •  {formatFileSize(rom.size)}  •  {genres?.join(", ") ?? "Unkown"}
       </div>
     </div>
     <div class="controls" class:portrait style:--m3-button-shape="var(--m3-util-rounding-small)">
@@ -167,6 +172,11 @@
 
   .info.portrait {
     align-items: center;
+  }
+
+  .header-metadata {
+    white-space: pre;
+    font-size: 0.9rem;
   }
 
   .controls {
