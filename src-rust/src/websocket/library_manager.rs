@@ -120,7 +120,7 @@ fn load_rom(parser: &Parser, pattern: &ParserPattern, path: PathBuf) -> ROM {
     title,
     path: path_str,
     size: metadata.len(),
-    addDate: format!("{}", create_date.format("%B %e, %Y")),
+    addDate: format!("{}", create_date.format("%b %e, %Y")),
     format: extension.to_owned(),
     system: parser.abbreviation.clone(),
     systemFullName: parser.name.clone(),

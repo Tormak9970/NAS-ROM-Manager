@@ -15,23 +15,24 @@ export type IGDBRelatedGame = {
   name: string;
   slug: string;
   type: string;
-  coverUrl: string;
-  thumbUrl: string;
 }
 
 export type IGDBMetadata = {
   totalRating: string;
   aggregatedRating: string;
   firstReleaseDate: number;
+  keywords: string[];
   genres: string[];
   franchises: string[];
   alternativeNames: string[];
   collections: string[];
   companies: string[];
-  game_modes: string[];
+  gameModes: string[];
+  languages: string[];
   ageRatings: IGDBAgeRating[];
   platforms: IGDBMetadataPlatform[];
-  similarGames: IGDBRelatedGame[];
+  dlcs: IGDBRelatedGame[];
+  expansions: IGDBRelatedGame[];
 }
 
 export type IGDBGame = {
@@ -39,6 +40,7 @@ export type IGDBGame = {
   slug: string;
   name: string;
   summary: string | null;
+  status: string | null;
   coverUrl: string | null;
   thumbUrl: string | null;
   metadata: IGDBMetadata | null;

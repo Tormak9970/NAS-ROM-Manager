@@ -5,7 +5,7 @@ use reqwest::{header::{self, HeaderMap, HeaderValue}, Client, StatusCode};
 use serde::de::DeserializeOwned;
 use serde_json::Value;
 
-use crate::rest::types::igdb::{IGDBAgeRating, IGDBCoverResponse, IGDBSearchResult, IGDBMetadata, IGDBMetadataPlatform, IGDBNamedResponse, IGDBRelatedGame, IGDBRelatedGameResponse, IGDBRom, IGDBRomResponse, IGDBRomsResponse, IGDBSearchResponse, GAMES_FIELDS, IGDB_AGE_RATINGS, SEARCH_FIELDS};
+use crate::rest::types::igdb::{IGDBAgeRating, IGDBCoverResponse, IGDBMetadata, IGDBMetadataPlatform, IGDBNamedResponse, IGDBRelatedGame, IGDBRelatedGameResponse, IGDBRom, IGDBRomResponse, IGDBRomsResponse, IGDBSearchResponse, IGDBSearchResult, GAMES_FIELDS, IGDB_AGE_RATINGS, SEARCH_FIELDS};
 
 use super::twitch_auth::TwitchAuth;
 
@@ -25,20 +25,15 @@ fn remove_special_chars(query: &str) -> String {
 }
 
 fn map_to_name(list: &Vec<IGDBNamedResponse>) -> Vec<String> {
-  return list.iter().filter_map(| entry | entry.name.clone()).collect(); 
+  return list.iter().map(| entry | entry.name.clone()).collect(); 
 }
 
 fn map_to_related_game(games: &Vec<IGDBRelatedGameResponse>, relation_type: &str) -> Vec<IGDBRelatedGame> {
   return games.iter().map(| game | {
-    let thumb_url = game.cover.url.clone().unwrap_or("".to_string());
-    let cover_url = thumb_url.replace("t_thumb", "t_1080p");
-    
     return IGDBRelatedGame {
       id: game.id.clone(),
       slug: game.slug.clone().unwrap_or("".to_string()),
       name: game.name.clone().unwrap_or("".to_string()),
-      coverUrl: cover_url,
-      thumbUrl: thumb_url,
       r#type: relation_type.to_string(),
     }
   }).collect(); 
@@ -47,17 +42,17 @@ fn map_to_related_game(games: &Vec<IGDBRelatedGameResponse>, relation_type: &str
 fn extract_metadata_from_response(rom: IGDBRomResponse) -> IGDBMetadata {
   let default_string: Value = Value::String("".to_string());
 
-  let default_named = IGDBNamedResponse {
-    name: Some("".to_string()),
-  };
+  let mut franchises: Vec<String> = vec![];
 
-  let mut franchises: Vec<String> = vec![
-    rom.franchise.unwrap_or(default_named.clone()).name.unwrap_or("".to_string())
-  ];
+  if rom.franchise.is_some() {
+    franchises.push(rom.franchise.unwrap().name);
+  }
+
   let mut other_francises = map_to_name(&rom.franchises.unwrap_or(vec![]));
   franchises.append(&mut other_francises);
 
-  let companies: Vec<String> = rom.involved_companies.unwrap_or(vec![]).iter().filter_map(| company | company.company.name.clone()).collect();
+  let companies: Vec<String> = rom.involved_companies.unwrap_or(vec![]).iter().map(| company | company.company.name.clone()).collect();
+  let languages: Vec<String> = rom.language_supports.unwrap_or(vec![]).iter().map(| language | language.language.native_name.clone()).collect();
 
   let platforms: Vec<IGDBMetadataPlatform> = rom.platforms.unwrap_or(vec![]).iter().map(| platform | {
     let id = platform.get("id").unwrap_or(&default_string).as_u64().unwrap();
@@ -72,9 +67,9 @@ fn extract_metadata_from_response(rom: IGDBRomResponse) -> IGDBMetadata {
   }).collect();
   
   let age_ratings: Vec<IGDBAgeRating> = rom.age_ratings.unwrap_or(vec![]).iter().filter_map(| rating | {
-    let rating_id = rating.get("rating").expect("rating_map should have had rating prop.").as_str().unwrap_or("None");
+    let rating = rating.rating_category.to_string();
 
-    return IGDB_AGE_RATINGS.get(rating_id);
+    return IGDB_AGE_RATINGS.get(&rating);
   }).map(| age_rating | age_rating.to_owned().into()).collect(); 
 
   return IGDBMetadata {
@@ -83,12 +78,14 @@ fn extract_metadata_from_response(rom: IGDBRomResponse) -> IGDBMetadata {
     firstReleaseDate: rom.first_release_date.unwrap_or(0),
     genres: map_to_name(&rom.genres),
     franchises,
-    alternativeNames: map_to_name(&rom.alternative_names.unwrap_or(vec![])),
-    game_modes: map_to_name(&rom.game_modes.unwrap_or(vec![])),
+    gameModes: map_to_name(&rom.game_modes.unwrap_or(vec![])),
+    keywords: map_to_name(&rom.keywords.unwrap_or(vec![])),
     companies,
     platforms,
+    languages,
     ageRatings: age_ratings,
-    similarGames: map_to_related_game(&rom.similar_games.unwrap_or(vec![]), "similar"),
+    dlcs: map_to_related_game(&rom.dlcs.unwrap_or(vec![]), "dlc"),
+    expansions: map_to_related_game(&rom.expansions.unwrap_or(vec![]), "expansion"),
   };
 }
 
@@ -259,6 +256,7 @@ impl IGDBClient {
         igdbId: 0,
         slug: None,
         name: None,
+        status: None,
         summary: None,
         coverUrl: None,
         thumbUrl: None,
@@ -274,6 +272,10 @@ impl IGDBClient {
       igdbId: rom.id.clone(),
       slug: rom.slug.clone(),
       name: rom.name.clone(),
+      status: match rom.game_status {
+        Some(ref status) => Some(status.status.clone()),
+        None => None
+      },
       summary: rom.summary.clone(),
       coverUrl: Some(cover_url),
       thumbUrl: Some(thumb_url),

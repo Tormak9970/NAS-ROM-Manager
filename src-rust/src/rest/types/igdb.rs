@@ -25,8 +25,6 @@ pub struct IGDBRelatedGame {
   pub name: String,
   pub slug: String,
   pub r#type: String,
-  pub coverUrl: String,
-  pub thumbUrl: String,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -37,12 +35,14 @@ pub struct IGDBMetadata {
   pub firstReleaseDate: u64,
   pub genres: Vec<String>,
   pub franchises: Vec<String>,
-  pub alternativeNames: Vec<String>,
+  pub keywords: Vec<String>,
   pub companies: Vec<String>,
-  pub game_modes: Vec<String>,
+  pub gameModes: Vec<String>,
+  pub languages: Vec<String>,
   pub ageRatings: Vec<IGDBAgeRating>,
   pub platforms: Vec<IGDBMetadataPlatform>,
-  pub similarGames: Vec<IGDBRelatedGame>,
+  pub dlcs: Vec<IGDBRelatedGame>,
+  pub expansions: Vec<IGDBRelatedGame>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -52,6 +52,7 @@ pub struct IGDBRom {
   pub slug: Option<String>,
   pub name: Option<String>,
   pub summary: Option<String>,
+  pub status: Option<String>,
   pub coverUrl: Option<String>,
   pub thumbUrl: Option<String>,
   pub metadata: Option<IGDBMetadata>,
@@ -64,14 +65,17 @@ pub struct IGDBSearchResult {
   pub name: String,
 }
 
-pub const GAMES_FIELDS: [&'static str; 24] = [
+pub const GAMES_FIELDS: [&'static str; 29] = [
   "id",
   "name",
   "slug",
   "summary",
+  "game_status.status",
+  "keywords.name",
   "total_rating",
   "aggregated_rating",
   "first_release_date",
+  "language_supports.language.native_name",
   "artworks.url",
   "cover.url",
   "platforms.id",
@@ -83,11 +87,13 @@ pub const GAMES_FIELDS: [&'static str; 24] = [
   "franchises.name",
   "game_modes.name",
   "involved_companies.company.name",
-  "similar_games.id",
-  "similar_games.slug",
-  "similar_games.name",
-  "similar_games.cover.url",
-  "age_ratings.rating",
+  "dlcs.id",
+  "dlcs.slug",
+  "dlcs.name",
+  "expansions.id",
+  "expansions.slug",
+  "expansions.name",
+  "age_ratings.rating_category",
   "videos.video_id",
 ];
 
@@ -305,7 +311,7 @@ pub struct IGDBLogoResponse {
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct IGDBNamedResponse {
-  pub name: Option<String>,
+  pub name: String,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -313,6 +319,12 @@ pub struct IGDBCoverResponse {
   pub url: Option<String>,
 }
 
+// ? Age Ratings
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct IGDBAgeRatingResponse {
+  pub rating_category: u64,
+}
 
 // ? Roms
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -321,11 +333,25 @@ pub struct IGDBInvolvedCompanyResponse {
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct IGDBNativeLanguageResponse {
+  pub native_name: String,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct IGDBLanguageResponse {
+  pub language: IGDBNativeLanguageResponse,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct IGDBGameStatusResponse {
+  pub status: String,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct IGDBRelatedGameResponse {
   pub id: u64,
   pub name: Option<String>,
   pub slug: Option<String>,
-  pub cover: IGDBCoverResponse,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -333,6 +359,8 @@ pub struct IGDBRomResponse {
   pub id: u64,
   pub slug: Option<String>,
   pub name: Option<String>,
+  pub game_status: Option<IGDBGameStatusResponse>,
+  pub keywords: Option<Vec<IGDBNamedResponse>>,
   pub cover: Option<IGDBCoverResponse>,
   pub summary: Option<String>,
   pub total_rating: Option<f32>,
@@ -344,9 +372,11 @@ pub struct IGDBRomResponse {
   pub alternative_names: Option<Vec<IGDBNamedResponse>>,
   pub involved_companies: Option<Vec<IGDBInvolvedCompanyResponse>>,
   pub game_modes: Option<Vec<IGDBNamedResponse>>,
+  pub language_supports: Option<Vec<IGDBLanguageResponse>>,
   pub platforms: Option<Vec<Map<String, Value>>>,
-  pub age_ratings: Option<Vec<Map<String, Value>>>,
-  pub similar_games: Option<Vec<IGDBRelatedGameResponse>>,
+  pub age_ratings: Option<Vec<IGDBAgeRatingResponse>>,
+  pub expansions: Option<Vec<IGDBRelatedGameResponse>>,
+  pub dlcs: Option<Vec<IGDBRelatedGameResponse>>,
 }
 
 pub type IGDBRomsResponse = Vec<IGDBRomResponse>;

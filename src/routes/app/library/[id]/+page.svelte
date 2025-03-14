@@ -8,9 +8,9 @@
   import { downloadProgressRom, romEditingId, showDownloadProgressModal, showEditRomModal } from "@stores/Modals";
   import { romMetadata, roms, systems } from "@stores/State";
   import { NO_IGDB_RESULTS } from "@types";
-  import { formatDateNumber, formatFileSize, GRID_LAYOUTS } from "@utils";
+  import { formatFileSize, GRID_LAYOUTS } from "@utils";
   import Cover from "@views/Cover.svelte";
-  import RomMetadata from "@views/library/RomMetadata.svelte";
+  import RomMetadata from "@views/library/details/RomMetadata.svelte";
   import SystemTag from "@views/SystemTag.svelte";
   import { onMount } from "svelte";
   import type { PageData } from './$types';
@@ -101,7 +101,7 @@
         {metadata.title || rom.title}
       </div>
       <div class="header-metadata">
-        {releaseDate && releaseDate !== 0 ? formatDateNumber(releaseDate) : "Unkown"}  •  {formatFileSize(rom.size)}  •  {genres?.join(", ") ?? "Unkown"}
+        Added on {rom.addDate}  •  {formatFileSize(rom.size)}  •  {genres?.join(", ") ?? "Unkown"}
       </div>
     </div>
     <div class="controls" class:portrait style:--m3-button-shape="var(--m3-util-rounding-small)">
