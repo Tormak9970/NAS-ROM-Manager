@@ -103,8 +103,15 @@
         <div class="title m3-font-headline-{portrait ? "small" : "medium"}">
           {metadata.title || rom.title}
         </div>
-        <div class="header-metadata">
-          Added on {rom.addDate}  •  {formatFileSize(rom.size)}  •  {genres?.join(", ") ?? "Unkown"}
+        <div class="header-metadata" class:portrait>
+          {#if portrait}
+            <div class="first-row">
+              <div>Added on {rom.addDate}</div>•<div>{formatFileSize(rom.size)}</div>
+            </div>
+            <div>{genres?.join(", ") ?? "Unkown"}</div>
+          {:else}
+            <div>Added on {rom.addDate}</div>•<div>{formatFileSize(rom.size)}</div>•<div>{genres?.join(", ") ?? "Unkown"}</div>
+          {/if}
         </div>
       </div>
       <div class="controls" class:portrait style:--m3-button-shape="var(--m3-util-rounding-small)">
@@ -134,7 +141,7 @@
           No Metadata for <b>{metadata.title ?? rom.title}</b>
         </div>
       {:else}
-        <RomMetadata metadata={metadata} />
+        <RomMetadata metadata={metadata} portrait={portrait} />
       {/if}
     </div>
   </div>
@@ -194,10 +201,22 @@
   }
 
   .header-metadata {
-    white-space: pre;
     font-size: 0.9rem;
 
     color: rgb(var(--m3-scheme-on-surface-variant));
+
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .header-metadata.portrait {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+  }
+  .first-row {
+    display: flex;
+    gap: 0.5rem;
   }
 
   .controls {

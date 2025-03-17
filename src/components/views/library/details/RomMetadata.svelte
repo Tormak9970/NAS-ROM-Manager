@@ -5,22 +5,23 @@
   import TableRow from "./TableRow.svelte";
 
   type Props = {
-    metadata: ROMMetadata
+    metadata: ROMMetadata;
+    portrait: boolean;
   }
 
-  let { metadata }: Props = $props();
+  let { metadata, portrait }: Props = $props();
 
   let ageRatings = $derived(metadata.metadata?.metadata?.ageRatings ?? []);
 </script>
 
-<div class="details metadata">
+<div class="details metadata" class:portrait>
   <div class="text-info">
     <div>
       <h2>Overview</h2>
       <div class="summary body-text">{metadata.metadata?.summary ?? "No overview was available"}</div>
     </div>
     
-    <div class="companies">
+    <div class="companies" class:portrait>
       <div>
         <h3>Developer</h3>
         <div class="body-text">{metadata.metadata?.metadata?.developers?.join(',\n') || 'Unkown'}</div>
@@ -89,6 +90,11 @@
     gap: 3rem;
   }
 
+  .metadata.portrait {
+    flex-direction: column;
+    align-items: center;
+  }
+
   .text-info {
     flex-grow: 1;
 
@@ -102,6 +108,10 @@
 
     display: flex;
     gap: 4rem;
+  }
+  .companies.portrait {
+    flex-direction: column;
+    gap: 2rem;
   }
 
   .table-info {
