@@ -109,7 +109,7 @@
   .table-info {
     border-radius: var(--m3-util-rounding-small);
 
-    border: 2px solid rgb(var(--m3-scheme-outline));
+    border: 1px solid rgb(var(--m3-scheme-outline));
 
     width: 20rem;
   }
@@ -119,5 +119,9 @@
     flex-wrap: wrap;
 
     gap: 1rem;
+  }
+
+  .companies .body-text {
+    white-space: pre;
   }
 </style>
