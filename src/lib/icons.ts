@@ -82,6 +82,7 @@ export { default as EmergencyHome } from "@ktibow/iconset-material-symbols/emerg
 export { default as Help } from "@ktibow/iconset-material-symbols/help-rounded";
 
 export { default as CalendarMonth } from "@ktibow/iconset-material-symbols/calendar-month-rounded";
+export { default as CalendarTodayOutline } from "@ktibow/iconset-material-symbols/calendar-today-outline";
 
 export { default as Draft } from "@ktibow/iconset-material-symbols/draft-rounded";
 
@@ -91,3 +92,7 @@ export { default as Landscape } from "@ktibow/iconset-material-symbols/landscape
 
 export { default as FavoriteOff } from "@ktibow/iconset-material-symbols/favorite-outline-rounded";
 export { default as FavoriteOn } from "@ktibow/iconset-material-symbols/favorite-rounded";
+
+export { default as ChevronLeft } from "@ktibow/iconset-material-symbols/chevron-left";
+export { default as ChevronRight } from "@ktibow/iconset-material-symbols/chevron-right";
+
