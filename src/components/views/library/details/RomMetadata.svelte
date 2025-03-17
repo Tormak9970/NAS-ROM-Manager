@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { DateField } from "@interactables";
   import type { ROMMetadata } from "@types";
   import { formatDateNumber } from "@utils";
   import AgeRating from "@views/library/details/AgeRating.svelte";
@@ -16,8 +15,6 @@
 
 <div class="details metadata">
   <div class="text-info">
-    <DateField name="Test" />
-
     <div>
       <h2>Overview</h2>
       <div class="summary body-text">{metadata.metadata?.summary ?? "No overview was available"}</div>
