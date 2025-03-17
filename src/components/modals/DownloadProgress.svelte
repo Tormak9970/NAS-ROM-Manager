@@ -18,6 +18,7 @@
    * Function to run on cancel.
    */
   async function onCancel(): Promise<void> {
+    RestController.cancelDownload();
     open = false;
   }
 

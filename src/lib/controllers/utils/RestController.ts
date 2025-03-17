@@ -27,6 +27,7 @@ export class RestController {
   private static readonly COVER_BASE_URL = "http://127.0.0.1:1500/rest/covers";
   private static readonly BASE_URL = "http://127.0.0.1:1500/rest";
 
+  private static currentDownload: WritableStream<Uint8Array<ArrayBufferLike>>;
 
   /**
    * Deletes the cover for a title.
@@ -137,7 +138,9 @@ export class RestController {
     const slashIndex = path.lastIndexOf("/");
     const startIndex = backslashIndex > slashIndex ? backslashIndex : slashIndex;
     const filename = path.substring(startIndex + 1);
-    const fileStream = streamSaver.createWriteStream(filename);
+    const fileStream = streamSaver.createWriteStream(filename, { size: fileSize });
+    RestController.currentDownload = fileStream;
+
     const writer = fileStream.getWriter();
 
     while (downloaded < fileSize) {
@@ -196,6 +199,17 @@ export class RestController {
 
     await this.notifyDownloadComplete(romDownloadConfig);
     onEnd();
+  }
+
+  /**
+   * Cancels the current download if it exists.
+   */
+  static async cancelDownload() {
+    if (RestController.currentDownload) {
+      RestController.currentDownload.abort("User Canceled");
+    } else {
+      get(showWarningSnackbar)({ message: "There is now download currently" });
+    }
   }
 
 
