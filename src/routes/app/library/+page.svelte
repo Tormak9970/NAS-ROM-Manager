@@ -1,11 +1,14 @@
 <script lang="ts">
   import { RestController, SGDBController } from "@controllers";
   import { VirtualGrid } from "@layout";
-  import { dbFilters, libraryGridType, romMetadata, roms } from "@stores/State";
+  import { dbFilters, libraryGridType, loadedLibrary, romMetadata, roms } from "@stores/State";
   import { filterGrids, GRID_LAYOUTS } from "@utils";
   import Rom from "@views/library/Rom.svelte";
   import RomLoadingSkeleton from "@views/library/RomLoadingSkeleton.svelte";
-  import { onMount } from "svelte";
+  import { onDestroy, onMount } from "svelte";
+  import type { Unsubscriber } from "svelte/store";
+
+  let libraryLoadUnsub: Unsubscriber;
 
   let layout = $derived(GRID_LAYOUTS[$libraryGridType]);
 
@@ -23,38 +26,46 @@
 
   let loadedKeys = $state<Record<string, boolean>>({});
 
-  onMount(async () => {
-    let saveMetadata = false;
+  onMount(() => {
+    libraryLoadUnsub = loadedLibrary.subscribe(async (loaded) => {
+      if (loaded) {
+        let saveMetadata = false;
 
-    for (const romId of romIdList) {
-      const metadata = $romMetadata[romId];
+        for (const romId of romIdList) {
+          const metadata = $romMetadata[romId];
 
-      if (metadata.thumbPath === "") {
-        const grids = await SGDBController.getCoversForGame(metadata.sgdbId);
-        const filtered = filterGrids(grids, $dbFilters);
-        
-        if (filtered.length) {
-          const first = filtered[0];
-          const images = await RestController.cacheCover(first.url.toString(), first.thumb.toString(), romId);
-          
-          metadata.thumbPath = images[0];
-          metadata.coverPath = images[1];
-        } else {
-          metadata.thumbPath = "No Grids";
-          metadata.coverPath = "No Grids";
+          if (metadata.thumbPath === "") {
+            const grids = await SGDBController.getCoversForGame(metadata.sgdbId);
+            const filtered = filterGrids(grids, $dbFilters);
+            
+            if (filtered.length) {
+              const first = filtered[0];
+              const images = await RestController.cacheCover(first.url.toString(), first.thumb.toString(), romId);
+              
+              metadata.thumbPath = images[0];
+              metadata.coverPath = images[1];
+            } else {
+              metadata.thumbPath = "No Grids";
+              metadata.coverPath = "No Grids";
+            }
+
+            $romMetadata[romId] = metadata;
+            saveMetadata = true;
+          }
+
+          romsLoaded++;
+          loadedKeys[romId] = true;
         }
 
-        $romMetadata[romId] = metadata;
-        saveMetadata = true;
+        if (saveMetadata) {
+          $romMetadata = { ...$romMetadata };
+        }
       }
+    });
+  });
 
-      romsLoaded++;
-      loadedKeys[romId] = true;
-    }
-
-    if (saveMetadata) {
-      $romMetadata = { ...$romMetadata };
-    }
+  onDestroy(() => {
+    if (libraryLoadUnsub) libraryLoadUnsub();
   });
 </script>
 

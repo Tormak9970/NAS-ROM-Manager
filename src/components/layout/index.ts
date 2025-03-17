@@ -13,3 +13,4 @@ export { default as TabsHeader, type TabItem } from "./TabsHeader.svelte";
 export { default as VirtualGrid } from "./VirtualGrid.svelte";
 export { default as VirtualList } from "./VirtualList.svelte";
 
+export { default as LibraryLoadGuard } from "./load-guards/LibraryLoadGuard.svelte";

@@ -1,11 +1,20 @@
 <script>
+  import { goto } from "$app/navigation";
+  import { page } from "$app/state";
   import { MediaQuery } from "@component-utils";
   import { LoadingSpinner } from "@layout";
   import { LandscapeNav, PortraitNav } from "@navigation";
+  import { isSignedIn } from "@stores/Auth";
   import { isLandscape, loadedApp } from "@stores/State";
   import Header from "@views/Header.svelte";
 
 	let { children } = $props();
+
+  $effect(() => {
+    if ($loadedApp && !$isSignedIn && page.url.pathname !== '/' && page.url.pathname !== '/error') {
+      goto('/');
+    }
+  });
 
   let condenseDesktopNav = $state(false);
 </script>

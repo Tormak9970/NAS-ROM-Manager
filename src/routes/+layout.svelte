@@ -1,10 +1,8 @@
 <script>
-  import { goto } from "$app/navigation";
-  import { page } from '$app/state';
   import { ContextMenu } from "@component-utils";
   import MediaQuery from "@component-utils/MediaQuery.svelte";
   import { AuthController, WebsocketController } from "@controllers";
-  import { isSignedIn, rememberMe } from "@stores/Auth";
+  import { rememberMe } from "@stores/Auth";
   import { isLandscape, loadedApp, showInfoSnackbar, showWarningSnackbar } from "@stores/State";
   import { onMount } from "svelte";
   import "../app.css";
@@ -16,12 +14,6 @@
   import "../lib/md-defs";
 
 	let { children } = $props();
-
-  $effect(() => {
-    if (!$isSignedIn && page.url.pathname !== '/' && page.url.pathname !== '/error') {
-      goto('/');
-    }
-  });
 
   onMount(() => {
     WebsocketController.init(

@@ -1,3 +1,5 @@
+import type { Snippet } from "svelte";
+
 export * from "./DownloadStrategy";
 export * from "./IGDB";
 export * from "./Library";
@@ -59,4 +61,10 @@ export type BackendError = {
 export enum BackendErrorType {
   WARN,
   PANIC,
+}
+
+export type LoadGuardProps = {
+  message?: string;
+  onLoad?: () => Promise<void>;
+  children: Snippet<[]>;
 }
