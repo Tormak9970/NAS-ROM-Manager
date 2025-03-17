@@ -117,7 +117,7 @@
   .table-info {
     border-radius: var(--m3-util-rounding-small);
 
-    border: 1px solid rgb(var(--m3-scheme-outline));
+    border: 1px solid rgb(var(--m3-scheme-surface-container-highest));
 
     width: 20rem;
   }

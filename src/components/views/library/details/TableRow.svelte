@@ -18,7 +18,7 @@
   .table-row {
     width: inherit;
 
-    border-bottom: 1px solid rgb(var(--m3-scheme-outline));
+    border-bottom: 1px solid rgb(var(--m3-scheme-surface-container-highest));
   }
 
   .inner-row {
