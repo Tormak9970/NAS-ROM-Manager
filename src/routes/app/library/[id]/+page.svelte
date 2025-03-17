@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { goto } from "$app/navigation";
+  import { routes } from "$lib/routes";
   import { Icon } from "@component-utils";
   import MediaQuery from "@component-utils/MediaQuery.svelte";
   import { IGDBController } from "@controllers";
@@ -7,7 +9,7 @@
   import { LoadingSpinner } from "@layout";
   import LibraryLoadGuard from "@layout/load-guards/LibraryLoadGuard.svelte";
   import { downloadProgressRom, romEditingId, showDownloadProgressModal, showEditRomModal } from "@stores/Modals";
-  import { romMetadata, roms, showInfoSnackbar, systems } from "@stores/State";
+  import { romMetadata, roms, showWarningSnackbar, systems } from "@stores/State";
   import { NO_IGDB_RESULTS } from "@types";
   import { formatFileSize, GRID_LAYOUTS } from "@utils";
   import Cover from "@views/Cover.svelte";
@@ -64,8 +66,8 @@
 
   async function onLoad() {
     if (!$roms[id]) {
-      $showInfoSnackbar({ message: "Couldn't find rom in library!" });
-      // TODO: redirect to error page
+      $showWarningSnackbar({ message: `Couldn't find ${id} in library!` });
+      goto(routes["Library"].path);
     }
 
     if (metadata.igdbId === "") {
