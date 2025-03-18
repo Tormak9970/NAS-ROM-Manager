@@ -37,8 +37,8 @@
       (progress: number) => {
         downloadProgress = progress;
       },
-      () => {
-        $showInfoSnackbar({ message: "Download complete" });
+      (finished: boolean) => {
+        if (finished) $showInfoSnackbar({ message: "Download complete" });
         open = false;
       }
     );

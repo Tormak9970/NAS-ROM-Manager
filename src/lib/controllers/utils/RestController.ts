@@ -1,7 +1,6 @@
 import { library, showInfoSnackbar, showWarningSnackbar } from "@stores/State";
 import { BackendErrorType, type GridResults, type IGDBGame, type IGDBSearchResult, type ROM, type RomUploadConfig, type SGDBGame } from "@types";
 import { hash64, showError } from "@utils";
-import streamSaver from "streamsaver";
 import { get } from "svelte/store";
 import { LogController } from "./LogController";
 
@@ -27,7 +26,7 @@ export class RestController {
   private static readonly COVER_BASE_URL = "http://127.0.0.1:1500/rest/covers";
   private static readonly BASE_URL = "http://127.0.0.1:1500/rest";
 
-  private static currentDownload: WritableStream<Uint8Array<ArrayBufferLike>> | null = null;
+  private static downloadInProgress = false;
   static currentUploadId: string | null = null;
 
   /**
@@ -113,6 +112,73 @@ export class RestController {
     }
   }
 
+  private static async streamDownload(path: string, fileSize: number, onProgress: (progress: number) => void) {
+    let downloaded = 0;
+
+    const backslashIndex = path.lastIndexOf("\\");
+    const slashIndex = path.lastIndexOf("/");
+    const startIndex = backslashIndex > slashIndex ? backslashIndex : slashIndex;
+    const filename = path.substring(startIndex + 1);
+    // const fileStream = streamSaver.createWriteStream(filename, { size: fileSize });
+
+    // const writer = fileStream.getWriter();
+
+    // while (downloaded < fileSize) {
+    //   const end = Math.min(downloaded + this.STREAM_CHUNK_SIZE - 1, fileSize - 1);
+    //   const range = `bytes=${downloaded}-${end}`;
+    //   const length = end - downloaded;
+
+    //   const response = await fetch(this.BASE_URL + `/roms/download?romPath=${encodeURIComponent(path)}`, {
+    //     headers: {
+    //       "Range": range,
+    //     }
+    //   });
+
+    //   if (!response.ok) {
+    //     throw new Error("Failed to fetch the chunk");
+    //   }
+
+    //   const reader = response.body!.getReader();
+    //   let result;
+    //   while (!(result = await reader.read()).done) {
+    //     writer.write(result.value);
+    //   }
+
+    //   downloaded += length;
+    //   onProgress(downloaded);
+    // }
+
+    // writer.close();
+
+    const range = `bytes=${0}-${fileSize - 1}`;
+
+    const response = await fetch(this.BASE_URL + `/roms/download?romPath=${encodeURIComponent(path)}`, {
+      // headers: {
+      //   "Range": range,
+      // }
+    })
+    .then(async (response) => {
+      console.log("response:", response)
+      const reader = response.body?.getReader();
+
+      if (!reader) return;
+      
+      while(true) {
+        const {done, value} = await reader.read();
+      
+        if (done) {
+          break;
+        }
+      
+        // chunks.push(value);
+        downloaded += value.length;
+        onProgress(downloaded);
+      
+        console.log(`Received ${downloaded} of ${fileSize}`)
+      }
+    });
+  }
+
   private static async notifyDownloadComplete(data: ROMDownload) {
     const res = await fetch(this.BASE_URL + "/roms/download/complete", {
       method: "POST",
@@ -132,46 +198,6 @@ export class RestController {
     }
   }
 
-  private static async streamDownload(path: string, fileSize: number, onProgress: (progress: number) => void) {
-    let downloaded = 0;
-
-    const backslashIndex = path.lastIndexOf("\\");
-    const slashIndex = path.lastIndexOf("/");
-    const startIndex = backslashIndex > slashIndex ? backslashIndex : slashIndex;
-    const filename = path.substring(startIndex + 1);
-    const fileStream = streamSaver.createWriteStream(filename, { size: fileSize });
-    RestController.currentDownload = fileStream;
-
-    const writer = fileStream.getWriter();
-
-    while (downloaded < fileSize) {
-      const end = Math.min(downloaded + this.STREAM_CHUNK_SIZE - 1, fileSize - 1);
-      const range = `bytes=${downloaded}-${end}`;
-      const length = end - downloaded;
-
-      const response = await fetch(this.BASE_URL + `/roms/download?romPath=${encodeURIComponent(path)}`, {
-        headers: {
-          "Range": range,
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch the chunk");
-      }
-
-      const reader = response.body!.getReader();
-      let result;
-      while (!(result = await reader.read()).done) {
-        writer.write(result.value);
-      }
-
-      downloaded += length;
-      onProgress(downloaded);
-    }
-
-    writer.close();
-  }
-
   /**
    * Downloads the requested rom.
    * @param rom The rom to download.
@@ -183,7 +209,7 @@ export class RestController {
     rom: ROM,
     onStart: (fileSize: number) => void = () => {},
     onProgress: (progress: number) => void = () => {},
-    onEnd: () => void = () => {}
+    onEnd: (finished: boolean) => void = () => {}
   ): Promise<void> {
     const romDownloadConfig = {
       path: rom.path,
@@ -193,21 +219,24 @@ export class RestController {
     const { size, path } = await this.getMetadata(romDownloadConfig);
     romDownloadConfig.path = path;
     onStart(size);
+    RestController.downloadInProgress = true;
 
 
     await this.streamDownload(path, size, onProgress);
     
 
     await this.notifyDownloadComplete(romDownloadConfig);
-    onEnd();
+    onEnd(RestController.downloadInProgress);
+
+    RestController.downloadInProgress = false;
   }
 
   /**
    * Cancels the current download if it exists.
    */
   static async cancelDownload() {
-    if (RestController.currentDownload) {
-      RestController.currentDownload.abort("User Canceled");
+    if (RestController.downloadInProgress) {
+      RestController.downloadInProgress = false;
     } else {
       get(showWarningSnackbar)({ message: "There is no download currently" });
     }

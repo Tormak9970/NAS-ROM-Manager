@@ -13,7 +13,7 @@ use covers::{delete_cover, upload_cover};
 use cron::Schedule;
 use igdb::{igdb_get_metadata_by_id, igdb_search_game, init_igdb_client};
 use log::{info, warn};
-use rom_download::{delete_rom, download_rom, download_rom_complete, get_rom_metadata};
+use rom_download::{delete_rom, rom_download, rom_download_complete, rom_download_get_metadata};
 use rom_upload::{prepare_rom_upload, rom_upload_cancel, rom_upload_complete, upload_rom};
 use sgdb::{init_sgdb_client, sgdb_get_grids_by_id, sgdb_search_game};
 use types::{CoverUpload, IGDBClientStore, ROMDownload, ROMUploadComplete, SGDBClientStore, StreamStore};
@@ -62,12 +62,12 @@ pub fn initialize_rest_api(cover_cache_dir: String, cleanup_schedule: String) ->
     ]);
 
   // * GET cover (rest/covers/{id}.png)
-  let get_cover_route = warp::path!("rest" / "covers" / ..)
+  let cover_get_route = warp::path!("rest" / "covers" / ..)
     .and(warp::fs::dir(cover_cache_dir))
     .with(&cors);
 
   // * POST cover (rest/covers/{id})
-  let upload_cover_route = warp::path!("rest" / "covers" / String)
+  let cover_upload_route = warp::path!("rest" / "covers" / String)
     .and(warp::post())
     .and(cache_dir_filter.clone())
     .and(json_cover_upload())
@@ -75,7 +75,7 @@ pub fn initialize_rest_api(cover_cache_dir: String, cleanup_schedule: String) ->
     .with(&cors);
   
   // * DELETE cover (rest/covers/{id}) (might need delete)
-  let delete_cover_route = warp::path!("rest" / "covers" / String)
+  let cover_delete_route = warp::path!("rest" / "covers" / String)
     .and(warp::delete())
     .and(cache_dir_filter.clone())
     .and(warp::filters::header::header("Cover-Extension"))
@@ -85,10 +85,10 @@ pub fn initialize_rest_api(cover_cache_dir: String, cleanup_schedule: String) ->
 
 
   // * GET ROM Metadata (rest/roms/download/metadata)
-  let get_rom_download_metadata = warp::path!("rest" / "roms" / "download" / "metadata")
+  let rom_download_get_metadata = warp::path!("rest" / "roms" / "download" / "metadata")
     .and(warp::get())
     .and(warp::query::<HashMap<String, String>>())
-    .and_then(get_rom_metadata)
+    .and_then(rom_download_get_metadata)
     .with(&cors);
 
   // * GET ROM (rest/roms/download)
@@ -96,14 +96,14 @@ pub fn initialize_rest_api(cover_cache_dir: String, cleanup_schedule: String) ->
     .and(warp::get())
     .and(warp::query::<HashMap<String, String>>())
     .and(warp::header::optional::<String>("range"))
-    .and_then(download_rom)
+    .and_then(rom_download)
     .with(&cors);
   
   // * POST ROM (rest/roms/download/complete)
   let rom_download_complete_route = warp::path!("rest" / "roms" / "download" / "complete")
     .and(warp::post())
     .and(json_body_download())
-    .and_then(download_rom_complete)
+    .and_then(rom_download_complete)
     .with(&cors);
 
 
@@ -112,14 +112,14 @@ pub fn initialize_rest_api(cover_cache_dir: String, cleanup_schedule: String) ->
   let upload_store_filter = warp::any().map(move || filter_upload_store.clone());
   
   // * POST Prepare ROM Upload (rest/roms/upload/prepare)
-  let prepare_upload_rom_route = warp::path!("rest" / "roms" / "upload" / "prepare")
+  let rom_upload_prepare_route = warp::path!("rest" / "roms" / "upload" / "prepare")
     .and(warp::post())
     .and(warp::query::<HashMap<String, String>>())
     .and_then(prepare_rom_upload)
     .with(&cors);
   
   // * POST ROM (rest/roms/upload)
-  let upload_rom_route = warp::path!("rest" / "roms" / "upload")
+  let rom_upload_route = warp::path!("rest" / "roms" / "upload")
     .and(warp::post())
     .and(warp::filters::body::stream())
     .and(upload_store_filter.clone())
@@ -129,7 +129,7 @@ pub fn initialize_rest_api(cover_cache_dir: String, cleanup_schedule: String) ->
     .with(&cors);
 
   // * POST ROM (rest/roms/upload/complete)
-  let upload_rom_complete_route = warp::path!("rest" / "roms" / "upload" / "complete")
+  let rom_upload_complete_route = warp::path!("rest" / "roms" / "upload" / "complete")
     .and(warp::post())
     .and(upload_store_filter.clone())
     .and(json_body_upload_complete())
@@ -137,7 +137,7 @@ pub fn initialize_rest_api(cover_cache_dir: String, cleanup_schedule: String) ->
     .with(&cors);
 
     // * POST ROM (rest/roms/upload/complete)
-    let upload_rom_cancel_route = warp::path!("rest" / "roms" / "upload" / "cancel")
+    let rom_upload_cancel_route = warp::path!("rest" / "roms" / "upload" / "cancel")
       .and(warp::post())
       .and(upload_store_filter)
       .and(warp::filters::header::header("Upload-Id"))
@@ -146,7 +146,7 @@ pub fn initialize_rest_api(cover_cache_dir: String, cleanup_schedule: String) ->
   
 
   // * DELETE ROM (rest/roms)
-  let delete_rom_route = warp::path!("rest" / "roms" / "delete")
+  let rom_delete_route = warp::path!("rest" / "roms" / "delete")
     .and(warp::delete())
     .and(warp::query::<HashMap<String, String>>())
     .and_then(delete_rom)
@@ -203,17 +203,17 @@ pub fn initialize_rest_api(cover_cache_dir: String, cleanup_schedule: String) ->
     .with(&cors);
 
   
-  let http_routes = get_cover_route
-    .or(upload_cover_route)
-    .or(delete_cover_route)
-    .or(get_rom_download_metadata)
+  let http_routes = cover_get_route
+    .or(cover_upload_route)
+    .or(cover_delete_route)
+    .or(rom_download_get_metadata)
     .or(rom_download_route)
     .or(rom_download_complete_route)
-    .or(prepare_upload_rom_route)
-    .or(upload_rom_route)
-    .or(upload_rom_complete_route)
-    .or(upload_rom_cancel_route)
-    .or(delete_rom_route)
+    .or(rom_upload_prepare_route)
+    .or(rom_upload_route)
+    .or(rom_upload_complete_route)
+    .or(rom_upload_cancel_route)
+    .or(rom_delete_route)
     .or(sgdb_init_route)
     .or(sgdb_get_grids_route)
     .or(sgdb_search_game_route)
