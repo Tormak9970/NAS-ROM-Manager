@@ -95,7 +95,6 @@ pub fn initialize_rest_api(cover_cache_dir: String, cleanup_schedule: String) ->
   let rom_download_route = warp::path!("rest" / "roms" / "download")
     .and(warp::get())
     .and(warp::query::<HashMap<String, String>>())
-    .and(warp::header::optional::<String>("range"))
     .and_then(rom_download)
     .with(&cors);
   

@@ -1,8 +1,8 @@
-use std::{collections::HashMap, ffi::OsStr, io::SeekFrom, path::{Path, PathBuf}};
+use std::{collections::HashMap, ffi::OsStr, path::{Path, PathBuf}};
 
 use log::warn;
 use serde_json::{Map, Value};
-use tokio::{fs::File, io::{AsyncReadExt, AsyncSeekExt, BufReader}};
+use tokio::{fs::File, io::BufReader};
 use tokio_util::codec::{BytesCodec, FramedRead};
 use warp::{
   reject::Rejection,
@@ -76,10 +76,10 @@ pub async fn rom_download_get_metadata(query_params: HashMap<String, String>) ->
 }
 
 /// Handles downloading a rom.
-pub async fn rom_download(query_params: HashMap<String, String>, range_header: Option<String>) -> Result<impl Reply, Rejection> {
+pub async fn rom_download(query_params: HashMap<String, String>) -> Result<impl Reply, Rejection> {
   if !query_params.contains_key("romPath") {
     warn!("Download ROM: Missing query param romPath");
-    // return Ok(Response::builder().status(404).body("File not found").unwrap());
+    return Ok(Response::builder().status(StatusCode::NOT_FOUND).body(Body::empty()).unwrap());
   }
   let path = query_params.get("romPath").unwrap().to_owned();
 
@@ -90,60 +90,28 @@ pub async fn rom_download(query_params: HashMap<String, String>, range_header: O
 
   let file_res = File::open(file_path).await;
   if file_res.is_err() {
-    // return Ok(Response::builder().status(404).body("File not found").unwrap());
+    return Ok(Response::builder().status(StatusCode::NOT_FOUND).body(Body::empty()).unwrap());
   }
   let file = file_res.unwrap();
 
   let metadata_res = file.metadata().await;
   if metadata_res.is_err() {
-    // return Ok(Response::builder().status(404).body("File not found").unwrap());
+    return Ok(Response::builder().status(StatusCode::NOT_FOUND).body(Body::empty()).unwrap());
   }
   let metadata = metadata_res.unwrap();
   let file_size = metadata.len();
 
-  // let (start, end) = match range_header {
-  //   Some(range) => {
-  //     if range.starts_with("bytes=") {
-  //       let range_parts: Vec<&str> = range[6..].split('-').collect();
-  //       let start = range_parts[0].parse::<u64>().unwrap_or(0);
-  //       let end = range_parts[1].parse::<u64>().unwrap_or(file_size - 1);
-  //       (start, end)
-  //     } else {
-  //       (0, file_size - 1) // Default to the entire file if no valid range is provided
-  //     }
-  //   },
-  //   None => (0, file_size - 1), // No Range header provided
-  // };
-
-  // let mut file = file;
-  // file.seek(SeekFrom::Start(start)).await.map_err(|_| warp::reject())?;
-
-  // let mut buffer = Vec::new();
-  // file.take(end - start + 1).read_to_end(&mut buffer).await.map_err(|_| warp::reject())?;
-
   let reader = BufReader::new(file);
-    
-  // Wrap the reader in FramedRead to convert it to a stream
   let framed_reader = FramedRead::new(reader, BytesCodec::new());
 
-  // Return the response with the body as the file stream
-  let response: Response<_> = Response::builder()
+  let response = Response::builder()
+    .status(StatusCode::OK)
     .header("Content-Length", file_size.to_string())
     .header("Content-Type", "application/octet-stream")
     .header("Content-Disposition", format!("attachement; filename = \"{}\"", filename))
     .header("Access-Control-Allow-Origin", "*")
     .body(Body::wrap_stream(framed_reader))
     .map_err(|_| warp::reject())?;
-
-  // let response = warp::http::Response::builder()
-  //   .status(206)  // Partial Content
-  //   .header("Content-Range", format!("bytes {}-{}/{}", start, end, file_size))
-  //   .header("Content-Length", (end - start + 1).to_string())
-  //   .header("Content-Type", "application/octet-stream")
-  //   .header("Content-Disposition", format!("attachement; filename = \"{}\"", filename))
-  //   .header("Access-Control-Allow-Origin", "*")
-  //   .body(buffer)
-  //   .map_err(|_| warp::reject())?;
 
   return Ok(response);
 }

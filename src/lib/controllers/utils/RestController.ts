@@ -26,7 +26,7 @@ export class RestController {
   private static readonly COVER_BASE_URL = "http://127.0.0.1:1500/rest/covers";
   private static readonly BASE_URL = "http://127.0.0.1:1500/rest";
 
-  private static downloadInProgress = false;
+  private static currentDownload: ReadableStreamDefaultReader<Uint8Array<ArrayBufferLike>> | null = null;
   static currentUploadId: string | null = null;
 
   /**
@@ -112,6 +112,14 @@ export class RestController {
     }
   }
 
+  private static downloadNative() {
+
+  }
+
+  private static downloadPolyfill() {
+    
+  }
+
   private static async streamDownload(path: string, fileSize: number, onProgress: (progress: number) => void) {
     let downloaded = 0;
 
@@ -119,7 +127,8 @@ export class RestController {
     const slashIndex = path.lastIndexOf("/");
     const startIndex = backslashIndex > slashIndex ? backslashIndex : slashIndex;
     const filename = path.substring(startIndex + 1);
-    // const fileStream = streamSaver.createWriteStream(filename, { size: fileSize });
+
+        // const fileStream = streamSaver.createWriteStream(filename, { size: fileSize });
 
     // const writer = fileStream.getWriter();
 
@@ -150,33 +159,37 @@ export class RestController {
 
     // writer.close();
 
-    const range = `bytes=${0}-${fileSize - 1}`;
+    const newHandle = await window.showSaveFilePicker({ suggestedName: filename });
+    const writableStream = await newHandle.createWritable();
 
-    const response = await fetch(this.BASE_URL + `/roms/download?romPath=${encodeURIComponent(path)}`, {
-      // headers: {
-      //   "Range": range,
-      // }
-    })
-    .then(async (response) => {
-      console.log("response:", response)
-      const reader = response.body?.getReader();
+    await fetch(this.BASE_URL + `/roms/download?romPath=${encodeURIComponent(path)}`)
+      .then(async (response) => {
+        const reader = response.body?.getReader();
 
-      if (!reader) return;
-      
-      while(true) {
-        const {done, value} = await reader.read();
-      
-        if (done) {
-          break;
+        if (!reader) return;
+
+        RestController.currentDownload = reader;
+        
+        while(true) {
+          const {done, value} = await reader.read();
+        
+          if (done) {
+            break;
+          }
+
+          if (!RestController.currentDownload) {
+            writableStream.abort("User Canceled");
+            break;
+          }
+          
+          await writableStream.write(value);
+        
+          downloaded += value.length;
+          onProgress(downloaded);
         }
-      
-        // chunks.push(value);
-        downloaded += value.length;
-        onProgress(downloaded);
-      
-        console.log(`Received ${downloaded} of ${fileSize}`)
-      }
-    });
+      });
+    
+    await writableStream.close();
   }
 
   private static async notifyDownloadComplete(data: ROMDownload) {
@@ -219,24 +232,23 @@ export class RestController {
     const { size, path } = await this.getMetadata(romDownloadConfig);
     romDownloadConfig.path = path;
     onStart(size);
-    RestController.downloadInProgress = true;
 
 
     await this.streamDownload(path, size, onProgress);
     
 
     await this.notifyDownloadComplete(romDownloadConfig);
-    onEnd(RestController.downloadInProgress);
+    onEnd(!!RestController.currentDownload);
 
-    RestController.downloadInProgress = false;
+    RestController.currentDownload = null;
   }
 
   /**
    * Cancels the current download if it exists.
    */
   static async cancelDownload() {
-    if (RestController.downloadInProgress) {
-      RestController.downloadInProgress = false;
+    if (RestController.currentDownload) {
+      RestController.currentDownload.cancel("User Canceled");
     } else {
       get(showWarningSnackbar)({ message: "There is no download currently" });
     }
