@@ -15,11 +15,11 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>
  */
 
-import { LogController } from "@controllers/utils/LogController";
 import { library, roms, romsBySystem, showWarningSnackbar, systems } from "@stores/State";
 import { BackendErrorType, type AvailableStorage, type BackendError, type FilePickerConfig, type FilePickerEntry, type Library, type LoadResult, type ROM, type ROMMetadata, type Settings } from "@types";
 import { hash64, showError, systemToParser } from "@utils";
 import { get } from "svelte/store";
+import { LogController } from "./LogController";
 
 type Response<T> = { data: T }
 
@@ -75,50 +75,11 @@ export class WebsocketController {
           break;
         }
         case "reload_library": {
-          const paths: string[] = JSON.parse(data).data;
+          // if (get(showUploadProgressModal) || RestController.currentUploadId) break;
 
-          const lib = get(library)
-          const systemMap = get(systems);
-          const systemList = Object.values(systemMap);
+          // const path: string = JSON.parse(data).data;
 
-          const romMap = get(roms);
-          const romSystemMap = get(romsBySystem);
-
-          for (const path of paths) {
-            let libraryName = null;
-
-            if (!libraryName) {
-              LogController.log(`\"${path}\" did not start with a library path. Skipping...`);
-              continue;
-            }
-
-            let pathNoLibrary = path.substring(lib.libraryPath.length + lib.romDir.length + 1);
-
-            let systemName = null;
-
-            for (const system of systemList) {
-              const parserName = systemToParser(system.abbreviation);
-
-              if (pathNoLibrary.startsWith(parserName)) {
-                systemName = parserName;
-                break;
-              }
-            }
-
-            if (!systemName) {
-              LogController.log(`\"${path}\" did not contain a system. Skipping...`);
-              continue;
-            }
-
-            const rom = await this.parseAddedRom(systemName, path);
-            const id = hash64(rom.path);
-
-            romMap[id] = rom;
-            romSystemMap[systemName].push(id);
-          }
-          
-          roms.set({ ...romMap });
-          romsBySystem.set({ ...romSystemMap });
+          // this.addRomFromPath(path);
           break;
         }
       }
@@ -202,6 +163,55 @@ export class WebsocketController {
   static async setSetting<T>(key: string, value: T): Promise<boolean> {
     const res = await WebsocketController.invoke<boolean>("set_setting", { key, value });
     return res.data;
+  }
+
+
+  /**
+   * ! Useful if live reloading is added in the future.
+   * Adds a rom based on its path.
+   * @param path The path of the Rom to add.
+   */
+  private static async addRomFromPath(path: string) {
+    const lib = get(library)
+    const systemMap = get(systems);
+    const systemList = Object.values(systemMap);
+
+    const romMap = get(roms);
+    const romSystemMap = get(romsBySystem);
+
+    let libraryName = null;
+
+    if (!libraryName) {
+      LogController.log(`\"${path}\" did not start with a library path. Skipping...`);
+      return;
+    }
+
+    let pathNoLibrary = path.substring(lib.libraryPath.length + lib.romDir.length + 1);
+
+    let systemName = null;
+
+    for (const system of systemList) {
+      const parserName = systemToParser(system.abbreviation);
+
+      if (pathNoLibrary.startsWith(parserName)) {
+        systemName = parserName;
+        break;
+      }
+    }
+
+    if (!systemName) {
+      LogController.log(`\"${path}\" did not contain a system. Skipping...`);
+      return;
+    }
+
+    const rom = await this.parseAddedRom(systemName, path);
+    const id = hash64(rom.path);
+
+    romMap[id] = rom;
+    romSystemMap[systemName].push(id);
+    
+    roms.set({ ...romMap });
+    romsBySystem.set({ ...romSystemMap });
   }
 
   

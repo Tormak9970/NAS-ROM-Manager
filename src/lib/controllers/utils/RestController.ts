@@ -28,7 +28,7 @@ export class RestController {
   private static readonly BASE_URL = "http://127.0.0.1:1500/rest";
 
   private static currentDownload: WritableStream<Uint8Array<ArrayBufferLike>> | null = null;
-  private static currentUploadId: string | null = null;
+  static currentUploadId: string | null = null;
 
   /**
    * Deletes the cover for a title.
