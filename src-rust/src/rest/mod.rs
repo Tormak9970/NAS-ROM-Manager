@@ -14,7 +14,7 @@ use cron::Schedule;
 use igdb::{igdb_get_metadata_by_id, igdb_search_game, init_igdb_client};
 use log::{info, warn};
 use rom_download::{delete_rom, download_rom, download_rom_complete, get_rom_metadata};
-use rom_upload::{prepare_rom_upload, rom_upload_complete, upload_rom};
+use rom_upload::{prepare_rom_upload, rom_upload_cancel, rom_upload_complete, upload_rom};
 use sgdb::{init_sgdb_client, sgdb_get_grids_by_id, sgdb_search_game};
 use types::{CoverUpload, IGDBClientStore, ROMDownload, ROMUploadComplete, SGDBClientStore, StreamStore};
 use warp::{http::Method, Filter};
@@ -131,10 +131,18 @@ pub fn initialize_rest_api(cover_cache_dir: String, cleanup_schedule: String) ->
   // * POST ROM (rest/roms/upload/complete)
   let upload_rom_complete_route = warp::path!("rest" / "roms" / "upload" / "complete")
     .and(warp::post())
-    .and(upload_store_filter)
+    .and(upload_store_filter.clone())
     .and(json_body_upload_complete())
     .and_then(rom_upload_complete)
     .with(&cors);
+
+    // * POST ROM (rest/roms/upload/complete)
+    let upload_rom_cancel_route = warp::path!("rest" / "roms" / "upload" / "cancel")
+      .and(warp::post())
+      .and(upload_store_filter)
+      .and(warp::filters::header::header("Upload-Id"))
+      .and_then(rom_upload_cancel)
+      .with(&cors);
   
 
   // * DELETE ROM (rest/roms)
@@ -204,6 +212,7 @@ pub fn initialize_rest_api(cover_cache_dir: String, cleanup_schedule: String) ->
     .or(prepare_upload_rom_route)
     .or(upload_rom_route)
     .or(upload_rom_complete_route)
+    .or(upload_rom_cancel_route)
     .or(delete_rom_route)
     .or(sgdb_init_route)
     .or(sgdb_get_grids_route)

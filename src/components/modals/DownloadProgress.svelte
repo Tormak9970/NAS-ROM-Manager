@@ -39,7 +39,7 @@
       },
       () => {
         $showInfoSnackbar({ message: "Download complete" });
-        onCancel();
+        open = false;
       }
     );
   });

@@ -17,7 +17,15 @@ pub async fn prepare_rom_upload(query_params: HashMap<String, String>) -> Result
     warn!("Prepare ROM upload: Missing query param romPath");
     return Err(warp::reject::reject());
   }
-  let path = query_params.get("romPath").unwrap().to_owned();
+  let path = PathBuf::from(query_params.get("romPath").unwrap().to_owned());
+  let parent_dir = path.parent();
+
+  if parent_dir.is_some() {
+    tokio::fs::create_dir_all(parent_dir.unwrap()).await.map_err(|e| {
+      warn!("Error creating parent directory: {}", e);
+      warp::reject::reject()
+    })?;
+  }
   
   tokio::fs::File::create(&path).await.map_err(|e| {
     warn!("Error creating file: {}", e);
@@ -119,7 +127,7 @@ pub async fn rom_upload_complete(streams_store: StreamStore, data: ROMUploadComp
     let file = File::open(&data.path)
       .await
       .map_err(|e| {
-        warn!("Error opening zip: {}", e);
+        warn!("(Complete) Error opening zip: {}", e);
         warp::reject::reject()
       })?;
     
@@ -129,7 +137,7 @@ pub async fn rom_upload_complete(streams_store: StreamStore, data: ROMUploadComp
     let unzipped_path = unpack_zip(file, &output_path)
       .await
       .map_err(|e| {
-        warn!("Error unpacking zip: {}", e);
+        warn!("(Complete) Error unpacking zip: {}", e);
         warp::reject::reject()
       })?;
     
@@ -138,11 +146,11 @@ pub async fn rom_upload_complete(streams_store: StreamStore, data: ROMUploadComp
     info!("Unzipped file: {}", data.path);
 
     tokio::fs::remove_file(&data.path).await.map_err(|e| {
-      warn!("Error deleting zipped rom folder: {}", e);
+      warn!("(Complete) Error deleting zipped rom folder: {}", e);
       warp::reject::reject()
     })?;
     
-    info!("Deleted file: {}", data.path);
+    info!("(Complete) Deleted file: {}", data.path);
   }
 
   let response = warp::http::Response::builder()
@@ -150,6 +158,33 @@ pub async fn rom_upload_complete(streams_store: StreamStore, data: ROMUploadComp
     .header("Content-Type", "text/plain")
     .header("Access-Control-Allow-Origin", "*")
     .body(final_path)
+    .map_err(|_| warp::reject())?;
+
+  return Ok(response);
+}
+
+/// Completes the ROM upload
+pub async fn rom_upload_cancel(streams_store: StreamStore, upload_id: String) -> Result<impl Reply, Rejection> {
+  let stream_res = streams_store.streams.write().await.remove(&upload_id);
+
+  if stream_res.is_none() {
+    warn!("(Cancel) Error getting stream for upload: {}", upload_id);
+    return Err(warp::reject::reject());
+  }
+  let stream = stream_res.unwrap();
+  
+  tokio::fs::remove_file(&stream.path).await.map_err(|e| {
+    warn!("(Cancel) Error deleting canceled upload: {}", e);
+    warp::reject::reject()
+  })?;
+  
+  info!("(Cancel) Deleted file: {}", stream.path);
+
+  let response = warp::http::Response::builder()
+    .status(200)
+    .header("Content-Type", "text/plain")
+    .header("Access-Control-Allow-Origin", "*")
+    .body("true".to_string())
     .map_err(|_| warp::reject())?;
 
   return Ok(response);

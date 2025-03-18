@@ -18,6 +18,7 @@
    * Function to run on cancel.
    */
   async function onCancel(): Promise<void> {
+    await RestController.cancelUpload();
     open = false;
   }
 

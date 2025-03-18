@@ -1,4 +1,4 @@
-import { library, showWarningSnackbar } from "@stores/State";
+import { library, showInfoSnackbar, showWarningSnackbar } from "@stores/State";
 import { BackendErrorType, type GridResults, type IGDBGame, type IGDBSearchResult, type ROM, type RomUploadConfig, type SGDBGame } from "@types";
 import { hash64, showError } from "@utils";
 import streamSaver from "streamsaver";
@@ -27,7 +27,8 @@ export class RestController {
   private static readonly COVER_BASE_URL = "http://127.0.0.1:1500/rest/covers";
   private static readonly BASE_URL = "http://127.0.0.1:1500/rest";
 
-  private static currentDownload: WritableStream<Uint8Array<ArrayBufferLike>>;
+  private static currentDownload: WritableStream<Uint8Array<ArrayBufferLike>> | null = null;
+  private static currentUploadId: string | null = null;
 
   /**
    * Deletes the cover for a title.
@@ -208,7 +209,7 @@ export class RestController {
     if (RestController.currentDownload) {
       RestController.currentDownload.abort("User Canceled");
     } else {
-      get(showWarningSnackbar)({ message: "There is now download currently" });
+      get(showWarningSnackbar)({ message: "There is no download currently" });
     }
   }
 
@@ -257,6 +258,8 @@ export class RestController {
     const fileSize = file.size;
 
     while (sent < fileSize) {
+      if (!RestController.currentUploadId) break;
+
       const end = Math.min(sent + this.STREAM_CHUNK_SIZE - 1, fileSize - 1);
       const range = `bytes=${sent}-${end}`;
       const length = end - sent + 1;
@@ -276,7 +279,7 @@ export class RestController {
         body: data
       });
 
-      if (!response.ok) {
+      if (!response.ok && RestController.currentUploadId) {
         throw new Error("Failed to send the chunk");
       }
 
@@ -308,6 +311,7 @@ export class RestController {
     onStart();
 
     const uploadId = hash64(filePath);
+    RestController.currentUploadId = uploadId;
 
   
     await this.streamUpload(
@@ -318,14 +322,46 @@ export class RestController {
     );
 
 
-    const finalPath = await this.uploadComplete({
-      uploadId: uploadId,
-      path: filePath,
-      libraryPath: lib.libraryPath,
-      system: system,
-      unzip: needsUnzip,
-    });
-    onEnd(finalPath !== "", finalPath);
+    if (RestController.currentUploadId) {
+      RestController.currentUploadId = null;
+
+      const finalPath = await this.uploadComplete({
+        uploadId: uploadId,
+        path: filePath,
+        libraryPath: lib.libraryPath,
+        system: system,
+        unzip: needsUnzip,
+      });
+      onEnd(finalPath !== "", finalPath);
+    }
+  }
+
+  /**
+   * Cancels the current upload if one exists.
+   * @returns True if successful, false if not.
+   */
+  static async cancelUpload(): Promise<boolean> {
+    if (RestController.currentUploadId) {
+      const res = await fetch(this.BASE_URL + "/roms/upload/cancel", {
+        method: "POST",
+        mode: "cors",
+        headers: {
+          "Upload-Id": RestController.currentUploadId,
+        },
+      });
+  
+      if (res.ok) {
+        get(showInfoSnackbar)({ message: "Upload canceled" });
+        RestController.currentUploadId = null;
+        return true;
+      } else {
+        LogController.error(`Failed to cancel the upload for ${RestController.currentUploadId}:`, res.statusText);
+      }
+    } else {
+      get(showWarningSnackbar)({ message: "There is no upload currently" });
+    }
+
+    return false;
   }
   
   /**
