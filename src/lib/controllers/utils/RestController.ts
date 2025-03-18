@@ -1,6 +1,7 @@
 import { library, showInfoSnackbar, showWarningSnackbar } from "@stores/State";
 import { BackendErrorType, type GridResults, type IGDBGame, type IGDBSearchResult, type ROM, type RomUploadConfig, type SGDBGame } from "@types";
 import { hash64, showError } from "@utils";
+import streamSaver from "streamsaver";
 import { get } from "svelte/store";
 import { LogController } from "./LogController";
 
@@ -112,84 +113,112 @@ export class RestController {
     }
   }
 
-  private static downloadNative() {
-
-  }
-
-  private static downloadPolyfill() {
-    
-  }
-
-  private static async streamDownload(path: string, fileSize: number, onProgress: (progress: number) => void) {
+  private static async downloadNative(url: string, filename: string, onProgress: (progress: number) => void) {
     let downloaded = 0;
-
-    const backslashIndex = path.lastIndexOf("\\");
-    const slashIndex = path.lastIndexOf("/");
-    const startIndex = backslashIndex > slashIndex ? backslashIndex : slashIndex;
-    const filename = path.substring(startIndex + 1);
-
-        // const fileStream = streamSaver.createWriteStream(filename, { size: fileSize });
-
-    // const writer = fileStream.getWriter();
-
-    // while (downloaded < fileSize) {
-    //   const end = Math.min(downloaded + this.STREAM_CHUNK_SIZE - 1, fileSize - 1);
-    //   const range = `bytes=${downloaded}-${end}`;
-    //   const length = end - downloaded;
-
-    //   const response = await fetch(this.BASE_URL + `/roms/download?romPath=${encodeURIComponent(path)}`, {
-    //     headers: {
-    //       "Range": range,
-    //     }
-    //   });
-
-    //   if (!response.ok) {
-    //     throw new Error("Failed to fetch the chunk");
-    //   }
-
-    //   const reader = response.body!.getReader();
-    //   let result;
-    //   while (!(result = await reader.read()).done) {
-    //     writer.write(result.value);
-    //   }
-
-    //   downloaded += length;
-    //   onProgress(downloaded);
-    // }
-
-    // writer.close();
 
     const newHandle = await window.showSaveFilePicker({ suggestedName: filename });
     const writableStream = await newHandle.createWritable();
 
-    await fetch(this.BASE_URL + `/roms/download?romPath=${encodeURIComponent(path)}`)
-      .then(async (response) => {
-        const reader = response.body?.getReader();
+    const pageHideOptions = { capture: true };
+    const onPageHideChange = () => writableStream.abort();
 
-        if (!reader) return;
+    window.onbeforeunload = () => {
+      return "A download is in progress, are you sure you want to leave?";
+    }
+    window.addEventListener("pagehide", onPageHideChange, pageHideOptions);
 
-        RestController.currentDownload = reader;
-        
-        while(true) {
-          const {done, value} = await reader.read();
-        
-          if (done) {
-            break;
-          }
+    await fetch(url).then(async (response) => {
+      const reader = response.body?.getReader();
 
-          if (!RestController.currentDownload) {
-            writableStream.abort("User Canceled");
-            break;
-          }
-          
-          await writableStream.write(value);
-        
-          downloaded += value.length;
-          onProgress(downloaded);
+      if (!reader) return;
+
+      RestController.currentDownload = reader;
+      
+      while(true) {
+        const {done, value} = await reader.read();
+      
+        if (done) {
+          break;
         }
-      });
+
+        if (!RestController.currentDownload) {
+          writableStream.abort("User Canceled");
+          break;
+        }
+        
+        await writableStream.write(value);
+      
+        downloaded += value.length;
+        onProgress(downloaded);
+      }
+    });
     
     await writableStream.close();
+    
+    window.onbeforeunload = null;
+    window.removeEventListener("pagehide", onPageHideChange, pageHideOptions);
+  }
+
+  private static async downloadPolyfill(url: string, filename: string, fileSize: number, onProgress: (progress: number) => void) {
+    let downloaded = 0;
+    const fileStream = streamSaver.createWriteStream(filename, { size: fileSize });
+    const writer = fileStream.getWriter();
+    
+    const pageHideOptions = { capture: true };
+    const onPageHideChange = () => writer.abort();
+
+    window.onbeforeunload = () => {
+      return "A download is in progress, are you sure you want to leave?";
+    }
+    window.addEventListener("pagehide", onPageHideChange, pageHideOptions);
+
+    await fetch(url).then(async (response) => {
+      const reader = response.body?.getReader();
+
+      if (!reader) return;
+
+      RestController.currentDownload = reader;
+      
+      while(true) {
+        const { done, value } = await reader.read();
+      
+        if (done) {
+          break;
+        }
+
+        if (!RestController.currentDownload) {
+          writer.abort("User Canceled");
+          break;
+        }
+        
+        await writer.write(value);
+      
+        downloaded += value.length;
+        onProgress(downloaded);
+      }
+    });
+
+    writer.close();
+    
+    window.onbeforeunload = null;
+    window.removeEventListener("pagehide", onPageHideChange, pageHideOptions);
+  }
+
+  private static async streamDownload(path: string, fileSize: number, onProgress: (progress: number) => void) {
+    const backslashIndex = path.lastIndexOf("\\");
+    const slashIndex = path.lastIndexOf("/");
+    const startIndex = backslashIndex > slashIndex ? backslashIndex : slashIndex;
+    const filename = path.substring(startIndex + 1);
+    
+    const romURL = this.BASE_URL + `/roms/download?romPath=${encodeURIComponent(path)}`;
+
+    // @ts-expect-error This error is because we have a type package installed. The File System API is still not supported in all browsers.
+    // ? See https://developer.mozilla.org/en-US/docs/Web/API/FileSystemWritableFileStream#browser_compatibility
+    if (window.showSaveFilePicker) {
+      await this.downloadNative(romURL, filename, onProgress);
+    } else {
+      await this.downloadPolyfill(romURL, filename, fileSize, onProgress);
+    }
   }
 
   private static async notifyDownloadComplete(data: ROMDownload) {
