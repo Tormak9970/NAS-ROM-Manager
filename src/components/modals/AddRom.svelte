@@ -54,10 +54,12 @@
         <div class="m3-font-title-medium">Unzip after upload:</div>
         <Checkbox bind:checked={needsUnzip} />
       </label>
-      <label>
-        <div class="m3-font-title-medium">Zip has <a href="https://github.com/Tormak9970/NAS-ROM-Manager?tab=readme-ov-file#single-root-folder" rel="noopener noreferrer" target="_blank">one root folder</a>:</div>
-        <Checkbox bind:checked={okStructure} />
-      </label>
+      {#if needsUnzip}
+        <label>
+          <div class="m3-font-title-medium">Zip has <a href="https://github.com/Tormak9970/NAS-ROM-Manager?tab=readme-ov-file#single-root-folder" rel="noopener noreferrer" target="_blank">one root folder</a>:</div>
+          <Checkbox bind:checked={okStructure} />
+        </label>
+      {/if}
     {/if}
   </div>
   <div slot="buttons" class="buttons">
