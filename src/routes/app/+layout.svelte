@@ -7,6 +7,8 @@
   import { isSignedIn } from "@stores/Auth";
   import { isLandscape, loadedApp } from "@stores/State";
   import Header from "@views/Header.svelte";
+  import Modals from "../../components/modals/Modals.svelte";
+  import Sheets from "../../components/sheets/Sheets.svelte";
 
 	let { children } = $props();
 
@@ -19,6 +21,8 @@
   let condenseDesktopNav = $state(false);
 </script>
 
+<Modals />
+<Sheets />
 <MediaQuery query="(max-width: 1200px)" bind:matches={condenseDesktopNav} />
 {#if !$loadedApp}
   <div class="loading-container">
