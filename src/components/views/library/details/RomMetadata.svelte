@@ -2,6 +2,7 @@
   import { IGDB_WEBSITE_TYPES, type ROMMetadata } from "@types";
   import { formatDateNumber } from "@utils";
   import AgeRating from "@views/library/details/AgeRating.svelte";
+  import RelatedGameTableRow from "@views/library/details/RelatedGameTableRow.svelte";
   import WebsiteLink from "@views/library/details/WebsiteLink.svelte";
   import TableRow from "./TableRow.svelte";
 
@@ -55,15 +56,13 @@
         label="Release Date"
         value={metadata.metadata?.metadata?.firstReleaseDate ? formatDateNumber(metadata.metadata?.metadata?.firstReleaseDate) : 'Unkown'}
       />
-      <!-- TODO: truncate after 4 entries -->
-      <TableRow
+      <RelatedGameTableRow
         label="DLCs"
-        value={metadata.metadata?.metadata?.dlcs?.join(',\n') || 'None'}
+        value={metadata.metadata?.metadata?.dlcs ?? []}
       />
-      <!-- TODO: truncate after 4 entries -->
-      <TableRow
+      <RelatedGameTableRow
         label="Expansions"
-        value={metadata.metadata?.metadata?.expansions?.join(',\n') || 'None'}
+        value={metadata.metadata?.metadata?.expansions ?? []}
       />
       <TableRow
         label="Franchise"
