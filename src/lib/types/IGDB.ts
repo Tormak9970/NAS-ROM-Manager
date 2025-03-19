@@ -4,6 +4,29 @@ export type IGDBMetadataPlatform = {
   abbreviation: string;
 }
 
+export enum IGDB_WEBSITE_TYPES {
+  SGDB = "SGDB",
+  IGDB = "IGDB",
+  OFFICIAL = "official",
+  WIKIA = "wikia",
+  WIKIPEDIA = "wikipedia",
+  FACEBOOK = "facebook",
+  TWITTER = "twitter",
+  TWITCH = "twitch",
+  INSTAGRAM = "instagram",
+  YOUTUBE = "youtube",
+  IPHONE = "iphone",
+  IPAD = "ipad",
+  ANDROID = "android",
+  STEAM = "steam",
+  REDDIT = "reddit",
+  ITCH = "itch",
+  EPICGAMES = "epicgames",
+  GOG = "gog",
+  DISCORD = "discord",
+  BLUESKY = "bluesky",
+};
+
 export const RATINGS_COUNTRIES: Record<string, string> = {
     PEGI: "EU",
     ESRB: "U.S. & CA",
@@ -16,7 +39,7 @@ export const RATINGS_COUNTRIES: Record<string, string> = {
 
 export type IGDBWebsite = {
   url: string;
-  type: string;
+  type: IGDB_WEBSITE_TYPES;
 }
 
 export type IGDBAgeRating = {

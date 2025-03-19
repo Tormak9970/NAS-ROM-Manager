@@ -1,7 +1,8 @@
 <script lang="ts">
-  import type { ROMMetadata } from "@types";
+  import { IGDB_WEBSITE_TYPES, type ROMMetadata } from "@types";
   import { formatDateNumber } from "@utils";
   import AgeRating from "@views/library/details/AgeRating.svelte";
+  import WebsiteLink from "@views/library/details/WebsiteLink.svelte";
   import TableRow from "./TableRow.svelte";
 
   type Props = {
@@ -12,6 +13,8 @@
   let { metadata, portrait }: Props = $props();
 
   let ageRatings = $derived(metadata.metadata?.metadata?.ageRatings ?? []);
+
+  let websites = $derived(metadata.metadata?.metadata?.websites ?? []);
 </script>
 
 <div class="details metadata" class:portrait>
@@ -48,9 +51,6 @@
   </div>
   <div class="right">
     <div class="table-info">
-      <div class="ratings">
-  
-      </div>
       <TableRow
         label="Release Date"
         value={metadata.metadata?.metadata?.firstReleaseDate ? formatDateNumber(metadata.metadata?.metadata?.firstReleaseDate) : 'Unkown'}
@@ -70,9 +70,11 @@
         value={metadata.metadata?.metadata?.franchises?.[0] ?? 'Unkown'}
       />
       <div class="links">
-        TODO: Links
-        <!-- TODO: SGDB -->
-        <!-- TODO: IGDB -->
+        <WebsiteLink type={IGDB_WEBSITE_TYPES.SGDB} url="https://www.steamgriddb.com/game/{metadata.sgdbId}" />
+        <WebsiteLink type={IGDB_WEBSITE_TYPES.IGDB} url="https://www.igdb.com/games/{metadata.metadata?.slug}" />
+        {#each websites as website}
+          <WebsiteLink type={website.type} url={website.url} />
+        {/each}
       </div>
     </div>
   </div>
@@ -114,12 +116,8 @@
     gap: 2rem;
   }
 
-  .table-info {
-    border-radius: var(--m3-util-rounding-small);
-
-    border: 1px solid rgb(var(--m3-scheme-surface-container-highest));
-
-    width: 20rem;
+  .companies .body-text {
+    white-space: pre;
   }
 
   .age-ratings {
@@ -129,7 +127,22 @@
     gap: 1rem;
   }
 
-  .companies .body-text {
-    white-space: pre;
+  .table-info {
+    border-radius: var(--m3-util-rounding-small);
+
+    border: 1px solid rgb(var(--m3-scheme-surface-container-highest));
+
+    width: 20rem;
+  }
+
+  .links {
+    width: calc(100% - 1rem);
+    
+    margin: 0.5rem;
+
+    display: flex;
+    flex-wrap: wrap;
+
+    gap: 0.5rem;
   }
 </style>
