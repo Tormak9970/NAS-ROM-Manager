@@ -33,7 +33,7 @@ export class RomController {
    * @param romId The id of the rom.
    */
   static changeCover(romId: string) {
-
+    
   }
 
   /**
@@ -93,7 +93,11 @@ export class RomController {
       const romsDict = get(roms);
       const rom = romsDict[romId];
     
+      showLoadingModal.set(true);
+      loadingModalMessage.set("Deleting ROM...");
       const success = await RestController.deleteRom(rom.path);
+      loadingModalMessage.set("");
+      showLoadingModal.set(false);
       if (!success) return;
 
       delete romsDict[romId];

@@ -1,10 +1,10 @@
 <script lang="ts">
   import { ModalBody } from "@component-utils";
-  import { RestController, WebsocketController } from "@controllers";
+  import { RestController, SGDBController, WebsocketController } from "@controllers";
   import { Button, ProgressIndicator } from "@interactables";
   import { LoadingSpinner } from "@layout";
   import { editIsPostUpload, romEditingId, showEditRomModal, showUploadProgressModal, uploadProgressConfig } from "@stores/Modals";
-  import { roms, romsBySystem, showInfoSnackbar, showWarningSnackbar } from "@stores/State";
+  import { romMetadata, roms, romsBySystem, showInfoSnackbar, showWarningSnackbar } from "@stores/State";
   import { formatFileSize, hash64 } from "@utils";
   import { onMount } from "svelte";
 
@@ -45,7 +45,22 @@
       $roms[id] = rom;
       $romsBySystem[rom.system].push(id);
 
+      $romMetadata[id] = {
+        title: rom.title,
+        coverPath: "",
+        thumbPath: "",
+        sgdbId: "",
+        igdbId: "",
+        metadata: null,
+        isFavorite: false,
+      }
+
+      if ($romMetadata[id].sgdbId === "") {
+        $romMetadata[id].sgdbId = await SGDBController.chooseSteamGridGameId(id, $romMetadata[id].title);
+      }
+
       $roms = { ...$roms };
+      $romMetadata = { ...$romMetadata };
       $romsBySystem = { ...$romsBySystem };
     }
 
