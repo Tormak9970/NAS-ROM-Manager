@@ -1,8 +1,10 @@
 <script lang="ts">
   import { Icon } from "@component-utils";
+  import { RomController } from "@controllers";
+  import { contextMenu } from "@directives";
   import { Download, FavoriteOff, FavoriteOn, Landscape } from "@icons";
   import { Button } from "@interactables";
-  import { downloadProgressRom, showDownloadProgressModal } from "@stores/Modals";
+  import { getRomMenuItems } from "@menus";
   import { libraryGridType, romMetadata, roms } from "@stores/State";
   import type { ROMMetadata } from "@types";
   import { formatFileSize, goToROM, GRID_LAYOUTS } from "@utils";
@@ -23,15 +25,7 @@
   let layout = $derived(GRID_LAYOUTS[$libraryGridType]);
   let isFavorite = $derived(metadata.isFavorite);
 
-  function download() {
-    $downloadProgressRom = rom;
-    $showDownloadProgressModal = true;
-  }
-
-  function toggleFavorite() {
-    $romMetadata[romId].isFavorite = !isFavorite;
-    $romMetadata = { ...$romMetadata };
-  }
+  let menuItems = $derived(getRomMenuItems(romId, metadata?.igdbId));
 </script>
 
 <!-- svelte-ignore a11y_click_events_have_key_events -->
@@ -42,6 +36,7 @@
   style:height="{layout.height - 2}px"
   onclick={() => goToROM(romId)}
   in:fade={{ duration: 200 }}
+  use:contextMenu={{ items: menuItems }}
 >
   {#if metadata.thumbPath === "No Grids"}
     <div class="placeholder">
@@ -65,7 +60,7 @@
         extraOptions={{
           style: "width: 100%;"
         }}
-        on:click={download}
+        on:click={() => RomController.download(romId)}
       >
         <Icon icon={Download} />
         Download
@@ -76,7 +71,7 @@
     <SystemTag system={rom.system} />
   </div>
   <div class="favorite" class:visible={isFavorite}>
-    <Button iconType="full" type="text" size="2rem" iconSize="1.25rem" on:click={toggleFavorite}>
+    <Button iconType="full" type="text" size="2rem" iconSize="1.25rem" on:click={() => RomController.toggleFavorite(romId)}>
       <Icon icon={isFavorite ? FavoriteOn : FavoriteOff} />
     </Button>
   </div>

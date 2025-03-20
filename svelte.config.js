@@ -22,6 +22,7 @@ const config = {
       "@controllers": "./src/lib/controllers",
       "@models": "./src/lib/models",
       "@directives": "./src/lib/directives",
+      "@menus": "./src/lib/context-menus",
       "@utils": "./src/lib/utils",
       "@types": "./src/lib/types",
       "@icons": "./src/lib/icons"

@@ -1,6 +1,7 @@
 export { AppController } from "./AppController";
 export { AuthController } from "./AuthController";
 export { IGDBController } from "./IGDBController";
+export { RomController } from "./RomController";
 export { SGDBController } from "./SGDBController";
 export { DialogController } from "./utils/DialogController";
 export { LogController } from "./utils/LogController";

@@ -436,11 +436,11 @@ export class RestController {
   
   /**
    * Deletes a ROM from the server.
-   * @param rom The rom to delete.
+   * @param romPath The path of the rom to delete.
    * @returns Whether the delete was successful.
    */
-  static async deleteRom(rom: ROM): Promise<boolean> {
-    const res = await fetch(this.BASE_URL + `/roms/delete?romPath=${encodeURIComponent(rom.path)}`, {
+  static async deleteRom(romPath: string): Promise<boolean> {
+    const res = await fetch(this.BASE_URL + `/roms/delete?romPath=${encodeURIComponent(romPath)}`, {
       method: "DELETE",
       mode: "cors",
       headers: {
@@ -451,7 +451,7 @@ export class RestController {
     if (res.ok) {
       return true;
     } else {
-      LogController.error(`Failed to delete rom ${rom.path}:`, res.statusText);
+      LogController.error(`Failed to delete rom ${romPath}:`, res.statusText);
       return false;
     }
   }

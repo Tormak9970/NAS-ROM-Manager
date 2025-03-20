@@ -1,5 +1,5 @@
 <script>
-  import { showAddRomModal, showControlledModal, showDownloadProgressModal, showEditLibraryModal, showEditRomModal, showEditRouteOrderModal, showFilePickerModal, showUploadProgressModal } from "@stores/Modals";
+  import { showAddRomModal, showControlledModal, showDownloadProgressModal, showEditLibraryModal, showEditRomModal, showEditRouteOrderModal, showFilePickerModal, showLoadingModal, showUploadProgressModal } from "@stores/Modals";
   import AddRom from "./AddRom.svelte";
   import Controlled from "./Controlled.svelte";
   import DownloadProgress from "./DownloadProgress.svelte";
@@ -7,6 +7,7 @@
   import EditRom from "./EditRom.svelte";
   import EditRouteOrder from "./EditRouteOrder.svelte";
   import FilePicker from "./file-picker/FilePicker.svelte";
+  import Loading from "./Loading.svelte";
   import UploadProgress from "./UploadProgress.svelte";
 </script>
 
@@ -40,4 +41,8 @@
 
 {#if $showEditRomModal}
   <EditRom />
+{/if}
+
+{#if $showLoadingModal}
+  <Loading />
 {/if}

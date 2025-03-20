@@ -33,3 +33,6 @@ export const uploadProgressConfig = writable<RomUploadConfig | null>(null);
 export const showEditRomModal = writable(false);
 export const editIsPostUpload = writable(false);
 export const romEditingId = writable<string | null>(null);
+
+export const showLoadingModal = writable(false);
+export const loadingModalMessage = writable("");

@@ -3,13 +3,11 @@ import { contextMenuItems, contextMenuPosition, showContextMenu } from "@stores/
 import type { Action } from "svelte/action";
 
 export type ActionMenuItem = {
-  id: string;
   text: string;
   action: () => void;
 }
 
 export type IconMenuItem = {
-  id: string;
   icon: IconifyIcon;
   text: string;
   action: () => void;
@@ -22,7 +20,6 @@ export type SeperatorMenuItem = {
 export type ContextMenuItem = ActionMenuItem | IconMenuItem | SeperatorMenuItem;
 
 type ContextMenuParams = {
-  id: string;
   items: ContextMenuItem[];
   disabled?: boolean;
 }
@@ -30,9 +27,8 @@ type ContextMenuParams = {
 /**
  * A Svelte directive for custom context menus.
  */
-export const contextMenu: Action<HTMLElement, ContextMenuParams> = (node: HTMLElement, { id, items, disabled }) => {
+export const contextMenu: Action<HTMLElement, ContextMenuParams> = (node: HTMLElement, { items, disabled }) => {
   const config = {
-    id: id,
     items: items,
     disabled: disabled ?? false,
   }
@@ -54,8 +50,7 @@ export const contextMenu: Action<HTMLElement, ContextMenuParams> = (node: HTMLEl
   node.addEventListener("contextmenu", handleContextMenu);
 
   return {
-    update({ id, items, disabled }) {
-      config.id = id;
+    update({ items, disabled }) {
       config.items = items;
       config.disabled = disabled ?? false;
     },

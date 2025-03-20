@@ -3,12 +3,11 @@
   import { routes } from "$lib/routes";
   import { Icon } from "@component-utils";
   import MediaQuery from "@component-utils/MediaQuery.svelte";
-  import { IGDBController } from "@controllers";
+  import { IGDBController, RomController } from "@controllers";
   import { BackArrow, Download, Edit, FavoriteOff, FavoriteOn } from "@icons";
   import Button from "@interactables/Button.svelte";
   import { LoadingSpinner } from "@layout";
   import LibraryLoadGuard from "@layout/load-guards/LibraryLoadGuard.svelte";
-  import { downloadProgressRom, romEditingId, showDownloadProgressModal, showEditRomModal } from "@stores/Modals";
   import { romMetadata, roms, showWarningSnackbar, systems } from "@stores/State";
   import { NO_IGDB_RESULTS } from "@types";
   import { formatFileSize, GRID_LAYOUTS } from "@utils";
@@ -31,34 +30,15 @@
   let isFavorite = $derived(metadata?.isFavorite);
 
   let isLoading = $state(true);
-  
-  function toggleFavorite() {
-    $romMetadata[id].isFavorite = !isFavorite;
-    $romMetadata = { ...$romMetadata };
-  }
-  
-  function editRom() {
-    $romEditingId = id;
-    $showEditRomModal = true;
-  }
-
-  function download() {
-    $downloadProgressRom = rom;
-    $showDownloadProgressModal = true;
-  }
 
   async function loadMetadata() {
     const ids = await IGDBController.searchForGame(metadata.title || rom.title, system.igdbPlatformId);
     
     if (ids.length > 0) {
-      metadata.igdbId = ids[0].igdbId.toString();
-
-      const igdbMetadata = await IGDBController.getMetadata(metadata.igdbId);
-      metadata.metadata = igdbMetadata;
-
-      $romMetadata = { ...$romMetadata };
+      await RomController.getMetadata(id, ids[0].igdbId.toString());
     } else {
       metadata.igdbId = NO_IGDB_RESULTS;
+      $romMetadata = { ...$romMetadata };
     }
 
     isLoading = false;
@@ -115,18 +95,18 @@
         </div>
       </div>
       <div class="controls" class:portrait style:--m3-button-shape="var(--m3-util-rounding-small)">
-        <Button iconType="full" type="text" on:click={toggleFavorite}>
+        <Button iconType="full" type="text" on:click={() => RomController.toggleFavorite(id)}>
           <Icon icon={isFavorite ? FavoriteOn : FavoriteOff} />
         </Button>
         <Button
           type="filled"
           iconType="left"
-          on:click={download}
+          on:click={() => RomController.download(id)}
         >
           <Icon icon={Download} />
           Download
         </Button>
-        <Button iconType="full" type="filled" on:click={editRom}>
+        <Button iconType="full" type="filled" on:click={() => RomController.edit(id)}>
           <Icon icon={Edit} />
         </Button>
       </div>
