@@ -1,4 +1,4 @@
-import { downloadProgressRom, loadingModalMessage, romEditingId, showDownloadProgressModal, showEditRomModal, showLoadingModal } from "@stores/Modals";
+import { changeCoverId, downloadProgressRom, loadingModalMessage, romEditingId, showChangeCoverModal, showDownloadProgressModal, showEditRomModal, showLoadingModal } from "@stores/Modals";
 import { romMetadata, roms, romsBySystem } from "@stores/State";
 import { get } from "svelte/store";
 import { IGDBController } from "./IGDBController";
@@ -33,7 +33,8 @@ export class RomController {
    * @param romId The id of the rom.
    */
   static changeCover(romId: string) {
-    
+    changeCoverId.set(romId);
+    showChangeCoverModal.set(true);
   }
 
   /**

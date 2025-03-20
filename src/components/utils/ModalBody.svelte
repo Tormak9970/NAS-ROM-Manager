@@ -79,6 +79,9 @@
       </div>
     {/if}
     <div class="m3-container">
+      <div class="action-container">
+        <slot name="headline-action" />
+      </div>
       {#if icon}
         <Icon {icon} />
       {/if}
@@ -123,6 +126,12 @@
 
     position: relative;
     z-index: 1;
+  }
+
+  .action-container {
+    position: absolute;
+    right: 1.25rem;
+    top: 1.25rem;
   }
 
   .m3-container > :global(svg) {

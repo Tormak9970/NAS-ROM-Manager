@@ -36,3 +36,6 @@ export const romEditingId = writable<string | null>(null);
 
 export const showLoadingModal = writable(false);
 export const loadingModalMessage = writable("");
+
+export const showChangeCoverModal = writable(false);
+export const changeCoverId = writable<string | null>(null);
