@@ -2,6 +2,7 @@ export { default as BottomSheet } from "./BottomSheet.svelte";
 export { default as Card } from "./Card.svelte";
 export { default as CardClickable } from "./CardClickable.svelte";
 export { default as Divider } from "./Divider.svelte";
+export { default as InfiniteScroll } from "./InfiniteScroll.svelte";
 export { default as Lazy } from "./Lazy.svelte";
 export { default as ListItem } from "./ListItem.svelte";
 export { default as ListItemButton } from "./ListItemButton.svelte";
@@ -14,3 +15,4 @@ export { default as VirtualGrid } from "./VirtualGrid.svelte";
 export { default as VirtualList } from "./VirtualList.svelte";
 
 export { default as LibraryLoadGuard } from "./load-guards/LibraryLoadGuard.svelte";
+

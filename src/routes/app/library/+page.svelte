@@ -1,6 +1,7 @@
 <script lang="ts">
   import { RestController, SGDBController } from "@controllers";
   import { VirtualGrid } from "@layout";
+  import { changeCoverId } from "@stores/Modals";
   import { dbFilters, libraryGridType, loadedLibrary, romMetadata, roms } from "@stores/State";
   import { filterGrids, GRID_LAYOUTS } from "@utils";
   import Rom from "@views/library/Rom.svelte";
@@ -82,6 +83,7 @@
     items={romIdList}
     columnGap={layout.gap}
     rowGap={layout.gap}
+    keyFunction={(entry) => `${entry.index}|${entry.data}|${entry.data === $changeCoverId}`}
     let:entry
   >
     {#if loadedKeys[entry]}

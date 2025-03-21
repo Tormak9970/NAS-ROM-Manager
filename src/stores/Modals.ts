@@ -1,4 +1,4 @@
-import type { FilePickerConfig, ROM, RomUploadConfig } from "@types";
+import type { FilePickerConfig, ROM, RomUploadConfig, SGDBImage } from "@types";
 import { localStorageWritable } from "@utils";
 import { writable } from "svelte/store";
 
@@ -39,3 +39,4 @@ export const loadingModalMessage = writable("");
 
 export const showChangeCoverModal = writable(false);
 export const changeCoverId = writable<string | null>(null);
+export const selectedNewCoverGrid = writable<SGDBImage | null>(null);

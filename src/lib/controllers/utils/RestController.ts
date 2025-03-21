@@ -85,9 +85,11 @@ export class RestController {
       const images = await res.text();
       const [thumb, full] = images.split(",");
       
+      const currentTime = new Date().getTime();
+
       return [
-        `${this.COVER_BASE_URL}/thumb/${thumb}`,
-        `${this.COVER_BASE_URL}/full/${full}`,
+        `${this.COVER_BASE_URL}/thumb/${thumb}#${currentTime}`,
+        `${this.COVER_BASE_URL}/full/${full}#${currentTime}`,
       ];
     } else {
       LogController.error(`Failed to cache cover ${coverUrl}:`, res.statusText);

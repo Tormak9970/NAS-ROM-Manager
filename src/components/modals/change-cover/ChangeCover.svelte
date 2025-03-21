@@ -1,29 +1,40 @@
 <script lang="ts">
-  import { Icon, ModalBody } from "@component-utils";
+  import { Icon } from "@component-utils";
+  import LargeModalBody from "@component-utils/LargeModalBody.svelte";
+  import { RestController } from "@controllers";
   import { Tune } from "@icons";
   import { Button } from "@interactables";
-  import { changeCoverId, showChangeCoverModal } from "@stores/Modals";
+  import { LoadingSpinner } from "@layout";
+  import { changeCoverId, selectedNewCoverGrid, showChangeCoverModal } from "@stores/Modals";
   import { showSGDBFiltersSheet } from "@stores/Sheets";
-  import { romMetadata, roms } from "@stores/State";
+  import { romMetadata } from "@stores/State";
+  import GridResults from "./GridResults.svelte";
 
   let open = $state(true);
+  
+  let saving = $state(false);
 
-  let rom = $roms[$changeCoverId!];
   let metadata = $romMetadata[$changeCoverId!];
-
-  let coverPath = $state(metadata.coverPath);
-  let thumbPath = $state(metadata.thumbPath);
-
-  let canSave = $derived(!!coverPath && !!thumbPath);
+  let canSave = $derived($selectedNewCoverGrid !== null);
 
   /**
    * Function to run on confirmation.
    */
   async function onSave(): Promise<void> {
-    $romMetadata[$changeCoverId!].coverPath = coverPath;
-    $romMetadata[$changeCoverId!].thumbPath = thumbPath;
+    saving = true;
+
+    const [cover, thumb] = await RestController.cacheCover(
+      $selectedNewCoverGrid!.url.toString(),
+      $selectedNewCoverGrid!.thumb.toString(),
+      $changeCoverId!
+    )
+
+    $romMetadata[$changeCoverId!].coverPath = cover;
+    $romMetadata[$changeCoverId!].thumbPath = thumb;
 
     $romMetadata = { ...$romMetadata };
+
+    open = false;
   }
 
   /**
@@ -36,15 +47,19 @@
   function closeEnd() {
     $showChangeCoverModal = false;
     $changeCoverId = null;
+    $selectedNewCoverGrid = null;
   }
 </script>
 
-<ModalBody
+<LargeModalBody
   headline={"Change Cover Art"}
   open={open}
   on:closeEnd={closeEnd}
+  extraWrapperOptions={{
+    style: "width: calc(100% - 2rem); max-width: 40rem;"
+  }}
   extraOptions={{
-    style: "min-width: 300px; max-width: 32rem; width: 100vw;"
+    style: "width: 100%;"
   }}
 >
   <div slot="headline-action">
@@ -53,17 +68,24 @@
     </Button>
   </div>
   <div class="content">
-    <!-- TODO: render grids here -->
+    {#if saving}
+      <div class="loading-container">
+        <LoadingSpinner /> <div class="font-headline-small">Applying Cover...</div>
+      </div>
+    {:else}
+      <GridResults sgdbId={metadata.sgdbId} />
+    {/if}
   </div>
   <div slot="buttons" class="buttons">
     <Button type="text" on:click={onCancel}>Cancel</Button>
     <Button type="text" on:click={onSave} disabled={!canSave}>Save</Button>
   </div>
-</ModalBody>
+</LargeModalBody>
 
 <style>
   .content {
     width: 100%;
+    height: 100%;
 
     display: flex;
     flex-direction: column;
@@ -73,6 +95,16 @@
   .buttons {
     display: flex;
     align-items: center;
+    gap: 20px;
+  }
+  
+  .loading-container {
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
     gap: 20px;
   }
 </style>
