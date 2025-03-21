@@ -66,6 +66,7 @@ export { default as Today } from "@ktibow/iconset-material-symbols/today-rounded
 
 export { default as Edit } from "@ktibow/iconset-material-symbols/edit-outline-rounded";
 
+export { default as Cached } from "@ktibow/iconset-material-symbols/cached-rounded";
 export { default as Refresh } from "@ktibow/iconset-material-symbols/refresh-rounded";
 
 export { default as Sort } from "@ktibow/iconset-material-symbols/sort-rounded";
@@ -95,4 +96,7 @@ export { default as FavoriteOn } from "@ktibow/iconset-material-symbols/favorite
 
 export { default as ChevronLeft } from "@ktibow/iconset-material-symbols/chevron-left";
 export { default as ChevronRight } from "@ktibow/iconset-material-symbols/chevron-right";
+
+export { default as DatabaseSearch } from "@ktibow/iconset-material-symbols/database-search-rounded";
+export { default as SportsEsports } from "@ktibow/iconset-material-symbols/sports-esports-rounded";
 

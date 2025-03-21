@@ -40,3 +40,11 @@ export const loadingModalMessage = writable("");
 export const showChangeCoverModal = writable(false);
 export const changeCoverId = writable<string | null>(null);
 export const selectedNewCoverGrid = writable<SGDBImage | null>(null);
+
+export const showSearchSGDBModal = writable(false);
+export const sgdbSearchTitle = writable<string | null>(null);
+export const sgdbSearchOnSelect = writable((sgdbId: string) => {});
+
+export const showSearchIGDBModal = writable(false);
+export const igdbSearchTitle = writable<string | null>(null);
+export const igdbSearchOnSelect = writable((igdbId: string) => {});

@@ -1,5 +1,5 @@
 <script>
-  import { showAddRomModal, showChangeCoverModal, showControlledModal, showDownloadProgressModal, showEditLibraryModal, showEditRomModal, showEditRouteOrderModal, showFilePickerModal, showLoadingModal, showUploadProgressModal } from "@stores/Modals";
+  import { showAddRomModal, showChangeCoverModal, showControlledModal, showDownloadProgressModal, showEditLibraryModal, showEditRomModal, showEditRouteOrderModal, showFilePickerModal, showLoadingModal, showSearchIGDBModal, showSearchSGDBModal, showUploadProgressModal } from "@stores/Modals";
   import AddRom from "./AddRom.svelte";
   import ChangeCover from "./change-cover/ChangeCover.svelte";
   import Controlled from "./Controlled.svelte";
@@ -8,7 +8,9 @@
   import EditRom from "./EditRom.svelte";
   import EditRouteOrder from "./EditRouteOrder.svelte";
   import FilePicker from "./file-picker/FilePicker.svelte";
+  import IGDBSearch from "./IGDBSearch.svelte";
   import Loading from "./Loading.svelte";
+  import SGDBSearch from "./SGDBSearch.svelte";
   import UploadProgress from "./UploadProgress.svelte";
 </script>
 
@@ -50,4 +52,12 @@
 
 {#if $showChangeCoverModal}
   <ChangeCover />
+{/if}
+
+{#if $showSearchSGDBModal}
+  <SGDBSearch />
+{/if}
+
+{#if $showSearchIGDBModal}
+  <IGDBSearch />
 {/if}
