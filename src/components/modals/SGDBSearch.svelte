@@ -17,14 +17,16 @@
   let gameTitle = $state($sgdbSearchTitle!);
   let selectedId = $state("");
 
-  const debouncedSearch = debounce(SGDBController.searchForGame, 500) as (title: string) => Promise<SGDBGame[]>;
-
-  $effect(() => {
-    loading = true;
-    debouncedSearch(gameTitle).then((results: SGDBGame[]) => {
+  const debouncedSearch = debounce((gameTitle: string) => {
+    SGDBController.searchForGame(gameTitle).then((results: SGDBGame[]) => {
       entries = results;
       loading = false;
     });
+  }, 500);
+
+  $effect(() => {
+    loading = true;
+    debouncedSearch(gameTitle);
   });
 
   function select(id: number) {
@@ -87,7 +89,7 @@
 
 <style>
   .content {
-    max-width: 400px;
+    width: 100%;
   }
 
   .loading-container {
@@ -116,7 +118,5 @@
     display: flex;
     align-items: center;
     gap: 20px;
-
-    margin: -0.5rem 0;
   }
 </style>

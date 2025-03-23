@@ -8,6 +8,7 @@
   export let extraWrapperOptions: HTMLDialogAttributes = {};
   export let extraOptions: HTMLAttributes<HTMLDivElement> = {};
   export let icon: IconifyIcon | undefined = undefined;
+  export let maxWidth: string = "30rem";
   export let headline: string = "";
   export let open: boolean;
   export let canClose = true;
@@ -71,6 +72,7 @@
   bind:this={dialog}
   class:hide={hideDialog}
   {...extraWrapperOptions}
+  style:max-width={maxWidth}
 >
   <div class="modal-body" style:--m3-util-background="var(--m3-scheme-surface-container-high)">
     {#if loading}
@@ -88,7 +90,7 @@
       {#if !headless}
         <p class="headline m3-font-headline-small" class:center={icon}>{headline}</p>
       {/if}
-      <div class="content m3-font-body-medium" {...extraOptions}>
+      <div class="content m3-font-body-medium" class:headless {...extraOptions}>
         <slot />
       </div>
       <div class="buttons">
@@ -108,12 +110,15 @@
     background-color: transparent;
 
     display: flex;
+
+    width: calc(100% - 2rem); 
   }
   .modal-body {
     background-color: rgb(var(--m3-scheme-surface-container-high));
     border-radius: var(--m3-dialog-shape);
     min-width: 17.5rem;
-    max-width: 35rem;
+    width: 100%;
+    max-width: 40rem;
     overflow: hidden;
 
     position: relative;
@@ -122,7 +127,9 @@
     display: flex;
     flex-direction: column;
     padding: 1.5rem;
+
     width: 100%;
+    height: 100%;
 
     position: relative;
     z-index: 1;
@@ -151,6 +158,12 @@
   .content {
     color: rgb(var(--m3-scheme-on-surface-variant));
     margin-bottom: 1.5rem;
+
+    height: calc(100% - 7rem);
+    width: 100%;
+  }
+  .content.headless {
+    height: calc(100% - 4rem);
   }
 
   .loading-container {

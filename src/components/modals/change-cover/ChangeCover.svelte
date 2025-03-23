@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Icon } from "@component-utils";
-  import LargeModalBody from "@component-utils/LargeModalBody.svelte";
+  import ModalBody from "@component-utils/ModalBody.svelte";
   import { RestController } from "@controllers";
   import { Tune } from "@icons";
   import { Button } from "@interactables";
@@ -51,7 +51,7 @@
   }
 </script>
 
-<LargeModalBody
+<ModalBody
   headline={"Change Cover Art"}
   open={open}
   on:closeEnd={closeEnd}
@@ -80,7 +80,7 @@
     <Button type="text" on:click={onCancel}>Cancel</Button>
     <Button type="text" on:click={onSave} disabled={!canSave}>Save</Button>
   </div>
-</LargeModalBody>
+</ModalBody>
 
 <style>
   .content {

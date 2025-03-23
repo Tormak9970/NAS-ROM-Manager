@@ -45,7 +45,12 @@
   }
 </script>
 
-<ModalBody headline="Add ROM" open={open} canClose={false} on:closeEnd={() => { $showAddRomModal = false }}>
+<ModalBody
+  headline="Add ROM"
+  open={open}
+  canClose={false} 
+  on:closeEnd={() => { $showAddRomModal = false }}
+>
   <div class="content">
     <Select name="System" options={systemOptions} disabled={systemOptions.length === 1} bind:value={$addRomSystem} />
     <FileField name="File" on:change={(e) => file = e.detail.value} />
@@ -70,7 +75,7 @@
 
 <style>
   .content {
-    width: 300px;
+    width: 100%;
 
     display: flex;
     flex-direction: column;

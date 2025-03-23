@@ -44,7 +44,7 @@
   }
 </script>
 
-<ModalBody headline={$isFirstSetup ? "Setup Library" : "Edit Library"} open={open} canClose={false} on:closeEnd={() => { $showEditLibraryModal = false }}>
+<ModalBody maxWidth="24rem" headline={$isFirstSetup ? "Setup Library" : "Edit Library"} open={open} canClose={false} on:closeEnd={() => { $showEditLibraryModal = false }}>
   <div class="content">
     <PathField name="Library Path" type={FileSelectionType.FOLDER} bind:value={libraryPath} />
     <TextField name="Roms Directory" bind:value={romDir} />
@@ -59,7 +59,7 @@
 
 <style>
   .content {
-    width: 300px;
+    width: 100%;
 
     display: flex;
     flex-direction: column;

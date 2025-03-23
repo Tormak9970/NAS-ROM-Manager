@@ -57,7 +57,7 @@
   }
 
   function openSGDBSearch() {
-    $sgdbSearchTitle = metadata?.title ?? rom.title;
+    $sgdbSearchTitle = title ?? rom.title;
     $sgdbSearchOnSelect = (id: string) => {
       sgdbId = id;
     }
@@ -65,7 +65,7 @@
   }
 
   function openIGDBSearch() {
-    $igdbSearchTitle = metadata?.title ?? rom.title;
+    $igdbSearchTitle = title ?? rom.title;
     $igdbSearchOnSelect = (id: string) => {
       igdbId = id;
     }
@@ -74,7 +74,12 @@
   }
 </script>
 
-<ModalBody headline={$editIsPostUpload ? "Confirm Details" : "Edit ROM"} open={open} canClose={false} on:closeEnd={closeEnd}>
+<ModalBody
+  headline={$editIsPostUpload ? "Confirm Details" : "Edit ROM"}
+  open={open}
+  canClose={false}
+  on:closeEnd={closeEnd}
+>
   <div class="content">
     <TextField name="Title" bind:value={title} />
     <TextField
@@ -111,7 +116,7 @@
 
 <style>
   .content {
-    max-width: 300px;
+    width: 100%;
 
     display: flex;
     flex-direction: column;

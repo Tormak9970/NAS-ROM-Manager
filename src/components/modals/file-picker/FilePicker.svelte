@@ -130,7 +130,7 @@
 
 <style>
   .content {
-    width: 400px;
+    width: 100%;
   }
 
   .loading-container {
@@ -169,7 +169,5 @@
     display: flex;
     align-items: center;
     gap: 20px;
-
-    margin: -0.5rem 0;
   }
 </style>

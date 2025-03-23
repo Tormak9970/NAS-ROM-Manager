@@ -32,7 +32,12 @@
   }
 </script>
 
-<ModalBody headline={$controlledModalTitle} open={open} canClose={false} on:closeEnd={onCloseEnd}>
+<ModalBody
+  headline={$controlledModalTitle}
+  open={open}
+  canClose={false}
+  on:closeEnd={onCloseEnd}
+>
   <div class="content">
     {$controlledModalMessage}
   </div>
@@ -48,7 +53,7 @@
 
 <style>
   .content {
-    max-width: 300px;
+    width: 100%;
   }
 
   .buttons {

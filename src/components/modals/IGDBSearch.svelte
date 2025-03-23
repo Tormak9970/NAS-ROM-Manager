@@ -29,8 +29,8 @@
     debouncedSearch(gameTitle, $igdbSearchPlatformId!);
   });
 
-  function select(id: string) {
-    selectedId = id;
+  function select(id: number) {
+    selectedId = id.toString();
   }
   
   function onCloseEnd() {
@@ -75,7 +75,7 @@
           <GameTitleEntry
             name={entry.name}
             index={i}
-            selected={selectedId === entry.igdbId}
+            selected={selectedId === entry.igdbId.toString()}
             onSelect={() => select(entry.igdbId)}
           />
         {:else}
@@ -94,7 +94,7 @@
 
 <style>
   .content {
-    max-width: 400px;
+    width: 100%;
   }
 
   .loading-container {
@@ -137,7 +137,5 @@
     display: flex;
     align-items: center;
     gap: 20px;
-
-    margin: -0.5rem 0;
   }
 </style>

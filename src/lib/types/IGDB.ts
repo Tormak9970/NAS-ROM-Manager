@@ -86,7 +86,7 @@ export type IGDBGame = {
 }
 
 export type IGDBSearchResult = {
-  igdbId: string;
+  igdbId: number;
   name: string;
 }
 
