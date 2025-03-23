@@ -99,10 +99,10 @@
       <Checkbox bind:checked={isFavorite} />
     </label>
     <div class="actions" style:--m3-button-shape="var(--m3-util-rounding-small)">
-      <Button type="elevated" on:click={() => RomController.changeCover($romEditingId!)}>
+      <Button type="elevated" extraOptions={{ style: "flex-grow: 1" }} on:click={() => RomController.changeCover($romEditingId!)}>
         Edit Cover
       </Button>
-      <Button type="elevated" iconType="left" on:click={refreshMetadata}>
+      <Button type="elevated" extraOptions={{ style: "flex-grow: 1" }} iconType="left" on:click={refreshMetadata}>
         <Icon icon={Cached} />
         Metadata
       </Button>

@@ -15,7 +15,7 @@ export const filePickerConfig = writable<FilePickerConfig | null>(null);
 export const filePickerConfirm = writable(async (paths: string[]) => {});
 export const filePickerCancel = writable(async () => {});
 
-export const showEditLibraryModal = writable(true);
+export const showEditLibraryModal = writable(false);
 export const isFirstSetup = writable(true);
 
 export const showEditRouteOrderModal = writable(false);
