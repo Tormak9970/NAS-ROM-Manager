@@ -1,5 +1,6 @@
 import { changeCoverId, downloadProgressRom, loadingModalMessage, romEditingId, showChangeCoverModal, showDownloadProgressModal, showEditRomModal, showLoadingModal } from "@stores/Modals";
 import { romMetadata, roms, romsBySystem } from "@stores/State";
+import type { IGDBGame } from "@types";
 import { get } from "svelte/store";
 import { IGDBController } from "./IGDBController";
 import { DialogController } from "./utils/DialogController";
@@ -48,33 +49,18 @@ export class RomController {
   }
 
   /**
-   * Gets a rom's metadata.
-   * @param romId The id of the rom.
-   * @param igdbId The IGDB id of the rom.
-   */
-  static async getMetadata(romId: string, igdbId: string) {
-    const metadataDict = get(romMetadata);
-    const metadata = metadataDict[romId];
-    
-    const igdbMetadata = await IGDBController.getMetadata(igdbId);
-    metadata.igdbId = igdbId;
-    metadata.metadata = igdbMetadata;
-
-    romMetadata.set({ ...metadataDict });
-  }
-
-  /**
    * Refreshes a rom's metadata.
-   * @param romId The id of the rom.
    * @param igdbId The IGDB id of the rom.
    */
-  static async refreshMetadata(romId: string, igdbId: string) {
+  static async refreshMetadata(igdbId: string): Promise<IGDBGame | null> {
     showLoadingModal.set(true);
     loadingModalMessage.set("Refreshing ROM Metadata...");
 
-    await RomController.getMetadata(romId, igdbId).then(() => {
+    return await IGDBController.getMetadata(igdbId).then((metadata: IGDBGame | null) => {
       loadingModalMessage.set("");
       showLoadingModal.set(false);
+
+      return metadata;
     });
   }
 

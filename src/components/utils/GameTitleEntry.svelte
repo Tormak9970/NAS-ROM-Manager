@@ -1,16 +1,15 @@
 <script lang="ts">
   import { SportsEsports } from "@icons";
-  import { createEventDispatcher } from "svelte";
   import Icon from "./Icon.svelte";
 
-  export let name: string;
-  export let index: number;
-
-  const dispatch = createEventDispatcher();
-
-  function select() {
-    dispatch("select");
+  type Props = {
+    name: string;
+    index: number;
+    selected: boolean;
+    onSelect: () => void;
   }
+
+  let { name, index, selected, onSelect }: Props = $props();
 </script>
 
 <!-- svelte-ignore a11y_click_events_have_key_events -->
@@ -19,7 +18,8 @@
 <div
   class="entry"
   class:even={index % 2 === 0}
-  on:click={select}
+  class:selected
+  onclick={onSelect}
 >
   <div class="name">{name}</div>
   <Icon icon={SportsEsports} />
@@ -45,6 +45,10 @@
   }
   .entry:hover {
     background-color: rgb(var(--m3-scheme-surface-container-highest));
+  }
+
+  .entry.selected {
+    background-color: rgb(var(--m3-scheme-primary-container));
   }
 
   .name {

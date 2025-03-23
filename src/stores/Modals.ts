@@ -47,4 +47,5 @@ export const sgdbSearchOnSelect = writable((sgdbId: string) => {});
 
 export const showSearchIGDBModal = writable(false);
 export const igdbSearchTitle = writable<string | null>(null);
+export const igdbSearchPlatformId = writable<string | null>(null);
 export const igdbSearchOnSelect = writable((igdbId: string) => {});

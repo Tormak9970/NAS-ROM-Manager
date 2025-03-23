@@ -35,7 +35,14 @@
     const ids = await IGDBController.searchForGame(metadata.title || rom.title, system.igdbPlatformId);
     
     if (ids.length > 0) {
-      await RomController.getMetadata(id, ids[0].igdbId.toString());
+      const igdbId = ids[0].igdbId.toString();
+      const igdbMetadata = await IGDBController.getMetadata(igdbId);
+      
+      const metadata = $romMetadata[id];
+      metadata.igdbId = igdbId;
+      metadata.metadata = igdbMetadata;
+      
+      $romMetadata = { ...$romMetadata };
     } else {
       metadata.igdbId = NO_IGDB_RESULTS;
       $romMetadata = { ...$romMetadata };
