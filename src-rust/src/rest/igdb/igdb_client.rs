@@ -20,6 +20,7 @@ fn remove_special_chars(query: &str) -> String {
     .replace("\u{2120}", "")                  // Remove service mark symbol
     .replace(":", "")                         // Remove colon symbol
     .replace(".", "")                         // Remove period symbol
+    .replace("'", "")                         // Remove single quote symbol
     .trim()                                               
     .to_string();
 }
@@ -241,10 +242,10 @@ impl IGDBClient {
   pub async fn search_game(&mut self, query: &str, igdb_platform_id: String) -> Result<Vec<IGDBSearchResult>, String> {
     let cleaned_query = remove_special_chars(query);
 
-    //  & game.category=(0,8,9,10,11)
     let body = format!("fields {}; where game.platforms=[{}] & game.category=(0,8,9,10,11) & (name ~ *\"{}\"* | alternative_name ~ *\"{}\"*);", get_fields(&SEARCH_FIELDS), igdb_platform_id, cleaned_query, cleaned_query);
     info!("IGDB Search: getting results for query=\"{}\", platform=\"{}\"", cleaned_query.clone(), igdb_platform_id);
 
+    // TODO: consider searching in games endpoint as well, like romm
     let search_res = self.handle_request::<Vec<IGDBSearchResponse>>(self.search_endpoint.clone(), body).await;
 
     if search_res.is_err() {
