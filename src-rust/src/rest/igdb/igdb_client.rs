@@ -20,7 +20,6 @@ fn remove_special_chars(query: &str) -> String {
     .replace("\u{2120}", "")                  // Remove service mark symbol
     .replace(":", "")                         // Remove colon symbol
     .replace(".", "")                         // Remove period symbol
-    .replace("'", "")                         // Remove single quote symbol
     .trim()                                               
     .to_string();
 }
