@@ -2,7 +2,7 @@
   import { AuthController, LogController } from "@controllers";
   import { VisibiityOff, Visibility } from "@icons";
   import { Button, Checkbox, TextField } from "@interactables";
-  import { Card } from "@layout";
+  import { Card, LoadingSpinner } from "@layout";
   import { rememberMe } from "@stores/Auth";
   import { showWarningSnackbar } from "@stores/State";
   import jsSHA from "jssha";
@@ -11,14 +11,18 @@
   let password = $state("");
   let passwordVisible = $state(false);
 
+  let loading = $state(false);
+
   async function signIn() {
     const shaObj = new jsSHA("SHA-256", "TEXT", { encoding: "UTF8" });
     shaObj.update(password);
 
     const hash = shaObj.getHash("HEX");
+    
     const result = await AuthController.authenticate(user, hash);
-
     LogController.log("Authenticated:", result);
+
+    loading = false;
 
     if (!result) {
       $showWarningSnackbar({
@@ -32,44 +36,53 @@
 	<title>Login</title>
 </svelte:head>
 
-<div class="login-form-wrapper">
-  <div id="login-form">
-    <Card type="elevated">
-      <div slot="header" class="card-header">
-        <img src="/logo.svg" alt="Logo" />
-      </div>
-      <div class="body">
-        <h2 class="header">Login</h2>
-        <TextField
-          name="Username"
-          bind:value={user}
-        />
-        <TextField
-          name="Password"
-          trailingIcon={passwordVisible ? VisibiityOff : Visibility}
-          extraOptions={{
-            type: passwordVisible ? "text" : "password"
-          }}
-          on:trailingClick={() => passwordVisible = !passwordVisible}
-          bind:value={password}
-        />
-        <div class="remember-me-container">
-          <Checkbox bind:checked={$rememberMe} />
-          Remember me
-        </div>
-        <Button
-          type="tonal"
-          extraOptions={{ style: "width: 100%;" }}
-          on:click={signIn}
-          disabled={user === "" || password === ""}
-        >
-          Sign In
-        </Button>
-      </div>
-    </Card>
+{#if loading}
+  <div class="loading-container">
+    <LoadingSpinner /> <div class="font-headline-small">Signing in...</div>
   </div>
-  <div class="floater-text">NAS ROM Manager</div>
-</div>
+{:else}
+  <div class="login-form-wrapper">
+    <div id="login-form">
+      <Card type="elevated">
+        <div slot="header" class="card-header">
+          <img src="/logo.svg" alt="Logo" />
+        </div>
+        <div class="body">
+          <h2 class="header">Login</h2>
+          <TextField
+            name="Username"
+            bind:value={user}
+          />
+          <TextField
+            name="Password"
+            trailingIcon={passwordVisible ? VisibiityOff : Visibility}
+            extraOptions={{
+              type: passwordVisible ? "text" : "password"
+            }}
+            on:trailingClick={() => passwordVisible = !passwordVisible}
+            bind:value={password}
+          />
+          <div class="remember-me-container">
+            <Checkbox bind:checked={$rememberMe} />
+            Remember me
+          </div>
+          <Button
+            type="tonal"
+            extraOptions={{ style: "width: 100%;" }}
+            on:click={() => {
+              loading = true;
+              signIn();
+            }}
+            disabled={user === "" || password === ""}
+          >
+            Sign In
+          </Button>
+        </div>
+      </Card>
+    </div>
+    <div class="floater-text">NAS ROM Manager</div>
+  </div>
+{/if}
 
 <style>
   .login-form-wrapper {

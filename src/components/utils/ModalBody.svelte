@@ -76,7 +76,7 @@
 >
   <div class="modal-body" style:--m3-util-background="var(--m3-scheme-surface-container-high)">
     {#if loading}
-      <div class="loading-container">
+      <div class="loading-container-modal">
         <LoadingSpinner />
       </div>
     {/if}
@@ -166,7 +166,7 @@
     height: calc(100% - 4rem);
   }
 
-  .loading-container {
+  .loading-container-modal {
     position: absolute;
     z-index: 4;
 

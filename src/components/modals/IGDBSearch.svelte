@@ -98,12 +98,6 @@
   }
 
   .loading-container {
-    width: 100%;
-
-    display: flex;
-    align-items: center;
-    gap: 20px;
-
     margin: 0rem 1rem;
     margin-top: 2rem;
   }
