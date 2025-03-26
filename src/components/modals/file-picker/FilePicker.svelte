@@ -122,9 +122,9 @@
       </div>
     {/if}
   </div>
-  <div slot="buttons" class="buttons">
-    <Button type="text" on:click={onCancel}>Cancel</Button>
-    <Button type="text" on:click={onConfirm} disabled={loading || !currentPath}>Choose</Button>
+  <div slot="buttons">
+    <Button type="tonal" on:click={onCancel}>Cancel</Button>
+    <Button type="tonal" on:click={onConfirm} disabled={loading || !currentPath}>Choose</Button>
   </div>
 </ModalBody>
 
@@ -157,11 +157,5 @@
     border-radius: var(--m3-util-rounding-extra-small);
     overflow: hidden;
     overflow-y: scroll;
-  }
-
-  .buttons {
-    display: flex;
-    align-items: center;
-    gap: 20px;
   }
 </style>

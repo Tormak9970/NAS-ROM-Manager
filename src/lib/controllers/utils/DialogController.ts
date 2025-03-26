@@ -1,4 +1,4 @@
-import { controlledModalCancel, controlledModalCancelText, controlledModalConfirm, controlledModalConfirmText, controlledModalMessage, controlledModalTitle, filePickerCancel, filePickerConfig, filePickerConfirm, showControlledModal, showFilePickerModal } from "@stores/Modals";
+import { controlledModalCancel, controlledModalCancelText, controlledModalConfirm, controlledModalConfirmText, controlledModalIsWarning, controlledModalMessage, controlledModalTitle, filePickerCancel, filePickerConfig, filePickerConfirm, showControlledModal, showFilePickerModal } from "@stores/Modals";
 import type { FilePickerConfig } from "@types";
 
 /**
@@ -10,8 +10,9 @@ export class DialogController {
    * @param title The title of the dialog modal.
    * @param message The message to display.
    * @param confirmText The text displayed in the button.
+   * @param isWarning True if this is a warning prompt.
    */
-  static async message(title: string, message: string, confirmText: string): Promise<boolean> {
+  static async message(title: string, message: string, confirmText: string, isWarning = false): Promise<boolean> {
     return new Promise((resolve) => {
       controlledModalTitle.set(title);
       controlledModalMessage.set(message);
@@ -19,6 +20,7 @@ export class DialogController {
       controlledModalConfirm.set(async () => resolve(true));
       controlledModalCancelText.set("");
       controlledModalCancel.set(async () => {});
+      controlledModalIsWarning.set(isWarning);
 
       showControlledModal.set(true);
     });
@@ -30,8 +32,9 @@ export class DialogController {
    * @param message The message of the dialog modal.
    * @param confirmText The text displayed for the confirm action.
    * @param cancelText The text displayed for the cancel action.
+   * @param isWarning True if this is a warning prompt.
    */
-  static async ask(title: string, message: string, confirmText: string, cancelText: string): Promise<boolean> {
+  static async ask(title: string, message: string, confirmText: string, cancelText: string, isWarning = false): Promise<boolean> {
     return new Promise((resolve) => {
       controlledModalTitle.set(title);
       
@@ -40,6 +43,7 @@ export class DialogController {
       controlledModalConfirm.set(async () => resolve(true));
       controlledModalCancelText.set(cancelText);
       controlledModalCancel.set(async () => resolve(false));
+      controlledModalIsWarning.set(isWarning);
 
       showControlledModal.set(true);
     });

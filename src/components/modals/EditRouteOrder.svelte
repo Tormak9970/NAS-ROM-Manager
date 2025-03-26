@@ -123,23 +123,13 @@
       </div>
     {/key}
   </div>
-  <div class="actions" slot="buttons">
-    <div class="left"></div>
-    <div class="right">
-      <Button type="text" on:click={() => open = false }>Cancel</Button>
-      <Button type="text" on:click={done}>Save</Button>
-    </div>
+  <div slot="buttons">
+    <Button type="tonal" on:click={() => open = false }>Cancel</Button>
+    <Button type="tonal" on:click={done}>Save</Button>
   </div>
 </ModalBody>
 
 <style>
-  .actions {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
   .drag-container {
     margin-left: -1rem;
 		width: calc(100% + 2rem);

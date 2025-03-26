@@ -86,9 +86,9 @@
       </div>
     {/if}
   </div>
-  <div slot="buttons" class="buttons">
-    <Button type="text" on:click={onCancel}>Cancel</Button>
-    <Button type="text" on:click={onConfirm} disabled={loading || !selectedId}>Choose</Button>
+  <div slot="buttons">
+    <Button type="tonal" on:click={onCancel}>Cancel</Button>
+    <Button type="tonal" on:click={onConfirm} disabled={loading || !selectedId}>Choose</Button>
   </div>
 </ModalBody>
 
@@ -108,7 +108,9 @@
 
     margin-top: 1rem;
 
+    background-color: rgb(var(--m3-scheme-surface-container-low));
     border-radius: var(--m3-util-rounding-extra-small);
+
     overflow: hidden;
     overflow-y: scroll;
   }
@@ -125,11 +127,5 @@
 
   .message {
     margin-top: 2rem;
-  }
-
-  .buttons {
-    display: flex;
-    align-items: center;
-    gap: 20px;
   }
 </style>

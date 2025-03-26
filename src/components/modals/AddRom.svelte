@@ -67,9 +67,9 @@
       {/if}
     {/if}
   </div>
-  <div slot="buttons" class="buttons">
-    <Button type="text" on:click={onCancel}>Cancel</Button>
-    <Button type="text" on:click={onUpload} disabled={!canUpload}>Upload</Button>
+  <div slot="buttons">
+    <Button type="tonal" on:click={onCancel}>Cancel</Button>
+    <Button type="tonal" on:click={onUpload} disabled={!canUpload}>Upload</Button>
   </div>
 </ModalBody>
 
@@ -86,11 +86,5 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-  }
-
-  .buttons {
-    display: flex;
-    align-items: center;
-    gap: 20px;
   }
 </style>

@@ -64,8 +64,8 @@
       </div>
     {/if}
   </div>
-  <div slot="buttons" class="buttons">
-    <Button type="text" on:click={onCancel}>Cancel</Button>
+  <div slot="buttons">
+    <Button type="text" on:click={onCancel} warning>Cancel</Button>
   </div>
 </ModalBody>
 
@@ -92,11 +92,5 @@
 
 
     margin-top: 1rem;
-  }
-
-  .buttons {
-    display: flex;
-    align-items: center;
-    gap: 20px;
   }
 </style>

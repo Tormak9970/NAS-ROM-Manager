@@ -76,9 +76,9 @@
       <GridResults sgdbId={metadata.sgdbId} />
     {/if}
   </div>
-  <div slot="buttons" class="buttons">
-    <Button type="text" on:click={onCancel}>Cancel</Button>
-    <Button type="text" on:click={onSave} disabled={!canSave}>Save</Button>
+  <div slot="buttons">
+    <Button type="tonal" on:click={onCancel}>Cancel</Button>
+    <Button type="tonal" on:click={onSave} disabled={!canSave}>Save</Button>
   </div>
 </ModalBody>
 
@@ -90,11 +90,5 @@
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
-  }
-
-  .buttons {
-    display: flex;
-    align-items: center;
-    gap: 20px;
   }
 </style>

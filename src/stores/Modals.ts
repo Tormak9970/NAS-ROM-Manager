@@ -9,6 +9,7 @@ export const controlledModalConfirmText = writable("");
 export const controlledModalConfirm = writable(async () => {});
 export const controlledModalCancelText = writable("");
 export const controlledModalCancel = writable(async () => {});
+export const controlledModalIsWarning = writable(false);
 
 export const showFilePickerModal = writable(false);
 export const filePickerConfig = writable<FilePickerConfig | null>(null);

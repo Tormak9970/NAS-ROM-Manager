@@ -51,9 +51,9 @@
     <TextField name="Emulators Directory" bind:value={emulatorDir} />
     <TextField name="Bios Files Directory" bind:value={biosDir} />
   </div>
-  <div slot="buttons" class="buttons">
-    <Button type="text" on:click={onCancel} disabled={$isFirstSetup}>Cancel</Button>
-    <Button type="text" on:click={onConfirm} disabled={!canSave}>Save</Button>
+  <div slot="buttons">
+    <Button type="tonal" on:click={onCancel} disabled={$isFirstSetup}>Cancel</Button>
+    <Button type="tonal" on:click={onConfirm} disabled={!canSave}>Save</Button>
   </div>
 </ModalBody>
 
@@ -64,11 +64,5 @@
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
-  }
-
-  .buttons {
-    display: flex;
-    align-items: center;
-    gap: 20px;
   }
 </style>

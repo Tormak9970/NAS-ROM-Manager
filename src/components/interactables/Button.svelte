@@ -7,6 +7,7 @@
   export let size = "2.5rem";
   export let iconSize = "1.5rem";
   export let disabled = false;
+  export let warning = false;
 
   let innerButton: HTMLButtonElement;
 
@@ -22,6 +23,7 @@
   class="m3-container m3-font-label-large font-label {type} icon-{iconType}"
   style:--size={size}
   style:--icon-size={iconSize}
+  class:warning
   {...extraOptions}
 >
   <div class="layer"></div>
@@ -97,6 +99,11 @@
   .m3-container:enabled.tonal {
     background-color: rgb(var(--m3-scheme-secondary-container));
     --text-color: var(--m3-scheme-on-secondary-container);
+  }
+  
+  .m3-container:enabled.tonal.warning {
+    background-color: rgb(var(--m3-scheme-tertiary-container));
+    --text-color: var(--m3-scheme-on-tertiary-container);
   }
 
   .m3-container.outlined {

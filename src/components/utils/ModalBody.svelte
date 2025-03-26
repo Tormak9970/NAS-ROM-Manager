@@ -182,9 +182,17 @@
   }
 
   .buttons {
+    width: 100%;
+  }
+
+  .buttons > :global(div) {
     display: flex;
     justify-content: flex-end;
-    gap: 0.5rem;
+    gap: 1rem;
+  }
+  
+  .buttons > :global(div button) {
+    flex-grow: 1;
   }
 
   dialog {

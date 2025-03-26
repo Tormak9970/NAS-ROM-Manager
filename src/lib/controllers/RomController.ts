@@ -73,7 +73,8 @@ export class RomController {
       "This Can't be Undone!",
       "Are you sure you want to delete this rom?",
       "Yes",
-      "No"
+      "No",
+      true
     ).then(async (shouldDelete: boolean) => {
       if (!shouldDelete) return;
 

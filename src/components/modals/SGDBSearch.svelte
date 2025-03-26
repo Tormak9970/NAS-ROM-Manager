@@ -77,13 +77,17 @@
             selected={selectedId === entry.id.toString()}
             onSelect={() => select(entry.id)}
           />
+        {:else}
+          <div class="message-container">
+            <div class="message">No results found.</div>
+          </div>
         {/each}
       </div>
     {/if}
   </div>
-  <div slot="buttons" class="buttons">
-    <Button type="text" on:click={onCancel}>Cancel</Button>
-    <Button type="text" on:click={onConfirm} disabled={loading || !selectedId}>Choose</Button>
+  <div slot="buttons">
+    <Button type="tonal" on:click={onCancel}>Cancel</Button>
+    <Button type="tonal" on:click={onConfirm} disabled={loading || !selectedId}>Choose</Button>
   </div>
 </ModalBody>
 
@@ -103,14 +107,24 @@
 
     margin-top: 1rem;
 
+    background-color: rgb(var(--m3-scheme-surface-container-low));
     border-radius: var(--m3-util-rounding-extra-small);
+
     overflow: hidden;
     overflow-y: scroll;
   }
 
-  .buttons {
+  .message-container {
+    width: 100%;
+    height: 100%;
+
+    background-color: rgb(var(--m3-scheme-surface-container-low));
+
     display: flex;
-    align-items: center;
-    gap: 20px;
+    justify-content: center;
+  }
+
+  .message {
+    margin-top: 2rem;
   }
 </style>

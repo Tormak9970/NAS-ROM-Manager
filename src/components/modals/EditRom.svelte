@@ -108,9 +108,9 @@
       </Button>
     </div>
   </div>
-  <div slot="buttons" class="buttons">
-    <Button type="text" on:click={onCancel}>Cancel</Button>
-    <Button type="text" on:click={onSave}>Save</Button>
+  <div slot="buttons">
+    <Button type="tonal" on:click={onCancel}>Cancel</Button>
+    <Button type="tonal" on:click={onSave}>Save</Button>
   </div>
 </ModalBody>
 
@@ -136,11 +136,5 @@
     justify-content: space-between;
 
     gap: 0.5rem;
-  }
-
-  .buttons {
-    display: flex;
-    align-items: center;
-    gap: 20px;
   }
 </style>
