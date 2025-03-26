@@ -100,10 +100,7 @@
   .elevated {
     border-color: transparent;
     background-color: rgb(var(--m3-scheme-surface-container-low));
-    box-shadow:
-      0px 3px 1px -2px rgb(var(--m3-scheme-shadow) / 0.2),
-      0px 2px 2px 0px rgb(var(--m3-scheme-shadow) / 0.14),
-      0px 1px 5px 0px rgb(var(--m3-scheme-shadow) / 0.12);
+    box-shadow: var(--m3-util-elevation-1);
   }
   .selected {
     border-color: transparent;
@@ -117,16 +114,10 @@
   }
   @media (hover: hover) {
     .selected:hover:enabled {
-      box-shadow:
-        0px 3px 1px -2px rgb(var(--m3-scheme-shadow) / 0.2),
-        0px 2px 2px 0px rgb(var(--m3-scheme-shadow) / 0.14),
-        0px 1px 5px 0px rgb(var(--m3-scheme-shadow) / 0.12);
+      box-shadow: var(--m3-util-elevation-1);
     }
     .elevated:hover:enabled {
-      box-shadow:
-        0px 2px 4px -1px rgb(var(--m3-scheme-shadow) / 0.2),
-        0px 4px 5px 0px rgb(var(--m3-scheme-shadow) / 0.14),
-        0px 1px 10px 0px rgb(var(--m3-scheme-shadow) / 0.12);
+      box-shadow: var(--m3-util-elevation-2);
     }
     .m3-container:hover:enabled > .layer {
       opacity: 0.08;

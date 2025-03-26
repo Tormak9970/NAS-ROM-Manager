@@ -64,10 +64,7 @@
   }
 
   .type-elevated {
-    box-shadow:
-      0px 3px 1px -2px rgb(var(--m3-scheme-shadow) / 0.2),
-      0px 2px 2px 0px rgb(var(--m3-scheme-shadow) / 0.14),
-      0px 1px 5px 0px rgb(var(--m3-scheme-shadow) / 0.12);
+    box-shadow: var(--m3-util-elevation-1);
   }
 
   @media print, (forced-colors: active) {

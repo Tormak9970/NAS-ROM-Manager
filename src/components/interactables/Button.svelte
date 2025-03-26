@@ -85,10 +85,7 @@
   .m3-container:enabled.elevated {
     background-color: rgb(var(--m3-scheme-surface-container-low));
     --text-color: var(--m3-scheme-primary);
-    box-shadow:
-      0px 3px 1px -2px rgb(var(--m3-scheme-shadow) / 0.2),
-      0px 2px 2px 0px rgb(var(--m3-scheme-shadow) / 0.14),
-      0px 1px 5px 0px rgb(var(--m3-scheme-shadow) / 0.12);
+    box-shadow: var(--m3-util-elevation-1);
   }
 
   .m3-container:enabled.filled {
@@ -132,22 +129,13 @@
       background-color: rgb(var(--text-color) / 0.08);
     }
     .m3-container:enabled.elevated:hover {
-      box-shadow:
-        0px 2px 4px -1px rgb(var(--m3-scheme-shadow) / 0.2),
-        0px 4px 5px 0px rgb(var(--m3-scheme-shadow) / 0.14),
-        0px 1px 10px 0px rgb(var(--m3-scheme-shadow) / 0.12);
+      box-shadow: var(--m3-util-elevation-2);
     }
     .m3-container:enabled.filled:hover {
-      box-shadow:
-        0px 3px 1px -2px rgb(var(--m3-scheme-shadow) / 0.2),
-        0px 2px 2px 0px rgb(var(--m3-scheme-shadow) / 0.14),
-        0px 1px 5px 0px rgb(var(--m3-scheme-shadow) / 0.12);
+      box-shadow: var(--m3-util-elevation-1);
     }
     .m3-container:enabled.tonal:hover {
-      box-shadow:
-        0px 3px 1px -2px rgb(var(--m3-scheme-shadow) / 0.2),
-        0px 2px 2px 0px rgb(var(--m3-scheme-shadow) / 0.14),
-        0px 1px 5px 0px rgb(var(--m3-scheme-shadow) / 0.12);
+      box-shadow: var(--m3-util-elevation-1);
     }
   }
   .m3-container:enabled:focus-visible > .layer,

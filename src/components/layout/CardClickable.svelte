@@ -9,7 +9,6 @@
   export let highlight = false;
   export let holdable = true;
   export let type: "elevated" | "filled" | "outlined" | "transparent";
-  export let ctxMenuId = "disabled-menu";
   export let ctxMenuItems: ContextMenuItem[] = [];
 
   /**
@@ -23,7 +22,7 @@
 <button
   on:click|stopPropagation
   use:holdEvent={{ onHold: onHold, holdable: holdable, duration: 300 }}
-  use:contextMenu={{ id: ctxMenuId, items: ctxMenuItems, disabled: ctxMenuId === "disabled-menu" || ctxMenuItems.length === 0 }}
+  use:contextMenu={{ items: ctxMenuItems, disabled: ctxMenuItems.length === 0 }}
   class="m3-container type-{type}"
   {...extraOptions}
 >
@@ -69,10 +68,7 @@
   }
 
   .type-elevated {
-    box-shadow:
-      0px 3px 1px -2px rgb(var(--m3-scheme-shadow) / 0.2),
-      0px 2px 2px 0px rgb(var(--m3-scheme-shadow) / 0.14),
-      0px 1px 5px 0px rgb(var(--m3-scheme-shadow) / 0.12);
+    box-shadow: var(--m3-util-elevation-1);
   }
 
   button {
@@ -84,16 +80,10 @@
   }
   @media (hover: hover) {
     button:hover {
-      box-shadow:
-        0px 3px 1px -2px rgb(var(--m3-scheme-shadow) / 0.2),
-        0px 2px 2px 0px rgb(var(--m3-scheme-shadow) / 0.14),
-        0px 1px 5px 0px rgb(var(--m3-scheme-shadow) / 0.12);
+      box-shadow: var(--m3-util-elevation-1);
     }
     button.type-elevated:hover {
-      box-shadow:
-        0px 2px 4px -1px rgb(var(--m3-scheme-shadow) / 0.2),
-        0px 4px 5px 0px rgb(var(--m3-scheme-shadow) / 0.14),
-        0px 1px 10px 0px rgb(var(--m3-scheme-shadow) / 0.12);
+      box-shadow: var(--m3-util-elevation-2);
     }
     button:hover > .layer {
       background-color: rgb(var(--m3-scheme-on-surface) / 0.08);
