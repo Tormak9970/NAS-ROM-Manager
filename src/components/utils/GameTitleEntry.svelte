@@ -35,20 +35,20 @@
 
     padding: 0.5rem;
 
-    background-color: rgb(var(--m3-scheme-surface-container) / 0.6);
+    background-color: rgb(var(--m3-scheme-surface-container-low) / 0.4);
 
     transition: background-color 0.2s;
 
     cursor: pointer;
 
-    border-bottom: 1px solid rgb(var(--m3-scheme-surface-container-highest));
+    border-bottom: 1px solid rgb(var(--m3-scheme-surface-container-high));
   }
   .entry:hover {
-    background-color: rgb(var(--m3-scheme-surface-container-highest));
+    background-color: rgb(var(--m3-scheme-surface-container-high));
   }
 
   .entry.selected {
-    background-color: rgb(var(--m3-scheme-primary-container));
+    background-color: rgb(var(--m3-scheme-secondary-container));
   }
 
   .name {
@@ -59,6 +59,6 @@
   }
 
   .even {
-    background-color: rgb(var(--m3-scheme-surface-container));
+    background-color: rgb(var(--m3-scheme-surface-container-low));
   }
 </style>

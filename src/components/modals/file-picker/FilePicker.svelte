@@ -6,7 +6,7 @@
   import TextField from "@interactables/TextField.svelte";
   import { LoadingSpinner } from "@layout";
   import { filePickerCancel, filePickerConfig, filePickerConfirm, showFilePickerModal } from "@stores/Modals";
-  import { isRegEx, type FilePickerEntry } from "@types";
+  import { FileSelectionType, isRegEx, type FilePickerEntry } from "@types";
   import Entry from "./Entry.svelte";
 
   let config = $filePickerConfig!;
@@ -116,8 +116,12 @@
           <Entry
             entry={entry}
             index={i}
-            on:select={() => select(entry.path)}
+            onSelect={() => select(entry.path)}
           />
+        {:else}
+          <div class="message-container">
+            <div class="message">No {$filePickerConfig?.select === FileSelectionType.FILE ? "files" : "folders"} found.</div>
+          </div>
         {/each}
       </div>
     {/if}
@@ -154,8 +158,28 @@
 
     margin-top: 1rem;
 
+    background-color: rgb(var(--m3-scheme-surface-container-lowest));
     border-radius: var(--m3-util-rounding-extra-small);
+
     overflow: hidden;
     overflow-y: scroll;
+  }
+  
+  .entries > :global(:last-child) {
+    border-bottom: none;
+  }
+
+  .message-container {
+    width: 100%;
+    height: 100%;
+
+    background-color: rgb(var(--m3-scheme-surface-container-lowest));
+
+    display: flex;
+    justify-content: center;
+  }
+
+  .message {
+    margin-top: 2rem;
   }
 </style>

@@ -1,17 +1,15 @@
 <script lang="ts">
-    import { Icon } from "@component-utils";
-    import { Draft, Folder } from "@icons";
-    import type { FilePickerEntry } from "@types";
-    import { createEventDispatcher } from "svelte";
+  import { Icon } from "@component-utils";
+  import { Draft, Folder } from "@icons";
+  import type { FilePickerEntry } from "@types";
 
-  export let entry: FilePickerEntry;
-  export let index: number;
-  
-  const dispatch = createEventDispatcher();
-
-  function select() {
-    dispatch("select");
+  type Props = {
+    entry: FilePickerEntry;
+    index: number;
+    onSelect: () => void;
   }
+
+  let { entry, index, onSelect }: Props = $props();
 </script>
 
 <!-- svelte-ignore a11y_click_events_have_key_events -->
@@ -20,7 +18,7 @@
 <div
   class="entry"
   class:even={index % 2 === 0}
-  on:click={select}
+  onclick={onSelect}
 >
   <div class="name">{entry.name}</div>
   <Icon icon={entry.isDir ? Folder : Draft} />
@@ -36,16 +34,16 @@
 
     padding: 0.5rem;
 
-    background-color: rgb(var(--m3-scheme-surface-container) / 0.6);
+    background-color: rgb(var(--m3-scheme-surface-container-low) / 0.4);
 
     transition: background-color 0.2s;
 
     cursor: pointer;
 
-    border-bottom: 1px solid rgb(var(--m3-scheme-surface-container-highest));
+    border-bottom: 1px solid rgb(var(--m3-scheme-surface-container-high));
   }
   .entry:hover {
-    background-color: rgb(var(--m3-scheme-surface-container-highest));
+    background-color: rgb(var(--m3-scheme-surface-container-high));
   }
 
   .name {
@@ -56,6 +54,6 @@
   }
 
   .even {
-    background-color: rgb(var(--m3-scheme-surface-container));
+    background-color: rgb(var(--m3-scheme-surface-container-low));
   }
 </style>

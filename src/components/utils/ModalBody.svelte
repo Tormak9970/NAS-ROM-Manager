@@ -74,7 +74,7 @@
   {...extraWrapperOptions}
   style:max-width={maxWidth}
 >
-  <div class="modal-body" style:--m3-util-background="var(--m3-scheme-surface-container-high)">
+  <div class="modal-body" style:--m3-util-background="var(--m3-scheme-surface-container)">
     {#if loading}
       <div class="loading-container-modal">
         <LoadingSpinner />
@@ -114,7 +114,7 @@
     width: calc(100% - 2rem); 
   }
   .modal-body {
-    background-color: rgb(var(--m3-scheme-surface-container-high));
+    background-color: rgb(var(--m3-scheme-surface-container));
     border-radius: var(--m3-dialog-shape);
     min-width: 17.5rem;
     width: 100%;
@@ -193,6 +193,7 @@
   
   .buttons > :global(div button) {
     flex-grow: 1;
+    min-width: calc(50% - 0.5rem);
   }
 
   dialog {

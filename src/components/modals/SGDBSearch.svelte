@@ -107,18 +107,22 @@
 
     margin-top: 1rem;
 
-    background-color: rgb(var(--m3-scheme-surface-container-low));
+    background-color: rgb(var(--m3-scheme-surface-container-lowest));
     border-radius: var(--m3-util-rounding-extra-small);
 
     overflow: hidden;
     overflow-y: scroll;
+  }
+  
+  .entries > :global(:last-child) {
+    border-bottom: none;
   }
 
   .message-container {
     width: 100%;
     height: 100%;
 
-    background-color: rgb(var(--m3-scheme-surface-container-low));
+    background-color: rgb(var(--m3-scheme-surface-container-lowest));
 
     display: flex;
     justify-content: center;

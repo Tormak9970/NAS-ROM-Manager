@@ -150,7 +150,7 @@
 
     user-select: none;
 
-    background-color: rgb(var(--m3-scheme-surface-container-high));
+    background-color: rgb(var(--m3-scheme-surface-container));
 
     transition: background-color 0.2 ease-out;
     border-radius: 4px;
@@ -165,7 +165,7 @@
     z-index: 2;
     box-shadow: var(--m3-util-elevation-2);
 
-    background-color: rgb(var(--m3-scheme-surface-container-highest));
+    background-color: rgb(var(--m3-scheme-surface-container-high));
 
     transition: scale 0.3s ease-out;
     scale: 1.05
