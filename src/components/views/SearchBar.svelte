@@ -63,7 +63,6 @@
     z-index: 1;
 
     inset: 0;
-    border: 0.125rem solid rgb(var(--error, var(--m3-scheme-outline)));
     background-color: rgb(var(--m3-scheme-surface-container));
     border-radius: var(--m3-textfield-outlined-shape);
     pointer-events: none;
@@ -71,11 +70,10 @@
   }
 
   input:hover ~ .layer {
-    border-color: rgb(var(--error, var(--m3-scheme-on-surface)));
+    background-color: rgb(var(--m3-scheme-surface-container-high));
   }
   input:focus ~ .layer {
-    border-color: rgb(var(--error, var(--m3-scheme-primary)));
-    border-width: 0.125rem;
+    background-color: rgb(var(--m3-scheme-surface-container-high));
   }
 
   .m3-container :global(svg) {
