@@ -4,10 +4,19 @@
   import { CardClickable } from "@layout";
   import { isLandscape } from "@stores/State";
 
-  export let label: string;
-  export let description: string;
-  export let icon: IconifyIcon | undefined = undefined;
-  export let iconSize: string = "1.5rem";
+  type Props = {
+    label: string;
+    description: string;
+    icon?: IconifyIcon | undefined;
+    iconSize?: string;
+  }
+
+  let {
+    label,
+    description,
+    icon = undefined,
+    iconSize = "1.5rem",
+  }: Props = $props();
 </script>
 
 <div class="settings-entry">

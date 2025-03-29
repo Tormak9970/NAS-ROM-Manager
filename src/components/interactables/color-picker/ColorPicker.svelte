@@ -4,7 +4,9 @@
 	import TextInput from './TextInput.svelte';
 	import Wrapper from './Wrapper.svelte';
 
-  export let hex: string;
+  let {
+    hex = $bindable(),
+  }: { hex: string; } = $props();
 </script>
 
 <div class="wrapper">

@@ -5,11 +5,21 @@
   import { Card } from "@layout";
   import { isLandscape } from "@stores/State";
 
-  export let label: string;
-  export let description: string;
-  export let icon: IconifyIcon | undefined = undefined;
-  export let iconSize: string = "1.5rem";
-  export let checked: boolean;
+  type Props = {
+    label: string;
+    description: string;
+    icon?: IconifyIcon | undefined;
+    iconSize?: string;
+    checked: boolean;
+  }
+
+  let {
+    label,
+    description,
+    icon = undefined,
+    iconSize = "1.5rem",
+    checked = $bindable(),
+  }: Props = $props();
 </script>
 
 <div class="settings-entry">
@@ -28,7 +38,6 @@
           {description}
         </div>
       </div>
-      <!-- svelte-ignore a11y-label-has-associated-control -->
       <label class="toggle-container">
         <Toggle bind:checked={checked} />
       </label>

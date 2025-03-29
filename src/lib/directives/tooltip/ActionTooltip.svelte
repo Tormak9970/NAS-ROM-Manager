@@ -1,31 +1,36 @@
 <script lang="ts">
   import { onDestroy, onMount } from 'svelte';
-
   import { computeTooltipPosition, formatVariableKey, getMinWidth, isElementInViewport } from './helpers';
 
-  export let targetElement: HTMLElement | null = null;
+  type Props = {
+    targetElement?: HTMLElement | null;
+    content?: string | { component: any; props?: Record<string, any>; };
+    align?: 'left' | string;
+    position?: 'top' | string;
+    maxWidth?: number;
+    style?: Record<string, string> | null;
+    theme?: string;
+    animation?: string;
+    delay?: number;
+    arrow?: boolean;
+    autoPosition?: boolean;
+    show?: boolean;
+  }
 
-  export let content: string | { component: any; props?: Record<string, any>; } = '';
-
-  export let align: 'left' | string = 'left';
-
-  export let position: 'top' | string = 'top';
-
-  export let maxWidth: number = 200;
-
-  export let style: Record<string, string> | null = null;
-
-  export let theme: string = '';
-
-  export let animation: string = '';
-
-  export let delay: number = 200;
-
-  export let arrow: boolean = true;
-
-  export let autoPosition: boolean = false;
-
-  export let show: boolean = false;
+  let {
+    targetElement = null,
+    content = $bindable(''),
+    align = 'left',
+    position = 'top',
+    maxWidth = 200,
+    style = null,
+    theme = '',
+    animation = '',
+    delay = 200,
+    arrow = true,
+    autoPosition = false,
+    show = $bindable(false),
+  }: Props = $props();
 
   const inverse = {
     left: 'right',
@@ -34,29 +39,34 @@
     bottom: 'top'
   };
 
-  let tooltipRef: HTMLDivElement | null = null;
+  let tooltipRef: HTMLDivElement | null = $state(null);
 
-  let minWidth: number = 0;
+  let minWidth: number = $state(0);
 
-  let component: any = null;
+  let component: any = $state(null);
 
-  let animationEffect: string | null = null;
+  let animationEffect: string | null = $state(null);
 
-  let visible: boolean = false;
+  let visible: boolean = $state(false);
 
-  let coords: any = {
+  let coords: any = $state({
     bottom: 0,
     top: 0,
     right: 0,
     left: 0
-  };
+  });
 
-  const animationDelay = animation ? delay : 0;
+  const animationDelay = $derived(animation ? delay : 0);
 
-  $: isComponent = typeof content === 'object';
-  $: tooltipRef && show
-    ? setTimeout(() => (visible = true), 0)
-    : (visible = false);
+  let isComponent = $derived(typeof content === 'object');
+  
+  $effect(() => {
+    if (tooltipRef && show) {
+      setTimeout(() => (visible = true), 0)
+    } else {
+      visible = false
+    }
+  });
 
   const onHandleResize = () => {
     if (visible) {
@@ -122,8 +132,6 @@
 </script>
 
 {#if content}
-  <!-- svelte-ignore a11y-click-events-have-key-events -->
-  <!-- svelte-ignore a11y-no-static-element-interactions -->
   <div
     bind:this={tooltipRef}
     class="tooltip animation-{animationEffect} {position} {theme}"

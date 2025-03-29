@@ -3,12 +3,22 @@
   import { Icon } from "@component-utils";
   import type { IconifyIcon } from "@iconify/types";
   import { CardClickable } from "@layout";
+  
+  type Props = {
+    label: string;
+    route: string;
+    isExternal?: boolean;
+    description: string;
+    icon: IconifyIcon;
+  }
 
-  export let icon: IconifyIcon;
-  export let label: string;
-  export let route: string;
-  export let isExternal = false;
-  export let description: string;
+  let {
+    label,
+    description,
+    route,
+    isExternal = false,
+    icon,
+  }: Props = $props();
 
   function navigate() {
     if (isExternal) {

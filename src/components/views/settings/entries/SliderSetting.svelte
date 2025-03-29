@@ -5,17 +5,30 @@
   import { Card } from "@layout";
   import { isLandscape } from "@stores/State";
   import type { Spring } from "svelte/motion";
+  
+  type Props = {
+    label: string;
+    description: string;
+    icon?: IconifyIcon | undefined;
+    iconSize?: string;
+    value: number;
+    min?: number;
+    max?: number;
+    step?: number;
+  }
 
-  export let label: string;
-  export let description: string;
-  export let icon: IconifyIcon | undefined = undefined;
-  export let iconSize: string = "1.5rem";
-  export let value: number;
-  export let min = 0;
-  export let max = 100;
-  export let step = 1;
+  let {
+    label,
+    description,
+    icon = undefined,
+    iconSize = "1.5rem",
+    value = $bindable(),
+    min = 0,
+    max = 100,
+    step = 1,
+  }: Props = $props();
 
-  let valueDisplayed: Spring<number>;
+  let valueDisplayed: Spring<number> | undefined = $state();
 </script>
 
 <div class="settings-entry">
