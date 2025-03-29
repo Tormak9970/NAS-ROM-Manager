@@ -37,19 +37,21 @@
   headline={$controlledModalTitle}
   open={open}
   canClose={false}
-  on:closeEnd={onCloseEnd}
+  oncloseend={onCloseEnd}
 >
   <div class="content">
     {$controlledModalMessage}
   </div>
-  <div slot="buttons">
-    {#if $controlledModalCancelText !== ""}
-      <Button type="tonal" on:click={onCancel}>{$controlledModalCancelText}</Button>
-    {/if}
-    {#if $controlledModalConfirmText !== ""}
-      <Button type="tonal" warning={$controlledModalIsWarning} on:click={onConfirm}>{$controlledModalConfirmText}</Button>
-    {/if}
-  </div>
+  {#snippet buttons()}
+    <div>
+      {#if $controlledModalCancelText !== ""}
+        <Button type="tonal" on:click={onCancel}>{$controlledModalCancelText}</Button>
+      {/if}
+      {#if $controlledModalConfirmText !== ""}
+        <Button type="tonal" warning={$controlledModalIsWarning} on:click={onConfirm}>{$controlledModalConfirmText}</Button>
+      {/if}
+    </div>
+  {/snippet}
 </ModalBody>
 
 <style>

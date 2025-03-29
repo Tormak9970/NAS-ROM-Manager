@@ -1,22 +1,45 @@
 <script lang="ts">
   import type { IconifyIcon } from "@iconify/types";
   import { LoadingSpinner } from "@layout";
-  import { createEventDispatcher } from "svelte";
+  import type { Snippet } from "svelte";
   import type { HTMLAttributes, HTMLDialogAttributes } from "svelte/elements";
   import Icon from "./Icon.svelte";
 
-  export let extraWrapperOptions: HTMLDialogAttributes = {};
-  export let extraOptions: HTMLAttributes<HTMLDivElement> = {};
-  export let icon: IconifyIcon | undefined = undefined;
-  export let maxWidth: string = "30rem";
-  export let headline: string = "";
-  export let open: boolean;
-  export let canClose = true;
-  export let loading = false;
-  export let headless = false;
+  type Props = {
+    extraWrapperOptions?: HTMLDialogAttributes;
+    extraOptions?: HTMLAttributes<HTMLDivElement>;
+    icon?: IconifyIcon | undefined;
+    maxWidth?: string;
+    headline?: string;
+    open: boolean;
+    canClose?: boolean;
+    loading?: boolean;
+    headless?: boolean;
+    onclose?: () => void;
+    oncloseend?: () => void;
+    headlineAction?: Snippet;
+    children: Snippet;
+    buttons?: Snippet;
+  }
 
-  const dispatch = createEventDispatcher();
-  let dialog: HTMLDialogElement;
+  let {
+    extraWrapperOptions = {},
+    extraOptions = {},
+    icon = undefined,
+    maxWidth = "30rem",
+    headline = "",
+    open,
+    canClose = true,
+    loading = false,
+    headless = false,
+    onclose,
+    oncloseend,
+    headlineAction,
+    children,
+    buttons,
+  }: Props = $props();
+
+  let dialog: HTMLDialogElement | undefined = $state();
 
   /**
    * Handles opening the modal.
@@ -27,29 +50,29 @@
     node.inert = false;
   }
 
-  $: {
-    if (!dialog) break $;
+  $effect(() => {
+    if (!dialog) return;
 
     if (open) {
       openModal(dialog);
     } else {
       hideDialog = true;
     }
-  }
+  });
 
-  let hideDialog = false;
+  let hideDialog = $state(false);
 
   function onAnimationEnd() {
     if (hideDialog) {
       hideDialog = false;
-      dialog.close();
-      dispatch("closeEnd");
+      dialog!.close();
+      oncloseend?.();
     }
   }
 
   function onCancel(e: Event) {
     if (canClose) {
-      dispatch("close");
+      onclose?.();
       open = false;
     } else {
       e.preventDefault();
@@ -58,17 +81,17 @@
 
   function onClick(e: Event) {
     if (canClose && !(e.target as HTMLElement).closest(".modal-body")) {
-      dispatch("close");
+      onclose?.();
       open = false;
     }
   }
 </script>
 
-<!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 <dialog
-  on:cancel={onCancel}
-  on:click={onClick}
-  on:animationend={onAnimationEnd}
+  oncancel={onCancel}
+  onclick={onClick}
+  onanimationend={onAnimationEnd}
   bind:this={dialog}
   class:hide={hideDialog}
   {...extraWrapperOptions}
@@ -82,7 +105,7 @@
     {/if}
     <div class="m3-container">
       <div class="action-container">
-        <slot name="headline-action" />
+        {@render headlineAction?.()}
       </div>
       {#if icon}
         <Icon {icon} />
@@ -91,10 +114,10 @@
         <p class="headline m3-font-headline-small" class:center={icon}>{headline}</p>
       {/if}
       <div class="content m3-font-body-medium" class:headless {...extraOptions}>
-        <slot />
+        {@render children()}
       </div>
       <div class="buttons">
-        <slot name="buttons" />
+        {@render buttons?.()}
       </div>
     </div>
   </div>

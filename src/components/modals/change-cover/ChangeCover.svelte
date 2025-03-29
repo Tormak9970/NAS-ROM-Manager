@@ -54,7 +54,7 @@
 <ModalBody
   headline={"Change Cover Art"}
   open={open}
-  on:closeEnd={closeEnd}
+  oncloseend={closeEnd}
   extraWrapperOptions={{
     style: "width: calc(100% - 2rem); max-width: 40rem;"
   }}
@@ -62,11 +62,13 @@
     style: "width: 100%;"
   }}
 >
-  <div slot="headline-action">
-    <Button type="text" iconType="full" on:click={() => $showSGDBFiltersSheet = true}>
-      <Icon icon={Tune} />
-    </Button>
-  </div>
+  {#snippet headlineAction()}
+    <div>
+      <Button type="text" iconType="full" on:click={() => $showSGDBFiltersSheet = true}>
+        <Icon icon={Tune} />
+      </Button>
+    </div>
+  {/snippet}
   <div class="content">
     {#if saving}
       <div class="loading-container">
@@ -76,10 +78,12 @@
       <GridResults sgdbId={metadata.sgdbId} />
     {/if}
   </div>
-  <div slot="buttons">
-    <Button type="tonal" on:click={onCancel}>Cancel</Button>
-    <Button type="tonal" on:click={onSave} disabled={!canSave}>Save</Button>
-  </div>
+  {#snippet buttons()}
+    <div>
+      <Button type="tonal" on:click={onCancel}>Cancel</Button>
+      <Button type="tonal" on:click={onSave} disabled={!canSave}>Save</Button>
+    </div>
+  {/snippet}
 </ModalBody>
 
 <style>

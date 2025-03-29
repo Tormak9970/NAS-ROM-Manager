@@ -49,7 +49,7 @@
   headline="Download Progress"
   open={open}
   canClose={false}
-  on:closeEnd={closeEnd}
+  oncloseend={closeEnd}
   extraOptions={{ style: "margin-bottom: 0rem" }}
 >
   <div class="content">
@@ -64,9 +64,11 @@
       </div>
     {/if}
   </div>
-  <div slot="buttons">
-    <Button type="text" on:click={onCancel} warning>Cancel</Button>
-  </div>
+  {#snippet buttons()}
+    <div>
+      <Button type="text" on:click={onCancel} warning>Cancel</Button>
+    </div>
+  {/snippet}
 </ModalBody>
 
 <style>

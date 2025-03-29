@@ -44,17 +44,19 @@
   }
 </script>
 
-<ModalBody maxWidth="24rem" headline={$isFirstSetup ? "Setup Library" : "Edit Library"} open={open} canClose={false} on:closeEnd={() => { $showEditLibraryModal = false }}>
+<ModalBody maxWidth="24rem" headline={$isFirstSetup ? "Setup Library" : "Edit Library"} open={open} canClose={false} oncloseend={() => { $showEditLibraryModal = false }}>
   <div class="content">
     <PathField name="Library Path" type={FileSelectionType.FOLDER} bind:value={libraryPath} />
     <TextField name="Roms Directory" bind:value={romDir} />
     <TextField name="Emulators Directory" bind:value={emulatorDir} />
     <TextField name="Bios Files Directory" bind:value={biosDir} />
   </div>
-  <div slot="buttons">
-    <Button type="tonal" on:click={onCancel} disabled={$isFirstSetup}>Cancel</Button>
-    <Button type="tonal" on:click={onConfirm} disabled={!canSave}>Save</Button>
-  </div>
+  {#snippet buttons()}
+    <div>
+      <Button type="tonal" on:click={onCancel} disabled={$isFirstSetup}>Cancel</Button>
+      <Button type="tonal" on:click={onConfirm} disabled={!canSave}>Save</Button>
+    </div>
+  {/snippet}
 </ModalBody>
 
 <style>

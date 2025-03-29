@@ -96,7 +96,7 @@
   }
 </script>
 
-<ModalBody maxWidth="25rem" open={open} headline={`Edit ${$isLandscapeRoutes ? "Desktop" : "Mobile"} Route Order`} on:close={() => open = false} on:closeEnd={() => $showEditRouteOrderModal = false}>
+<ModalBody maxWidth="25rem" open={open} headline={`Edit ${$isLandscapeRoutes ? "Desktop" : "Mobile"} Route Order`} oncloseend={() => $showEditRouteOrderModal = false}>
   <div>
     {#key reset}
       <div class="drag-container" style:height="{routeList.length * entryHeight}px">
@@ -123,10 +123,12 @@
       </div>
     {/key}
   </div>
-  <div slot="buttons">
-    <Button type="tonal" on:click={() => open = false }>Cancel</Button>
-    <Button type="tonal" on:click={done}>Save</Button>
-  </div>
+  {#snippet buttons()}
+    <div>
+      <Button type="tonal" on:click={() => open = false }>Cancel</Button>
+      <Button type="tonal" on:click={done}>Save</Button>
+    </div>
+  {/snippet}
 </ModalBody>
 
 <style>

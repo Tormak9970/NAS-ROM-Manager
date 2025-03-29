@@ -78,7 +78,7 @@
   headline={$editIsPostUpload ? "Confirm Details" : "Edit ROM"}
   open={open}
   canClose={false}
-  on:closeEnd={closeEnd}
+  oncloseend={closeEnd}
 >
   <div class="content">
     <TextField name="Title" bind:value={title} />
@@ -108,10 +108,12 @@
       </Button>
     </div>
   </div>
-  <div slot="buttons">
-    <Button type="tonal" on:click={onCancel}>Cancel</Button>
-    <Button type="tonal" on:click={onSave}>Save</Button>
-  </div>
+  {#snippet buttons()}
+    <div>
+      <Button type="tonal" on:click={onCancel}>Cancel</Button>
+      <Button type="tonal" on:click={onSave}>Save</Button>
+    </div>
+  {/snippet}
 </ModalBody>
 
 <style>

@@ -55,7 +55,7 @@
   }
 </script>
 
-<ModalBody headline={"SGDB Search Results"} open={open} on:closeEnd={onCloseEnd}>
+<ModalBody headline={"SGDB Search Results"} open={open} oncloseend={onCloseEnd}>
   <div class="content">
     <TextField
       name="Search Query"
@@ -85,10 +85,12 @@
       </div>
     {/if}
   </div>
-  <div slot="buttons">
-    <Button type="tonal" on:click={onCancel}>Cancel</Button>
-    <Button type="tonal" on:click={onConfirm} disabled={loading || !selectedId}>Choose</Button>
-  </div>
+  {#snippet buttons()}
+    <div>
+      <Button type="tonal" on:click={onCancel}>Cancel</Button>
+      <Button type="tonal" on:click={onConfirm} disabled={loading || !selectedId}>Choose</Button>
+    </div>
+  {/snippet}
 </ModalBody>
 
 <style>

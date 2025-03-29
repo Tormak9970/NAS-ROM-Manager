@@ -49,7 +49,7 @@
   headline="Add ROM"
   open={open}
   canClose={false} 
-  on:closeEnd={() => { $showAddRomModal = false }}
+  oncloseend={() => { $showAddRomModal = false }}
 >
   <div class="content">
     <Select name="System" options={systemOptions} disabled={systemOptions.length === 1} bind:value={$addRomSystem} />
@@ -67,10 +67,12 @@
       {/if}
     {/if}
   </div>
-  <div slot="buttons">
-    <Button type="tonal" on:click={onCancel}>Cancel</Button>
-    <Button type="tonal" on:click={onUpload} disabled={!canUpload}>Upload</Button>
-  </div>
+  {#snippet buttons()}
+    <div>
+      <Button type="tonal" on:click={onCancel}>Cancel</Button>
+      <Button type="tonal" on:click={onUpload} disabled={!canUpload}>Upload</Button>
+    </div>
+  {/snippet}
 </ModalBody>
 
 <style>
