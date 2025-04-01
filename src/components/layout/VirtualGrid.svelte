@@ -47,7 +47,7 @@
     isScrolled?: boolean;
     saveState?: boolean;
     row: Snippet<[any]>;
-    keyFunction?: any;
+    keyFunction?: (entry: any) => any;
   }
 
   let {
@@ -75,7 +75,6 @@
     if (mounted && viewportHeight && viewportWidth) debouncedRefresh();
   });
 
-  // * Local State
   let mounted: boolean = $state(false);
   let entries: HTMLCollectionOf<HTMLElement>;
   const visible: any[] = $derived(items.slice(cacheEntry.start, cacheEntry.end).map((data, i) => {

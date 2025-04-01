@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
   type CacheEntry = {
     start: number;
     end: number;
@@ -28,39 +28,53 @@
 
 <script lang="ts">
 	import { scrollShadow } from "@directives";
-	import { onMount, tick } from "svelte";
-
-	// * Component Props.
-  export let name: string;
-	export let items: any[];
-	export let height = "100%";
-  export let width = "100%";
-	export let itemHeight: any = undefined;
-  export let isScrolled = false;
-  export let saveState = true;
+	import { onMount, tick, type Snippet } from "svelte";
   
-  export let keyFunction = (entry: any) => entry.index;
+  interface Props {
+    name: string;
+    items: any[];
+    height?: string;
+    width?: string;
+    itemHeight: number;
+    isScrolled?: boolean;
+    saveState?: boolean;
+    row: Snippet<[any]>;
+    keyFunction?: (entry: any) => any;
+  }
 
-  $: cacheEntry = getCacheEntry(name, saveState);
+  let {
+    name,
+    items,
+    height = "100%",
+    width = "100%",
+    itemHeight,
+    isScrolled = $bindable(true),
+    saveState = true,
+    row,
+    keyFunction = (entry: any) => entry.index
+  }: Props = $props();
 
-  // * Local State
-	let mounted: boolean;
-	let rows: HTMLCollectionOf<HTMLElement>;
-	let visible: any[];
+  let cacheEntry = $state(getCacheEntry(name, saveState));
+  
+  // * Whenever `items` changes, invalidate the current heightmap.
+  $effect(() => {
+    if (mounted) refresh(items, viewportHeight, itemHeight);
+  });
 
-	let viewport: HTMLElement;
-	let viewportHeight = 0;
+  let mounted: boolean = $state(false);
+  let entries: HTMLCollectionOf<HTMLElement>;
+  const visible: any[] = $derived(items.slice(cacheEntry.start, cacheEntry.end).map((data, i) => {
+    return { index: i + cacheEntry.start, data };
+  }));
 
-	let contents: HTMLElement;
+  // @ts-expect-error This is always assigned on mount.
+  let viewport: HTMLElement = $state();
+  let viewportHeight = $state(0);
+
+  // @ts-expect-error This is always assigned on mount.
+  let contents: HTMLElement = $state();
 
 	let averageHeight: number;
-
-	$: visible = items.slice(cacheEntry.start, cacheEntry.end).map((data, i) => {
-		return { index: i + cacheEntry.start, data };
-	});
-
-  // * Whenever `items` changes, invalidate the current heightmap.
-	$: if (mounted) refresh(items, viewportHeight, itemHeight);
 
   /**
    * Refreshes the contents of the virtual list.
@@ -80,13 +94,13 @@
 		let i = cacheEntry.start;
 
 		while (contentHeight < viewportHeight && i < items.length) {
-			let row = rows[i - cacheEntry.start];
+			let row = entries[i - cacheEntry.start];
 
 			if (!row) {
 				cacheEntry.end = i + 1;
         // * Render the newly visible entry.
 				await tick();
-				row = rows[i - cacheEntry.start];
+				row = entries[i - cacheEntry.start];
 			}
 
 			const rowHeight = cacheEntry.heightMap[i] = itemHeight || row.offsetHeight;
@@ -115,8 +129,8 @@
 
 		const oldStart = cacheEntry.start;
 
-		for (let v = 0; v < rows.length; v += 1) {
-			cacheEntry.heightMap[cacheEntry.start + v] = itemHeight || rows[v].offsetHeight;
+		for (let v = 0; v < entries.length; v += 1) {
+			cacheEntry.heightMap[cacheEntry.start + v] = itemHeight || entries[v].offsetHeight;
 		}
 
 		let i = 0;
@@ -162,9 +176,9 @@
 			let actualHeight = 0;
 
 			for (let i = cacheEntry.start; i < oldStart; i +=1) {
-				if (rows[i - cacheEntry.start]) {
+				if (entries[i - cacheEntry.start]) {
 					expectedHeight += cacheEntry.heightMap[i];
-					actualHeight += itemHeight || rows[i - cacheEntry.start].offsetHeight;
+					actualHeight += itemHeight || entries[i - cacheEntry.start].offsetHeight;
 				}
 			}
 
@@ -177,7 +191,7 @@
 
 	// * Trigger initial refresh.
 	onMount(() => {
-		rows = contents.getElementsByTagName("svelte-virtual-list-row") as HTMLCollectionOf<HTMLElement>;
+		entries = contents.getElementsByTagName("svelte-virtual-list-row") as HTMLCollectionOf<HTMLElement>;
     viewport.scrollTo(0, cacheEntry.listScrollTop);
 		mounted = true;
 	});
@@ -188,7 +202,7 @@
     style="height: {height};"
     class="styled-scrollbar"
     use:scrollShadow={{ background: "--m3-scheme-background" }}
-    on:scroll={handleScroll}
+    onscroll={handleScroll}
     bind:offsetHeight={viewportHeight}
     bind:this={viewport}
   >
@@ -196,9 +210,9 @@
       style="padding-top: {cacheEntry.top}px; padding-bottom: {cacheEntry.bottom + 60 + 2}px;"
       bind:this={contents}
     >
-      {#each visible as row (keyFunction(row))}
+      {#each visible as entry (keyFunction(entry))}
         <svelte-virtual-list-row>
-          <slot entry={row.data}>Missing template</slot>
+          {@render row(entry.data)}
         </svelte-virtual-list-row>
       {/each}
     </svelte-virtual-list-contents>
