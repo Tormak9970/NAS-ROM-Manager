@@ -16,7 +16,7 @@
 
 <div class="settings-body"> <!-- transition:sharedAxisTransition={{ direction: "Z", leaving: false }}-->
   <div class="header" class:highlight>
-    <Button type="text" iconType="full" on:click={() => window.history.back()}>
+    <Button type="text" iconType="full" onclick={() => window.history.back()}>
       <Icon icon={BackArrow} width="20px" height="20px" />
     </Button>
     <div class="font-headline" style="margin-left: 10px; font-weight: bold;">{title}</div>

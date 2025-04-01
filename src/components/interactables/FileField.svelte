@@ -1,22 +1,30 @@
 <script lang="ts">
   import { Folder } from "@icons";
-  import { createEventDispatcher } from "svelte";
   import type { HTMLAttributes, HTMLInputAttributes } from "svelte/elements";
   import TextField from "./TextField.svelte";
 
-  export let extraWrapperOptions: HTMLAttributes<HTMLDivElement> = {};
-  export let extraOptions: HTMLInputAttributes = {};
-  export let name: string;
+  type Props = {
+    extraWrapperOptions?: HTMLAttributes<HTMLDivElement>;
+    extraOptions?: HTMLInputAttributes;
+    name: string;
+    fileExtensions?: string[];
+    disabled?: boolean;
+    onchange?: (file: File | undefined) => void;
+  }
 
-  export let fileExtensions: string[] = [];
+  let {
+    extraWrapperOptions = {},
+    extraOptions = {},
+    name,
+    fileExtensions = [],
+    disabled = false,
+    onchange = () => {},
+  }: Props = $props();
 
-  export let disabled = false;
-
-  let fileElement: HTMLInputElement;
+  // @ts-expect-error This will always be defined before its usage.
+  let fileElement: HTMLInputElement = $state();
   
-  const dispatch = createEventDispatcher();
-  
-  let value = "";
+  let value = $state("");
 
   function handleFilePrompt(e: Event) {
     const files = (e.currentTarget as HTMLInputElement).files;
@@ -24,9 +32,7 @@
     if (files && files.length > 0) {
       value = files[0].name;
 
-      dispatch("change", {
-        value: files[0]
-      });
+      onchange?.(files[0]);
     }
   }
 </script>
@@ -36,7 +42,7 @@
   id="fileElem"
   style="display:none"
   accept={fileExtensions.length > 0 ? fileExtensions.join(",") : undefined}
-  on:change={handleFilePrompt}
+  onchange={handleFilePrompt}
   bind:this={fileElement}
 />
 <TextField
@@ -44,7 +50,7 @@
   trailingIcon={Folder}
   disabled={disabled}
   readonly
-  on:trailingClick={() => fileElement.click()}
+  ontrailingClick={() => fileElement.click()}
   extraOptions={extraOptions}
   extraWrapperOptions={extraWrapperOptions}
   bind:value

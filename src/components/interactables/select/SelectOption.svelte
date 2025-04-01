@@ -1,20 +1,33 @@
 <script lang="ts">
-  import { createEventDispatcher } from "svelte";
+  import { createEventDispatcher, type Snippet } from "svelte";
 
   const dispatch = createEventDispatcher();
 
-  export let selected: boolean = false;
-  export let value: string;
-  export let disabled = false;
-  export let width: number;
+  type Props = {
+    selected?: boolean;
+    value: string;
+    disabled?: boolean;
+    width: number;
+    children?: Snippet;
+    onclick: (value: string) => void;
+  }
+
+  let {
+    selected = false,
+    value,
+    disabled = false,
+    width,
+    children,
+    onclick,
+  }: Props = $props();
 
   function handleClick() {
-    dispatch("click", { value: value });
+    onclick(value);
   }
 </script>
 
-<button class="item m3-font-label-large" style:width="calc({width}px - 1.5rem)" class:selected {disabled} on:click={handleClick}>
-  <slot />
+<button class="item m3-font-label-large" style:width="calc({width}px - 1.5rem)" class:selected {disabled} onclick={handleClick}>
+  {@render children?.()}
 </button>
 
 <style>

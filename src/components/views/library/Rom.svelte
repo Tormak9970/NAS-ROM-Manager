@@ -60,7 +60,7 @@
         extraOptions={{
           style: "width: 100%;"
         }}
-        on:click={() => RomController.download(romId)}
+        onclick={() => RomController.download(romId)}
       >
         <Icon icon={Download} />
         Download
@@ -71,7 +71,7 @@
     <SystemTag system={rom.system} />
   </div>
   <div class="favorite" class:visible={isFavorite}>
-    <Button iconType="full" type="text" size="2rem" iconSize="1.25rem" on:click={() => RomController.toggleFavorite(romId)}>
+    <Button iconType="full" type="text" size="2rem" iconSize="1.25rem" onclick={() => RomController.toggleFavorite(romId)}>
       <Icon icon={isFavorite ? FavoriteOn : FavoriteOff} />
     </Button>
   </div>

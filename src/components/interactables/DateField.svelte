@@ -7,25 +7,38 @@
   import { CalendarTodayOutline } from "@icons";
   import { easeEmphasized } from "@utils";
   import DatePicker from "./date-picker/DatePicker.svelte";
-
-  export let name: string;
-  export let date = "";
-  export let required = false;
-  export let disabled = false;
-  export let readonly = false;
-  export let extraOptions: HTMLInputAttributes = {};
   
-  export let validate: (date: string) => boolean = (date: string) => { return true; };
+  type Props = {
+    name: string;
+    date?: string;
+    required?: boolean;
+    disabled?: boolean;
+    readonly?: boolean;
+    extraOptions?: HTMLInputAttributes;
+    validate?: (date: string) => boolean;
+  }
+
+  let {
+    name,
+    date = $bindable(""),
+    required = false,
+    disabled = false,
+    readonly = false,
+    extraOptions = {},
+    validate = (date: string) => { return true; }
+  }: Props = $props();
 
   const id = crypto.randomUUID();
-  let hasJs = false;
+  let hasJs = $state(false);
 
   onMount(() => {
     hasJs = true;
   });
 
-  let picker = false;
-  let container: HTMLDivElement;
+  let picker = $state(false);
+
+  // @ts-expect-error This will always be defined before its usage.
+  let container: HTMLDivElement = $state();
 
   const clickOutside = (_node: Node) => {
     const handleClick = (event: Event) => {
@@ -54,7 +67,7 @@ opacity: ${Math.min(t * 3, 1)};`,
     };
   };
   
-  $: error = !validate(date);
+  let error = $derived(!validate(date));
 </script>
 
 <div class="m3-container" class:has-js={hasJs} class:error class:disabled bind:this={container}>
@@ -70,7 +83,7 @@ opacity: ${Math.min(t * 3, 1)};`,
   />
   <div class="layer"></div>
   <label class="m3-font-body-small" for={id}>{name}</label>
-  <button type="button" class="trailing" {disabled} on:click={() => (picker = !picker)}>
+  <button type="button" class="trailing" {disabled} onclick={() => (picker = !picker)}>
     <Icon icon={CalendarTodayOutline} />
   </button>
   {#if picker}
@@ -78,8 +91,10 @@ opacity: ${Math.min(t * 3, 1)};`,
       <DatePicker
         clearable={!required}
         bind:date
-        on:close={() => (picker = false)}
-        on:setDate={(e: { detail: string; }) => (date = e.detail)}
+        onclose={() => (picker = false)}
+        onsetDate={(newDate: string) => {
+          date = newDate;
+        }}
       />
     </div>
   {/if}

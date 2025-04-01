@@ -27,7 +27,7 @@
     {/if}
   </div>
   <div class="buttons">
-    <Button type="text" iconType="full" on:click={() => $showAddRomModal = true} disabled={systemKeys.length === 0}>
+    <Button type="text" iconType="full" onclick={() => $showAddRomModal = true} disabled={systemKeys.length === 0}>
       <Icon icon={Add}/>
     </Button>
     <MenuButton items={menuItems} icon={Person} />

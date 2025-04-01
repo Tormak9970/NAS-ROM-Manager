@@ -86,23 +86,23 @@
       name="SGDB Id"
       bind:value={sgdbId}
       trailingIcon={DatabaseSearch}
-      on:trailingClick={openSGDBSearch}
+      ontrailingClick={openSGDBSearch}
     />
     <TextField
       name="IGDB Id"
       bind:value={igdbId}
       trailingIcon={DatabaseSearch}
-      on:trailingClick={openIGDBSearch}
+      ontrailingClick={openIGDBSearch}
     />
     <label>
       <div class="m3-font-title-medium">Favorite:</div>
       <Checkbox bind:checked={isFavorite} />
     </label>
     <div class="actions" style:--m3-button-shape="var(--m3-util-rounding-small)">
-      <Button type="filled" extraOptions={{ style: "flex-grow: 1" }} on:click={() => RomController.changeCover($romEditingId!)}>
+      <Button type="filled" extraOptions={{ style: "flex-grow: 1" }} onclick={() => RomController.changeCover($romEditingId!)}>
         Edit Cover
       </Button>
-      <Button type="filled" extraOptions={{ style: "flex-grow: 1" }} iconType="left" on:click={refreshMetadata}>
+      <Button type="filled" extraOptions={{ style: "flex-grow: 1" }} iconType="left" onclick={refreshMetadata}>
         <Icon icon={Cached} />
         Metadata
       </Button>
@@ -110,8 +110,8 @@
   </div>
   {#snippet buttons()}
     <div>
-      <Button type="tonal" on:click={onCancel}>Cancel</Button>
-      <Button type="tonal" on:click={onSave}>Save</Button>
+      <Button type="tonal" onclick={onCancel}>Cancel</Button>
+      <Button type="tonal" onclick={onSave}>Save</Button>
     </div>
   {/snippet}
 </ModalBody>

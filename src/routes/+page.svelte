@@ -61,7 +61,7 @@
             extraOptions={{
               type: passwordVisible ? "text" : "password"
             }}
-            on:trailingClick={() => passwordVisible = !passwordVisible}
+            ontrailingClick={() => passwordVisible = !passwordVisible}
             bind:value={password}
           />
           <div class="remember-me-container">
@@ -71,7 +71,7 @@
           <Button
             type="tonal"
             extraOptions={{ style: "width: 100%;" }}
-            on:click={() => {
+            onclick={() => {
               loading = true;
               signIn();
             }}

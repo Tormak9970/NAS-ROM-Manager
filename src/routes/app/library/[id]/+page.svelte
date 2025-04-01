@@ -77,7 +77,7 @@
     <div class="header" class:portrait>
       {#if portrait}
         <div class="back-button">
-          <Button iconType="full" type="text" size="2.75rem" iconSize="1.75rem" on:click={() => window.history.back()}>
+          <Button iconType="full" type="text" size="2.75rem" iconSize="1.75rem" onclick={() => window.history.back()}>
             <Icon icon={BackArrow} />
           </Button>
         </div>
@@ -102,18 +102,18 @@
         </div>
       </div>
       <div class="controls" class:portrait style:--m3-button-shape="var(--m3-util-rounding-small)">
-        <Button iconType="full" type="text" on:click={() => RomController.toggleFavorite(id)}>
+        <Button iconType="full" type="text" onclick={() => RomController.toggleFavorite(id)}>
           <Icon icon={isFavorite ? FavoriteOn : FavoriteOff} />
         </Button>
         <Button
           type="filled"
           iconType="left"
-          on:click={() => RomController.download(id)}
+          onclick={() => RomController.download(id)}
         >
           <Icon icon={Download} />
           Download
         </Button>
-        <Button iconType="full" type="filled" on:click={() => RomController.edit(id)}>
+        <Button iconType="full" type="filled" onclick={() => RomController.edit(id)}>
           <Icon icon={Edit} />
         </Button>
       </div>

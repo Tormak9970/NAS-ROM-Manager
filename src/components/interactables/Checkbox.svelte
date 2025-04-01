@@ -1,13 +1,23 @@
 <script lang="ts">
   import type { HTMLAttributes } from "svelte/elements";
 
-  export let extraOptions: HTMLAttributes<HTMLLabelElement> = {};
-  export let checked = false;
-  export let disabled = false;
+  type Props = {
+    extraOptions?: HTMLAttributes<HTMLLabelElement>;
+    checked?: boolean;
+    disabled?: boolean;
+    oninput?: (e: Event) => void;
+  }
+
+  let {
+    extraOptions = {},
+    checked = $bindable(false),
+    disabled = false,
+    oninput = () => {}
+  }: Props = $props();
 </script>
 
 <label class="m3-container" {...extraOptions}>
-  <input type="checkbox" bind:checked={checked} on:input disabled={disabled} />
+  <input type="checkbox" bind:checked={checked} {oninput} disabled={disabled} />
   <div class="layer">
     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
       <path

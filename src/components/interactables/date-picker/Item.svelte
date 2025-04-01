@@ -1,8 +1,19 @@
 <script lang="ts">
-  export let disabled = false;
-  export let today = false;
-  export let selected = false;
-  export let label: string;
+  type Props = {
+    disabled?: boolean;
+    today?: boolean;
+    selected?: boolean;
+    label: string;
+    onclick: () => {};
+  }
+
+  let {
+    disabled = false,
+    today = false,
+    selected = false,
+    label,
+    onclick
+  }: Props = $props();
 </script>
 
 <button
@@ -11,7 +22,7 @@
   type="button"
   class:today
   class:selected
-  on:click
+  {onclick}
 >
   {label}
 </button>

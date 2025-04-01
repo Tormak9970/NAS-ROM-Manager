@@ -1,20 +1,38 @@
 <script lang="ts">
   import { Icon } from "@component-utils";
   import type { IconifyIcon } from "@iconify/types";
-  import { createEventDispatcher } from "svelte";
   import type { HTMLAttributes, HTMLInputAttributes } from "svelte/elements";
 
-  export let extraWrapperOptions: HTMLAttributes<HTMLDivElement> = {};
-  export let extraOptions: HTMLInputAttributes = {};
-  export let name: string;
-  export let leadingIcon: IconifyIcon | undefined = undefined;
-  export let trailingIcon: IconifyIcon | undefined = undefined;
+  type Props = {
+    extraWrapperOptions?: HTMLAttributes<HTMLDivElement>;
+    extraOptions?: HTMLInputAttributes;
+    name: string;
+    leadingIcon?: IconifyIcon | undefined;
+    trailingIcon?: IconifyIcon | undefined;
+    disabled?: boolean;
+    required?: boolean;
+    error?: boolean;
+    value?: string;
+    onchange?: (e: Event) => void;
+    oninput?: (e: Event) => void;
+    ontrailingClick?: () => void;
+  }
 
-  export let disabled = false;
-  export let required = false;
-  export let error = false;
-  export let value = "";
-  const dispatch = createEventDispatcher();
+  let {
+    extraWrapperOptions = {},
+    extraOptions = {},
+    name,
+    leadingIcon = undefined,
+    trailingIcon = undefined,
+    disabled = false,
+    required = false,
+    error = false,
+    value = $bindable(""),
+    onchange = () => {},
+    oninput = () => {},
+    ontrailingClick,
+  }: Props = $props();
+  
   const id = crypto.randomUUID();
 </script>
 
@@ -35,8 +53,8 @@
     {disabled}
     {required}
     {...extraOptions}
-    on:change
-    on:input
+    {onchange}
+    {oninput}
   />
   <div class="layer"></div>
   <label class="m3-font-body-large" for={id}>{name}</label>
@@ -44,7 +62,7 @@
     <Icon icon={leadingIcon} class="leading" />
   {/if}
   {#if trailingIcon}
-    <button on:click={() => dispatch("trailingClick")} class="trailing">
+    <button onclick={ontrailingClick} class="trailing">
       <Icon icon={trailingIcon} />
     </button>
   {/if}

@@ -1,24 +1,41 @@
 <script lang="ts">
   import { Icon } from "@component-utils";
   import type { IconifyIcon } from "@iconify/types";
+  import type { Snippet } from "svelte";
   import type { HTMLButtonAttributes } from "svelte/elements";
 
-  export let extraOptions: HTMLButtonAttributes = {};
-  /**
-   * general is filter/suggestion since they're the same.
-   * | name       | use              | example                       | phrasing           |
-   * |------------|------------------|-------------------------------|--------------------|
-   * | input      | information item | like a person in the to field | user-entered thing |
-   * | assist     | smart actions    | like add to calendar          | start with a verb  |
-   * | filter     | selection        | like in a search page         | category           |
-   * | suggestion | smart actions    | like a chat response          | query/message      |
-   */
-  export let type: "input" | "assist" | "general";
-  export let icon: IconifyIcon | null = null;
-  export let trailingIcon: IconifyIcon | null = null;
-  export let elevated = false;
-  export let disabled = false;
-  export let selected = false;
+  type Props = {
+    extraOptions?: HTMLButtonAttributes;
+    /**
+     * general is filter/suggestion since they're the same.
+     * | name       | use              | example                       | phrasing           |
+     * |------------|------------------|-------------------------------|--------------------|
+     * | input      | information item | like a person in the to field | user-entered thing |
+     * | assist     | smart actions    | like add to calendar          | start with a verb  |
+     * | filter     | selection        | like in a search page         | category           |
+     * | suggestion | smart actions    | like a chat response          | query/message      |
+     */
+    type: "input" | "assist" | "general";
+    icon?: IconifyIcon | null;
+    trailingIcon?: IconifyIcon | null;
+    elevated?: boolean;
+    disabled?: boolean;
+    selected?: boolean;
+    children?: Snippet;
+    onclick?: () => void;
+  }
+
+  let {
+    extraOptions = {},
+    type,
+    icon = null,
+    trailingIcon = null,
+    elevated = false,
+    disabled = false,
+    selected = false,
+    children,
+    onclick
+  }: Props = $props();
 </script>
 
 <button
@@ -26,14 +43,14 @@
   class:elevated
   class:selected
   {disabled}
-  on:click
+  {onclick}
   {...extraOptions}
 >
   <div class="layer"></div>
   {#if icon}
     <Icon {icon} class="leading" />
   {/if}
-  <span class="m3-font-label-large"><slot /></span>
+  <span class="m3-font-label-large">{@render children?.()}</span>
   {#if trailingIcon}
     <Icon icon={trailingIcon} class="trailing" />
   {/if}

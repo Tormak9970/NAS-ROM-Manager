@@ -30,7 +30,7 @@
 	import { scrollShadow } from "@directives";
 	import { onMount, tick, type Snippet } from "svelte";
   
-  interface Props {
+  type Props = {
     name: string;
     items: any[];
     height?: string;

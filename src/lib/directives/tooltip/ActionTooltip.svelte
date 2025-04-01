@@ -144,7 +144,7 @@
   </div>
 {/if}
 
-<svelte:window on:resize={onHandleResize} />
+<svelte:window onresize={onHandleResize} />
 
 <style>
   /*--------------------------*

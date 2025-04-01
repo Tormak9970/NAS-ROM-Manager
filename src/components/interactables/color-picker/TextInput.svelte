@@ -1,39 +1,43 @@
 <script lang="ts">
-	import { createEventDispatcher } from 'svelte';
 	import Button from "../Button.svelte";
 
-	const dispatch = createEventDispatcher<{
-		input: { hsv?: any; rgb?: any; hex?: string };
-	}>();
+	type Props = {
+		/** if set to false, disables the alpha channel */
+		isAlpha: boolean;
+		/** rgb color */
+		rgb: any;
+		/** hsv color */
+		hsv: any;
+		/** hex color */
+		hex: string;
+		/** configure which hex, rgb and hsv inputs will be visible and in which order. If overridden, it is necessary to provide at least one value */
+		textInputModes: Array<'hex' | 'rgb' | 'hsv'>;
+		/** all translation tokens used in the library; can be partially overridden; see [full object type](https://github.com/Ennoriel/svelte-awesome-color-picker/blob/master/src/lib/utils/texts.ts) */
+		texts: any;
 
-	/** if set to false, disables the alpha channel */
-	export let isAlpha: boolean;
+    oninput: (value: any) => void
+	}
 
-	/** rgb color */
-	export let rgb: any;
-
-	/** hsv color */
-	export let hsv: any;
-
-	/** hex color */
-	export let hex: string;
-
-	/** configure which hex, rgb and hsv inputs will be visible and in which order. If overridden, it is necessary to provide at least one value */
-	export let textInputModes: Array<'hex' | 'rgb' | 'hsv'>;
-
-	/** all translation tokens used in the library; can be partially overridden; see [full object type](https://github.com/Ennoriel/svelte-awesome-color-picker/blob/master/src/lib/utils/texts.ts) */
-	export let texts: any;
+	let {
+		isAlpha,
+		rgb = $bindable(),
+		hsv = $bindable(),
+		hex = $bindable(),
+		textInputModes,
+		texts,
+    oninput
+	}: Props = $props();
 
 	const HEX_COLOR_REGEX = /^#?([A-F0-9]{6}|[A-F0-9]{8})$/i;
 
-	let mode: 'hex' | 'rgb' | 'hsv' = textInputModes[0] || 'hex';
+	let mode: 'hex' | 'rgb' | 'hsv' = $state(textInputModes[0] || 'hex');
 
-	$: nextMode = textInputModes[(textInputModes.indexOf(mode) + 1) % textInputModes.length];
+	let nextMode = $derived(textInputModes[(textInputModes.indexOf(mode) + 1) % textInputModes.length]);
 
-	$: h = Math.round(hsv.h);
-	$: s = Math.round(hsv.s);
-	$: v = Math.round(hsv.v);
-	$: a = hsv.a === undefined ? 1 : Math.round(hsv.a * 100) / 100;
+	let h = $derived(Math.round(hsv.h));
+	let s = $derived(Math.round(hsv.s));
+	let v = $derived(Math.round(hsv.v));
+	let a = $derived(hsv.a === undefined ? 1 : Math.round(hsv.a * 100) / 100);
 
 	type InputEvent = Event & { currentTarget: EventTarget & HTMLInputElement };
 
@@ -41,21 +45,21 @@
 		const target = e.target as HTMLInputElement;
 		if (HEX_COLOR_REGEX.test(target.value)) {
 			hex = target.value;
-			dispatch('input', { hex });
+			oninput(hex);
 		}
 	}
 
 	function updateRgb(property: string) {
 		return function (e: InputEvent) {
 			rgb = { ...rgb, [property]: parseFloat((e.target as HTMLInputElement).value) };
-			dispatch('input', { rgb });
+			oninput(rgb);
 		};
 	}
 
 	function updateHsv(property: string) {
 		return function (e: InputEvent) {
 			hsv = { ...hsv, [property]: parseFloat((e.target as HTMLInputElement).value) };
-			dispatch('input', { hsv });
+			oninput(hsv);
 		};
 	}
 </script>
@@ -63,21 +67,21 @@
 <div class="text-input" class:alpha={isAlpha}>
 	<div class="input-container">
 		{#if mode === 'hex'}
-			<input autocomplete="off" aria-label={texts.label.hex} value={hex} on:input={updateHex} style:flex={3} />
+			<input autocomplete="off" aria-label={texts.label.hex} value={hex} oninput={updateHex} style:flex={3} />
 		{:else if mode === 'rgb'}
-			<input autocomplete="off" aria-label={texts.label.r} value={rgb.r} type="number" min="0" max="255" on:input={updateRgb('r')} />
-			<input autocomplete="off" aria-label={texts.label.g} value={rgb.g} type="number" min="0" max="255" on:input={updateRgb('g')} />
-			<input autocomplete="off" aria-label={texts.label.b} value={rgb.b} type="number" min="0" max="255" on:input={updateRgb('b')} />
+			<input autocomplete="off" aria-label={texts.label.r} value={rgb.r} type="number" min="0" max="255" oninput={updateRgb('r')} />
+			<input autocomplete="off" aria-label={texts.label.g} value={rgb.g} type="number" min="0" max="255" oninput={updateRgb('g')} />
+			<input autocomplete="off" aria-label={texts.label.b} value={rgb.b} type="number" min="0" max="255" oninput={updateRgb('b')} />
 		{:else}
-			<input autocomplete="off" aria-label={texts.label.h} value={h} type="number" min="0" max="360" on:input={updateHsv('h')} />
-			<input autocomplete="off" aria-label={texts.label.s} value={s} type="number" min="0" max="100" on:input={updateHsv('s')} />
-			<input autocomplete="off" aria-label={texts.label.v} value={v} type="number" min="0" max="100" on:input={updateHsv('v')} />
+			<input autocomplete="off" aria-label={texts.label.h} value={h} type="number" min="0" max="360" oninput={updateHsv('h')} />
+			<input autocomplete="off" aria-label={texts.label.s} value={s} type="number" min="0" max="100" oninput={updateHsv('s')} />
+			<input autocomplete="off" aria-label={texts.label.v} value={v} type="number" min="0" max="100" oninput={updateHsv('v')} />
 		{/if}
 	</div>
 
 	<Button
     type="tonal"
-    on:click={() => (mode = nextMode)}
+    onclick={() => (mode = nextMode)}
     extraOptions={{ style: "width: 100%; margin-top: 8px;" }}
   >
     {texts.color[mode]}

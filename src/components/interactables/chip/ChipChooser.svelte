@@ -1,9 +1,18 @@
 <script lang="ts">
   import type { IconifyIcon } from "@iconify/types";
   import Chip from "./Chip.svelte";
-  export let options: { label: string; value: string; icon?: IconifyIcon }[];
-  export let chosenOptions: string[] = [];
-  export let type: "input" | "assist" | "general";
+
+  type Props = {
+    options: { label: string; value: string; icon?: IconifyIcon }[];
+    chosenOptions?: string[];
+    type: "input" | "assist" | "general";
+  }
+
+  let {
+    options,
+    chosenOptions = $bindable([]),
+    type
+  }: Props = $props();
 </script>
 
 <div class="m3-container">
@@ -11,7 +20,7 @@
     <Chip
       type={type}
       selected={chosenOptions.includes(option.value)}
-      on:click={() =>
+      onclick={() =>
         chosenOptions.includes(option.value)
           ? (chosenOptions = chosenOptions.filter((o) => o != option.value))
           : (chosenOptions = [...chosenOptions, option.value])}

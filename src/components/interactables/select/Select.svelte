@@ -3,26 +3,38 @@
   import type { HTMLAttributes } from "svelte/elements";
   
   import { ArrowDropDown, ArrowDropUp } from "@icons";
+  import { stopPropagation } from "@utils";
   import { onMount } from "svelte";
   import SelectOption from "./SelectOption.svelte";
 
   const id = crypto.randomUUID();
 
-  export let extraWrapperOptions: HTMLAttributes<HTMLDivElement> = {};
-  export let extraOptions: HTMLAttributes<HTMLDivElement> = {};
-  export let name: string;
 
-  export let disabled = false;
-  export let value = "";
-  export let options: SelectItem[];
-  export let open = false;
-  export let maxHeight = "300px";
+  type Props = {
+    extraWrapperOptions?: HTMLAttributes<HTMLDivElement>;
+    extraOptions?: HTMLAttributes<HTMLDivElement>;
+    name: string;
+    disabled?: boolean;
+    value?: string;
+    options: SelectItem[];
+    open?: boolean;
+    maxHeight?: string;
+  }
 
-  $: menuElement && (menuElement.open = open);
-  $: label = options.find((option) => option.value === value)?.label;
+  let {
+    extraWrapperOptions = {},
+    extraOptions = {},
+    name,
+    disabled = false,
+    value = $bindable(""),
+    options,
+    open = $bindable(false),
+    maxHeight = "300px"
+  }: Props = $props();
 
-  let selectElement: HTMLDivElement;
-  let menuElement: any;
+  // @ts-expect-error This will always be defined before its usage.
+  let selectElement: HTMLDivElement = $state();
+  let menuElement: any = $state();
 
 
   function onMouseUp(e: Event) {
@@ -33,8 +45,8 @@
     open = !open;
   }
 
-  function handleClick(e: any) {
-    value = e.detail.value;
+  function handleClick(newVal: string) {
+    value = newVal;
   }
 
   onMount(() => {
@@ -49,16 +61,22 @@
     `
     shadowRoot.insertBefore(style, shadowRoot.firstChild);
   });
+  
+  $effect(() => {
+    menuElement && (menuElement.open = open);
+  });
+  
+  const label = $derived(options.find((option) => option.value === value)?.label);
 </script>
 
-<svelte:window on:mouseup={onMouseUp} />
+<svelte:window onmouseup={onMouseUp} />
 
-<!-- svelte-ignore a11y-click-events-have-key-events -->
-<!-- svelte-ignore a11y-no-static-element-interactions -->
+<!-- svelte-ignore a11y_click_events_have_key_events -->
+<!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
   class="container"
-  on:click|stopPropagation
-  on:mousedown|stopPropagation
+  onclick={stopPropagation()}
+  onmousedown={stopPropagation()}
   style:--md-menu-container-color="rgb(var(--m3-scheme-surface-container))"
   style:--md-menu-item-container-color="rgb(var(--m3-scheme-surface-container))"
   style:--md-menu-item-selected-container-color="rgb(var(--m3-scheme-secondary-container))"
@@ -69,8 +87,8 @@
     class:disabled
     class:empty={!label}
     {...extraWrapperOptions}
-    on:click={onClick}
-    on:mouseup|stopPropagation
+    onclick={onClick}
+    onmouseup={stopPropagation()}
     bind:this={selectElement}
   >
     <div class="select-mimic m3-font-body-large" {id} {...extraOptions}>
@@ -88,7 +106,7 @@
   </div>
   <md-menu positioning="popover" style:max-height={maxHeight} bind:this={menuElement}>
     {#each options as option}
-      <SelectOption value={option.value} selected={value === option.value} width={selectElement?.clientWidth} on:click={handleClick}>{option.label}</SelectOption>
+      <SelectOption value={option.value} selected={value === option.value} width={selectElement?.clientWidth} onclick={handleClick}>{option.label}</SelectOption>
     {/each}
   </md-menu>
 </div>

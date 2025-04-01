@@ -2,16 +2,31 @@
   import { Icon } from "@component-utils";
   import type { IconifyIcon } from "@iconify/types";
   import { Checkmark } from "@icons";
+  import type { Snippet } from "svelte";
   import type { HTMLLabelAttributes } from "svelte/elements";
 
-  export let extraOptions: HTMLLabelAttributes = {};
-  export let id: string;
-  export let name: string
-  export let checked: boolean;
-  export let icon: IconifyIcon | undefined = undefined;
+  type Props = {
+    extraOptions?: HTMLLabelAttributes;
+    id: string;
+    name: string;
+    checked: boolean;
+    icon?: IconifyIcon | undefined;
+    children?: Snippet;
+    oninput?: (e: Event) => void;
+  }
+
+  let {
+    extraOptions = {},
+    id,
+    name,
+    checked,
+    icon = undefined,
+    children,
+    oninput = () => {}
+  }: Props = $props();
 </script>
 
-<input type="radio" name={name} id={id} checked={checked} on:input />
+<input type="radio" name={name} id={id} checked={checked} {oninput} />
 <label
   for={id}
   class="m3-font-label-large"
@@ -27,7 +42,7 @@
     <Icon icon={Checkmark} />
   </div>
   <div class="start-pad pad"></div>
-  <slot />
+  {@render children?.()}
   {#if !icon}
     <div class="end-pad pad"></div>
   {/if}

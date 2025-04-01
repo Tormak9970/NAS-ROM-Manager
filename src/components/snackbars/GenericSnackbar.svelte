@@ -38,7 +38,7 @@
     <div class="m3-container" style:--background-color={backgroundColor} style:--text-color={textColor}>
       <p class="m3-font-body-medium">{snackbar.message}</p>
       {#if snackbar.closable}
-        <button class="close" on:click={() => { snackbar = undefined; }}>
+        <button class="close" onclick={() => { snackbar = undefined; }}>
           <Icon icon={Close} />
         </button>
       {/if}

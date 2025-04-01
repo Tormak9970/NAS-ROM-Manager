@@ -182,24 +182,24 @@ export function filterGrids(allGrids: SGDBImage[], filters: DBFilter): SGDBImage
   });
 }
 
-export function preventDefault(handler: (e: any) => any) {
+export function preventDefault(handler?: (e: any) => any) {
   return function (event: Event) {
     event.preventDefault();
-    handler.call(this, event);
+    handler?.call(this, event);
   };
 }
 
-export function stopPropagation(handler: (e: any) => any) {
+export function stopPropagation(handler?: (e: any) => any) {
   return function (event: Event) {
     event.stopPropagation();
-    handler.call(this, event);
+    handler?.call(this, event);
   };
 }
 
-export function stopImmediatePropagation(handler: (e: any) => any) {
+export function stopImmediatePropagation(handler?: (e: any) => any) {
   return function (event: Event) {
     event.stopImmediatePropagation();
-    handler.call(this, event);
+    handler?.call(this, event);
   };
 }
 

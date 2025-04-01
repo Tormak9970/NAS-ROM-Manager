@@ -38,7 +38,7 @@
         {toUpperCaseSplit(filter)}
         <Toggle
           checked={$dbFilters[section][filter]}
-          on:change={updateFilters(section, filter)}
+          onchange={updateFilters(section, filter)}
         />
       </label>
     {/each}

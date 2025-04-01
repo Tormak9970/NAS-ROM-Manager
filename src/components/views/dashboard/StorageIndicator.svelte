@@ -16,7 +16,6 @@
   onMount(() => {
     WebsocketController.getStorageInfo().then((info) => {
       storageInfo = info;
-      console.log("storageInfo:", info);
     });
   });
 </script>

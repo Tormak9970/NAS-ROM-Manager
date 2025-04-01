@@ -1,25 +1,21 @@
 <script lang="ts">
-  import { createEventDispatcher } from "svelte";
   import RadioInput from "./RadioInput.svelte";
 
-  export let name: string;
-  export let checked = false;
-  export let label: string;
-
-  const dispatch = createEventDispatcher();
-  
-  /**
-   * Relay the input event to the parent.
-   */
-   function onInput() {
-    dispatch("input");
+  type Props = {
+    name: string;
+    checked?: boolean;
+    label: string;
+    oninput?: (e: Event) => void;
+    onclick?: () => void;
   }
+
+  let { name, checked = false, label, oninput = () => {}, onclick = () => {} }: Props = $props();
 </script>
 
-<button class="item m3-font-label-large" disabled on:click>
-  <!-- svelte-ignore a11y-label-has-associated-control -->
+<button class="item m3-font-label-large" disabled {onclick}>
+  <!-- svelte-ignore a11y_label_has_associated_control -->
   <label>
-    <RadioInput name={name} checked={checked} on:input={onInput} />
+    <RadioInput name={name} checked={checked} {oninput} />
     <div class="radio font-label">{label}</div>
   </label>
 </button>

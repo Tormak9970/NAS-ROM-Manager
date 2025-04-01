@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { createEventDispatcher } from "svelte";
   import Actions from "./Actions.svelte";
   import CalendarPicker from "./CalendarPicker.svelte";
   import FocusPicker from "./FocusPicker.svelte";
@@ -7,22 +6,36 @@
 
   const now = new Date();
 
-  export let display = "flex";
-  export let date = "";
-  export let clearable: boolean;
-  export let focusedMonth: number = parseInt(date.slice(5, 7)) - 1 || now.getMonth(),
-    focusedYear = parseInt(date.slice(0, 4)) || now.getFullYear(),
+  type Props = {
+    display?: string;
+    date?: string;
+    clearable: boolean;
+    focusedMonth?: number;
+    focusedYear?: any;
+    startYear?: any;
+    endYear?: any;
+    dateValidator?: (date: string) => boolean;
+    onsetDate?: (date: string) => void;
+    onclose?: () => void;
+  }
+
+  let {
+    display = "flex",
+    date = $bindable(""),
+    clearable,
+    focusedMonth = $bindable(parseInt(date.slice(5, 7)) - 1 || now.getMonth()),
+    focusedYear = $bindable(parseInt(date.slice(0, 4)) || now.getFullYear()),
     startYear = now.getFullYear() - 50,
-    endYear = now.getFullYear() + 10;
-  export let dateValidator: (date: string) => boolean = (_date: string) => true;
+    endYear = now.getFullYear() + 10,
+    dateValidator = (date: string) => true,
+    onsetDate,
+    onclose
+  }: Props = $props();
 
-  let currentView: "calendar" | "year" | "month" = "calendar",
-    chosenDate: string;
-  $: chosenDate = date;
+  let currentView: "calendar" | "year" | "month" = $state("calendar");
+  let chosenDate: string = $state(date);
 
-  const getLongMonth = (month: number) =>
-    new Date(0, month).toLocaleDateString(undefined, { month: "long" });
-  const dispatch = createEventDispatcher();
+  const getLongMonth = (month: number) => new Date(0, month).toLocaleDateString(undefined, { month: "long" });
 </script>
 
 <div class="m3-container" style="display: {display};">
@@ -32,14 +45,14 @@
     <Actions
       {clearable}
       chosenDate={Boolean(chosenDate)}
-      on:clear={() => (chosenDate = "")}
-      on:cancel={() => {
+      onclear={() => (chosenDate = "")}
+      oncancel={() => {
         chosenDate = date;
-        dispatch("close");
+        onclose?.();
       }}
-      on:ok={() => {
-        dispatch("setDate", chosenDate);
-        dispatch("close");
+      onok={() => {
+        onsetDate?.(chosenDate);
+        onclose?.();
       }}
     />
   {:else}
@@ -55,9 +68,9 @@
             name: (startYear + i + 1).toString(),
             selected: startYear + i + 1 == focusedYear,
           }))}
-      on:chosen={(e) => {
-        if (currentView == "month") focusedMonth = e.detail;
-        else focusedYear = e.detail;
+      onchosen={(id) => {
+        if (currentView == "month") focusedMonth = id;
+        else focusedYear = id;
         currentView = "calendar";
       }}
     />

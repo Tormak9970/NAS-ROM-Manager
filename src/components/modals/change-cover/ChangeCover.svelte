@@ -64,7 +64,7 @@
 >
   {#snippet headlineAction()}
     <div>
-      <Button type="text" iconType="full" on:click={() => $showSGDBFiltersSheet = true}>
+      <Button type="text" iconType="full" onclick={() => $showSGDBFiltersSheet = true}>
         <Icon icon={Tune} />
       </Button>
     </div>
@@ -80,8 +80,8 @@
   </div>
   {#snippet buttons()}
     <div>
-      <Button type="tonal" on:click={onCancel}>Cancel</Button>
-      <Button type="tonal" on:click={onSave} disabled={!canSave}>Save</Button>
+      <Button type="tonal" onclick={onCancel}>Cancel</Button>
+      <Button type="tonal" onclick={onSave} disabled={!canSave}>Save</Button>
     </div>
   {/snippet}
 </ModalBody>

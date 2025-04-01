@@ -1,20 +1,39 @@
 <script lang="ts">
   import { debounce } from "@utils";
+  import { onMount } from "svelte";
   import type { HTMLAttributes, HTMLInputAttributes } from "svelte/elements";
-  import { spring } from "svelte/motion";
+  import { Spring } from "svelte/motion";
 
-  export let extraWrapperOptions: HTMLAttributes<HTMLDivElement> = {};
-  export let extraOptions: HTMLInputAttributes = {};
-  export let value: number;
-  export let min = 0;
-  export let max = 100;
-  export let step: number | "any" = "any";
-  export let disabled = false;
-  export let trackHeight = "0.5rem";
-  export let thumbSize = "1rem";
-  export let trackGap = "0.75rem";
-  export let trackContainerColor = "var(--m3-scheme-primary-container)";
-  export let trackColor = "var(--m3-scheme-primary)";
+  type Props = {
+    extraWrapperOptions?: HTMLAttributes<HTMLDivElement>;
+    extraOptions?: HTMLInputAttributes;
+    value: number;
+    min?: number;
+    max?: number;
+    step?: number | "any";
+    disabled?: boolean;
+    trackHeight?: string;
+    thumbSize?: string;
+    trackGap?: string;
+    trackContainerColor?: string;
+    trackColor?: string;
+  }
+
+  let {
+    extraWrapperOptions = {},
+    extraOptions = {},
+    value = $bindable(),
+    min = 0,
+    max = 100,
+    step = "any",
+    disabled = false,
+    trackHeight = "0.5rem",
+    thumbSize = "1rem",
+    trackGap = "0.75rem",
+    trackContainerColor = "var(--m3-scheme-primary-container)",
+    trackColor = "var(--m3-scheme-primary)"
+  }: Props = $props();
+
   function setValue(newValue: number) {
     value = newValue;
   }
@@ -22,9 +41,8 @@
   // @ts-expect-error we're binding context to ensure that the slider's value gets set, but ts won't be happy
   const debouncedSet = debounce(setValue.bind(this), 100);
 
-  export const valueDisplayed = spring(value, { stiffness: 0.3, damping: 1 });
-
-  $: valueDisplayed.set(value, { hard: true });
+  // TODO: make this bindable
+  export const valueDisplayed = new Spring(value, { stiffness: 0.3, damping: 1 });
 
   function updateValue(e: Event & { currentTarget: EventTarget & HTMLInputElement }) {
     const newValue = Number(e.currentTarget.value);
@@ -33,18 +51,26 @@
     $valueDisplayed = newValue;
   };
 
-  let range: number, percent: number;
-  $: {
+  // @ts-expect-error This will always be defined before its usage.
+  let range: number = $state();
+  // @ts-expect-error This will always be defined before its usage.
+  let percent: number = $state();
+
+  $effect(() => {
     range = max - min;
-    percent = ($valueDisplayed - min) / range;
-  }
+    percent = (valueDisplayed.current - min) / range;
+  });
+  
+  onMount(() => {
+    valueDisplayed.set(value, { hard: true });
+  });
 </script>
 
 <div class="m3-container" style:--percent="{percent * 100}%" style:--track-height={trackHeight} style:--thumb-size={thumbSize} style:--track-gap={trackGap} style:--track-container-color={trackContainerColor} style:--track-color={trackColor} {...extraWrapperOptions}>
   <input
     type="range"
-    on:input={updateValue}
-    value={$valueDisplayed}
+    oninput={updateValue}
+    value={valueDisplayed.current}
     {min}
     {max}
     {step}

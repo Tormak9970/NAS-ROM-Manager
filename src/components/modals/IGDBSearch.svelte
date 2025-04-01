@@ -88,8 +88,8 @@
   </div>
   {#snippet buttons()}
     <div>
-      <Button type="tonal" on:click={onCancel}>Cancel</Button>
-      <Button type="tonal" on:click={onConfirm} disabled={loading || !selectedId}>Choose</Button>
+      <Button type="tonal" onclick={onCancel}>Cancel</Button>
+      <Button type="tonal" onclick={onConfirm} disabled={loading || !selectedId}>Choose</Button>
     </div>
   {/snippet}
 </ModalBody>

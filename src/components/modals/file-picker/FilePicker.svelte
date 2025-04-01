@@ -94,7 +94,7 @@
 <ModalBody headless open={open} canClose={false} oncloseend={onCloseEnd}>
   <div class="content">
     <div class="header">
-      <Button iconType="full" type="text" disabled={lastPath === currentPath} on:click={goBack}>
+      <Button iconType="full" type="text" disabled={lastPath === currentPath} onclick={goBack}>
         <Icon icon={BackArrow} />
       </Button>
       <TextField
@@ -128,8 +128,8 @@
   </div>
   {#snippet buttons()}
     <div>
-      <Button type="tonal" on:click={onCancel}>Cancel</Button>
-      <Button type="tonal" on:click={onConfirm} disabled={loading || !currentPath}>Choose</Button>
+      <Button type="tonal" onclick={onCancel}>Cancel</Button>
+      <Button type="tonal" onclick={onConfirm} disabled={loading || !currentPath}>Choose</Button>
     </div>
   {/snippet}
 </ModalBody>

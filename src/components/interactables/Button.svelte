@@ -1,15 +1,34 @@
 <script lang="ts">
+  import { stopPropagation } from "@utils";
+  import type { Snippet } from "svelte";
   import type { HTMLButtonAttributes } from "svelte/elements";
   
-  export let extraOptions: HTMLButtonAttributes = {};
-  export let iconType: "none" | "left" | "full" = "none";
-  export let type: "elevated" | "filled" | "tonal" | "outlined" | "text";
-  export let size = "2.5rem";
-  export let iconSize = "1.5rem";
-  export let disabled = false;
-  export let warning = false;
+  type Props = {
+    extraOptions?: HTMLButtonAttributes;
+    iconType?: "none" | "left" | "full";
+    type: "elevated" | "filled" | "tonal" | "outlined" | "text";
+    size?: string;
+    iconSize?: string;
+    disabled?: boolean;
+    warning?: boolean;
+    children?: Snippet;
+    onclick?: () => void;
+  }
 
-  let innerButton: HTMLButtonElement;
+  let {
+    extraOptions = {},
+    iconType = "none",
+    type,
+    size = "2.5rem",
+    iconSize = "1.5rem",
+    disabled = false,
+    warning = false,
+    children,
+    onclick = () => {}
+  }: Props = $props();
+
+  // @ts-expect-error This will always be defined before its usage.
+  let innerButton: HTMLButtonElement = $state();
 
   export function getButtonElement(): HTMLButtonElement {
     return innerButton;
@@ -18,7 +37,7 @@
 
 <button
   bind:this={innerButton}
-  on:click|stopPropagation
+  onclick={stopPropagation(onclick)}
   {disabled}
   class="m3-container m3-font-label-large font-label {type} icon-{iconType}"
   style:--size={size}
@@ -27,7 +46,7 @@
   {...extraOptions}
 >
   <div class="layer"></div>
-  <slot />
+  {@render children?.()}
 </button>
 
 <style>

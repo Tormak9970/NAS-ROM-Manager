@@ -4,7 +4,6 @@
   import { Slider } from "@interactables";
   import { Card } from "@layout";
   import { isLandscape } from "@stores/State";
-  import type { Spring } from "svelte/motion";
   
   type Props = {
     label: string;
@@ -28,7 +27,7 @@
     step = 1,
   }: Props = $props();
 
-  let valueDisplayed: Spring<number> | undefined = $state();
+  let slider: Slider | undefined = $state();
 </script>
 
 <div class="settings-entry">
@@ -48,9 +47,9 @@
         </div>
         <div class="slider-container">
           <div style="width: 90%;">
-            <Slider min={min} max={max} step={step} bind:value={value} bind:valueDisplayed={valueDisplayed} />
+            <Slider min={min} max={max} step={step} bind:value={value} bind:this={slider} />
           </div>
-          <div style="width: 10%;">{$valueDisplayed?.toFixed(0)}</div>
+          <div style="width: 10%;">{slider?.valueDisplayed?.current.toFixed(0)}</div>
         </div>
       </div>
     </div>

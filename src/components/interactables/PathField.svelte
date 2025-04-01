@@ -6,15 +6,31 @@
   import { isValidLinuxPath, isValidWindowsPath } from "@utils";
   import type { HTMLAttributes, HTMLInputAttributes } from "svelte/elements";
 
-  export let extraWrapperOptions: HTMLAttributes<HTMLDivElement> = {};
-  export let extraOptions: HTMLInputAttributes = {};
-  export let type: FileSelectionType;
-  export let filter: FilePickerFilter = () => true;
-  export let extensions: string[] = [];
-  export let name: string;
+  type Props = {
+    extraWrapperOptions?: HTMLAttributes<HTMLDivElement>;
+    extraOptions?: HTMLInputAttributes;
+    type: FileSelectionType;
+    filter?: FilePickerFilter;
+    extensions?: string[];
+    name: string;
+    disabled?: boolean;
+    value?: string;
+    onchange?: (e: Event) => void;
+    oninput?: (e: Event) => void;
+  }
 
-  export let disabled = false;
-  export let value = "/";
+  let {
+    extraWrapperOptions = {},
+    extraOptions = {},
+    type,
+    filter = () => true,
+    extensions = [],
+    name,
+    disabled = false,
+    value = $bindable("/"),
+    onchange = () => {},
+    oninput = () => {},
+  }: Props = $props();
 
   const validatePath = (value: string) => isValidWindowsPath(value) || isValidLinuxPath(value);
 
@@ -41,9 +57,9 @@
   disabled={disabled}
   validate={validatePath}
   bind:value
-  on:change
-  on:input
-  on:trailingClick={getPathFromDialog}
+  {onchange}
+  {oninput}
+  ontrailingClick={getPathFromDialog}
   extraOptions={extraOptions}
   extraWrapperOptions={extraWrapperOptions}
 />

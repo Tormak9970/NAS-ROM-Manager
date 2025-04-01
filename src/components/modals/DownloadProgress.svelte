@@ -66,7 +66,7 @@
   </div>
   {#snippet buttons()}
     <div>
-      <Button type="text" on:click={onCancel} warning>Cancel</Button>
+      <Button type="text" onclick={onCancel} warning>Cancel</Button>
     </div>
   {/snippet}
 </ModalBody>

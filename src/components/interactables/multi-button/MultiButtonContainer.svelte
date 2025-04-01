@@ -1,11 +1,17 @@
 <script lang="ts">
+  import type { Snippet } from "svelte";
   import type { HTMLAttributes } from "svelte/elements";
   
-  export let extraOptions: HTMLAttributes<HTMLDivElement> = {};
+  type Props = {
+    extraOptions?: HTMLAttributes<HTMLDivElement>;
+    children?: Snippet;
+  }
+
+  let { extraOptions = {}, children }: Props = $props();
 </script>
 
 <div class="m3-container" {...extraOptions}>
-  <slot />
+  {@render children?.()}
 </div>
 
 <style>

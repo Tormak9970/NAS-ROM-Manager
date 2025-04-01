@@ -53,8 +53,8 @@
   </div>
   {#snippet buttons()}
     <div>
-      <Button type="tonal" on:click={onCancel} disabled={$isFirstSetup}>Cancel</Button>
-      <Button type="tonal" on:click={onConfirm} disabled={!canSave}>Save</Button>
+      <Button type="tonal" onclick={onCancel} disabled={$isFirstSetup}>Cancel</Button>
+      <Button type="tonal" onclick={onConfirm} disabled={!canSave}>Save</Button>
     </div>
   {/snippet}
 </ModalBody>

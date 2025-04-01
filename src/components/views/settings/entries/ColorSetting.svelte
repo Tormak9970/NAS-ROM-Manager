@@ -4,7 +4,6 @@
   import { ColorPicker } from "@interactables";
   import { Card } from "@layout";
   import { isLandscape } from "@stores/State";
-
   
   type Props = {
     label: string;

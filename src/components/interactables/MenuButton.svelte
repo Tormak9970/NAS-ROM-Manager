@@ -3,22 +3,35 @@
   import type { ContextMenuItem } from "@directives";
   import type { IconifyIcon } from "@iconify/types";
   import { contextMenuItems, contextMenuPosition, showContextMenu } from "@stores/ContextMenu";
+  import { stopImmediatePropagation } from "@utils";
   import type { HTMLAttributes } from "svelte/elements";
   import Button from "./Button.svelte";
 
-  export let extraOptions: HTMLAttributes<HTMLButtonElement> = {};
-  export let size = "2.5rem";
-  export let iconSize = "1.5rem";
-  export let width = "36px";
-  export let height = "36px";
-  export let icon: IconifyIcon;
-  export let items: ContextMenuItem[];
+  type Props = {
+    extraOptions?: HTMLAttributes<HTMLButtonElement>;
+    size?: string;
+    iconSize?: string;
+    width?: string;
+    height?: string;
+    icon: IconifyIcon;
+    items: ContextMenuItem[];
+  }
 
-  let buttonElement: any;
+  let {
+    extraOptions = {},
+    size = "2.5rem",
+    iconSize = "1.5rem",
+    width = "36px",
+    height = "36px",
+    icon,
+    items
+  }: Props = $props();
+
+  let buttonElement: any = $state();
 
   const menuWidth = 122;
 
-  function onClick() {
+  function onButtonClick() {
     $contextMenuItems = items;
 
     const buttonBB = buttonElement.getButtonElement().getBoundingClientRect() as DOMRect;
@@ -32,18 +45,18 @@
   }
 </script>
 
-<!-- svelte-ignore a11y-click-events-have-key-events -->
-<!-- svelte-ignore a11y-no-static-element-interactions -->
-<div on:click|stopImmediatePropagation on:mousedown|stopImmediatePropagation>
+<!-- svelte-ignore a11y_click_events_have_key_events -->
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<div onclick={stopImmediatePropagation()} onmousedown={stopImmediatePropagation()}>
   <Button
     type="text"
     iconType="full"
     size={size}
     iconSize={iconSize}
-    on:click={onClick}
+    onclick={onButtonClick}
     extraOptions={extraOptions}
     bind:this={buttonElement}
   >
-    <Icon icon={icon} width="{width}" height="{height}" />
+    <Icon icon={icon} width={width} height={height} />
   </Button>
 </div>

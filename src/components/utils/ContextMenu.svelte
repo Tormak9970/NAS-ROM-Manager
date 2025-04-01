@@ -2,6 +2,7 @@
   import type { ActionMenuItem, ContextMenuItem, IconMenuItem } from "@directives";
   import { Divider, MenuItem } from "@layout";
   import { contextMenuItems, contextMenuPosition, showContextMenu } from "@stores/ContextMenu";
+  import { stopImmediatePropagation } from "@utils";
   import { onMount } from "svelte";
 
   let menuElement: any;
@@ -36,7 +37,7 @@
   });
 </script>
 
-<svelte:document on:wheel={handleScroll} on:mousedown={handleScroll} />
+<svelte:document onwheel={handleScroll} onmousedown={handleScroll} />
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <!-- svelte-ignore a11y-no-static-element-interactions -->
@@ -52,9 +53,9 @@
   <md-menu
     bind:this={menuElement}
     anchor="contextMenuAnchor"
-    on:wheel|stopImmediatePropagation
-    on:mousedown|stopImmediatePropagation
-    on:closing={close}
+    onwheel={stopImmediatePropagation()}
+    onmousedown={stopImmediatePropagation()}
+    onclosing={close}
   >
     {#each $contextMenuItems as item, i (i)}
       {#if isIconItem(item)}

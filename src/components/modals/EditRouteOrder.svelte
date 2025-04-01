@@ -108,14 +108,14 @@
           >
             <div class="left">
               <div class="checkbox-container">
-                <Checkbox checked={checkDict[view]} on:input={checkboxHandler(view)} />
+                <Checkbox checked={checkDict[view]} oninput={checkboxHandler(view)} />
               </div>
               <div class="font-label">{view}</div>
             </div>
             <!-- svelte-ignore a11y_no_static_element_interactions -->
             <!-- svelte-ignore a11y_no_static_element_interactions -->
             <!-- svelte-ignore event_directive_deprecated -->
-            <div class="handle" use:drag on:drag={getDragHandler(i)}>
+            <div class="handle" use:drag ondrag={getDragHandler(i)}>
               <Icon icon={DragIndicator} height="30px" width="24px" />
             </div>
           </div>
@@ -125,8 +125,8 @@
   </div>
   {#snippet buttons()}
     <div>
-      <Button type="tonal" on:click={() => open = false }>Cancel</Button>
-      <Button type="tonal" on:click={done}>Save</Button>
+      <Button type="tonal" onclick={() => open = false }>Cancel</Button>
+      <Button type="tonal" onclick={done}>Save</Button>
     </div>
   {/snippet}
 </ModalBody>

@@ -53,7 +53,7 @@
 >
   <div class="content">
     <Select name="System" options={systemOptions} disabled={systemOptions.length === 1} bind:value={$addRomSystem} />
-    <FileField name="File" on:change={(e) => file = e.detail.value} />
+    <FileField name="File" onchange={(value) => file = value!} />
     {#if file && isZip}
       <label>
         <div class="m3-font-title-medium">Unzip after upload:</div>
@@ -69,8 +69,8 @@
   </div>
   {#snippet buttons()}
     <div>
-      <Button type="tonal" on:click={onCancel}>Cancel</Button>
-      <Button type="tonal" on:click={onUpload} disabled={!canUpload}>Upload</Button>
+      <Button type="tonal" onclick={onCancel}>Cancel</Button>
+      <Button type="tonal" onclick={onUpload} disabled={!canUpload}>Upload</Button>
     </div>
   {/snippet}
 </ModalBody>

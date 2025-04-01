@@ -46,7 +46,7 @@
   });
 </script>
 
-<svelte:document on:resize={debouncedResize} />
+<svelte:document onresize={debouncedResize} />
 
 <div class="scroll-container" use:scrollShadow>
   <div class="grid-results">

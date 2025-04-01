@@ -35,7 +35,7 @@
 	import { debounce } from "@utils";
 	import { onMount, tick, type Snippet } from "svelte";
 
-  interface Props {
+  type Props = {
     name: string;
     items: any[];
     height?: string;

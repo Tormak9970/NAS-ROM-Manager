@@ -1,7 +1,12 @@
 <script lang="ts">
   import type { HTMLAttributes } from "svelte/elements";
-  export let extraOptions: HTMLAttributes<HTMLDivElement> = {};
-  export let percent: number;
+
+  type Props = {
+    extraOptions?: HTMLAttributes<HTMLDivElement>;
+    percent: number;
+  }
+
+  let { extraOptions = {}, percent }: Props = $props();
 </script>
 
 <div class="m3-container" role="progressbar" {...extraOptions}>

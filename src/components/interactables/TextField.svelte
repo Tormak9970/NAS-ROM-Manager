@@ -1,25 +1,43 @@
 <script lang="ts">
   import { Icon } from "@component-utils";
   import type { IconifyIcon } from "@iconify/types";
-  import { createEventDispatcher } from "svelte";
   import type { HTMLAttributes, HTMLInputAttributes } from "svelte/elements";
 
-  export let extraWrapperOptions: HTMLAttributes<HTMLDivElement> = {};
-  export let extraOptions: HTMLInputAttributes = {};
-  export let name: string;
-  export let leadingIcon: IconifyIcon | undefined = undefined;
-  export let trailingIcon: IconifyIcon | undefined = undefined;
+  type Props = {
+    extraWrapperOptions?: HTMLAttributes<HTMLDivElement>;
+    extraOptions?: HTMLInputAttributes;
+    name: string;
+    leadingIcon?: IconifyIcon | undefined;
+    trailingIcon?: IconifyIcon | undefined;
+    validate?: (value: string) => boolean;
+    disabled?: boolean;
+    required?: boolean;
+    readonly?: boolean;
+    value?: string;
+    onchange?: (e: Event) => void;
+    oninput?: (e: Event) => void;
+    ontrailingClick?: () => void;
+  }
 
-  export let validate: (value: string) => boolean = (value: string) => { return true; };
-
-  export let disabled = false;
-  export let required = false;
-  export let readonly = false;
-  export let value = "";
-  const dispatch = createEventDispatcher();
+  let {
+    extraWrapperOptions = {},
+    extraOptions = {},
+    name,
+    leadingIcon = undefined,
+    trailingIcon = undefined,
+    validate = (value: string) => { return true; },
+    disabled = false,
+    required = false,
+    readonly = false,
+    value = $bindable(""),
+    onchange = () => {},
+    oninput = () => {},
+    ontrailingClick,
+  }: Props = $props();
+  
   const id = crypto.randomUUID();
   
-  $: error = !validate(value);
+  const error = $derived(!validate(value));
 </script>
 
 <div
@@ -39,8 +57,8 @@
     {required}
     {readonly}
     {...extraOptions}
-    on:change
-    on:input
+    {onchange}
+    {oninput}
   />
   <div class="layer"></div>
   <label class="m3-font-body-large" for={id}>{name}</label>
@@ -48,7 +66,7 @@
     <Icon icon={leadingIcon} class="leading" />
   {/if}
   {#if trailingIcon}
-    <button on:click={() => dispatch("trailingClick")} class="trailing">
+    <button onclick={ontrailingClick} class="trailing">
       <Icon icon={trailingIcon} />
     </button>
   {/if}

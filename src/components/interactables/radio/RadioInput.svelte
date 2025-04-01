@@ -5,21 +5,25 @@
 
   const dispatch = createEventDispatcher();
 
-  export let checked = false;
-  export let disabled = false;
-  export let name: string;
-  export let extraOptions: HTMLAttributes<HTMLDivElement> = {};
-
-  /**
-   * Relay the input event to the parent.
-   */
-  function onInput() {
-    dispatch("input");
+  type Props = {
+    checked?: boolean;
+    disabled?: boolean;
+    name: string;
+    extraOptions?: HTMLAttributes<HTMLDivElement>;
+    oninput?: (e: Event) => void;
   }
+
+  let {
+    checked = false,
+    disabled = false,
+    name,
+    extraOptions = {},
+    oninput = () => {},
+  }: Props = $props();
 </script>
 
 <div class="m3-container" {...extraOptions}>
-  <input type="radio" name={name} checked={checked} {disabled} on:input={onInput} />
+  <input type="radio" name={name} checked={checked} {disabled} {oninput} />
   <div class="layer"></div>
 </div>
 

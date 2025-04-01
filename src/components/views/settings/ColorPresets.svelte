@@ -8,7 +8,7 @@
   <div class="color-presets">
     {#each colorPresets as hex}
       <!-- svelte-ignore a11y-no-noninteractive-element-interactions a11y-click-events-have-key-events a11y-no-static-element-interactions -->
-      <div class="preset" on:click={() => $themePrimaryColor = hex}>
+      <div class="preset" onclick={() => $themePrimaryColor = hex}>
         <div class="preset-color" style:background={hex}></div>
       </div>
     {/each}

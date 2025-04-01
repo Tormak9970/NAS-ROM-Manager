@@ -45,10 +45,10 @@
   {#snippet buttons()}
     <div>
       {#if $controlledModalCancelText !== ""}
-        <Button type="tonal" on:click={onCancel}>{$controlledModalCancelText}</Button>
+        <Button type="tonal" onclick={onCancel}>{$controlledModalCancelText}</Button>
       {/if}
       {#if $controlledModalConfirmText !== ""}
-        <Button type="tonal" warning={$controlledModalIsWarning} on:click={onConfirm}>{$controlledModalConfirmText}</Button>
+        <Button type="tonal" warning={$controlledModalIsWarning} onclick={onConfirm}>{$controlledModalConfirmText}</Button>
       {/if}
     </div>
   {/snippet}

@@ -4,12 +4,23 @@
   import { Checkmark } from "@icons";
   import type { HTMLAttributes } from "svelte/elements";
 
-  export let extraWrapperOptions: HTMLAttributes<HTMLDivElement> = {};
-  export let extraOptions: HTMLAttributes<HTMLDivElement> = {};
-  export let checked = false;
-  export let disabled = false;
+  type Props = {
+    extraWrapperOptions?: HTMLAttributes<HTMLDivElement>;
+    extraOptions?: HTMLAttributes<HTMLDivElement>;
+    checked?: boolean;
+    disabled?: boolean;
+    onchange?: (e: Event) => void;
+  }
 
-  let startX: number | undefined;
+  let {
+    extraWrapperOptions = {},
+    extraOptions = {},
+    checked = $bindable(false),
+    disabled = false,
+    onchange = () => {},
+  }: Props = $props();
+
+  let startX: number | undefined = $state();
   const handleMouseUp = (e: MouseEvent) => {
     if (!startX) return;
     const distance = e.clientX - startX;
@@ -19,12 +30,12 @@
   };
 </script>
 
-<svelte:window on:mouseup={handleMouseUp} />
-<!-- svelte-ignore a11y-no-static-element-interactions -->
+<svelte:window onmouseup={handleMouseUp} />
+<!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
   class="m3-container"
   {...extraWrapperOptions}
-  on:mousedown={(e) => {
+  onmousedown={(e) => {
     if (!disabled) {
       startX = e.clientX;
     }
@@ -36,12 +47,12 @@
     {disabled}
     bind:checked
     {...extraOptions}
-    on:keydown={(e) => {
+    onkeydown={(e) => {
       if (e.code == "Enter") checked = !checked;
       if (e.code == "ArrowLeft") checked = false;
       if (e.code == "ArrowRight") checked = true;
     }}
-    on:change
+    {onchange}
   />
   <div class="layer">
     <Icon icon={Checkmark} />
@@ -112,11 +123,11 @@
   }
 
   .m3-container:hover > input:enabled + .layer,
-  .m3-container > input:enabled:is(:active, :focus-visible) + .layer {
+  .m3-container > input:enabled:is(:global(:active, :focus-visible)) + .layer {
     background-color: rgb(var(--m3-scheme-on-surface-variant));
   }
   .m3-container:hover > input:enabled:checked + .layer,
-  .m3-container > input:enabled:checked:is(:active, :focus-visible) + .layer {
+  .m3-container > input:enabled:checked:is(:global(:active, :focus-visible)) + .layer {
     background-color: rgb(var(--m3-scheme-primary-container));
   }
   .m3-container:hover > input + .layer::before {
@@ -125,10 +136,10 @@
   .m3-container:hover > input:checked + .layer::before {
     background-color: rgb(var(--m3-scheme-primary) / 0.08);
   }
-  .m3-container > input:is(:active, :focus-visible) + .layer::before {
+  .m3-container > input:is(:global(:active, :focus-visible)) + .layer::before {
     background-color: rgb(var(--m3-scheme-on-surface) / 0.12);
   }
-  .m3-container > input:checked:is(:active, :focus-visible) + .layer::before {
+  .m3-container > input:checked:is(:global(:active, :focus-visible)) + .layer::before {
     background-color: rgb(var(--m3-scheme-primary) / 0.12);
   }
 
