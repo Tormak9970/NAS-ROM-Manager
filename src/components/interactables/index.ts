@@ -21,6 +21,4 @@ export { default as Select } from "./select/Select.svelte";
 export { default as Slider } from "./Slider.svelte";
 export { default as TextField } from "./TextField.svelte";
 export { default as Toggle } from "./Toggle.svelte";
-export { default as ToggleShuffleButton } from "./ToggleShuffleButton.svelte";
-export { default as VerticalSlider } from "./VerticalSlider.svelte";
 
