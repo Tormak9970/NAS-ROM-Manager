@@ -19,13 +19,13 @@
 
   let { romId }: RomProps = $props();
 
-  let rom = $derived($roms[romId]);
-  let metadata: ROMMetadata = $derived($romMetadata[romId]);
+  const rom = $derived($roms[romId]);
+  const metadata: ROMMetadata = $derived($romMetadata[romId]);
 
-  let layout = $derived(GRID_LAYOUTS[$libraryGridType]);
-  let isFavorite = $derived(metadata.isFavorite);
+  const layout = $derived(GRID_LAYOUTS[$libraryGridType]);
+  const isFavorite = $derived(metadata.isFavorite);
 
-  let menuItems = $derived(getRomMenuItems(romId, metadata?.igdbId));
+  const menuItems = $derived(getRomMenuItems(romId, metadata?.igdbId));
 </script>
 
 <!-- svelte-ignore a11y_click_events_have_key_events -->

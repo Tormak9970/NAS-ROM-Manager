@@ -1,33 +1,32 @@
 <script lang="ts">
-  import { contextMenu, holdEvent, type ContextMenuItem } from "@directives";
-  import { createEventDispatcher } from "svelte";
+  import { stopPropagation } from "@utils";
+  import type { Snippet } from "svelte";
   import type { HTMLAttributes, HTMLButtonAttributes } from "svelte/elements";
 
-  const dispatch = createEventDispatcher();
-
-  export let extraOptions: HTMLAttributes<HTMLDivElement> & HTMLButtonAttributes = {};
-  export let highlight = false;
-  export let holdable = true;
-  export let type: "elevated" | "filled" | "outlined" | "transparent";
-  export let ctxMenuItems: ContextMenuItem[] = [];
-
-  /**
-   * Notifies the parent when the user holds on the card.
-   */
-  function onHold() {
-    dispatch("hold");
+  type Props = {
+    extraOptions?: HTMLAttributes<HTMLDivElement> & HTMLButtonAttributes;
+    type: "elevated" | "filled" | "outlined" | "transparent";
+    highlight?: boolean;
+    children?: Snippet;
+    onclick?: () => void;
   }
+
+  let {
+    extraOptions = {},
+    type,
+    highlight = false,
+    children,
+    onclick = () => {},
+  }: Props = $props();
 </script>
 
 <button
-  on:click|stopPropagation
-  use:holdEvent={{ onHold: onHold, holdable: holdable, duration: 300 }}
-  use:contextMenu={{ items: ctxMenuItems, disabled: ctxMenuItems.length === 0 }}
+  onclick={stopPropagation(onclick)}
   class="m3-container type-{type}"
   {...extraOptions}
 >
   <div class="layer" class:highlight></div>
-  <slot />
+  {@render children?.()}
 </button>
 
 <style>

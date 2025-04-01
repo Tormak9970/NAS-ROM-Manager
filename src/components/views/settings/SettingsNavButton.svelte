@@ -30,7 +30,7 @@
 </script>
 
 <div class="settings-entry">
-  <CardClickable type="elevated" on:click={navigate} extraOptions={{ style: "width: 100%; display: flex; position: relative; padding: 10px;" }}>
+  <CardClickable type="elevated" onclick={navigate} extraOptions={{ style: "width: 100%; display: flex; position: relative; padding: 10px;" }}>
     <div class="content">
       <div class="icon-container">
         <Icon icon={icon} height="1.5rem" width="1.5rem" />

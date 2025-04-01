@@ -21,7 +21,6 @@
   });
 </script>
 
-<!-- TODO: real time storage monitoring. Show amount available and amount used by NRM. -->
 <Card type="filled" extraOptions={extraOptions}>
   <div class="m3-font-title-medium" style="font-weight: bold;">Storage</div>
   <div class="storage-tracker">

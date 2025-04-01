@@ -1,22 +1,34 @@
 <script lang="ts">
-  import { createEventDispatcher, onDestroy } from "svelte";
+  import { onDestroy } from "svelte";
 
-  export let threshold = 0;
-  export let horizontal = false;
-  export let hasMore = true;
+  type Props = {
+    threshold?: number;
+    horizontal?: boolean;
+    hasMore?: boolean;
+    loadMore: () => void;
+  };
 
-  const dispatch = createEventDispatcher();
-  let isLoadMore = false;
-  let component: any;
+  let {
+    threshold = 0,
+    horizontal = false,
+    hasMore = true,
+    loadMore,
+  }: Props = $props();
 
-  $: {
-    if (component) {
+  let isLoadMore = $state(false);
+  let component: any = $state();
+  let listening = $state(false);
+
+  $effect(() => {
+    if (component && !listening) {
       const element = component.parentNode;
 
       element.addEventListener("scroll", onScroll);
       element.addEventListener("resize", onScroll);
+
+      listening = true;
     }
-  }
+  });
 
   function onScroll(e: any) {
     const offset = horizontal
@@ -25,7 +37,7 @@
 
     if (offset <= threshold) {
       if (!isLoadMore && hasMore) {
-        dispatch("loadMore");
+        loadMore();
       }
       isLoadMore = true;
     } else {

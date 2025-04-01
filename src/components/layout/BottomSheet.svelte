@@ -1,28 +1,35 @@
 <script lang="ts">
-  import { easeEmphasizedAccel, easeEmphasizedDecel } from "@utils";
-  import { createEventDispatcher, onDestroy, onMount } from "svelte";
+  import { easeEmphasizedAccel, easeEmphasizedDecel, preventDefault, self } from "@utils";
+  import { onMount, type Snippet } from "svelte";
   import { drag } from "svelte-gesture";
-  import { spring, tweened } from "svelte/motion";
-  import type { Unsubscriber } from "svelte/store";
+  import { Spring, Tween } from "svelte/motion";
 
-  let heightUnsub: Unsubscriber;
+  type Props = {
+    maxHeight?: number;
+    closeThreshold?: number;
+    padding?: string;
+    onclose?: () => void;
+    children: Snippet;
+  }
 
-  let dialogElement: HTMLDialogElement;
+  let {
+    maxHeight = 1000,
+    closeThreshold = 0.4,
+    padding = "0 1rem",
+    onclose,
+    children,
+  }: Props = $props();
 
-  export let maxHeight = 1000;
-  export let closeThreshold = 0.4;
-  export let padding = "0 1rem";
+  let dialogElement: HTMLDialogElement | undefined = $state();
 
-  let leaving = false;
-  let hasMounted = false;
+  let leaving = $state(false);
+  let hasMounted = $state(false);
 
-  const dispatch = createEventDispatcher();
-
-  const actualHeight = tweened(0, {
+  const actualHeight = new Tween(0, {
     duration: 400,
     easing: easeEmphasizedDecel
   });
-  const dragHeight = spring(0, {});
+  const dragHeight = new Spring(0, {});
 
   /**
    * Handles opening the sheet.
@@ -46,7 +53,7 @@
 
     $dragHeight = my;
     
-    if (($actualHeight - oy) / $actualHeight <= closeThreshold && !active) {
+    if ((actualHeight.current - oy) / actualHeight.current <= closeThreshold && !active) {
       close();
       return;
     }
@@ -54,41 +61,41 @@
     if (!active) $dragHeight = 0;
   }
 
-  onMount(() => {
-    $actualHeight = Math.min(maxHeight, dialogElement.scrollHeight);
-    heightUnsub = actualHeight.subscribe((height) => {
-      if (height === 0 && hasMounted) dispatch("close");
-    });
-    hasMounted = true;
-  });
+  $effect(() => {
+    if (actualHeight.current === 0 && actualHeight.target === 0 && hasMounted) {
+      onclose?.();
+    }
+  })
 
-  onDestroy(() => {
-    if (heightUnsub) heightUnsub();
+  onMount(() => {
+    actualHeight.set(Math.min(maxHeight, dialogElement!.scrollHeight));
+    hasMounted = true;
   });
 </script>
 
-<!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-<!-- svelte-ignore a11y-click-events-have-key-events -->
+<!-- svelte-ignore a11y_click_events_have_key_events -->
+<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 <dialog
   class="m3-container"
   class:leaving
-  style:max-height="{$actualHeight - $dragHeight}px"
+  style:max-height="{actualHeight.current - dragHeight.current}px"
   use:open
-  on:cancel|preventDefault={close}
-  on:click|self={close}
+  oncancel={preventDefault(close)}
+  onclick={self(close)}
   bind:this={dialogElement}
-  use:drag on:drag={dragHandler}
+  use:drag
+  ondrag={dragHandler}
 >
-  <!-- svelte-ignore a11y-no-static-element-interactions -->
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
   <div
     style:padding={padding}
     class="sheet-container"
-    on:click|stopImmediatePropagation
+    onclick={(e) => e.stopImmediatePropagation()}
   >
     <div class="handle-container" >
       <div class="handle"></div>
     </div>
-    <slot />
+    {@render children()}
   </div>
 </dialog>
 

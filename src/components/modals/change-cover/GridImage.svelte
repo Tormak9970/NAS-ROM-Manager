@@ -12,9 +12,9 @@
 
   let { imagePath, altText, isVideo = false}: Props = $props();
   
-  let layout = $derived(GRID_LAYOUTS.sgdbGrid);
-  let widthWithBorder = $derived(layout.width - 2);
-  let heightWithBorder = $derived(layout.height - 2);
+  const layout = $derived(GRID_LAYOUTS.sgdbGrid);
+  const widthWithBorder = $derived(layout.width - 2);
+  const heightWithBorder = $derived(layout.height - 2);
 
   let showWarning = $state(false);
 

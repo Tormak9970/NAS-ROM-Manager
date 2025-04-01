@@ -1,22 +1,28 @@
 <script lang="ts">
-  import { easeEmphasizedAccel, easeEmphasizedDecel } from "@utils";
-  import { createEventDispatcher, onDestroy, onMount } from "svelte";
-  import { tweened } from "svelte/motion";
-  import type { Unsubscriber } from "svelte/store";
+  import { easeEmphasizedAccel, easeEmphasizedDecel, preventDefault, self } from "@utils";
+  import { onMount, type Snippet } from "svelte";
+  import { Tween } from "svelte/motion";
 
-  let heightUnsub: Unsubscriber;
+  type Props = {
+    width?: number;
+    padding?: string;
+    onclose?: () => void;
+    children: Snippet;
+  }
 
-  let dialogElement: HTMLDialogElement;
+  let {
+    width = 400,
+    padding = "1rem",
+    onclose,
+    children,
+  }: Props = $props();
 
-  export let width = 400;
-  export let padding = "1rem";
+  let dialogElement: HTMLDialogElement | undefined = $state();
 
-  let leaving = false;
-  let hasMounted = false;
+  let leaving = $state(false);
+  let hasMounted = $state(false);
 
-  const dispatch = createEventDispatcher();
-
-  const actualWidth = tweened(0, {
+  const actualWidth = new Tween(0, {
     duration: 400,
     easing: easeEmphasizedDecel
   });
@@ -38,37 +44,36 @@
     });
   }
 
-  onMount(() => {
-    $actualWidth = width;
-    heightUnsub = actualWidth.subscribe((width) => {
-      if (width === 0 && hasMounted) dispatch("close");
-    });
-    hasMounted = true;
+  $effect(() => {
+    if (actualWidth.current === 0 && actualWidth.target === 0 && hasMounted) {
+      onclose?.();
+    }
   });
 
-  onDestroy(() => {
-    if (heightUnsub) heightUnsub();
+  onMount(() => {
+    actualWidth.set(width);
+    hasMounted = true;
   });
 </script>
 
-<!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-<!-- svelte-ignore a11y-click-events-have-key-events -->
+<!-- svelte-ignore a11y_click_events_have_key_events -->
+<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 <dialog
   class="m3-container"
   class:leaving
-  style:width="{$actualWidth}px"
+  style:width="{actualWidth.current}px"
   use:open
-  on:cancel|preventDefault={close}
-  on:click|self={close}
+  oncancel={preventDefault(close)}
+  onclick={self(close)}
   bind:this={dialogElement}
 >
-  <!-- svelte-ignore a11y-no-static-element-interactions -->
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
   <div
     style:padding={padding}
     class="sheet-container"
-    on:click|stopImmediatePropagation
+    onclick={(e) => e.stopImmediatePropagation()}
   >
-    <slot />
+    {@render children()}
   </div>
 </dialog>
 

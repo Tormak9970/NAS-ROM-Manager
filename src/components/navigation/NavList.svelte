@@ -1,13 +1,18 @@
 <script lang="ts">
+  import type { Snippet } from "svelte";
   import type { HTMLAttributes } from "svelte/elements";
 
-  // Both a nav rail and a nav bar.
-  export let extraOptions: HTMLAttributes<HTMLElement> = {};
-  export let type: "rail" | "bar";
+  type Props = {
+    extraOptions?: HTMLAttributes<HTMLElement>;
+    type: "rail" | "bar";
+    children: Snippet;
+  }
+
+  let { extraOptions = {}, type, children }: Props = $props();
 </script>
 
 <nav class="m3-container type-{type}" {...extraOptions}>
-  <slot />
+  {@render children()}
 </nav>
 
 <style>

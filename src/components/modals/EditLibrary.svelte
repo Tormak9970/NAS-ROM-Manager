@@ -13,7 +13,7 @@
   let emulatorDir = $state($library.emulatorDir || "emulators");
   let biosDir = $state($library.biosDir || "bios");
 
-  let canSave = $derived(!!libraryPath && !!romDir && !!emulatorDir && !!biosDir);
+  const canSave = $derived(!!libraryPath && !!romDir && !!emulatorDir && !!biosDir);
 
   /**
    * Function to run on confirmation.

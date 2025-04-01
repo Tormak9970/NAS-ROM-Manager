@@ -5,7 +5,7 @@
 
   let { system }: { system: string } = $props();
 
-  let systemTagConfig = $derived($systems[system].tagConfig);
+  const systemTagConfig = $derived($systems[system].tagConfig);
 
   const DEFAULT_COLOR = "var(--m3-scheme-tertiary-container)";
 </script>

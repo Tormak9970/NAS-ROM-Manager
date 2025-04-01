@@ -57,8 +57,7 @@
   });
 
   const animationDelay = $derived(animation ? delay : 0);
-
-  let isComponent = $derived(typeof content === 'object');
+  const isComponent = $derived(typeof content === 'object');
   
   $effect(() => {
     if (tooltipRef && show) {

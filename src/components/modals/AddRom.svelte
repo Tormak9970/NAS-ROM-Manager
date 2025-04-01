@@ -17,11 +17,11 @@
 
   let file = $state<File | null>(null);
   
-  let isZip = $derived(file && file.name.endsWith(".zip"));
+  const isZip = $derived(file && file.name.endsWith(".zip"));
   let needsUnzip = $state(false);
   let okStructure = $state(false);
 
-  let canUpload = $derived(!!file && (!isZip || okStructure));
+  const canUpload = $derived(!!file && (!isZip || okStructure));
 
   /**
    * Function to run on confirmation.

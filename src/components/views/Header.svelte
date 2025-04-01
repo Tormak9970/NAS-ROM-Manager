@@ -10,13 +10,12 @@
 
   const menuItems: ContextMenuItem[] = [
     {
-      id: "logout",
       text: "Logout",
       action: AuthController.logout,
     }
   ];
 
-  let systemKeys = $derived(Object.keys($systems));
+  const systemKeys = $derived(Object.keys($systems));
 </script>
 
 <div id="header">

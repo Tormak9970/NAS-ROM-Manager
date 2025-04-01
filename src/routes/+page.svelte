@@ -44,9 +44,11 @@
   <div class="login-form-wrapper">
     <div id="login-form">
       <Card type="elevated">
-        <div slot="header" class="card-header">
-          <img src="/logo.svg" alt="Logo" />
-        </div>
+        {#snippet header()}
+          <div class="card-header">
+            <img src="/logo.svg" alt="Logo" />
+          </div>
+        {/snippet}
         <div class="body">
           <h2 class="header">Login</h2>
           <TextField

@@ -1,14 +1,26 @@
 <script lang="ts">
+  import type { Snippet } from "svelte";
   import type { HTMLAttributes, HTMLButtonAttributes } from "svelte/elements";
 
-  export let extraOptions: HTMLAttributes<HTMLDivElement> & HTMLButtonAttributes = {};
-  export let type: "elevated" | "filled" | "outlined" | "transparent";
+  type Props = {
+    extraOptions?: HTMLAttributes<HTMLDivElement> & HTMLButtonAttributes;
+    type: "elevated" | "filled" | "outlined" | "transparent";
+    header?: Snippet;
+    children?: Snippet;
+  }
+
+  let {
+    extraOptions = {},
+    type,
+    header,
+    children,
+  }: Props = $props();
 </script>
 
 <div class="card-wrapper type-{type}" {...extraOptions}>
-  <slot name="header" />
+  {@render header?.()}
   <div class="m3-container">
-    <slot />
+    {@render children?.()}
   </div>
 </div>
 

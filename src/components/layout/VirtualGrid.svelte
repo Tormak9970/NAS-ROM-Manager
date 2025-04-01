@@ -33,7 +33,7 @@
 <script lang="ts">
 	import { scrollShadow } from "@directives";
 	import { debounce } from "@utils";
-	import { onMount, tick } from "svelte";
+	import { onMount, tick, type Snippet } from "svelte";
 
 	// * Component Props.
   export let name: string;
@@ -46,10 +46,11 @@
   export let rowGap: number;
   export let isScrolled = true;
   export let saveState = true;
-
+  export let row: Snippet<[any]>;
   export let keyFunction = (entry: any) => entry.index;
 
   $: cacheEntry = getCacheEntry(name, saveState, itemHeight);
+  $: console.log("cacheEntry:", cacheEntry)
 
   // * Local State
   let mounted: boolean;
@@ -210,7 +211,7 @@
   <svelte-virtual-grid-viewport
     style="height: {height}; --img-width: {itemWidth}px; --img-height: {itemHeight}px; --column-gap: {columnGap}px; --row-gap: {rowGap}px;"
     class="styled-scrollbar"
-    on:scroll={handleScroll}
+    onscroll={handleScroll}
     use:scrollShadow={{ background: "--m3-scheme-background" }}
     bind:offsetHeight={viewportHeight}
     bind:offsetWidth={viewportWidth}
@@ -222,7 +223,7 @@
     >
       {#each visible as entry (keyFunction(entry))}
         <svelte-virtual-grid-entry>
-          <slot entry={entry.data}>Missing template</slot>
+          {@render row(entry.data)}
         </svelte-virtual-grid-entry>
       {/each}
     </svelte-virtual-grid-contents>

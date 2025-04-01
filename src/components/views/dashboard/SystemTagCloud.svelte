@@ -2,7 +2,7 @@
   import { systems } from "@stores/State";
   import SystemTag from "@views/SystemTag.svelte";
 
-  let systemList = $derived(Object.keys($systems));
+  const systemList = $derived(Object.keys($systems));
 </script>
 
 <div class="system-tag-cloud">

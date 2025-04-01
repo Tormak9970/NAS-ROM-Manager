@@ -6,7 +6,7 @@
   import NavList from "./NavList.svelte";
   import NavListButton from "./NavListButton.svelte";
 
-  let portraitRoutes = $derived($portraitViews.reduce((filtered: Route[], view: string) => {
+  const portraitRoutes = $derived($portraitViews.reduce((filtered: Route[], view: string) => {
     const route = routes[view];
 
     if (route) filtered.push(route);
@@ -23,7 +23,7 @@
         type="bar"
         icon={selected ? view.selectedIcon : view.icon}
         selected={selected}
-        on:click={() => goto(view.path)}
+        onclick={() => goto(view.path)}
       />
     {/each}
   </NavList>

@@ -3,7 +3,7 @@
 
   let { romId }: { romId: string } = $props();
 
-  let metadata = $derived($romMetadata[romId]);
+  const metadata = $derived($romMetadata[romId]);
 </script>
 
 <div class="cover" style:--cover-url='url("{metadata.thumbPath === "No Grids" ? "" : metadata.thumbPath}")'></div>

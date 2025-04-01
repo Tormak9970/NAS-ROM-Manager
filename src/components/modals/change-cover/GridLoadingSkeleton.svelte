@@ -1,7 +1,7 @@
 <script lang="ts">
   import { GRID_LAYOUTS } from "@utils";
   
-  let layout = $derived(GRID_LAYOUTS.portrait);
+  const layout = $derived(GRID_LAYOUTS.portrait);
 </script>
 
 <div

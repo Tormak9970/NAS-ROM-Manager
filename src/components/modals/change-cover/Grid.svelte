@@ -11,7 +11,7 @@
 
   let imagePath = grid.thumb.toString();
 
-  let selected = $derived($selectedNewCoverGrid?.id === grid.id);
+  const selected = $derived($selectedNewCoverGrid?.id === grid.id);
 
   function handleClick() {
     if ($selectedNewCoverGrid?.id === grid.id) {

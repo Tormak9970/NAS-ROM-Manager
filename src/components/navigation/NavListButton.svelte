@@ -1,17 +1,23 @@
 <script lang="ts">
   import { Icon } from "@component-utils";
   import type { IconifyIcon } from "@iconify/types";
+  import type { Snippet } from "svelte";
   import type { HTMLButtonAttributes } from "svelte/elements";
 
-  export let extraOptions: HTMLButtonAttributes = {};
-  export let type: "rail" | "bar";
+  type Props = {
+    extraOptions?: HTMLButtonAttributes;
+    type: "rail" | "bar";
+    selected: boolean;
+    icon: IconifyIcon;
+    children?: Snippet;
+    onclick?: (e: any) => void;
+  }
 
-  export let selected: boolean;
-  export let icon: IconifyIcon;
+  let { extraOptions = {}, type, selected, icon, onclick, children }: Props = $props();
 </script>
 
 <button
-  on:click
+  {onclick}
   class="m3-container type-{type}"
   class:selected
   {...extraOptions}
@@ -21,7 +27,7 @@
   </div>
   {#if type === "rail"}
     <p class="m3-font-label-medium font-body-medium">
-      <slot />
+      {@render children?.()}
     </p>
   {/if}
 </button>

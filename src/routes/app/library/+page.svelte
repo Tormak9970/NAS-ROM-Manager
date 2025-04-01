@@ -11,9 +11,8 @@
 
   let libraryLoadUnsub: Unsubscriber;
 
-  let layout = $derived(GRID_LAYOUTS[$libraryGridType]);
-
-  let romIdList = $derived(Object.keys($roms).sort((a: string, b: string) => {
+  const layout = $derived(GRID_LAYOUTS[$libraryGridType]);
+  const romIdList = $derived(Object.keys($roms).sort((a: string, b: string) => {
     const metaA = $romMetadata[a];
     const metaB = $romMetadata[b];
 
@@ -84,13 +83,14 @@
     columnGap={layout.gap}
     rowGap={layout.gap}
     keyFunction={(entry) => `${entry.index}|${entry.data}|${entry.data === $changeCoverId}`}
-    let:entry
   >
-    {#if loadedKeys[entry]}
-      <Rom romId={entry} />
-    {:else}
-      <RomLoadingSkeleton />
-    {/if}
+    {#snippet row(entry)}
+      {#if loadedKeys[entry]}
+        <Rom romId={entry} />
+      {:else}
+        <RomLoadingSkeleton />
+      {/if}
+    {/snippet}
   </VirtualGrid>
 </div>
 

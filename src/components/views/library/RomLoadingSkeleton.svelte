@@ -3,7 +3,7 @@
   import { GRID_LAYOUTS } from "@utils";
   import Tag from "../Tag.svelte";
   
-  let layout = $derived(GRID_LAYOUTS[$libraryGridType]);
+  const layout = $derived(GRID_LAYOUTS[$libraryGridType]);
   
   const DEFAULT_COLOR = "var(--m3-scheme-secondary-container)";
 </script>

@@ -15,7 +15,7 @@
   let saving = $state(false);
 
   let metadata = $romMetadata[$changeCoverId!];
-  let canSave = $derived($selectedNewCoverGrid !== null);
+  const canSave = $derived($selectedNewCoverGrid !== null);
 
   /**
    * Function to run on confirmation.

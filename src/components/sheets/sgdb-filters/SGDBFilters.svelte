@@ -6,10 +6,10 @@
   import type { DBFilter } from "@types";
   import FilterSection from "./FilterSection.svelte";
   
-  let sections = $derived(Object.keys($dbFilters) as (keyof DBFilter)[]);
+  const sections = $derived(Object.keys($dbFilters) as (keyof DBFilter)[]);
 </script>
 
-<SideSheet width={300} on:close={() => $showSGDBFiltersSheet = false}>
+<SideSheet width={300} onclose={() => $showSGDBFiltersSheet = false}>
   <div class="label m3-font-title-large">SGDB Filters</div>
   <div class="filters-wrapper">
     <div class="filters" use:scrollShadow={{ background: "--m3-scheme-surface-container-low" }}>

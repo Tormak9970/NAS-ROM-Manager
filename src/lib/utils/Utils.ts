@@ -181,3 +181,32 @@ export function filterGrids(allGrids: SGDBImage[], filters: DBFilter): SGDBImage
       && (grid.nsfw ? nsfwAllowed : true);
   });
 }
+
+export function preventDefault(handler: (e: any) => any) {
+  return function (event: Event) {
+    event.preventDefault();
+    handler.call(this, event);
+  };
+}
+
+export function stopPropagation(handler: (e: any) => any) {
+  return function (event: Event) {
+    event.stopPropagation();
+    handler.call(this, event);
+  };
+}
+
+export function stopImmediatePropagation(handler: (e: any) => any) {
+  return function (event: Event) {
+    event.stopImmediatePropagation();
+    handler.call(this, event);
+  };
+}
+
+export function self(handler: (e: any) => any) {
+  return function (event: Event) {
+    if (event.target === event.currentTarget) {
+      handler.call(this, event);
+    }
+  };
+}

@@ -7,12 +7,12 @@
   import SystemTagCloud from "@views/dashboard/SystemTagCloud.svelte";
   import SystemTag from "@views/SystemTag.svelte";
 
-  let emulatorCount = $derived(Object.keys($emulators).length);
-  let romCount = $derived(Object.keys($roms).length);
-  let systemCount = $derived(Object.keys($systems).length);
+  const emulatorCount = $derived(Object.keys($emulators).length);
+  const romCount = $derived(Object.keys($roms).length);
+  const systemCount = $derived(Object.keys($systems).length);
 
-  let firstSystem = $derived(Object.keys($romsBySystem)[0]);
-  let biggestPlatform = $derived(Object.keys($romsBySystem).reduce((biggest: string, system: string) => {
+  const firstSystem = $derived(Object.keys($romsBySystem)[0]);
+  const biggestPlatform = $derived(Object.keys($romsBySystem).reduce((biggest: string, system: string) => {
     return $romsBySystem[system].length > $romsBySystem[biggest].length ? system : biggest;
   }, firstSystem));
 

@@ -8,7 +8,7 @@
 
   let { condenseNav = false } = $props();
 
-  let landscapeRoutes = $derived($landscapeViews.reduce((filtered: Route[], view: string) => {
+  const landscapeRoutes = $derived($landscapeViews.reduce((filtered: Route[], view: string) => {
     const route = routes[view];
 
     if (route) filtered.push(route);
@@ -24,7 +24,7 @@
       type="rail"
       icon={selected ? view.selectedIcon : view.icon}
       selected={selected}
-      on:click={() => goto(view.path)}
+      onclick={() => goto(view.path)}
     >
       {#if !condenseNav}
         {view.label}

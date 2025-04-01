@@ -15,14 +15,14 @@
 
   let { sgdbId }: Props = $props();
 
-  let layout = $derived(GRID_LAYOUTS.sgdbGrid);
+  const layout = $derived(GRID_LAYOUTS.sgdbGrid);
   
   let gridsContainer: HTMLDivElement | undefined = $state(undefined);
 
   let isLoading = $state(true);
   let grids: SGDBImage[] = $state([]);
 
-  let hasMore = $derived(($hasMorePagesCache && $hasMorePagesCache[sgdbId]) ?? true);
+  const hasMore = $derived(($hasMorePagesCache && $hasMorePagesCache[sgdbId]) ?? true);
 
   /**
    * Handles loading new grids when the user scrolls to the bottom.
@@ -75,7 +75,7 @@
   <InfiniteScroll
     hasMore={hasMore}
     threshold={100}
-    on:loadMore={handleLoadOnScroll}
+    loadMore={handleLoadOnScroll}
   />
 </div>
 

@@ -29,7 +29,7 @@
   <ButtonSetting
     label="Edit Desktop Routes"
     description="Edit the order of desktop navigation menu"
-    on:click={() => {
+    onclick={() => {
       $isLandscapeRoutes = true;
       $showEditRouteOrderModal = true;
     }}
@@ -37,7 +37,7 @@
   <ButtonSetting
     label="Edit Mobile Routes"
     description="Edit the order of mobile navigation menu"
-    on:click={() => {
+    onclick={() => {
       $isLandscapeRoutes = false;
       $showEditRouteOrderModal = true;
     }}

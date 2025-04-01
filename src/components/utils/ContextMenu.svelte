@@ -58,11 +58,11 @@
   >
     {#each $contextMenuItems as item, i (i)}
       {#if isIconItem(item)}
-        <MenuItem icon={item.icon} on:click={() => { item.action(); $showContextMenu = false; }}>
+        <MenuItem icon={item.icon} onclick={() => { item.action(); $showContextMenu = false; }}>
           {item.text}
         </MenuItem>
       {:else if isActionItem(item)}
-        <MenuItem on:click={() => { item.action(); $showContextMenu = false; }}>
+        <MenuItem onclick={() => { item.action(); $showContextMenu = false; }}>
           {item.text}
         </MenuItem>
       {:else}

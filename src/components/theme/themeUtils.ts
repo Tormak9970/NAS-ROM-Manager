@@ -133,7 +133,7 @@ function getOledDarkColors(scheme: SerializedScheme): [string, number][] {
 export const genCSS = (light: SerializedScheme, dark: SerializedScheme) => {
   const lightColors = Object.entries(light).map(([name, argb]) => genColorVariable(name, argb)).join("\n");
   const darkColors = Object.entries(dark).map(([name, argb]) => genColorVariable(name, argb)).join("\n");
-  const oledDarkColors = getOledDarkColors(dark).map(([name, argb]) => genColorVariable(name, argb)).join("\n");
+  const oledDarkColors = getOledDarkColors({...dark}).map(([name, argb]) => genColorVariable(name, argb)).join("\n");
 
   const colors = `
 :root {

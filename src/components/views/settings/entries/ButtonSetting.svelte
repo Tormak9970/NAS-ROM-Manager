@@ -9,6 +9,7 @@
     description: string;
     icon?: IconifyIcon | undefined;
     iconSize?: string;
+    onclick?: () => void;
   }
 
   let {
@@ -16,11 +17,12 @@
     description,
     icon = undefined,
     iconSize = "1.5rem",
+    onclick,
   }: Props = $props();
 </script>
 
 <div class="settings-entry">
-  <CardClickable type="transparent" on:click extraOptions={{ style: "width: 100%;" }}>
+  <CardClickable type="transparent" {onclick} extraOptions={{ style: "width: 100%;" }}>
     <div class="content">
       {#if $isLandscape}
         <div class="icon-container">

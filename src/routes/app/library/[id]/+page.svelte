@@ -18,16 +18,16 @@
 
   let { data }: { data: PageData } = $props();
 
-  let id = $derived(data.id);
+  const id = $derived(data.id);
 
-  let rom = $derived($roms?.[id]);
-  let metadata = $derived($romMetadata?.[id]);
-  let system = $derived($systems?.[rom?.system]);
+  const rom = $derived($roms?.[id]);
+  const metadata = $derived($romMetadata?.[id]);
+  const system = $derived($systems?.[rom?.system]);
 
-  let genres = $derived(metadata?.metadata?.metadata?.genres);
+  const genres = $derived(metadata?.metadata?.metadata?.genres);
 
   let portrait = $state(false);
-  let isFavorite = $derived(metadata?.isFavorite);
+  const isFavorite = $derived(metadata?.isFavorite);
 
   let isLoading = $state(true);
 

@@ -10,7 +10,7 @@
 
   let { section }: Props = $props();
 
-  let label = $derived(section === "oneoftag" ? "Tags" : toUpperCaseSplit(section));
+  const label = $derived(section === "oneoftag" ? "Tags" : toUpperCaseSplit(section));
 
   /**
    * Creates a function to update the specified filter.

@@ -13,9 +13,8 @@
 
   let { metadata, portrait }: Props = $props();
 
-  let ageRatings = $derived(metadata.metadata?.metadata?.ageRatings ?? []);
-
-  let websites = $derived(metadata.metadata?.metadata?.websites ?? []);
+  const ageRatings = $derived(metadata.metadata?.metadata?.ageRatings ?? []);
+  const websites = $derived(metadata.metadata?.metadata?.websites ?? []);
 </script>
 
 <div class="details metadata" class:portrait>

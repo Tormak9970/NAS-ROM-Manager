@@ -8,7 +8,7 @@
 
   let { type, url }: Props = $props();
 
-  let isValid = $derived(Object.values(IGDB_WEBSITE_TYPES).includes(type));
+  const isValid = $derived(Object.values(IGDB_WEBSITE_TYPES).includes(type));
 
   const backgroundColors: Record<string, string> = {
     "SGDB": "15 66 104",
