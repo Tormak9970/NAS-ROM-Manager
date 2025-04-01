@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
   type CacheEntry = {
     start: number;
     end: number;
@@ -35,42 +35,64 @@
 	import { debounce } from "@utils";
 	import { onMount, tick, type Snippet } from "svelte";
 
-	// * Component Props.
-  export let name: string;
-	export let items: any[];
-	export let height = "100%";
-  export let width = "100%";
-	export let itemHeight: number;
-  export let itemWidth: number;
-  export let columnGap: number;
-  export let rowGap: number;
-  export let isScrolled = true;
-  export let saveState = true;
-  export let row: Snippet<[any]>;
-  export let keyFunction = (entry: any) => entry.index;
+  interface Props {
+    name: string;
+    items: any[];
+    height?: string;
+    width?: string;
+    itemHeight: number;
+    itemWidth: number;
+    columnGap: number;
+    rowGap: number;
+    isScrolled?: boolean;
+    saveState?: boolean;
+    row: Snippet<[any]>;
+    keyFunction?: any;
+  }
 
-  $: cacheEntry = getCacheEntry(name, saveState, itemHeight);
-  $: console.log("cacheEntry:", cacheEntry)
+  let {
+    name,
+    items,
+    height = "100%",
+    width = "100%",
+    itemHeight,
+    itemWidth,
+    columnGap,
+    rowGap,
+    isScrolled = $bindable(true),
+    saveState = true,
+    row,
+    keyFunction = (entry: any) => entry.index
+  }: Props = $props();
+
+  let cacheEntry = $state(getCacheEntry(name, saveState, itemHeight));
+  
+  // * Whenever `items` changes, invalidate the current heightmap.
+  $effect(() => {
+    if (mounted) refresh(items, viewportHeight, itemHeight);
+  });
+  $effect(() => {
+    if (mounted && viewportHeight && viewportWidth) debouncedRefresh();
+  });
 
   // * Local State
-  let mounted: boolean;
+  let mounted: boolean = $state(false);
   let entries: HTMLCollectionOf<HTMLElement>;
-  let visible: any[];
+  const visible: any[] = $derived(items.slice(cacheEntry.start, cacheEntry.end).map((data, i) => {
+    return { index: i + cacheEntry.start, data };
+  }));
 
-  let viewport: HTMLElement;
-  let viewportHeight = 0;
-  let viewportWidth = 0;
+  // @ts-expect-error This is always assigned on mount.
+  let viewport: HTMLElement = $state();
+  let viewportHeight = $state(0);
+  let viewportWidth = $state(0);
 
-  let contents: HTMLElement;
+  // @ts-expect-error This is always assigned on mount.
+  let contents: HTMLElement = $state();
 
   let averageHeight: number;
 
-  $: visible = items.slice(cacheEntry.start, cacheEntry.end).map((data, i) => {
-    return { index: i + cacheEntry.start, data };
-  });
 
-  // * Whenever `items` changes, invalidate the current heightmap.
-  $: if (mounted) refresh(items, viewportHeight, itemHeight);
 
   /**
    * Refreshes the contents of the virtual grid.
@@ -117,7 +139,7 @@
 		cacheEntry.bottom = remaining * averageHeight;
 		cacheEntry.heightMap.length = items.length;
     
-		virtualGridCache = { ...virtualGridCache }
+		virtualGridCache = { ...virtualGridCache };
   }
 
   /**
@@ -192,12 +214,11 @@
 			viewport.scrollTo(0, scrollTop + d);
 		}
 
-		virtualGridCache = { ...virtualGridCache }
+		virtualGridCache = { ...virtualGridCache };
   }
 
   const debouncedRefresh = debounce(() => refresh(items, viewportHeight, itemHeight), 100);
 
-  $: if (mounted && viewportHeight && viewportWidth) debouncedRefresh();
 
   // * Trigger initial refresh.
   onMount(() => {
