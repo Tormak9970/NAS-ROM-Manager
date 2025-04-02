@@ -55,8 +55,9 @@
   headline={"Change Cover Art"}
   open={open}
   oncloseend={closeEnd}
+  maxWidth="50rem"
   extraWrapperOptions={{
-    style: "width: calc(100% - 2rem); max-width: 40rem;"
+    style: "width: calc(100% - 2rem);"
   }}
   extraOptions={{
     style: "width: 100%;"

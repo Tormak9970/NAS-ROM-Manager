@@ -141,7 +141,6 @@
     border-radius: var(--m3-dialog-shape);
     min-width: 17.5rem;
     width: 100%;
-    max-width: 40rem;
     overflow: hidden;
 
     position: relative;

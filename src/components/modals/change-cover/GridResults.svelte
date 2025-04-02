@@ -48,7 +48,7 @@
 
 <svelte:document onresize={debouncedResize} />
 
-<div class="scroll-container" use:scrollShadow>
+<div class="scroll-container" use:scrollShadow={{ background: "--m3-scheme-surface-container" }}>
   <div class="grid-results">
     {#if isLoading}
       <div
