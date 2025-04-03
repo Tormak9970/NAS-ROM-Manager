@@ -73,6 +73,7 @@
       trailingIcon={DatabaseSearch}
       ontrailingClick={openIGDBSearch}
     />
+    <!-- TODO: error if there is a platform with this name already -->
     <TextField
       name="IGDB Id"
       bind:value={igdbId}
