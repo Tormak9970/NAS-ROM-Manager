@@ -1,4 +1,4 @@
-import type { IGDBGame, IGDBSearchResult } from "@types";
+import type { IGDBGame, IGDBMetadataPlatform, IGDBSearchResult } from "@types";
 import { LogController } from "./utils/LogController";
 import { RestController } from "./utils/RestController";
 
@@ -38,7 +38,22 @@ export class IGDBController {
     try {
       return await RestController.searchIGDBForTitle(query, igdbPlatformId);
     } catch (e: any) {
-      LogController.warn(`IGDB Search Request "${query}" timed out.`);
+      LogController.warn(`IGDB Rom Search Request "${query}" timed out.`);
+      LogController.warn(e.message);
+      return [];
+    }
+  }
+  
+  /**
+   * Searches IGDB for the provided query.
+   * @param query The search query to use.
+   * @returns A promise resolving to the results array, or null if the request timed out.
+   */
+  static async searchForPlatform(query: string): Promise<IGDBMetadataPlatform[]> {
+    try {
+      return await RestController.searchIGDBForPlatform(query);
+    } catch (e: any) {
+      LogController.warn(`IGDB Platform Search Request "${query}" timed out.`);
       LogController.warn(e.message);
       return [];
     }

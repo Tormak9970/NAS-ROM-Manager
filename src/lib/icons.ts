@@ -59,6 +59,7 @@ export { default as SubdirectoryArrowRight } from "@ktibow/iconset-material-symb
 export { default as Search } from "@ktibow/iconset-material-symbols/search-rounded";
 
 export { default as Add } from "@ktibow/iconset-material-symbols/add-rounded";
+export { default as PlaylistAdd } from "@ktibow/iconset-material-symbols/playlist-add-rounded";
 
 export { default as FolderOpen } from "@ktibow/iconset-material-symbols/folder-open-rounded";
 export { default as Folder } from "@ktibow/iconset-material-symbols/folder-rounded";

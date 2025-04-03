@@ -3,7 +3,7 @@
   import { RomController } from "@controllers";
   import { Cached, DatabaseSearch } from "@icons";
   import { Button, Checkbox, TextField } from "@interactables";
-  import { editIsPostUpload, igdbSearchOnSelect, igdbSearchPlatformId, igdbSearchTitle, romEditingId, sgdbSearchOnSelect, sgdbSearchTitle, showEditRomModal, showSearchIGDBModal, showSearchSGDBModal } from "@stores/Modals";
+  import { editIsPostUpload, igdbSearchRomOnSelect, igdbSearchRomPlatformId, igdbSearchRomTitle, romEditingId, sgdbSearchOnSelect, sgdbSearchTitle, showEditRomModal, showSearchIGDBRomModal, showSearchSGDBModal } from "@stores/Modals";
   import { romMetadata, roms, systems } from "@stores/State";
 
   let open = $state(true);
@@ -65,12 +65,12 @@
   }
 
   function openIGDBSearch() {
-    $igdbSearchTitle = title ?? rom.title;
-    $igdbSearchOnSelect = (id: string) => {
+    $igdbSearchRomTitle = title ?? rom.title;
+    $igdbSearchRomOnSelect = (id: string) => {
       igdbId = id;
     }
-    $igdbSearchPlatformId = system.igdbPlatformId;
-    $showSearchIGDBModal = true;
+    $igdbSearchRomPlatformId = system.igdbPlatformId;
+    $showSearchIGDBRomModal = true;
   }
 </script>
 

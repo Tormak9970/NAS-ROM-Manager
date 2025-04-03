@@ -5,7 +5,7 @@
   import { Button } from "@interactables";
   import TextField from "@interactables/TextField.svelte";
   import { LoadingSpinner } from "@layout";
-  import { igdbSearchOnSelect, igdbSearchPlatformId, igdbSearchTitle, showSearchIGDBModal } from "@stores/Modals";
+  import { igdbSearchRomOnSelect, igdbSearchRomPlatformId, igdbSearchRomTitle, showSearchIGDBRomModal } from "@stores/Modals";
   import { type IGDBSearchResult } from "@types";
   import { debounce } from "@utils";
 
@@ -14,7 +14,7 @@
   let loading = $state(true);
   let entries = $state<IGDBSearchResult[]>([]);
 
-  let gameTitle = $state($igdbSearchTitle!);
+  let gameTitle = $state($igdbSearchRomTitle!);
   let selectedId = $state("");
   
   const debouncedSearch = debounce((gameTitle: string, platformId: string) => {
@@ -26,7 +26,7 @@
 
   $effect(() => {
     loading = true;
-    debouncedSearch(gameTitle, $igdbSearchPlatformId!);
+    debouncedSearch(gameTitle, $igdbSearchRomPlatformId!);
   });
 
   function select(id: number) {
@@ -34,17 +34,17 @@
   }
   
   function onCloseEnd() {
-    $showSearchIGDBModal = false;
-    $igdbSearchTitle = null;
-    $igdbSearchPlatformId = null;
-    $igdbSearchOnSelect = () => {};
+    $showSearchIGDBRomModal = false;
+    $igdbSearchRomTitle = null;
+    $igdbSearchRomPlatformId = null;
+    $igdbSearchRomOnSelect = () => {};
   }
 
   /**
    * Function to run on confirmation.
    */
   async function onConfirm(): Promise<void> {
-    $igdbSearchOnSelect(selectedId);
+    $igdbSearchRomOnSelect(selectedId);
     open = false;
   }
 

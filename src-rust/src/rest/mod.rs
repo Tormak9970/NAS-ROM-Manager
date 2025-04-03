@@ -11,7 +11,7 @@ use std::{collections::HashMap, fs::remove_file, str::FromStr, thread};
 use chrono::Utc;
 use covers::{delete_cover, upload_cover};
 use cron::Schedule;
-use igdb::{igdb_get_metadata_by_id, igdb_search_game, init_igdb_client};
+use igdb::{igdb_get_metadata_by_id, igdb_search_game, igdb_search_platform, init_igdb_client};
 use log::{info, warn};
 use rom_download::{delete_rom, rom_download, rom_download_complete, rom_download_get_metadata};
 use rom_upload::{prepare_rom_upload, rom_upload_cancel, rom_upload_complete, upload_rom};
@@ -194,11 +194,18 @@ pub fn initialize_rest_api(cover_cache_dir: String, cleanup_schedule: String) ->
     .and_then(igdb_get_metadata_by_id)
     .with(&cors);
   
-  let igdb_search_game_route = warp::path!("rest" / "proxy" / "igdb" / "search")
+  let igdb_search_game_route = warp::path!("rest" / "proxy" / "igdb" / "search" / "games")
     .and(warp::get())
     .and(igdb_client_store_filter.clone())
     .and(warp::query::<HashMap<String, String>>())
     .and_then(igdb_search_game)
+    .with(&cors);
+  
+  let igdb_search_platform_route = warp::path!("rest" / "proxy" / "igdb" / "search" / "platforms")
+    .and(warp::get())
+    .and(igdb_client_store_filter.clone())
+    .and(warp::query::<HashMap<String, String>>())
+    .and_then(igdb_search_platform)
     .with(&cors);
 
   
@@ -218,7 +225,8 @@ pub fn initialize_rest_api(cover_cache_dir: String, cleanup_schedule: String) ->
     .or(sgdb_search_game_route)
     .or(igdb_init_route)
     .or(igdb_get_metadata_route)
-    .or(igdb_search_game_route);
+    .or(igdb_search_game_route)
+    .or(igdb_search_platform_route);
 
 
   let cleanup_upload_store = upload_store.clone();

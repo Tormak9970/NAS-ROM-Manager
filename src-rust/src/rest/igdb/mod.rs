@@ -83,3 +83,35 @@ pub async fn igdb_search_game(igdb_client_store: IGDBClientStore, query_params: 
 
   return Ok(response);
 }
+
+
+/// Gets the IGDB Platforms for the provided search query.
+pub async fn igdb_search_platform(igdb_client_store: IGDBClientStore, query_params: HashMap<String, String>) -> Result<impl Reply, Rejection> {
+  if !query_params.contains_key("query") {
+    warn!("IGDB Search request did not contain query");
+    return Err(warp::reject::reject());
+  }
+
+  let query = query_params.get("query").unwrap().to_owned();
+
+  if igdb_client_store.client.read().await.client_id == "".to_string() {
+    warn!("IGDB Client was not initialized before request (Search Platform)");
+    return Err(warp::reject::reject());
+  }
+
+  let res = igdb_client_store.client.write().await.search_platform(&query).await;
+
+  if res.is_err() {
+    warn!("IGDB Search Platform Error: {}", res.clone().err().unwrap());
+  }
+
+  let results = res.unwrap_or(vec![]);
+
+  let response = warp::http::Response::builder()
+    .status(200)
+    .header("Access-Control-Allow-Origin", "*")
+    .body(serde_json::to_string(&results).unwrap())
+    .map_err(|_| warp::reject())?;
+
+  return Ok(response);
+}

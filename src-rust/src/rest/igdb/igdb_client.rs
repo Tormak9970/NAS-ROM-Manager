@@ -5,7 +5,9 @@ use reqwest::{header::{self, HeaderMap, HeaderValue}, Client, StatusCode};
 use serde::de::DeserializeOwned;
 use serde_json::Value;
 
-use crate::rest::types::igdb::{IGDBAgeRating, IGDBCoverResponse, IGDBMetadata, IGDBMetadataPlatform, IGDBNamedResponse, IGDBRelatedGame, IGDBRelatedGameResponse, IGDBRom, IGDBRomResponse, IGDBRomsResponse, IGDBSearchResponse, IGDBSearchResult, IGDBWebsite, GAMES_FIELDS, IGDB_AGE_RATINGS, IGDB_WEBSITE_TYPES, SEARCH_FIELDS};
+use crate::rest::types::igdb::{
+  IGDBAgeRating, IGDBCoverResponse, IGDBMetadata, IGDBMetadataPlatform, IGDBNamedResponse, IGDBPlatformResponse, IGDBRelatedGame, IGDBRelatedGameResponse, IGDBRom, IGDBRomResponse, IGDBRomsResponse, IGDBSearchResponseGame, IGDBSearchResult, IGDBWebsite, GAMES_FIELDS, IGDB_AGE_RATINGS, IGDB_WEBSITE_TYPES, PLATFORM_FIELDS, SEARCH_FIELDS
+};
 
 use super::twitch_auth::TwitchAuth;
 
@@ -120,6 +122,7 @@ pub struct IGDBClient {
   pub client_id: String,
   timeout: u64,
   games_endpoint: String,
+  platforms_endpoint: String,
   search_endpoint: String,
   twitch_auth: TwitchAuth,
   client: Client,
@@ -141,6 +144,7 @@ impl IGDBClient {
       client_id: "".to_string(),
       games_endpoint: format!("{}/games", &base_url),
       search_endpoint: format!("{}/search", &base_url),
+      platforms_endpoint: format!("{}/platforms", &base_url),
       twitch_auth,
       client: client_res.expect("Failed to make the reqwest client."),
       timeout,
@@ -242,10 +246,10 @@ impl IGDBClient {
     let cleaned_query = remove_special_chars(query);
 
     let body = format!("fields {}; where game.platforms=[{}] & game.category=(0,8,9,10,11) & (name ~ *\"{}\"* | alternative_name ~ *\"{}\"*);", get_fields(&SEARCH_FIELDS), igdb_platform_id, cleaned_query, cleaned_query);
-    info!("IGDB Search: getting results for query=\"{}\", platform=\"{}\"", cleaned_query.clone(), igdb_platform_id);
+    info!("IGDB Game Search: getting results for query=\"{}\", platform=\"{}\"", cleaned_query.clone(), igdb_platform_id);
 
     // TODO: consider searching in games endpoint as well, like romm
-    let search_res = self.handle_request::<Vec<IGDBSearchResponse>>(self.search_endpoint.clone(), body).await;
+    let search_res = self.handle_request::<Vec<IGDBSearchResponseGame>>(self.search_endpoint.clone(), body).await;
 
     if search_res.is_err() {
       return Err(search_res.err().unwrap());
@@ -253,13 +257,49 @@ impl IGDBClient {
     let results = search_res.unwrap();
 
     if results.len() == 0 {
-      return Err(format!("Search for \"{}\" returned 0 results.", cleaned_query));
+      return Err(format!("Game Search for \"{}\" returned 0 results.", cleaned_query));
     }
 
     return Ok(results.iter().map(| result | {
       return IGDBSearchResult {
         igdbId: result.game.id,
         name: result.name.clone(),
+      }
+    }).collect());
+  }
+
+  /// Gets the platform matching the search query from IGDB.
+  pub async fn search_platform(&mut self, query: &str) -> Result<Vec<IGDBMetadataPlatform>, String> {
+    let cleaned_query = remove_special_chars(query);
+
+    let body = format!(
+      "fields {}; where (name ~ *\"{}\"* | alternative_name ~ *\"{}\"* | abbreviation ~ *\"{}\"*);",
+      get_fields(&PLATFORM_FIELDS),
+      cleaned_query,
+      cleaned_query,
+      cleaned_query
+    );
+    info!("IGDB Platform Search: getting results for query=\"{}\"", cleaned_query.clone());
+
+    let search_res = self.handle_request::<Vec<IGDBPlatformResponse>>(
+      self.platforms_endpoint.clone(),
+      body
+    ).await;
+
+    if search_res.is_err() {
+      return Err(search_res.err().unwrap());
+    }
+    let results = search_res.unwrap();
+
+    if results.len() == 0 {
+      return Err(format!("Platform Search for \"{}\" returned 0 results.", cleaned_query));
+    }
+
+    return Ok(results.iter().map(| result | {
+      return IGDBMetadataPlatform {
+        igdbId: result.id,
+        name: result.name.clone().unwrap_or(String::from("")),
+        abbreviation: result.abbreviation.clone().unwrap_or(String::from("")),
       }
     }).collect());
   }

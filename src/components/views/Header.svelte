@@ -1,10 +1,12 @@
 <script lang="ts">
+  import { page } from "$app/state";
+  import { routes } from "$lib/routes";
   import { Icon } from "@component-utils";
   import { AuthController } from "@controllers";
   import type { ContextMenuItem } from "@directives";
-  import { Add, Person } from "@icons";
+  import { Add, Person, PlaylistAdd } from "@icons";
   import { Button, MenuButton } from "@interactables";
-  import { showAddRomModal } from "@stores/Modals";
+  import { showAddRomModal, showAddSystemModal } from "@stores/Modals";
   import { isLandscape, systems } from "@stores/State";
   import SearchBar from "./SearchBar.svelte";
 
@@ -27,9 +29,15 @@
     {/if}
   </div>
   <div class="buttons">
-    <Button type="text" iconType="full" onclick={() => $showAddRomModal = true} disabled={systemKeys.length === 0}>
-      <Icon icon={Add}/>
-    </Button>
+    {#if page.url.pathname.startsWith(routes["Library"].path)}
+      <Button type="text" iconType="full" onclick={() => $showAddRomModal = true} disabled={systemKeys.length === 0}>
+        <Icon icon={Add}/>
+      </Button>
+    {:else if page.url.pathname.startsWith(routes["Systems"].path)}
+      <Button type="text" iconType="full" onclick={() => $showAddSystemModal = true}>
+        <Icon icon={PlaylistAdd}/>
+      </Button>
+    {/if}
     <MenuButton items={menuItems} icon={Person} />
   </div>
 </div>

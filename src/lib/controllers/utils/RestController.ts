@@ -1,5 +1,5 @@
 import { library, showInfoSnackbar, showWarningSnackbar } from "@stores/State";
-import { BackendErrorType, type GridResults, type IGDBGame, type IGDBSearchResult, type ROM, type RomUploadConfig, type SGDBGame } from "@types";
+import { BackendErrorType, type GridResults, type IGDBGame, type IGDBMetadataPlatform, type IGDBSearchResult, type ROM, type RomUploadConfig, type SGDBGame } from "@types";
 import { hash64, showError } from "@utils";
 import streamSaver from "streamsaver";
 import { get } from "svelte/store";
@@ -577,12 +577,29 @@ export class RestController {
    * @returns The best match for the search.
    */
   static async searchIGDBForTitle(query: string, igdbPlatformId: string): Promise<IGDBSearchResult[]> {
-    const res = await fetch(this.BASE_URL + `/proxy/igdb/search?query=${encodeURIComponent(query)}&platform-id=${igdbPlatformId}`);
+    const res = await fetch(this.BASE_URL + `/proxy/igdb/search/games?query=${encodeURIComponent(query)}&platform-id=${igdbPlatformId}`);
 
     if (res.ok) {
       return await res.json();
     } else {
       get(showWarningSnackbar)({ message: "Error getting IGDB id."})
+
+      return [];
+    }
+  }
+  
+  /**
+   * Searches IGDB for platforms matching the query.
+   * @param query The query to search for.
+   * @returns The best match for the search.
+   */
+  static async searchIGDBForPlatform(query: string): Promise<IGDBMetadataPlatform[]> {
+    const res = await fetch(this.BASE_URL + `/proxy/igdb/search/platforms?query=${encodeURIComponent(query)}`);
+
+    if (res.ok) {
+      return await res.json();
+    } else {
+      get(showWarningSnackbar)({ message: "Error getting IGDB platforms."})
 
       return [];
     }

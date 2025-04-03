@@ -107,6 +107,12 @@ pub const GAMES_FIELDS: [&'static str; 29] = [
 
 pub const SEARCH_FIELDS: [&'static str; 2] = ["game.id", "name"];
 
+pub const PLATFORM_FIELDS: [&'static str; 4] = [
+  "id",
+  "name",
+  "slug",
+  "abbreviation",
+];
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[allow(non_snake_case)]
@@ -428,15 +434,23 @@ pub struct IGDBRomResponse {
 
 pub type IGDBRomsResponse = Vec<IGDBRomResponse>;
 
+// ? Platforms
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct IGDBPlatformResponse {
+  pub id: u64,
+  pub slug: Option<String>,
+  pub name: Option<String>,
+  pub abbreviation: Option<String>,
+}
 
 // ? Search
 #[derive(Serialize, Deserialize, Clone, Debug)]
-pub struct IGDBSearchGameResponse {
+pub struct IGDBSearchResponseGameInner {
   pub id: u64,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
-pub struct IGDBSearchResponse {
+pub struct IGDBSearchResponseGame {
   pub name: String,
-  pub game: IGDBSearchGameResponse,
+  pub game: IGDBSearchResponseGameInner,
 }

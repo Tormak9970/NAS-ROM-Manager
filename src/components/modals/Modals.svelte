@@ -1,6 +1,7 @@
 <script>
-  import { showAddRomModal, showChangeCoverModal, showControlledModal, showDownloadProgressModal, showEditLibraryModal, showEditRomModal, showEditRouteOrderModal, showFilePickerModal, showLoadingModal, showSearchIGDBModal, showSearchSGDBModal, showUploadProgressModal } from "@stores/Modals";
+  import { showAddRomModal, showAddSystemModal, showChangeCoverModal, showControlledModal, showDownloadProgressModal, showEditLibraryModal, showEditRomModal, showEditRouteOrderModal, showFilePickerModal, showLoadingModal, showSearchIGDBPlatformModal, showSearchIGDBRomModal, showSearchSGDBModal, showUploadProgressModal } from "@stores/Modals";
   import AddRom from "./AddRom.svelte";
+  import AddSystem from "./AddSystem.svelte";
   import ChangeCover from "./change-cover/ChangeCover.svelte";
   import Controlled from "./Controlled.svelte";
   import DownloadProgress from "./DownloadProgress.svelte";
@@ -8,7 +9,8 @@
   import EditRom from "./EditRom.svelte";
   import EditRouteOrder from "./EditRouteOrder.svelte";
   import FilePicker from "./file-picker/FilePicker.svelte";
-  import IGDBSearch from "./IGDBSearch.svelte";
+  import IgdbSearchPlatform from "./IGDBSearchPlatform.svelte";
+  import IGDBSearchRom from "./IGDBSearchRom.svelte";
   import Loading from "./Loading.svelte";
   import SGDBSearch from "./SGDBSearch.svelte";
   import UploadProgress from "./UploadProgress.svelte";
@@ -38,6 +40,10 @@
   <AddRom />
 {/if}
 
+{#if $showAddSystemModal}
+  <AddSystem />
+{/if}
+
 {#if $showUploadProgressModal}
   <UploadProgress />
 {/if}
@@ -58,6 +64,10 @@
   <SGDBSearch />
 {/if}
 
-{#if $showSearchIGDBModal}
-  <IGDBSearch />
+{#if $showSearchIGDBRomModal}
+  <IGDBSearchRom />
+{/if}
+
+{#if $showSearchIGDBPlatformModal}
+  <IgdbSearchPlatform />
 {/if}

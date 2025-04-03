@@ -1,4 +1,4 @@
-import type { FilePickerConfig, ROM, RomUploadConfig, SGDBImage } from "@types";
+import type { FilePickerConfig, IGDBMetadataPlatform, ROM, RomUploadConfig, SGDBImage } from "@types";
 import { localStorageWritable } from "@utils";
 import { writable } from "svelte/store";
 
@@ -28,6 +28,8 @@ export const downloadProgressRom = writable<ROM | null>(null);
 export const showAddRomModal = writable(false);
 export const addRomSystem = localStorageWritable<string>("add-rom-selected-system", "");
 
+export const showAddSystemModal = writable(false);
+
 export const showUploadProgressModal = writable(false);
 export const uploadProgressConfig = writable<RomUploadConfig | null>(null);
 
@@ -46,7 +48,11 @@ export const showSearchSGDBModal = writable(false);
 export const sgdbSearchTitle = writable<string | null>(null);
 export const sgdbSearchOnSelect = writable((sgdbId: string) => {});
 
-export const showSearchIGDBModal = writable(false);
-export const igdbSearchTitle = writable<string | null>(null);
-export const igdbSearchPlatformId = writable<string | null>(null);
-export const igdbSearchOnSelect = writable((igdbId: string) => {});
+export const showSearchIGDBRomModal = writable(false);
+export const igdbSearchRomTitle = writable<string | null>(null);
+export const igdbSearchRomPlatformId = writable<string | null>(null);
+export const igdbSearchRomOnSelect = writable((igdbId: string) => {});
+
+export const showSearchIGDBPlatformModal = writable(false);
+export const igdbSearchPlatformTitle = writable<string | null>(null);
+export const igdbSearchPlatformOnSelect = writable((platform: IGDBMetadataPlatform | null) => {});
