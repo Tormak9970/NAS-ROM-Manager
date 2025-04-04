@@ -3,6 +3,9 @@
   "abbreviation": "PSP",
   "igdbPlatformId": "38",
   "folder": "psp",
+  "sgdbId": "",
+  "coverPath": "",
+  "thumbPath": "",
   "tagConfig": {
     "backgroundColor": "15 15 15",
     "borderColor": "15 15 15"

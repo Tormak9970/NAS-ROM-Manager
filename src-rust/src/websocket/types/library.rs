@@ -30,6 +30,10 @@ pub struct System {
   pub fullName: String,
   pub abbreviation: String,
   pub igdbPlatformId: String,
+  pub folder: String,
+  pub sgdbId: String,
+  pub coverPath: String,
+  pub thumbPath: String,
   pub tagConfig: SystemTagConfig,
 }
 
@@ -40,6 +44,9 @@ pub struct Parser {
   pub abbreviation: String,
   pub igdbPlatformId: String,
   pub folder: String,
+  pub sgdbId: String,
+  pub coverPath: String,
+  pub thumbPath: String,
   pub tagConfig: SystemTagConfig,
   pub patterns: Vec<ParserPattern>,
 }

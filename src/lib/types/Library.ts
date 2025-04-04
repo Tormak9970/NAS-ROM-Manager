@@ -9,6 +9,10 @@ export type SystemTagConfig = {
 export type System = {
   fullName: string;
   abbreviation: string;
+  folder: string;
+  sgdbId: string;
+  coverPath: string;
+  thumbPath: string;
   igdbPlatformId: string;
   tagConfig: SystemTagConfig;
 }

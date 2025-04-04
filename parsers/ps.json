@@ -3,6 +3,9 @@
   "abbreviation": "PS",
   "igdbPlatformId": "7",
   "folder": "ps",
+  "sgdbId": "",
+  "coverPath": "",
+  "thumbPath": "",
   "tagConfig": {
     "backgroundColor": "165 165 165",
     "borderColor": "165 165 165"

@@ -3,6 +3,9 @@
   "abbreviation": "N64",
   "igdbPlatformId": "4",
   "folder": "n64",
+  "sgdbId": "",
+  "coverPath": "",
+  "thumbPath": "",
   "tagConfig": {
     "backgroundColor": "160 125 156",
     "borderColor": "160 125 156"

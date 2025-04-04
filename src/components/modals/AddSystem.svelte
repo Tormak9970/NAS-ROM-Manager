@@ -87,7 +87,7 @@
       bind:value={folder}
     />
     <!-- TODO: message with link to emudeck wiki -->
-    <!-- TODO: tag config -->
+    <!-- TODO: tag config. Check delta with existing -->
     <!-- TODO: parser patterns -->
   </div>
   {#snippet buttons()}

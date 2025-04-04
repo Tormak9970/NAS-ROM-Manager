@@ -3,6 +3,9 @@
   "abbreviation": "GC",
   "igdbPlatformId": "21",
   "folder": "gc",
+  "sgdbId": "",
+  "coverPath": "",
+  "thumbPath": "",
   "tagConfig": {
     "backgroundColor": "123 67 226",
     "borderColor": "123 67 226"

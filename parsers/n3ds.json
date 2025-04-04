@@ -3,6 +3,9 @@
   "abbreviation": "N3DS",
   "igdbPlatformId": "37",
   "folder": "n3ds",
+  "sgdbId": "",
+  "coverPath": "",
+  "thumbPath": "",
   "tagConfig": {
     "backgroundColor": "240 143 57",
     "borderColor": "240 143 57"

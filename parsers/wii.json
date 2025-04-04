@@ -3,6 +3,9 @@
   "abbreviation": "Wii",
   "igdbPlatformId": "5",
   "folder": "wii",
+  "sgdbId": "",
+  "coverPath": "",
+  "thumbPath": "",
   "tagConfig": {
     "backgroundColor": "207 207 207",
     "borderColor": "207 207 207"

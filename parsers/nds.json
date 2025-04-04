@@ -3,6 +3,9 @@
   "abbreviation": "NDS",
   "igdbPlatformId": "20",
   "folder": "nds",
+  "sgdbId": "",
+  "coverPath": "",
+  "thumbPath": "",
   "tagConfig": {
     "backgroundColor": "205 216 53",
     "borderColor": "205 216 53"

@@ -3,6 +3,9 @@
   "abbreviation": "PS3",
   "igdbPlatformId": "9",
   "folder": "ps3",
+  "sgdbId": "",
+  "coverPath": "",
+  "thumbPath": "",
   "tagConfig": {
     "backgroundColor": "0 117 202",
     "borderColor": "0 117 202"

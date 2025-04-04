@@ -213,6 +213,10 @@ fn load_library(library: &Library, watcher: &Watcher, send_error: &ErrorSender) 
       abbreviation: parser.abbreviation,
       fullName: parser.name,
       igdbPlatformId: parser.igdbPlatformId,
+      folder: parser.folder,
+      sgdbId: parser.sgdbId,
+      thumbPath: parser.thumbPath,
+      coverPath: parser.coverPath,
       tagConfig: parser.tagConfig,
     }
   }).collect();

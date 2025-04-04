@@ -3,6 +3,9 @@
   "abbreviation": "Xbox",
   "igdbPlatformId": "11",
   "folder": "xbox",
+  "sgdbId": "",
+  "coverPath": "",
+  "thumbPath": "",
   "tagConfig": {
     "backgroundColor": "50 104 18",
     "borderColor": "50 104 18"

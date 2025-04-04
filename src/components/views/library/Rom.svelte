@@ -43,7 +43,7 @@
       <Icon icon={Landscape} height="1.5rem" width="1.5rem" />
     </div>
   {/if}
-  <Cover romId={romId} />
+  <Cover thumbPath={metadata.thumbPath} />
   <div class="overlay">
     <div class="rom-info">
       <div class="title">{rom.title}</div>

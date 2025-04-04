@@ -21,7 +21,7 @@ export function getRomMenuItems(romId: string, igdbId: string): ContextMenuItem[
   if (igdbId !== "" && igdbId !== NO_IGDB_RESULTS) {
     items.push({
       text: "Refresh Metadata",
-      action: () => RomController.refreshMetadata(romId, igdbId),
+      action: () => RomController.refreshMetadata(romId),
     });
   }
 

@@ -3,6 +3,9 @@
   "abbreviation": "SNES",
   "igdbPlatformId": "19",
   "folder": "snes",
+  "sgdbId": "",
+  "coverPath": "",
+  "thumbPath": "",
   "tagConfig": {
     "backgroundColor": "255 51 36",
     "borderColor": "255 51 36"

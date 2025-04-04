@@ -3,6 +3,9 @@
   "abbreviation": "GBA",
   "igdbPlatformId": "24",
   "folder": "gba",
+  "sgdbId": "",
+  "coverPath": "",
+  "thumbPath": "",
   "tagConfig": {
     "backgroundColor": "112 87 255",
     "borderColor": "112 87 255"

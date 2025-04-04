@@ -68,23 +68,23 @@ export class SGDBController {
   }
 
   /**
-   * Gets the sgdb game id for the provided game.
-   * @param romId The id of the rom to gete the SGDB id for.
+   * Gets the sgdb game id for the provided rom or system.
+   * @param id The id of the rom / system to gete the SGDB id for.
    * @param gameName The name of the game to fetch grids for.
    * @returns A promise resolving to the grids.
    * ? Logging complete.
    */
-  static async chooseSteamGridGameId(romId: string, gameName: string): Promise<string> {
-    LogController.log(`Finding SGDB game for ${romId}...`);
+  static async chooseSteamGridGameId(id: string, gameName: string): Promise<string> {
+    LogController.log(`Finding SGDB game for ${id}...`);
 
     const searchCache = get(steamGridSearchCache);
 
-    let results = searchCache[romId];
+    let results = searchCache[id];
 
     if (!results) {
       try {
         results = await RestController.searchSGDBForTitle(gameName);
-        searchCache[romId] = results;
+        searchCache[id] = results;
       } catch (e: any) {
         LogController.warn(`Error searching for game on SGDB. Game: ${gameName}. Error: ${e.message}.`);
         get(showWarningSnackbar)({ message: "Error searching for game on SGDB." });

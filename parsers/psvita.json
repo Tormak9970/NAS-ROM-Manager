@@ -3,6 +3,9 @@
   "abbreviation": "PSVita",
   "igdbPlatformId": "46",
   "folder": "psvita",
+  "sgdbId": "",
+  "coverPath": "",
+  "thumbPath": "",
   "tagConfig": {
     "backgroundColor": "1 30 98",
     "borderColor": "1 30 98"

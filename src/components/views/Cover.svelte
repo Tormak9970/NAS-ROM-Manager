@@ -1,12 +1,8 @@
 <script lang="ts">
-  import { romMetadata } from "@stores/State";
-
-  let { romId }: { romId: string } = $props();
-
-  const metadata = $derived($romMetadata[romId]);
+  let { thumbPath }: { thumbPath: string } = $props();
 </script>
 
-<div class="cover" style:--cover-url='url("{metadata.thumbPath === "No Grids" ? "" : metadata.thumbPath}")'></div>
+<div class="cover" style:--cover-url='url("{thumbPath === "No Grids" ? "" : thumbPath}")'></div>
 
 <style>
   .cover {

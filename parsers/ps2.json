@@ -3,6 +3,9 @@
   "abbreviation": "PS2",
   "igdbPlatformId": "8",
   "folder": "ps2",
+  "sgdbId": "",
+  "coverPath": "",
+  "thumbPath": "",
   "tagConfig": {
     "backgroundColor": "0 194 165",
     "borderColor": "0 194 165"
