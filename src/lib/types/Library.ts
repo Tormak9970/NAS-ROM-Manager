@@ -6,8 +6,15 @@ export type SystemTagConfig = {
   borderColor: string;
 }
 
+export type ParserPattern = {
+  glob: string;
+  regex: string;
+  downloadStrategy: DownloadStrategy;
+}
+
 export type System = {
   fullName: string;
+  // ? Abbreviation is used to index the parsers on the backend.
   abbreviation: string;
   folder: string;
   sgdbId: string;
@@ -15,6 +22,7 @@ export type System = {
   thumbPath: string;
   igdbPlatformId: string;
   tagConfig: SystemTagConfig;
+  patterns: ParserPattern[];
 }
 
 export type ROMMetadata = {

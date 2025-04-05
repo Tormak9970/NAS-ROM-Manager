@@ -3,12 +3,11 @@
   import { Button, Checkbox, FileField, Select } from "@interactables";
   import { addRomSystem, showAddRomModal, showUploadProgressModal, uploadProgressConfig } from "@stores/Modals";
   import { systems } from "@stores/State";
-  import { systemToParser } from "@utils";
 
   let open = $state(true);
 
-  let systemOptions: SelectItem[] = Object.keys($systems).sort().map((key) => {
-    return { label: key, value: systemToParser(key) };
+  let systemOptions: SelectItem[] = Object.entries($systems).sort().map(([key, value]) => {
+    return { label: key, value: value.abbreviation };
   });
   
   if ($addRomSystem === "") {

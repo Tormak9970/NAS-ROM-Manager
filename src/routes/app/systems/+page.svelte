@@ -3,7 +3,7 @@
   import { VirtualGrid } from "@layout";
   import { changeCoverId } from "@stores/Modals";
   import { dbFilters, libraryGridType, loadedLibrary, systems } from "@stores/State";
-  import { filterGrids, GRID_LAYOUTS, systemToParser } from "@utils";
+  import { filterGrids, GRID_LAYOUTS } from "@utils";
   import RomLoadingSkeleton from "@views/library/RomLoadingSkeleton.svelte";
   import System from "@views/systems/System.svelte";
   import { onDestroy, onMount } from "svelte";
@@ -32,7 +32,7 @@
             
             if (filtered.length) {
               const first = filtered[0];
-              const images = await RestController.cacheCover(first.url.toString(), first.thumb.toString(), systemToParser(systemName));
+              const images = await RestController.cacheCover(first.url.toString(), first.thumb.toString(), system.abbreviation);
               
               system.thumbPath = images[0];
               system.coverPath = images[1];

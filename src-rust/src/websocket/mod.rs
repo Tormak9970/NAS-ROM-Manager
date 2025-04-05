@@ -7,6 +7,7 @@ mod watcher;
 mod ws_handler;
 mod file_picker;
 mod metadata;
+mod parsers;
 
 use sysinfo::Disks;
 use types::{

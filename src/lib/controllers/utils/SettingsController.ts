@@ -15,7 +15,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>
  */
 
-import { landingPage, landscapeViews, library, loadedSettings, palette, portraitViews, reducedMotion, romMetadata, saveMetadataAlongside, themePrimaryColor, useOledPalette } from "@stores/State";
+import { landingPage, landscapeViews, library, loadedSettings, palette, portraitViews, reducedMotion, romMetadata, saveMetadataAlongside, systems, themePrimaryColor, useOledPalette } from "@stores/State";
 import type { Settings } from "@types";
 import type { Unsubscriber } from "svelte/store";
 import { LogController } from "./LogController";
@@ -116,6 +116,8 @@ export class SettingsController {
       reducedMotion.subscribe(this.setOnChange("accessibility.reducedMotion")),
 
       romMetadata.subscribe(WebsocketController.saveMetadata),
+
+      systems.subscribe(WebsocketController.saveParsers),
     ];
   }
 

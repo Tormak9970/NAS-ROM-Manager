@@ -16,8 +16,8 @@
  */
 
 import { library, roms, romsBySystem, showWarningSnackbar, systems } from "@stores/State";
-import { BackendErrorType, type AvailableStorage, type BackendError, type FilePickerConfig, type FilePickerEntry, type Library, type LoadResult, type ROM, type ROMMetadata, type Settings } from "@types";
-import { hash64, showError, systemToParser } from "@utils";
+import { BackendErrorType, type AvailableStorage, type BackendError, type FilePickerConfig, type FilePickerEntry, type Library, type LoadResult, type ROM, type ROMMetadata, type Settings, type System } from "@types";
+import { hash64, showError } from "@utils";
 import { get } from "svelte/store";
 import { LogController } from "./LogController";
 
@@ -191,10 +191,8 @@ export class WebsocketController {
     let systemName = null;
 
     for (const system of systemList) {
-      const parserName = systemToParser(system.abbreviation);
-
-      if (pathNoLibrary.startsWith(parserName)) {
-        systemName = parserName;
+      if (pathNoLibrary.startsWith(system.folder)) {
+        systemName = system.abbreviation;
         break;
       }
     }
@@ -231,6 +229,17 @@ export class WebsocketController {
    */
   static async saveMetadata(data: Record<string, ROMMetadata>): Promise<boolean> {
     const res = await WebsocketController.invoke<boolean>("save_metadata", { data });
+    return res.data;
+  }
+  
+
+  /**
+   * Saves the parsers to the server.
+   * @param data The parsers to save.
+   * @returns True if the save was a success.
+   */
+  static async saveParsers(data: Record<string, System>): Promise<boolean> {
+    const res = await WebsocketController.invoke<boolean>("save_parsers", { data });
     return res.data;
   }
   

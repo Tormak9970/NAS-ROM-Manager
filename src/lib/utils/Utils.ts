@@ -148,15 +148,6 @@ export function clamp(value: number, lower: number, upper: number): number {
 }
 
 /**
- * Gets the parser key for the provided system.
- * @param system The system.
- * @returns The parser key.
- */
-export function systemToParser(system: string): string {
-  return system.toLowerCase().replace(/\s/g, "");
-}
-
-/**
  * Filters the grids based on the user's chosen filters.
  * @param allGrids The list of all grids.
  * @param filters The filters object.

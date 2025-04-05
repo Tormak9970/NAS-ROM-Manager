@@ -28,7 +28,7 @@ use crate::websocket::{
   file_picker::get_entries
 };
 
-use super::metadata::{load_metadata, write_metadata};
+use super::{metadata::{load_metadata, write_metadata}, parsers::write_parsers, types::args::ParsersArgs};
 
 
 fn handle_message(
@@ -180,6 +180,21 @@ fn handle_message(
       if success {
         (*state).metadata = args.data;
         send(tx, "save_metadata", success);
+      }
+    }
+    "save_parsers" => {
+      let args: ParsersArgs = serde_json::from_str(data).unwrap();
+      let valid = check_hash(args.passwordHash, tx.clone());
+      if !valid {
+        return;
+      }
+      
+      let mut state = state_store.lock().expect("Failed to lock State Mutex.");
+      let success = write_parsers(&args.data, send_error);
+
+      if success {
+        (*state).parsers = args.data;
+        send(tx, "save_parsers", success);
       }
     }
     "parse_rom" => {

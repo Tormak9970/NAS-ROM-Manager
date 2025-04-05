@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-use super::{file_picker::FilePickerConfig, library::{Library, ROMMetadata}};
+use super::{file_picker::FilePickerConfig, library::{Library, Parser, ROMMetadata}};
 
 // * Interop types
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -55,4 +55,11 @@ pub struct FilePickerArgs {
 pub struct MetadataArgs {
   pub passwordHash: String,
   pub data: HashMap<String, ROMMetadata>,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+#[allow(non_snake_case)]
+pub struct ParsersArgs {
+  pub passwordHash: String,
+  pub data: HashMap<String, Parser>,
 }

@@ -1,7 +1,7 @@
 import { isFirstSetup, showEditLibraryModal } from "@stores/Modals";
 import { library, loadedLibrary, romMetadata, roms, romsBySystem, systems, systemTagConfigs } from "@stores/State";
 import type { Library, LoadResult, ROMMetadata } from "@types";
-import { hash64, systemToParser } from "@utils";
+import { hash64 } from "@utils";
 import { get } from "svelte/store";
 import { IGDBController } from "./IGDBController";
 import { SGDBController } from "./SGDBController";
@@ -37,9 +37,7 @@ export class AppController {
     const romMap = get(roms);
     
     const romEdits = metadata;
-    
     const romsSystemLUT = get(romsBySystem);
-    
     const tagConfigs = get(systemTagConfigs);
 
 
@@ -47,7 +45,7 @@ export class AppController {
 
     for (const system of loadRes.systems) {
       if (system.sgdbId === "") {
-        system.sgdbId = await SGDBController.chooseSteamGridGameId(systemToParser(system.abbreviation), system.fullName);
+        system.sgdbId = await SGDBController.chooseSteamGridGameId(system.abbreviation, system.fullName);
       }
 
       if (!systemMap[system.abbreviation]) {
