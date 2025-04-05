@@ -101,7 +101,7 @@ pub fn write_metadata(metadata: &HashMap<String, ROMMetadata>, send_error: Error
     let err = write_res.err().unwrap();
     
     send_error(
-      format!("Failed to write default metadata: {}", err.to_string()),
+      format!("Failed to write metadata: {}", err.to_string()),
       "Please ensure NRM has write access to the mounted \"/config\" directory.".to_string(),
       crate::websocket::types::BackendErrorType::PANIC
     );

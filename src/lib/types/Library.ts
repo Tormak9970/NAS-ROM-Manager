@@ -13,7 +13,7 @@ export type ParserPattern = {
 }
 
 export type System = {
-  fullName: string;
+  name: string;
   // ? Abbreviation is used to index the parsers on the backend.
   abbreviation: string;
   folder: string;

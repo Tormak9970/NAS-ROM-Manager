@@ -45,7 +45,7 @@ export class AppController {
 
     for (const system of loadRes.systems) {
       if (system.sgdbId === "") {
-        system.sgdbId = await SGDBController.chooseSteamGridGameId(system.abbreviation, system.fullName);
+        system.sgdbId = await SGDBController.chooseSteamGridGameId(system.abbreviation, system.name);
       }
 
       if (!systemMap[system.abbreviation]) {

@@ -1,4 +1,4 @@
-use std::{collections::HashMap, env::var, fs::{read_dir, File}};
+use std::{collections::HashMap, env::var, fs::{self, read_dir, File}, path::PathBuf};
 use log::warn;
 
 use super::types::{
@@ -73,7 +73,25 @@ pub fn load_parsers(send_error: &ErrorSender) -> Result<HashMap<String, Parser>,
 pub fn write_parsers(parsers: &HashMap<String, Parser>, send_error: ErrorSender) -> bool {
   let parsers_path = var("NRM_PARSERS_DIR").expect("Failed to get builtin default parsers env variable");
 
-  // for
+  for parser in parsers.clone().into_values() {
+    let file_path = PathBuf::from(&parsers_path).join(format!("{}.json", parser.folder));
 
-  return false;
+    let parser_str = serde_json::to_string_pretty(&parser)
+      .expect(format!("Parser {} was malformatted.", parser.abbreviation).as_str());
+
+    let write_res = fs::write(file_path, &parser_str);
+    if write_res.is_err() {
+      let err = write_res.err().unwrap();
+      
+      send_error(
+        format!("Failed to write parser {}: {}", parser.abbreviation, err.to_string()),
+        "Please ensure NRM has write access to the parsers directory.".to_string(),
+        crate::websocket::types::BackendErrorType::PANIC
+      );
+  
+      return false;
+    }
+  }
+
+  return true;
 }

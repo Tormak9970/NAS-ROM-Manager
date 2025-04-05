@@ -3,13 +3,7 @@
   import { DatabaseSearch } from "@icons";
   import { Button, TextField } from "@interactables";
   import { igdbSearchPlatformOnSelect, igdbSearchPlatformTitle, showAddSystemModal, showSearchIGDBPlatformModal } from "@stores/Modals";
-  import type { DownloadStrategy, IGDBMetadataPlatform, SystemTagConfig } from "@types";
-
-  type ParserPattern = {
-    glob: string;
-    regex: string;
-    downloadStrategy: DownloadStrategy;
-  }
+  import type { IGDBMetadataPlatform, ParserPattern, SystemTagConfig } from "@types";
 
   let open = $state(true);
 

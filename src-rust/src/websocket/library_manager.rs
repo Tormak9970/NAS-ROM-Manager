@@ -92,6 +92,12 @@ fn load_platform(parser: &Parser, path: PathBuf) -> Vec<ROM> {
 fn load_roms(library: &Library, watcher: &Watcher, parsers: &HashMap<String, Parser>, send_error: &ErrorSender) -> Result<Vec<ROM>, ()> {
   let mut roms: Vec<ROM> = vec![];
 
+  let mut parsers_folder_map: HashMap<String, Parser> = HashMap::new();
+  
+  parsers.iter().for_each(| (_, parser)| {
+    parsers_folder_map.insert(parser.folder.clone(), parser.to_owned());
+  });
+
   let roms_path = PathBuf::from(&library.libraryPath).join(&library.romDir);
 
   let entries_res = read_dir(&roms_path);
@@ -123,8 +129,8 @@ fn load_roms(library: &Library, watcher: &Watcher, parsers: &HashMap<String, Par
     }
     let dir_metadata = dir_metadata_res.unwrap();
 
-    if dir_metadata.is_dir() && parsers.contains_key(&dir_name) {
-      let parser = parsers.get(&dir_name).unwrap();
+    if dir_metadata.is_dir() && parsers_folder_map.contains_key(&dir_name) {
+      let parser = parsers_folder_map.get(&dir_name).unwrap();
 
       let mut platform_roms = load_platform(parser, dir_entry.path());
 
