@@ -33,12 +33,11 @@ export class SGDBController {
     if (!this.totalGridCountCache[steamGridAppId]) this.totalGridCountCache[steamGridAppId] = 0;
     
     const morePagesCache = get(hasMorePagesCache);
-    if (!morePagesCache[steamGridAppId.toString()]) morePagesCache[steamGridAppId] = true;
-    const morePagesEntry = morePagesCache[steamGridAppId];
+    if (!Object.keys(morePagesCache).includes(steamGridAppId.toString())) morePagesCache[steamGridAppId] = true;
 
-    if (!Object.keys(morePagesEntry)) morePagesCache[steamGridAppId] = true;
-
-    if (!morePagesCache[steamGridAppId] && this.gridsCache[steamGridAppId]) return this.gridsCache[steamGridAppId];
+    if (!morePagesCache[steamGridAppId] && this.gridsCache[steamGridAppId]) {
+      return this.gridsCache[steamGridAppId];
+    }
 
     let page = 0;
 

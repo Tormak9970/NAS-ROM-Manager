@@ -1,4 +1,4 @@
-import { changeCoverId, downloadProgressRom, loadingModalMessage, romEditingId, showChangeCoverModal, showDownloadProgressModal, showEditRomModal, showLoadingModal } from "@stores/Modals";
+import { changeCoverId, changeCoverOnSelect, changeCoverSearchId, downloadProgressRom, loadingModalMessage, romEditingId, showChangeCoverModal, showDownloadProgressModal, showEditRomModal, showLoadingModal } from "@stores/Modals";
 import { romMetadata, roms, romsBySystem } from "@stores/State";
 import type { IGDBGame } from "@types";
 import { get } from "svelte/store";
@@ -34,6 +34,17 @@ export class RomController {
    * @param romId The id of the rom.
    */
   static changeCover(romId: string) {
+    let searchId = get(romMetadata)[romId].sgdbId;
+    changeCoverSearchId.set(searchId)
+    changeCoverOnSelect.set((cover: string, thumb: string) => {
+      const metadataDict = get(romMetadata);
+      
+      let metadata = metadataDict[romId];
+      metadata.coverPath = cover;
+      metadata.thumbPath = thumb;
+
+      romMetadata.set({ ...metadataDict });
+    });
     changeCoverId.set(romId);
     showChangeCoverModal.set(true);
   }

@@ -1,4 +1,4 @@
-use std::time::Duration;
+use std::{fs, time::Duration};
 
 use log::{info, warn};
 use reqwest::Client;
@@ -36,7 +36,26 @@ async fn download_url(url: String, dest_path: &str, timeout: u64) -> Result<(), 
 
 /// Handles uploading a rom cover to the cache.
 pub async fn upload_cover(rom_id: String, cover_cache_dir: String, data: CoverUpload) -> Result<impl Reply, Rejection> {
+  let covers_path = format!("{}/full", cover_cache_dir);
   let cover_file_path = format!("{}/full/{}.{}", cover_cache_dir, rom_id, data.coverExt);
+
+  for entry in fs::read_dir(covers_path).expect("Covers directory should have existed") {
+    if entry.is_err() {
+      continue;
+    }
+    let dir_entry = entry.unwrap();
+
+    if dir_entry.file_name().eq_ignore_ascii_case(&rom_id) {
+      let path = dir_entry.path();
+      let path_str = path.to_str().expect("Failed to convert existing cover path to string.");
+      let delete_res = fs::remove_file(&path);
+
+      if delete_res.is_err() {
+        let err = delete_res.err().unwrap();
+        warn!("Error deleting existing cover file \"{}\": {}", path_str, err);
+      }
+    }
+  }
 
   download_url(data.coverUrl, &cover_file_path, data.timeout)
     .await

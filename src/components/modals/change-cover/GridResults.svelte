@@ -22,6 +22,10 @@
   let isLoading = $state(true);
   let grids: SGDBImage[] = $state([]);
 
+  $effect(() => {
+    console.log("grids:", $state.snapshot(grids));
+  });
+
   const hasMore = $derived(($hasMorePagesCache && $hasMorePagesCache[sgdbId]) ?? true);
 
   /**

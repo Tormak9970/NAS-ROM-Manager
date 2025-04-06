@@ -77,7 +77,7 @@
   >
     {#snippet row(entry)}
       {#if loadedKeys[entry]}
-        <System systemName={entry} />
+        <System abbreviation={entry} />
       {:else}
         <RomLoadingSkeleton />
       {/if}

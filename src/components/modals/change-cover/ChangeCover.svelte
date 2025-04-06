@@ -5,16 +5,14 @@
   import { Tune } from "@icons";
   import { Button } from "@interactables";
   import { LoadingSpinner } from "@layout";
-  import { changeCoverId, selectedNewCoverGrid, showChangeCoverModal } from "@stores/Modals";
+  import { changeCoverId, changeCoverOnSelect, changeCoverSearchId, selectedNewCoverGrid, showChangeCoverModal } from "@stores/Modals";
   import { showSGDBFiltersSheet } from "@stores/Sheets";
-  import { romMetadata } from "@stores/State";
   import GridResults from "./GridResults.svelte";
 
   let open = $state(true);
   
   let saving = $state(false);
 
-  let metadata = $romMetadata[$changeCoverId!];
   const canSave = $derived($selectedNewCoverGrid !== null);
 
   /**
@@ -26,13 +24,10 @@
     const [cover, thumb] = await RestController.cacheCover(
       $selectedNewCoverGrid!.url.toString(),
       $selectedNewCoverGrid!.thumb.toString(),
-      $changeCoverId!
+      $changeCoverId!.replace(/[/\\?%*:|"<> ]/g, '_')
     )
 
-    $romMetadata[$changeCoverId!].coverPath = cover;
-    $romMetadata[$changeCoverId!].thumbPath = thumb;
-
-    $romMetadata = { ...$romMetadata };
+    $changeCoverOnSelect(cover, thumb);
 
     open = false;
   }
@@ -46,8 +41,10 @@
 
   function closeEnd() {
     $showChangeCoverModal = false;
-    $changeCoverId = null;
+    $changeCoverSearchId = null;
     $selectedNewCoverGrid = null;
+    $changeCoverId = null;
+    $changeCoverOnSelect = () => {};
   }
 </script>
 
@@ -76,7 +73,7 @@
         <LoadingSpinner /> <div class="font-headline-small">Applying Cover...</div>
       </div>
     {:else}
-      <GridResults sgdbId={metadata.sgdbId} />
+      <GridResults sgdbId={$changeCoverSearchId!} />
     {/if}
   </div>
   {#snippet buttons()}

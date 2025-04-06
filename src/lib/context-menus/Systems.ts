@@ -1,20 +1,21 @@
+import { SystemController } from "@controllers";
 import type { ContextMenuItem } from "@directives";
 
-export function getSystemMenuItems(systemName: string): ContextMenuItem[] {
+export function getSystemMenuItems(abbreviation: string): ContextMenuItem[] {
   const items: ContextMenuItem[] = [];
 
   items.push({
     text: "Edit",
-    action: () => {}// RomController.edit(romId),
+    action: () => SystemController.edit(abbreviation),
   });
   items.push({
     text: "Change Cover",
-    action: () => {}// RomController.changeCover(romId),
+    action: () => SystemController.changeCover(abbreviation),
   });
 
   items.push({
     text: "Delete",
-    action: () => {}// RomController.delete(romId),
+    action: () => SystemController.delete(abbreviation),
   });
 
   return items;

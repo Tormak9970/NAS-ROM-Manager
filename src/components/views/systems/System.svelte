@@ -11,14 +11,14 @@
   import Cover from "../Cover.svelte";
 
   type Props = {
-    systemName: string;
+    abbreviation: string;
   }
 
-  let { systemName }: Props = $props();
+  let { abbreviation }: Props = $props();
 
-  const system = $derived($systems[systemName]);
+  const system = $derived($systems[abbreviation]);
   const layout = $derived(GRID_LAYOUTS[$libraryGridType]);
-  const menuItems = $derived(getSystemMenuItems(systemName));
+  const menuItems = $derived(getSystemMenuItems(abbreviation));
 </script>
 
 <!-- svelte-ignore a11y_click_events_have_key_events -->
@@ -27,7 +27,7 @@
   class="system"
   style:width="{layout.width - 2}px"
   style:height="{layout.height - 2}px"
-  onclick={() => goToSystem(systemName)}
+  onclick={() => goToSystem(abbreviation)}
   in:fade={{ duration: 200 }}
   use:contextMenu={{ items: menuItems }}
 >
@@ -38,10 +38,10 @@
   {/if}
   <Cover thumbPath={system.thumbPath} />
   <div class="system-tag">
-    <SystemTag system={systemName} />
+    <SystemTag system={abbreviation} />
   </div>
   <div class="rom-count">
-    <Tag backgroundColor="var(--m3-scheme-tertiary-container)">{$romsBySystem[systemName].length}</Tag>
+    <Tag backgroundColor="var(--m3-scheme-tertiary-container)">{$romsBySystem[abbreviation].length}</Tag>
   </div>
 </div>
 

@@ -42,7 +42,9 @@ export const loadingModalMessage = writable("");
 
 export const showChangeCoverModal = writable(false);
 export const changeCoverId = writable<string | null>(null);
+export const changeCoverSearchId = writable<string | null>(null);
 export const selectedNewCoverGrid = writable<SGDBImage | null>(null);
+export const changeCoverOnSelect = writable<(cover: string, thumb: string) => void>(() => {});
 
 export const showSearchSGDBModal = writable(false);
 export const sgdbSearchTitle = writable<string | null>(null);
