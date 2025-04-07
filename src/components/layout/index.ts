@@ -1,3 +1,4 @@
+export { default as Accordion } from "./Accordion.svelte";
 export { default as BottomSheet } from "./BottomSheet.svelte";
 export { default as Card } from "./Card.svelte";
 export { default as CardClickable } from "./CardClickable.svelte";
