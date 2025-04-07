@@ -28,7 +28,7 @@ use crate::websocket::{
   file_picker::get_entries
 };
 
-use super::{metadata::{load_metadata, write_metadata}, parsers::write_parsers, types::args::ParsersArgs};
+use super::{metadata::{load_metadata, write_metadata}, parsers::{delete_parser, write_parsers}, types::args::{DeleteParserArgs, ParsersArgs}};
 
 
 fn handle_message(
@@ -195,6 +195,22 @@ fn handle_message(
       if success {
         (*state).parsers = args.data;
         send(tx, "save_parsers", success);
+      }
+    }
+    "delete_parser" => {
+      let args: DeleteParserArgs = serde_json::from_str(data).unwrap();
+      let valid = check_hash(args.passwordHash, tx.clone());
+      if !valid {
+        return;
+      }
+      
+      let mut state = state_store.lock().expect("Failed to lock State Mutex.");
+      let parser = state.parsers.get(&args.abbreviation).expect("Failed to get parser with provided abbreviation.");
+      let success = delete_parser(parser, send_error);
+
+      if success {
+        (*state).parsers.remove(&args.abbreviation);
+        send(tx, "delete_parser", success);
       }
     }
     "parse_rom" => {

@@ -1,5 +1,6 @@
-import { changeCoverId, changeCoverOnSelect, changeCoverSearchId, showChangeCoverModal } from "@stores/Modals";
-import { systems } from "@stores/State";
+import { WebsocketController } from "@controllers/utils/WebsocketController";
+import { changeCoverId, changeCoverOnSelect, changeCoverSearchId, loadingModalMessage, showChangeCoverModal, showEditSystemModal, showLoadingModal, systemEditingId } from "@stores/Modals";
+import { roms, romsBySystem, systems } from "@stores/State";
 import { get } from "svelte/store";
 import { DialogController } from "./utils/DialogController";
 
@@ -12,8 +13,8 @@ export class SystemController {
    * @param abbreviation The abbreviation of the system.
    */
   static edit(abbreviation: string) {
-    // romEditingId.set(romId);
-    // showEditRomModal.set(true);
+    systemEditingId.set(abbreviation);
+    showEditSystemModal.set(true);
   }
 
   /**
@@ -50,28 +51,29 @@ export class SystemController {
     ).then(async (shouldDelete: boolean) => {
       if (!shouldDelete) return;
 
-      // const romsDict = get(roms);
-      // const rom = romsDict[romId];
+      const systemsDict = get(systems);
     
-      // showLoadingModal.set(true);
-      // loadingModalMessage.set("Deleting ROM...");
-      // const success = await RestController.deleteRom(rom.path);
-      // loadingModalMessage.set("");
-      // showLoadingModal.set(false);
-      // if (!success) return;
+      showLoadingModal.set(true);
+      loadingModalMessage.set("Deleting System...");
+      const success = await WebsocketController.deleteParser(abbreviation);
+      loadingModalMessage.set("");
+      showLoadingModal.set(false);
+      if (!success) return;
 
-      // delete romsDict[romId];
-      // roms.set({ ...romsDict });
+      delete systemsDict[abbreviation];
+      systems.set({ ...systemsDict });
 
-      // const metadataDict = get(romMetadata);
-      // delete metadataDict[romId];
-      // romMetadata.set({ ...metadataDict });
+      const systemsMap = get(romsBySystem);
+      const romsDict = get(roms);
 
-      // const systemsMap = get(romsBySystem);
-      // const system = systemsMap[rom.system];
-      // const romIndex = system.indexOf(romId);
-      // system.splice(romIndex, 1);
-      // romsBySystem.set({ ...systemsMap });
+      for (const id of systemsMap[abbreviation]) {
+        delete romsDict[id];
+      }
+
+      roms.set({ ...romsDict });
+
+      delete systemsMap[abbreviation];
+      romsBySystem.set({ ...systemsMap });
     });
   }
 }

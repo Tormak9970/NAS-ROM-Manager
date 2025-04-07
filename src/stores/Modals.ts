@@ -37,6 +37,9 @@ export const showEditRomModal = writable(false);
 export const editIsPostUpload = writable(false);
 export const romEditingId = writable<string | null>(null);
 
+export const showEditSystemModal = writable(false);
+export const systemEditingId = writable<string | null>(null);
+
 export const showLoadingModal = writable(false);
 export const loadingModalMessage = writable("");
 

@@ -242,6 +242,16 @@ export class WebsocketController {
     const res = await WebsocketController.invoke<boolean>("save_parsers", { data });
     return res.data;
   }
+
+  /**
+   * Deletes the specified parser from the server.
+   * @param abbreviation The abbreviation of the parser to delete.
+   * @returns True if the delete was a success.
+   */
+  static async deleteParser(abbreviation: string): Promise<boolean> {
+    const res = await WebsocketController.invoke<boolean>("delete_parser", { abbreviation });
+    return res.data;
+  }
   
 
   /**

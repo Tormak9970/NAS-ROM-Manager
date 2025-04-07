@@ -63,3 +63,10 @@ pub struct ParsersArgs {
   pub passwordHash: String,
   pub data: HashMap<String, Parser>,
 }
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+#[allow(non_snake_case)]
+pub struct DeleteParserArgs {
+  pub passwordHash: String,
+  pub abbreviation: String,
+}

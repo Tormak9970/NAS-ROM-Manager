@@ -23,11 +23,11 @@ export class AuthController {
       sessionStorage.setItem("user", user);
       username.set(user);
       isSignedIn.set(true);
-      await AppController.load().then(() => {
-        if (window.location.pathname === '/') {
-          goto(`/${get(landingPage)}`);
-        }
-      });
+      await AppController.load();
+
+      if (window.location.pathname === '/') {
+        goto(`/${get(landingPage)}`);
+      }
     }
 
     return success;

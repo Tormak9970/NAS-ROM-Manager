@@ -1,5 +1,5 @@
 use std::{collections::HashMap, env::var, fs::{self, read_dir, File}, path::PathBuf};
-use log::warn;
+use log::{info, warn};
 
 use super::types::{
   library::Parser,
@@ -10,7 +10,7 @@ use super::types::{
 pub fn load_parsers(send_error: &ErrorSender) -> Result<HashMap<String, Parser>, ()> {
   let mut parsers: HashMap<String, Parser> = HashMap::new();
 
-  let parsers_path = var("NRM_PARSERS_DIR").expect("Failed to get builtin default parsers env variable");
+  let parsers_path = var("NRM_PARSERS_DIR").expect("Load Parsers: Failed to get parsers directory env variable");
 
   let entries_res = read_dir(&parsers_path);
   if entries_res.is_err() {
@@ -36,7 +36,7 @@ pub fn load_parsers(send_error: &ErrorSender) -> Result<HashMap<String, Parser>,
     let parser_metadata_res = parser_entry.metadata();
     if parser_metadata_res.is_err() {
       let err = parser_metadata_res.err().unwrap();
-      warn!("Library: Can't read metadata of parser \"{}\": {}", parser_filename, err.to_string());
+      warn!("Load Parsers: Can't read metadata of parser \"{}\": {}", parser_filename, err.to_string());
       continue;
     }
     let parser_metadata = parser_metadata_res.unwrap();
@@ -45,7 +45,7 @@ pub fn load_parsers(send_error: &ErrorSender) -> Result<HashMap<String, Parser>,
       let parser_file_res = File::open(&parser_entry.path());
       if parser_file_res.is_err() {
         let err = parser_file_res.err().unwrap();
-        warn!("Library: Can't read parser \"{}\": {}", parser_filename, err.to_string());
+        warn!("Load Parsers: Can't read parser \"{}\": {}", parser_filename, err.to_string());
         continue;
       }
 
@@ -70,8 +70,9 @@ pub fn load_parsers(send_error: &ErrorSender) -> Result<HashMap<String, Parser>,
   return Ok(parsers);
 }
 
+/// Writes the parsers to the file system.
 pub fn write_parsers(parsers: &HashMap<String, Parser>, send_error: ErrorSender) -> bool {
-  let parsers_path = var("NRM_PARSERS_DIR").expect("Failed to get builtin default parsers env variable");
+  let parsers_path = var("NRM_PARSERS_DIR").expect("Write Parsers: Failed to get parsers directory env variable");
 
   for parser in parsers.clone().into_values() {
     let file_path = PathBuf::from(&parsers_path).join(format!("{}.json", parser.folder));
@@ -92,6 +93,30 @@ pub fn write_parsers(parsers: &HashMap<String, Parser>, send_error: ErrorSender)
       return false;
     }
   }
+
+  return true;
+}
+
+/// Deletes the specified parser.
+pub fn delete_parser(parser: &Parser, send_error: ErrorSender) -> bool {
+  let parsers_path = var("NRM_PARSERS_DIR").expect("Delete Parser: Failed to get parsers directory env variable");
+
+  let file_path = PathBuf::from(&parsers_path).join(format!("{}.json", parser.folder));
+
+  let delete_res = fs::remove_file(file_path);
+  if delete_res.is_err() {
+    let err = delete_res.err().unwrap();
+    
+    send_error(
+      format!("Failed to delete parser {}: {}", parser.abbreviation, err.to_string()),
+      "Please ensure NRM has write access to the parsers directory.".to_string(),
+      crate::websocket::types::BackendErrorType::PANIC
+    );
+
+    return false;
+  }
+
+  info!("Delete Parser: Successfully deleted parser {}.", parser.abbreviation);
 
   return true;
 }
