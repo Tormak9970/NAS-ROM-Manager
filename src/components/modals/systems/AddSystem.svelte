@@ -3,7 +3,9 @@
   import { DatabaseSearch } from "@icons";
   import { Button, TextField } from "@interactables";
   import { igdbSearchPlatformOnSelect, igdbSearchPlatformTitle, showAddSystemModal, showSearchIGDBPlatformModal } from "@stores/Modals";
-  import type { IGDBMetadataPlatform, ParserPattern, SystemTagConfig } from "@types";
+  import type { IGDBMetadataPlatform, ParserPattern } from "@types";
+  import type { RgbaColor } from "svelte-awesome-color-picker";
+  import TagColorInput from "./TagColorInput.svelte";
 
   let open = $state(true);
 
@@ -11,10 +13,16 @@
   let igdbId = $state("");
   let abbreviation = $state("");
   let folder = $state("");
-  let tagConfig = $state<SystemTagConfig | null>(null);
+  let tagColor = $state<RgbaColor>({
+    r: 228,
+    g: 0,
+    b: 15,
+    a: 1
+  });
+  const tagConfigColor = $derived(`${tagColor.r} ${tagColor.g} ${tagColor.b}`);
   let patterns = $state<ParserPattern[]>([]);
 
-  const canSave = $derived(!!title && !!igdbId && !!abbreviation && !!folder && !!tagConfig && patterns.length > 0);
+  const canSave = $derived(!!title && !!igdbId && !!abbreviation && !!folder && patterns.length > 0);
 
   /**
    * Function to run on confirmation.
@@ -27,7 +35,10 @@
       abbreviation: abbreviation,
       igdbPlatformId: igdbId,
       folder: folder,
-      tagConfig: tagConfig,
+      tagConfig: {
+        backgroundColor: tagConfigColor,
+        borderColor: tagConfigColor,
+      },
       patterns: patterns,
     }
 
@@ -80,9 +91,19 @@
       name="Folder"
       bind:value={folder}
     />
-    <!-- TODO: message with link to emudeck wiki -->
-    <!-- TODO: tag config. Check delta with existing -->
+    <div class="footnote">
+      Using the folder name listed on the <a href="https://emudeck.github.io/cheat-sheet/" target="_blank" rel="noreferrer noopenner">EmuDeck Wiki</a> is strongly recommended.
+    </div>
+    <TagColorInput bind:tagColor={tagColor} />
     <!-- TODO: parser patterns -->
+    <!-- <TextField
+      name="Glob Pattern"
+      bind:value={folder}
+    />
+    <div class="footnote">
+      An outline of the glob syntax can be found <a href="https://github.com/olson-sean-k/wax?tab=readme-ov-file#patterns" target="_blank" rel="noreferrer noopenner">here</a>.
+      For examples, take a look at the <a href="https://github.com/Tormak9970/NAS-ROM-Manager/tree/main/parsers" target="_blank" rel="noreferrer noopenner">default parsers</a>.
+    </div> -->
   </div>
   {#snippet buttons()}
     <div>
@@ -99,6 +120,12 @@
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
+  }
+
+  .color-picker-label {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
   }
 
   label {

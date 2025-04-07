@@ -1,12 +1,13 @@
 <script lang="ts">
-	import ColorPicker from 'svelte-awesome-color-picker';
+	import ColorPicker, { type RgbaColor } from 'svelte-awesome-color-picker';
 	import Input from './Input.svelte';
 	import TextInput from './TextInput.svelte';
 	import Wrapper from './Wrapper.svelte';
 
   let {
     hex = $bindable(),
-  }: { hex: string; } = $props();
+    rgb = $bindable(),
+  }: { hex?: string; rgb?: RgbaColor } = $props();
 </script>
 
 <div class="wrapper">
@@ -18,6 +19,7 @@
     }}
     label=""
     bind:hex={hex}
+    bind:rgb={rgb}
     isAlpha={false}
   />
 </div>
