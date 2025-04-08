@@ -23,15 +23,35 @@
   const tagConfigColor = $derived(`${tagColor.r} ${tagColor.g} ${tagColor.b}`);
   let patterns = $state<ParserPattern[]>([
     {
-      glob: "",
-      regex: "",
+      glob: "*.(?i){nsp,xci,nca}",
+      regex: ".+\\/(?<title>.+)\\.(?:nsp|xci|nca)$",
       downloadStrategy: {
         type: "single-file"
       }
     }
   ]);
 
-  const canSave = $derived(!!title && !!igdbId && !!abbreviation && !!folder && patterns.length > 0);
+  function isValidPattern(pattern: ParserPattern): boolean {
+    let isValidRegex = true;
+    try {
+      new RegExp(pattern.regex);
+    } catch(e) {
+      isValidRegex = false;
+    }
+
+    let isValidGlob = true;
+
+    return pattern.glob !== "" && pattern.regex !== "" && isValidRegex && isValidGlob;
+  }
+
+  const canSave = $derived(
+    !!title &&
+    !!igdbId &&
+    !!abbreviation &&
+    !!folder &&
+    patterns.length > 0 &&
+    patterns.every(isValidPattern)
+  );
 
   /**
    * Function to run on confirmation.
