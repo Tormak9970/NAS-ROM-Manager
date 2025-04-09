@@ -1,6 +1,8 @@
 import { WebsocketController } from "@controllers/utils/WebsocketController";
 import { changeCoverId, changeCoverOnSelect, changeCoverSearchId, loadingModalMessage, showChangeCoverModal, showEditSystemModal, showLoadingModal, systemEditingId } from "@stores/Modals";
 import { roms, romsBySystem, systems } from "@stores/State";
+import type { ParserPattern } from "@types";
+import { isValidRegex } from "@utils";
 import { get } from "svelte/store";
 import { DialogController } from "./utils/DialogController";
 
@@ -75,5 +77,18 @@ export class SystemController {
       delete systemsMap[abbreviation];
       romsBySystem.set({ ...systemsMap });
     });
+  }
+  
+  /**
+   * Checks if a ParserPattern is valid.
+   * @param pattern The pattern to check.
+   * @returns True if the pattern is valid.
+   */
+  static async validateParserParser(pattern: ParserPattern): Promise<boolean> {
+    return pattern.glob !== "" &&
+      pattern.regex !== "" &&
+      (pattern.downloadStrategy.type === "single-file" || pattern.downloadStrategy.parent !== "") &&
+      isValidRegex(pattern.regex) &&
+      await WebsocketController.isValidGlob(pattern.glob);
   }
 }

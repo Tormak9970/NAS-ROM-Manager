@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Button } from "@interactables";
   import type { ParserPattern } from "@types";
   import Parser from "./Parser.svelte";
 
@@ -9,6 +10,12 @@
   let {
     patterns = $bindable()
   }: Props = $props();
+
+  let canAdd = $state(false);
+
+  function addEmptyParser() {
+    
+  }
 </script>
 
 <div class="patterns-input">
@@ -18,6 +25,7 @@
     {/each}
   </div>
   <!-- TODO: add button -->
+  <Button type="tonal" onclick={addEmptyParser} disabled={!canAdd}>Create</Button>
 </div>
 
 <style>
