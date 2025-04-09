@@ -4,11 +4,14 @@
   import { DatabaseSearch } from "@icons";
   import { Button, TextField } from "@interactables";
   import { igdbSearchPlatformOnSelect, igdbSearchPlatformTitle, showAddSystemModal, showSearchIGDBPlatformModal } from "@stores/Modals";
+  import { systems } from "@stores/State";
   import type { IGDBMetadataPlatform, ParserPattern } from "@types";
   import { asyncEvery, isValidRegex } from "@utils";
   import type { RgbaColor } from "svelte-awesome-color-picker";
   import TagColorInput from "./TagColorInput.svelte";
   import PatternsInput from "./parser-patterns/PatternsInput.svelte";
+
+  let systemsList = Object.values($systems);
 
   let open = $state(true);
 
@@ -36,6 +39,7 @@
   async function isValidPattern(pattern: ParserPattern): Promise<boolean> {
     return pattern.glob !== "" &&
       pattern.regex !== "" &&
+      (pattern.downloadStrategy.type === "single-file" || pattern.downloadStrategy.parent !== "") &&
       isValidRegex(pattern.regex) &&
       await WebsocketController.isValidGlob(pattern.glob);
   }
@@ -44,6 +48,7 @@
 
   $effect(() => {
     const syncronousChecks = !!title &&
+      !systemsList.some((system) => system.name === title) &&
       !!igdbId &&
       !!abbreviation &&
       !!folder &&
@@ -104,6 +109,7 @@
   <div class="content">
     <TextField
       name="Name"
+      validate={async (value: string) => !systemsList.some((system) => system.name === value)}
       bind:value={title}
       trailingIcon={DatabaseSearch}
       ontrailingClick={openIGDBSearch}
