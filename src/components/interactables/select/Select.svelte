@@ -74,7 +74,6 @@
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
-  class="container"
   onclick={stopPropagation()}
   onmousedown={stopPropagation()}
   style:--md-menu-container-color="rgb(var(--m3-scheme-surface-container))"

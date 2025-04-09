@@ -71,8 +71,8 @@
     background-color: rgb(var(--m3-scheme-on-surface) / 0.08);
   }
 
-	.accordion :global(svg) { transition: transform 0.2s ease-in; margin-right: 3px; }
-	.accordion[aria-expanded=true] :global(svg) { transform: rotate(0.25turn); }
+	.accordion .header :global(svg) { transition: transform 0.2s ease-in; margin-right: 3px; }
+	.accordion[aria-expanded=true] .header :global(svg) { transform: rotate(0.25turn); }
 
   .accordion {
     --m3-util-background: var(--m3-scheme-surface-container-highest);
