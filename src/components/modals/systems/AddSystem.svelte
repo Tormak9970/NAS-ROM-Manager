@@ -1,6 +1,7 @@
 <script lang="ts">
   import { ModalBody } from "@component-utils";
   import { WebsocketController } from "@controllers";
+  import { scrollShadow } from "@directives";
   import { DatabaseSearch } from "@icons";
   import { Button, TextField } from "@interactables";
   import { igdbSearchPlatformOnSelect, igdbSearchPlatformTitle, showAddSystemModal, showSearchIGDBPlatformModal } from "@stores/Modals";
@@ -107,31 +108,34 @@
   oncloseend={() => { $showAddSystemModal = false }}
 >
   <div class="content">
-    <TextField
-      name="Name"
-      validate={async (value: string) => !systemsList.some((system) => system.name === value)}
-      bind:value={title}
-      trailingIcon={DatabaseSearch}
-      ontrailingClick={openIGDBSearch}
-    />
-    <!-- TODO: error if there is a platform with this name already -->
-    <TextField
-      name="IGDB Id"
-      bind:value={igdbId}
-    />
-    <TextField
-      name="Abbreviation"
-      bind:value={abbreviation}
-    />
-    <TextField
-      name="Folder"
-      bind:value={folder}
-    />
-    <div class="footnote">
-      Using the folder name listed on the <a href="https://emudeck.github.io/cheat-sheet/" target="_blank" rel="noreferrer noopenner">EmuDeck Wiki</a> is strongly recommended.
+    <div class="scroll-container" use:scrollShadow={{ background: "--m3-scheme-surface-container" }}>
+      <div class="fields">
+        <TextField
+          name="Name"
+          validate={async (value: string) => !systemsList.some((system) => system.name === value)}
+          bind:value={title}
+          trailingIcon={DatabaseSearch}
+          ontrailingClick={openIGDBSearch}
+        />
+        <TextField
+          name="IGDB Id"
+          bind:value={igdbId}
+        />
+        <TextField
+          name="Abbreviation"
+          bind:value={abbreviation}
+        />
+        <TextField
+          name="Folder"
+          bind:value={folder}
+        />
+        <div class="footnote">
+          Using the folder name listed on the <a href="https://emudeck.github.io/cheat-sheet/" target="_blank" rel="noreferrer noopenner">EmuDeck Wiki</a> is strongly recommended.
+        </div>
+        <TagColorInput bind:tagColor={tagColor} />
+        <PatternsInput bind:patterns={patterns} />
+      </div>
     </div>
-    <TagColorInput bind:tagColor={tagColor} />
-    <PatternsInput bind:patterns={patterns} />
   </div>
   {#snippet buttons()}
     <div>
@@ -143,6 +147,19 @@
 
 <style>
   .content {
+    width: 100%;
+    height: 100%;
+  }
+
+  .scroll-container {
+    height: 100%;
+    width: 100%;
+
+    overflow-y: scroll;
+    overflow-x: hidden;
+  }
+
+  .fields {
     width: 100%;
 
     display: flex;

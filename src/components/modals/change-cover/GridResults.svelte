@@ -84,6 +84,14 @@
 </div>
 
 <style>
+  .scroll-container {
+    height: 100%;
+    width: 100%;
+
+    overflow-y: scroll;
+    overflow-x: hidden;
+  }
+
   .game-grid {
     width: 100%;
 
@@ -98,14 +106,6 @@
     grid-auto-rows: var(--img-height);
 
     justify-content: center;
-  }
-  
-  .scroll-container {
-    height: 100%;
-    width: 100%;
-
-    overflow-y: scroll;
-    overflow-x: hidden;
   }
 
   .message {

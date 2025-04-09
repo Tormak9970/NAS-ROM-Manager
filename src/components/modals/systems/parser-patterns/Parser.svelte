@@ -1,18 +1,22 @@
 <script lang="ts">
-  import { WebsocketController } from "@controllers";
-  import { Select, TextField } from "@interactables";
-  import { Accordion } from "@layout";
-  import type { ParserPattern } from "@types";
-  import { isValidRegex } from "@utils";
+    import { Icon } from "@component-utils";
+    import { WebsocketController } from "@controllers";
+    import { Close } from "@icons";
+    import { Button, Select, TextField } from "@interactables";
+    import { Accordion } from "@layout";
+    import type { ParserPattern } from "@types";
+    import { isValidRegex } from "@utils";
 
   type Props = {
     label: string;
     pattern: ParserPattern;
+    onDelete: () => void;
   }
 
   let {
     label,
-    pattern = $bindable()
+    pattern = $bindable(),
+    onDelete,
   }: Props = $props();
 
   let options: SelectItem[] = [
@@ -35,6 +39,11 @@
 </script>
 
 <Accordion label={label}>
+  {#snippet header()}
+    <Button type="tonal" warning iconType="full" size="2rem" iconSize="1.25rem" onclick={onDelete}>
+      <Icon icon={Close} />
+    </Button>
+  {/snippet}
   <div class="pattern">
     <TextField
       name="Glob"

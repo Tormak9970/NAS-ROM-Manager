@@ -10,12 +10,14 @@
     label: string;
     open?: boolean;
     children: Snippet;
+    header?: Snippet;
   }
 
   let {
     label,
     open = false,
-    children
+    children,
+    header
   }: Props = $props();
 
 	let isOpen = $state(open);
@@ -26,8 +28,11 @@
 <div class="accordion" aria-expanded={isOpen}>
   <Card type="filled" extraOptions={{ style: "width: 100%;" }}>
     <button class="header m3-font-title-medium" onclick={toggle}>
-      <Icon icon={ChevronRight} width="1.25rem" height="1.25rem" />
-      {label}
+      <div class="left">
+        <Icon icon={ChevronRight} width="1.25rem" height="1.25rem" />
+        {label}
+      </div>
+      {@render header?.()}
     </button>
     {#if isOpen}
       <!-- svelte-ignore a11y_click_events_have_key_events -->
@@ -51,6 +56,7 @@
 
   .header {
     display: flex;
+    justify-content: space-between;
     align-items: center;
 
     padding: 1rem;
@@ -66,13 +72,18 @@
     transition: background-color 0.2s ease-out;
   }
 
+  .left {
+    display: flex;
+    align-items: center;
+  }
+
   .header:hover {
     cursor: pointer;
     background-color: rgb(var(--m3-scheme-on-surface) / 0.08);
   }
 
-	.accordion .header :global(svg) { transition: transform 0.2s ease-in; margin-right: 3px; }
-	.accordion[aria-expanded=true] .header :global(svg) { transform: rotate(0.25turn); }
+	.accordion .header .left :global(svg) { transition: transform 0.2s ease-in; margin-right: 3px; }
+	.accordion[aria-expanded=true] .header .left :global(svg) { transform: rotate(0.25turn); }
 
   .accordion {
     --m3-util-background: var(--m3-scheme-surface-container-highest);

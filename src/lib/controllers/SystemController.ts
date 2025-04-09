@@ -84,7 +84,7 @@ export class SystemController {
    * @param pattern The pattern to check.
    * @returns True if the pattern is valid.
    */
-  static async validateParserParser(pattern: ParserPattern): Promise<boolean> {
+  static async validateParserPattern(pattern: ParserPattern): Promise<boolean> {
     return pattern.glob !== "" &&
       pattern.regex !== "" &&
       (pattern.downloadStrategy.type === "single-file" || pattern.downloadStrategy.parent !== "") &&
