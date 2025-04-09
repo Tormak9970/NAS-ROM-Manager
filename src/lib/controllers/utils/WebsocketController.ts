@@ -311,4 +311,14 @@ export class WebsocketController {
     const res = await WebsocketController.invoke<AvailableStorage>("available_storage", {});
     return res.data;
   }
+
+  /**
+   * Checks if a string is a valid WAX glob.
+   * @param glob The glob to check.
+   * @returns True if the glob is valid.
+   */
+  static async isValidGlob(glob: string): Promise<boolean> {
+    const res = await WebsocketController.invoke<boolean>("is_valid_glob", { glob });
+    return res.data;
+  }
 }

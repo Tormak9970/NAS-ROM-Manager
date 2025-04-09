@@ -70,3 +70,10 @@ pub struct DeleteParserArgs {
   pub passwordHash: String,
   pub abbreviation: String,
 }
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+#[allow(non_snake_case)]
+pub struct GlobArgs {
+  pub passwordHash: String,
+  pub glob: String,
+}

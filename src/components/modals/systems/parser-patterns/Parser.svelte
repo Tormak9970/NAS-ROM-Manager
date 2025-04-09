@@ -1,7 +1,9 @@
 <script lang="ts">
+  import { WebsocketController } from "@controllers";
   import { TextField } from "@interactables";
   import { Accordion } from "@layout";
   import type { ParserPattern } from "@types";
+  import { isValidRegex } from "@utils";
 
   type Props = {
     label: string;
@@ -18,6 +20,8 @@
   <div class="pattern">
     <TextField
       name="Glob"
+      extraWrapperOptions={{ style: "width: 100%" }}
+      validate={WebsocketController.isValidGlob}
       bind:value={pattern.glob}
     />
     <div class="footnote">
@@ -25,6 +29,8 @@
     </div>
     <TextField
       name="Regex"
+      extraWrapperOptions={{ style: "width: 100%" }}
+      validate={async (regex: string) => isValidRegex(regex)}
       bind:value={pattern.regex}
     />
     <div class="footnote">
@@ -40,10 +46,10 @@
 
 <style>
   .footnote {
-    margin-bottom: 0.25rem;
+    margin-bottom: 1rem;
   }
 
   .examples {
-    margin-top: 1rem;
+    margin-top: 0.25rem;
   }
 </style>

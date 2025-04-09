@@ -173,6 +173,20 @@ export function filterGrids(allGrids: SGDBImage[], filters: DBFilter): SGDBImage
   });
 }
 
+/**
+ * Checks if all values in an array match a predicate.
+ * @param array The array to check.
+ * @param predicate The predicate to check values with.
+ * @returns True if all values in the array match the predicate, false otherwise.
+ */
+export async function asyncEvery<T>(array: T[], predicate: (value: T) => Promise<boolean>): Promise<boolean> {
+	for (let element of array) {
+		if (!await predicate(element)) return false;
+	}
+
+	return true;
+};
+
 export function preventDefault(handler?: (e: any) => any) {
   return function (event: Event) {
     event.preventDefault();

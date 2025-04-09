@@ -1,5 +1,6 @@
 use futures_util::{SinkExt, StreamExt};
 use warp::filters::ws::{Message, WebSocket};
+use wax::Glob;
 use std::sync::{Arc, Mutex};
 use tokio::sync::broadcast;
 use sysinfo::{DiskRefreshKind, Disks};
@@ -28,7 +29,7 @@ use crate::websocket::{
   file_picker::get_entries
 };
 
-use super::{metadata::{load_metadata, write_metadata}, parsers::{delete_parser, write_parsers}, types::args::{DeleteParserArgs, ParsersArgs}};
+use super::{metadata::{load_metadata, write_metadata}, parsers::{delete_parser, write_parsers}, types::args::{DeleteParserArgs, GlobArgs, ParsersArgs}};
 
 
 fn handle_message(
@@ -276,6 +277,17 @@ fn handle_message(
       };
 
       send(tx, "available_storage", info);
+    }
+    "is_valid_glob" => {
+      let args: GlobArgs = serde_json::from_str(data).unwrap();
+      let valid = check_hash(args.passwordHash, tx.clone());
+      if !valid {
+        return;
+      }
+
+      let glob_res = Glob::new(&args.glob);
+
+      send(tx, "is_valid_glob", glob_res.is_ok());
     }
     "demo" => {
       let args: SimpleArgs = serde_json::from_str(data).unwrap();

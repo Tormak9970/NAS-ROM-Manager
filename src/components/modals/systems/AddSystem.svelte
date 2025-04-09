@@ -1,9 +1,11 @@
 <script lang="ts">
   import { ModalBody } from "@component-utils";
+  import { WebsocketController } from "@controllers";
   import { DatabaseSearch } from "@icons";
   import { Button, TextField } from "@interactables";
   import { igdbSearchPlatformOnSelect, igdbSearchPlatformTitle, showAddSystemModal, showSearchIGDBPlatformModal } from "@stores/Modals";
   import type { IGDBMetadataPlatform, ParserPattern } from "@types";
+  import { asyncEvery, isValidRegex } from "@utils";
   import type { RgbaColor } from "svelte-awesome-color-picker";
   import TagColorInput from "./TagColorInput.svelte";
   import PatternsInput from "./parser-patterns/PatternsInput.svelte";
@@ -31,27 +33,26 @@
     }
   ]);
 
-  function isValidPattern(pattern: ParserPattern): boolean {
-    let isValidRegex = true;
-    try {
-      new RegExp(pattern.regex);
-    } catch(e) {
-      isValidRegex = false;
-    }
-
-    let isValidGlob = true;
-
-    return pattern.glob !== "" && pattern.regex !== "" && isValidRegex && isValidGlob;
+  async function isValidPattern(pattern: ParserPattern): Promise<boolean> {
+    return pattern.glob !== "" &&
+      pattern.regex !== "" &&
+      isValidRegex(pattern.regex) &&
+      await WebsocketController.isValidGlob(pattern.glob);
   }
 
-  const canSave = $derived(
-    !!title &&
-    !!igdbId &&
-    !!abbreviation &&
-    !!folder &&
-    patterns.length > 0 &&
-    patterns.every(isValidPattern)
-  );
+  let canSave = $state(false);
+
+  $effect(() => {
+    const syncronousChecks = !!title &&
+      !!igdbId &&
+      !!abbreviation &&
+      !!folder &&
+      patterns.length > 0;
+
+    asyncEvery(patterns, isValidPattern).then((isPatternsValid: boolean) => {
+      canSave = syncronousChecks && isPatternsValid;
+    });
+  });
 
   /**
    * Function to run on confirmation.

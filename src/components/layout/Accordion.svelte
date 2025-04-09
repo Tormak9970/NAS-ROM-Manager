@@ -1,7 +1,7 @@
 <script lang="ts">
     import { Icon } from "@component-utils";
     import { ChevronRight } from "@icons";
-    import { CardClickable } from "@layout";
+    import { Card } from "@layout";
     import { stopImmediatePropagation } from "@utils";
     import type { Snippet } from "svelte";
     import { slide } from "svelte/transition";
@@ -24,19 +24,19 @@
 </script>
 
 <div class="accordion" aria-expanded={isOpen}>
-  <CardClickable type="filled" onclick={toggle} extraOptions={{ style: "width: 100%;" }}>
-    <div class="label m3-font-title-medium">
+  <Card type="filled" extraOptions={{ style: "width: 100%;" }}>
+    <button class="header m3-font-title-medium" onclick={toggle}>
       <Icon icon={ChevronRight} width="1.25rem" height="1.25rem" />
       {label}
-    </div>
+    </button>
     {#if isOpen}
       <!-- svelte-ignore a11y_click_events_have_key_events -->
       <!-- svelte-ignore a11y_no_static_element_interactions -->
-      <div class="content" onclick={stopImmediatePropagation()} transition:slide={{ duration: 300 }}>
+      <div class="drawer" onclick={stopImmediatePropagation()} transition:slide={{ duration: 300 }}>
         {@render children()}
       </div>
     {/if}
-  </CardClickable>
+  </Card>
 </div>
 
 <style>
@@ -44,14 +44,31 @@
     width: 100%;
   }
 
-  .content {
+  .drawer {
     padding: 0px 6px;
-    padding-top: 1rem;
+    padding-top: 2rem;
   }
 
-  .label {
+  .header {
     display: flex;
     align-items: center;
+
+    padding: 1rem;
+
+    margin: -1rem;
+
+    color: rgb(var(--m3-scheme-on-surface));
+    background-color: rgb(var(--m3-scheme-surface-container-highest));
+
+    border: none;
+    outline: none;
+
+    transition: background-color 0.2s ease-out;
+  }
+
+  .header:hover {
+    cursor: pointer;
+    background-color: rgb(var(--m3-scheme-on-surface) / 0.08);
   }
 
 	.accordion :global(svg) { transition: transform 0.2s ease-in; margin-right: 3px; }

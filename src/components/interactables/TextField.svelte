@@ -9,7 +9,7 @@
     name: string;
     leadingIcon?: IconifyIcon | undefined;
     trailingIcon?: IconifyIcon | undefined;
-    validate?: (value: string) => boolean;
+    validate?: (value: string) => Promise<boolean>;
     disabled?: boolean;
     required?: boolean;
     readonly?: boolean;
@@ -25,7 +25,7 @@
     name,
     leadingIcon = undefined,
     trailingIcon = undefined,
-    validate = (value: string) => { return true; },
+    validate = async (value: string) => { return true; },
     disabled = false,
     required = false,
     readonly = false,
@@ -37,7 +37,11 @@
   
   const id = crypto.randomUUID();
   
-  const error = $derived(!validate(value));
+  let error = $state(false);
+
+  $effect(() => {
+    validate(value).then((isValid) => error = !isValid);
+  });
 </script>
 
 <div

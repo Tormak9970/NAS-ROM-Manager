@@ -41,3 +41,19 @@ export function isValidLinuxPath(path: string): boolean {
   const match = path.match(/^(\/(?:[a-zA-Z0-9_-]+)(?:\/[a-zA-Z0-9_-]+)*)?$/);
   return !!match && match.length > 0;
 }
+
+/**
+ * Checks if a string is a valid regex.
+ * @param regex The regex to check.
+ * @returns True if the regex is valid.
+ */
+export function isValidRegex(regex: string): boolean {
+  let valid = true;
+  try {
+    new RegExp(regex);
+  } catch(e) {
+    valid = false;
+  }
+
+  return valid;
+}
