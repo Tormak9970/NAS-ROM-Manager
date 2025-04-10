@@ -1,13 +1,13 @@
 <script lang="ts">
   import { ModalBody } from "@component-utils";
-  import { WebsocketController } from "@controllers";
+  import { SystemController } from "@controllers";
   import { scrollShadow } from "@directives";
   import { DatabaseSearch } from "@icons";
   import { Button, TextField } from "@interactables";
   import { igdbSearchPlatformOnSelect, igdbSearchPlatformTitle, showAddSystemModal, showSearchIGDBPlatformModal } from "@stores/Modals";
   import { systems } from "@stores/State";
-  import type { IGDBMetadataPlatform, ParserPattern } from "@types";
-  import { asyncEvery, isValidRegex } from "@utils";
+  import type { IGDBMetadataPlatform, ParserPattern, System } from "@types";
+  import { asyncEvery } from "@utils";
   import type { RgbaColor } from "svelte-awesome-color-picker";
   import TagColorInput from "./TagColorInput.svelte";
   import PatternsInput from "./parser-patterns/PatternsInput.svelte";
@@ -16,7 +16,7 @@
 
   let open = $state(true);
 
-  let title = $state("");
+  let systemName = $state("");
   let igdbId = $state("");
   let abbreviation = $state("");
   let folder = $state("");
@@ -37,25 +37,17 @@
     }
   ]);
 
-  async function isValidPattern(pattern: ParserPattern): Promise<boolean> {
-    return pattern.glob !== "" &&
-      pattern.regex !== "" &&
-      (pattern.downloadStrategy.type === "single-file" || pattern.downloadStrategy.parent !== "") &&
-      isValidRegex(pattern.regex) &&
-      await WebsocketController.isValidGlob(pattern.glob);
-  }
-
   let canSave = $state(false);
 
   $effect(() => {
-    const syncronousChecks = !!title &&
-      !systemsList.some((system) => system.name === title) &&
+    const syncronousChecks = !!systemName &&
+      !systemsList.some((system) => system.name === systemName) &&
       !!igdbId &&
       !!abbreviation &&
       !!folder &&
       patterns.length > 0;
 
-    asyncEvery(patterns, isValidPattern).then((isPatternsValid: boolean) => {
+    asyncEvery(patterns, SystemController.validateParserPattern).then((isPatternsValid: boolean) => {
       canSave = syncronousChecks && isPatternsValid;
     });
   });
@@ -66,11 +58,14 @@
   async function onSave(): Promise<void> {
     open = false;
 
-    const newParser = {
-      name: title,
+    const newParser: System = {
+      name: systemName,
       abbreviation: abbreviation,
-      igdbPlatformId: igdbId,
       folder: folder,
+      igdbPlatformId: igdbId,
+      sgdbId: "",
+      coverPath: "",
+      thumbPath: "",
       tagConfig: {
         backgroundColor: tagConfigColor,
         borderColor: tagConfigColor,
@@ -78,7 +73,8 @@
       patterns: patterns,
     }
 
-    // TODO: save to backend
+    $systems[abbreviation] = newParser;
+    $systems = { ...$systems };
   }
 
   /**
@@ -89,10 +85,10 @@
   }
   
   function openIGDBSearch() {
-    $igdbSearchPlatformTitle = title;
+    $igdbSearchPlatformTitle = systemName;
     $igdbSearchPlatformOnSelect = (platform: IGDBMetadataPlatform | null) => {
       if (platform) {
-        title = platform.name;
+        systemName = platform.name;
         igdbId = platform.igdbId;
         abbreviation = platform.abbreviation;
       }
@@ -104,7 +100,6 @@
 <ModalBody
   headline="Add System"
   open={open}
-  canClose={false} 
   oncloseend={() => { $showAddSystemModal = false }}
 >
   <div class="content">
@@ -113,7 +108,7 @@
         <TextField
           name="Name"
           validate={async (value: string) => !systemsList.some((system) => system.name === value)}
-          bind:value={title}
+          bind:value={systemName}
           trailingIcon={DatabaseSearch}
           ontrailingClick={openIGDBSearch}
         />
@@ -161,6 +156,8 @@
 
   .fields {
     width: 100%;
+    
+    margin-top: 0.5rem;
 
     display: flex;
     flex-direction: column;
