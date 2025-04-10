@@ -1,10 +1,10 @@
 use std::{collections::HashMap, env::var, fs::{self, read_dir, File}, path::PathBuf};
 use log::{info, warn};
 
-use super::types::{
-  library::Parser,
+use super::{types::{
+  library::{Library, Parser},
   ErrorSender
-};
+}, watcher::Watcher};
 
 /// Loads a library's parsers.
 pub fn load_parsers(send_error: &ErrorSender) -> Result<HashMap<String, Parser>, ()> {
@@ -71,7 +71,7 @@ pub fn load_parsers(send_error: &ErrorSender) -> Result<HashMap<String, Parser>,
 }
 
 /// Writes the parsers to the file system.
-pub fn write_parsers(parsers: &HashMap<String, Parser>, send_error: ErrorSender) -> bool {
+pub fn write_parsers(parsers: &HashMap<String, Parser>, library: &Library, watcher: &Watcher, send_error: ErrorSender) -> bool {
   let parsers_path = var("NRM_PARSERS_DIR").expect("Write Parsers: Failed to get parsers directory env variable");
 
   for parser in parsers.clone().into_values() {
@@ -79,6 +79,8 @@ pub fn write_parsers(parsers: &HashMap<String, Parser>, send_error: ErrorSender)
 
     let parser_str = serde_json::to_string_pretty(&parser)
       .expect(format!("Parser {} was malformatted.", parser.abbreviation).as_str());
+
+    let should_watch_path = !fs::exists(&file_path).unwrap_or(false);
 
     let write_res = fs::write(file_path, &parser_str);
     if write_res.is_err() {
@@ -92,16 +94,35 @@ pub fn write_parsers(parsers: &HashMap<String, Parser>, send_error: ErrorSender)
   
       return false;
     }
+
+    if should_watch_path {
+      let system_rom_folder = PathBuf::from(library.romDir.clone()).join(parser.folder);
+
+      let create_res = fs::create_dir_all(&system_rom_folder);
+      if create_res.is_err() {
+        let err = write_res.err().unwrap();
+      
+        send_error(
+          format!("Failed to create folder for parser {}: {}", parser.abbreviation, err.to_string()),
+          "Please ensure NRM has write access to the library directory.".to_string(),
+          crate::websocket::types::BackendErrorType::PANIC
+        );
+
+        continue;
+      }
+
+      watcher.watch_path(system_rom_folder);
+    }
   }
 
   return true;
 }
 
 /// Deletes the specified parser.
-pub fn delete_parser(parser: &Parser, send_error: ErrorSender) -> bool {
+pub fn delete_parser(parser: &Parser, library: &Library, watcher: &Watcher, send_error: ErrorSender) -> bool {
   let parsers_path = var("NRM_PARSERS_DIR").expect("Delete Parser: Failed to get parsers directory env variable");
 
-  let file_path = PathBuf::from(&parsers_path).join(format!("{}.json", parser.folder));
+  let file_path = PathBuf::from(&parsers_path).join(format!("{}.json", &parser.folder));
 
   let delete_res = fs::remove_file(file_path);
   if delete_res.is_err() {
@@ -117,6 +138,11 @@ pub fn delete_parser(parser: &Parser, send_error: ErrorSender) -> bool {
   }
 
   info!("Delete Parser: Successfully deleted parser {}.", parser.abbreviation);
+  
+  let system_rom_folder = PathBuf::from(library.romDir.clone()).join(parser.folder.clone());
+  watcher.unwatch_path(system_rom_folder);
+  
+  info!("Delete Parser: Successfully unwatched system folder {}.", parser.folder);
 
   return true;
 }

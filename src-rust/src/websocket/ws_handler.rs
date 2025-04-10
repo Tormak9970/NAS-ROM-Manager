@@ -191,7 +191,8 @@ fn handle_message(
       }
       
       let mut state = state_store.lock().expect("Failed to lock State Mutex.");
-      let success = write_parsers(&args.data, send_error);
+      let state_watcher = watcher.lock().expect("Failed to lock Watcher Mutex.");
+      let success = write_parsers(&args.data, &state.library, &state_watcher, send_error);
 
       if success {
         (*state).parsers = args.data;
@@ -206,8 +207,9 @@ fn handle_message(
       }
       
       let mut state = state_store.lock().expect("Failed to lock State Mutex.");
+      let state_watcher = watcher.lock().expect("Failed to lock Watcher Mutex.");
       let parser = state.parsers.get(&args.abbreviation).expect("Failed to get parser with provided abbreviation.");
-      let success = delete_parser(parser, send_error);
+      let success = delete_parser(parser, &state.library, &state_watcher, send_error);
 
       if success {
         (*state).parsers.remove(&args.abbreviation);
