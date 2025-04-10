@@ -1,10 +1,38 @@
 use std::{collections::HashMap, env::var, fs::{self, read_dir, File}, path::PathBuf};
 use log::{info, warn};
+use wax::Glob;
 
 use super::{types::{
   library::{Library, Parser},
   ErrorSender
 }, watcher::Watcher};
+
+fn validate_parser(parser: &Parser) -> bool {
+  // TODO: validate tag colors are numbers
+
+  for pattern in parser.patterns.clone() {
+    let glob_res = Glob::new(&pattern.glob);
+
+    if glob_res.is_err() {
+      let err = glob_res.err().unwrap();
+      warn!("Validate Parser: Pattern {}'s glob pattern is invalid: {}", &parser.abbreviation, err);
+
+      return false;
+    }
+
+    // TODO: test regex
+    // let regex_res = 
+    
+    // if glob_res.is_err() {
+    //   let err = glob_res.err().unwrap();
+    //   warn!("Validate Parser: Pattern {}'s glob pattern is invalid: {}", &parser.abbreviation, err);
+
+    //   return false;
+    // }
+  }
+
+  return true;
+}
 
 /// Loads a library's parsers.
 pub fn load_parsers(send_error: &ErrorSender) -> Result<HashMap<String, Parser>, ()> {
@@ -63,7 +91,11 @@ pub fn load_parsers(send_error: &ErrorSender) -> Result<HashMap<String, Parser>,
       
       let parser: Parser = parser_res.unwrap();
 
-      parsers.insert(parser.abbreviation.clone(), parser);
+      if validate_parser(&parser) {
+        parsers.insert(parser.abbreviation.clone(), parser);
+      } else {
+        warn!("Load Parsers: {} failed validation and won't be loaded.", parser.abbreviation);
+      }
     }
   }
 
