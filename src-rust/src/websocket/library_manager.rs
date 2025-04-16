@@ -2,24 +2,16 @@ use std::{collections::HashMap, fs::{self, read_dir}, path::PathBuf};
 use chrono::{DateTime, Local};
 use log::warn;
 use regex::RegexBuilder;
-use serde::{Deserialize, Serialize};
 use wax::{Glob, Pattern};
 
 use super::{parsers::load_parsers, types::{
   library::{
-    Library, Parser, ParserPattern, StateStore, ROM
+    Library, LoadResult, Parser, ParserPattern, StateStore, ROM
   },
   ErrorSender
 }};
 use super::watcher::Watcher;
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
-#[allow(non_snake_case)]
-pub struct LoadResult {
-  pub library: Library,
-  pub roms: Vec<ROM>,
-  pub systems: Vec<Parser>,
-}
 
 fn load_rom(parser: &Parser, pattern: &ParserPattern, path: PathBuf) -> ROM {
   let path_str = path.to_str().unwrap().to_string();

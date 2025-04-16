@@ -29,7 +29,7 @@ use crate::websocket::{
   file_picker::get_entries
 };
 
-use super::{metadata::{load_metadata, write_metadata}, parsers::{delete_parser, write_parsers}, types::args::{DeleteParserArgs, GlobArgs, ParsersArgs}};
+use super::{metadata::{load_metadata, write_metadata}, parsers::{delete_parser, write_parsers}, types::{args::{DeleteParserArgs, GlobArgs, ParsersArgs}, library::LoadResult}};
 
 
 fn handle_message(
@@ -62,6 +62,14 @@ fn handle_message(
 
       let mut state_settings = settings.lock().expect("Failed to lock Settings Mutex.");
       let mut state = state_store.lock().expect("Failed to lock State Mutex.");
+      
+      // If we've already cached the settings, return them.
+      if state_settings.library.libraryPath != "".to_string() {
+        send(tx, "load_settings", state_settings.clone());
+        
+        return;
+      }
+
       let saved_settings = load_settings(send_error);
 
       // If loading failed, we've already notfied the frontend of that, so we don't need to here.
@@ -115,6 +123,18 @@ fn handle_message(
       let state_settings = settings.lock().expect("Failed to lock Settings Mutex.");
       let state_watcher = watcher.lock().expect("Failed to lock Watcher Mutex.");
       let mut state = state_store.lock().expect("Failed to lock State Mutex.");
+
+      // If we've already cached the roms and systems, return them.
+      if state.roms.len() > 0 && state.parsers.len() > 0 {
+        send(tx, "load_library", LoadResult {
+          library: state.library.clone(),
+          roms: state.roms.clone(),
+          systems: state.parsers.clone().into_values().collect()
+        });
+
+        return;
+      }
+
       let library_res = parse_library(
         &state_settings.library,
         &state_watcher,
@@ -124,7 +144,9 @@ fn handle_message(
 
       // If loading failed, we've already notfied the frontend of that, so we don't need to here.
       if library_res.is_ok() {
-        send(tx, "load_library", library_res.unwrap());
+        let load_res = library_res.unwrap();
+        (*state).roms = load_res.roms.clone();
+        send(tx, "load_library", load_res);
       }
     }
     "update_library" => {
@@ -146,8 +168,11 @@ fn handle_message(
       // If loading failed, we've already notfied the frontend of that, so we don't need to here.
       if library_res.is_ok() {
         (*state).library = args.library.clone();
+        
+        let load_res = library_res.unwrap();
+        (*state).roms = load_res.roms.clone();
 
-        send(tx, "update_library", library_res.unwrap());
+        send(tx, "update_library", load_res);
       }
     }
     "load_metadata" => {
@@ -158,6 +183,14 @@ fn handle_message(
       }
       
       let mut state = state_store.lock().expect("Failed to lock State Mutex.");
+
+      // If we've already cached the metadata, return it.
+      if state.metadata.len() > 0 {
+        send(tx, "load_metadata", state.metadata.clone());
+        
+        return;
+      }
+
       let metadata_res = load_metadata(send_error);
 
       // If loading failed, we've already notfied the frontend of that, so we don't need to here.

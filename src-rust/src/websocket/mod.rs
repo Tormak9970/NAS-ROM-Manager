@@ -29,6 +29,7 @@ pub fn initialize_websocket_api() -> impl Filter<Extract = (impl warp::Reply,), 
 
   let state_store = Arc::new(Mutex::new(StateStore {
     library: get_default_settings().library,
+    roms: vec![],
     parsers: HashMap::new(),
     metadata: HashMap::new()
   }));
