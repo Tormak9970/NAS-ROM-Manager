@@ -1,5 +1,6 @@
 use std::{collections::HashMap, env::var, fs::{self, read_dir, File}, path::PathBuf};
 use log::{info, warn};
+use regex::RegexBuilder;
 use wax::Glob;
 
 use super::{types::{
@@ -7,29 +8,79 @@ use super::{types::{
   ErrorSender
 }, watcher::Watcher};
 
+/// Validates the structure of a parser.
 fn validate_parser(parser: &Parser) -> bool {
-  // TODO: validate tag colors are numbers
+  info!("Validate Parser: Validating {}...", &parser.abbreviation);
 
+  // ! Validate required fields
+  let empty = "".to_string();
+
+  if parser.name == empty {
+    warn!("Validate Parser: {}'s name was empty", &parser.abbreviation);
+    return false;
+  }
+  
+  if parser.abbreviation == empty {
+    warn!("Validate Parser: {}'s abbreviation was empty", &parser.name);
+    return false;
+  }
+  
+  if parser.folder == empty {
+    warn!("Validate Parser: {}'s folder was empty", &parser.abbreviation);
+    return false;
+  }
+  
+
+  // ! Validate tagConfig
+  if parser.tagConfig.backgroundColor == empty {
+    warn!("Validate Parser: {}'s tagConfig.backgroundColor was empty", &parser.abbreviation);
+    return false;
+  }
+  
+  let color_parts: Vec<&str> = parser.tagConfig.backgroundColor.split(" ").collect();
+  if color_parts.len() != 3 {
+    warn!("Validate Parser: {}'s tagConfig.backgroundColor must be formatted as follows: \"R G B\"", &parser.abbreviation);
+    return false;
+  }
+
+  for part in color_parts {
+    let as_u64 = part.parse::<u64>();
+
+    if as_u64.is_err() {
+      warn!("Validate Parser: {}'s tagConfig.backgroundColor can only contain numbers", &parser.abbreviation);
+      return false;
+    }
+  }
+
+  if parser.patterns.len() == 0 {
+    warn!("Validate Parser: {}'s must have at least one pattern", &parser.abbreviation);
+    return false;
+  }
+
+  // ! Validate patterns
   for pattern in parser.patterns.clone() {
     let glob_res = Glob::new(&pattern.glob);
 
     if glob_res.is_err() {
       let err = glob_res.err().unwrap();
-      warn!("Validate Parser: Pattern {}'s glob pattern is invalid: {}", &parser.abbreviation, err);
+      warn!("Validate Parser: {}'s glob pattern \"{}\" is invalid: {}", &parser.abbreviation, &pattern.glob, err);
 
       return false;
     }
 
-    // TODO: test regex
-    // let regex_res = 
-    
-    // if glob_res.is_err() {
-    //   let err = glob_res.err().unwrap();
-    //   warn!("Validate Parser: Pattern {}'s glob pattern is invalid: {}", &parser.abbreviation, err);
+    let mut regex_builder = RegexBuilder::new(&pattern.regex);
+    regex_builder.case_insensitive(true);
 
-    //   return false;
-    // }
+    let regex_res = regex_builder.build();
+    if regex_res.is_err() {
+      let err = regex_res.err().unwrap();
+      warn!("Validate Parser: {}'s regex \"{}\" is invalid: {}", &parser.abbreviation, &pattern.regex, err);
+
+      return false;
+    }
   }
+  
+  info!("Validate Parser: Successfully validated {}", &parser.abbreviation);
 
   return true;
 }

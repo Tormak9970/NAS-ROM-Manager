@@ -33,22 +33,15 @@ fn load_rom(parser: &Parser, pattern: &ParserPattern, path: PathBuf) -> ROM {
   let mut regex_builder = RegexBuilder::new(&pattern.regex);
   regex_builder.case_insensitive(true);
 
-  let regex_res = regex_builder.build();
-  if regex_res.is_err() {
-    let err = regex_res.err().unwrap();
-    warn!("Parser: \"{}\"; Failed to parse glob pattern \"{}\": {}", &parser.abbreviation, &pattern.glob, err.to_string());
-  } else {
-    let regex = regex_res.unwrap();
+  let regex = regex_builder.build().unwrap();
 
-    let clean_title = title.replace("\\", "/");
+  let clean_title = title.replace("\\", "/");
+  let captures = regex.captures(&clean_title);
 
-    let captures = regex.captures(&clean_title);
-
-    if captures.is_some() {
-      let results = captures.unwrap();
-      if results.len() > 0 {
-        title = results.name("title").unwrap().as_str().to_owned();
-      }
+  if captures.is_some() {
+    let results = captures.unwrap();
+    if results.len() > 0 {
+      title = results.name("title").unwrap().as_str().to_owned();
     }
   }
 
