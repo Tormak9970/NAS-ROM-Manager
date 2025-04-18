@@ -254,8 +254,11 @@
 	svelte-virtual-grid-viewport {
 		position: relative;
 		overflow-y: auto;
+    overflow-x: hidden;
 		-webkit-overflow-scrolling: touch;
 		display: block;
+    
+		width: 100%;
 	}
 
 	svelte-virtual-grid-contents {

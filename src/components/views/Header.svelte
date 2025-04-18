@@ -1,10 +1,11 @@
 <script lang="ts">
+  import { goto } from "$app/navigation";
   import { page } from "$app/state";
   import { routes } from "$lib/routes";
   import { Icon } from "@component-utils";
-  import { AuthController } from "@controllers";
+  import { AppController, AuthController } from "@controllers";
   import type { ContextMenuItem } from "@directives";
-  import { Add, Person, PlaylistAdd } from "@icons";
+  import { Add, Logout, Person, PlaylistAdd, Settings, Sync } from "@icons";
   import { Button, MenuButton } from "@interactables";
   import { showAddRomModal, showAddSystemModal } from "@stores/Modals";
   import { isLandscape, systems } from "@stores/State";
@@ -12,6 +13,22 @@
 
   const menuItems: ContextMenuItem[] = [
     {
+      icon: Sync,
+      text: "Reload Library",
+      action: AppController.refreshLibrary,
+    },
+    {
+      icon: Sync,
+      text: "Metadata",
+      action: AppController.refreshMetadata,
+    },
+    {
+      icon: Settings,
+      text: "Settings",
+      action: () => goto("/app/settings"),
+    },
+    {
+      icon: Logout,
       text: "Logout",
       action: AuthController.logout,
     }
@@ -38,7 +55,7 @@
         <Icon icon={PlaylistAdd}/>
       </Button>
     {/if}
-    <MenuButton items={menuItems} icon={Person} />
+    <MenuButton items={menuItems} icon={Person} menuWidth={150} />
   </div>
 </div>
 

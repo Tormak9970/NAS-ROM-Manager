@@ -201,6 +201,24 @@ fn handle_message(
         send(tx, "load_metadata", &metadata);
       }
     }
+    "refresh_metadata" => {
+      let args: SimpleArgs = serde_json::from_str(data).unwrap();
+      let valid = check_hash(args.passwordHash, tx.clone());
+      if !valid {
+        return;
+      }
+      
+      let mut state = state_store.lock().expect("Failed to lock State Mutex.");
+      let metadata_res = load_metadata(send_error);
+
+      // If loading failed, we've already notfied the frontend of that, so we don't need to here.
+      if metadata_res.is_ok() {
+        let metadata = metadata_res.unwrap();
+        (*state).metadata = metadata.clone();
+
+        send(tx, "refresh_metadata", &metadata);
+      }
+    },
     "save_metadata" => {
       let args: MetadataArgs = serde_json::from_str(data).unwrap();
       let valid = check_hash(args.passwordHash, tx.clone());

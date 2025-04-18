@@ -1,4 +1,4 @@
-import { isFirstSetup, showEditLibraryModal } from "@stores/Modals";
+import { isFirstSetup, loadingModalMessage, showEditLibraryModal, showLoadingModal } from "@stores/Modals";
 import { library, loadedLibrary, romMetadata, roms, romsBySystem, systems, systemTagConfigs } from "@stores/State";
 import type { Library, LoadResult, ROMMetadata } from "@types";
 import { hash64 } from "@utils";
@@ -100,11 +100,44 @@ export class AppController {
   }
 
   /**
+   * Refreshes the frontend's metadata.
+   */
+  static async refreshMetadata() {
+    loadingModalMessage.set("Refreshing Metadata...");
+    showLoadingModal.set(true);
+
+    WebsocketController.refreshMetadata().then((metadata) => {
+      romMetadata.set({ ...metadata });
+
+      showLoadingModal.set(false);
+      
+      LogController.log(`Refreshed ROM Metadata.`);
+    });
+  }
+  
+  /**
+   * Refreshes the frontend's metadata.
+   */
+  static async refreshLibrary() {
+    loadingModalMessage.set("Refreshing Library...");
+    showLoadingModal.set(true);
+    loadedLibrary.set(false);
+
+    WebsocketController.updateLibrary(get(library)).then(async (loadRes) => {
+      const metadata = await WebsocketController.refreshMetadata();
+
+      await AppController.setStateFromLoadRes(loadRes, metadata);
+      loadedLibrary.set(true);
+      showLoadingModal.set(false);
+    });
+  }
+
+  /**
    * Updates the app's library.
    * @param library The new library info.
    */
   static async updateLibrary(library: Library) {
-    const metadata = await WebsocketController.getMetadata();
+    const metadata = await WebsocketController.refreshMetadata();
     const loadRes = await WebsocketController.updateLibrary(library);
 
     await AppController.setStateFromLoadRes(loadRes, metadata);

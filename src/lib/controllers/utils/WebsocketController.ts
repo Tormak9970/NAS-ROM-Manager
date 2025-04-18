@@ -223,6 +223,15 @@ export class WebsocketController {
   }
   
   /**
+   * Reloads the rom metadata on the server.
+   * @returns The rom metadata.
+   */
+  static async refreshMetadata(): Promise<Record<string, ROMMetadata>> {
+    const res = await WebsocketController.invoke<Record<string, ROMMetadata>>("refresh_metadata", {});
+    return res.data;
+  }
+  
+  /**
    * Saves the rom metadata to the server.
    * @param data The metadata to save.
    * @returns True if the save was a success.

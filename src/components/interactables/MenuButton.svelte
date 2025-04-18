@@ -14,6 +14,7 @@
     width?: string;
     height?: string;
     icon: IconifyIcon;
+    menuWidth?: number;
     items: ContextMenuItem[];
   }
 
@@ -24,12 +25,11 @@
     width = "36px",
     height = "36px",
     icon,
-    items
+    items,
+    menuWidth = 122
   }: Props = $props();
 
   let buttonElement: any = $state();
-
-  const menuWidth = 122;
 
   function onButtonClick() {
     $contextMenuItems = items;

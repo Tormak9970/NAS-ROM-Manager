@@ -69,6 +69,9 @@ export { default as Edit } from "@ktibow/iconset-material-symbols/edit-outline-r
 
 export { default as Cached } from "@ktibow/iconset-material-symbols/cached-rounded";
 export { default as Refresh } from "@ktibow/iconset-material-symbols/refresh-rounded";
+export { default as Sync } from "@ktibow/iconset-material-symbols/sync-rounded";
+
+export { default as Logout } from "@ktibow/iconset-material-symbols/logout-rounded";
 
 export { default as Sort } from "@ktibow/iconset-material-symbols/sort-rounded";
 
