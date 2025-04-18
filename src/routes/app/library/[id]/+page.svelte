@@ -55,9 +55,10 @@
     if (!$roms[id]) {
       $showWarningSnackbar({ message: `Couldn't find ${id} in library!` });
       goto(routes["Library"].path);
+      return;
     }
 
-    if (metadata.igdbId === "") {
+    if (metadata?.igdbId === "") {
       loadMetadata();
     } else {
       isLoading = false;
@@ -74,63 +75,65 @@
 
 <LibraryLoadGuard onLoad={onLoad}>
   <div id="rom-entry">
-    <div class="header" class:portrait>
-      {#if portrait}
-        <div class="back-button">
-          <Button iconType="full" type="text" size="2.75rem" iconSize="1.75rem" onclick={() => window.history.back()}>
-            <Icon icon={BackArrow} />
+    {#if  !isLoading}
+      <div class="header" class:portrait>
+        {#if portrait}
+          <div class="back-button">
+            <Button iconType="full" type="text" size="2.75rem" iconSize="1.75rem" onclick={() => window.history.back()}>
+              <Icon icon={BackArrow} />
+            </Button>
+          </div>
+        {/if}
+        <div class="cover" style="height: {GRID_LAYOUTS.portrait.height * 1.2}px;">
+          <Cover thumbPath={metadata?.thumbPath} />
+        </div>
+        <div class="info" class:portrait>
+          <SystemTag system={rom?.system} />
+          <div class="title m3-font-headline-{portrait ? "small" : "medium"}">
+            {metadata?.title || rom?.title || "Loading..."}
+          </div>
+          <div class="header-metadata" class:portrait>
+            {#if portrait}
+              <div class="first-row">
+                <div>Added on {rom?.addDate}</div>•<div>{formatFileSize(rom.size)}</div>
+              </div>
+              <div>{genres?.join(", ") ?? "Unkown"}</div>
+            {:else}
+              <div>Added on {rom?.addDate}</div>•<div>{formatFileSize(rom.size)}</div>•<div>{genres?.join(", ") ?? "Unkown"}</div>
+            {/if}
+          </div>
+        </div>
+        <div class="controls" class:portrait style:--m3-button-shape="var(--m3-util-rounding-small)">
+          <Button iconType="full" type="text" onclick={() => RomController.toggleFavorite(id)}>
+            <Icon icon={isFavorite ? FavoriteOn : FavoriteOff} />
+          </Button>
+          <Button
+            type="filled"
+            iconType="left"
+            onclick={() => RomController.download(id)}
+          >
+            <Icon icon={Download} />
+            Download
+          </Button>
+          <Button iconType="full" type="filled" onclick={() => RomController.edit(id)}>
+            <Icon icon={Edit} />
           </Button>
         </div>
-      {/if}
-      <div class="cover" style="height: {GRID_LAYOUTS.portrait.height * 1.2}px;">
-        <Cover romId={id} />
       </div>
-      <div class="info" class:portrait>
-        <SystemTag system={rom.system} />
-        <div class="title m3-font-headline-{portrait ? "small" : "medium"}">
-          {metadata.title || rom.title}
-        </div>
-        <div class="header-metadata" class:portrait>
-          {#if portrait}
-            <div class="first-row">
-              <div>Added on {rom.addDate}</div>•<div>{formatFileSize(rom.size)}</div>
-            </div>
-            <div>{genres?.join(", ") ?? "Unkown"}</div>
-          {:else}
-            <div>Added on {rom.addDate}</div>•<div>{formatFileSize(rom.size)}</div>•<div>{genres?.join(", ") ?? "Unkown"}</div>
-          {/if}
-        </div>
+      <div class="body" class:portrait>
+        {#if isLoading}
+          <div class="loading-container">
+            <LoadingSpinner /> <div class="font-headline-small">Loading Metadata...</div>
+          </div>
+        {:else if metadata.igdbId === NO_IGDB_RESULTS}
+          <div class="missing-message font-headline-small">
+            No Metadata for <b>{metadata.title ?? rom.title}</b>
+          </div>
+        {:else}
+          <RomMetadata metadata={metadata} portrait={portrait} />
+        {/if}
       </div>
-      <div class="controls" class:portrait style:--m3-button-shape="var(--m3-util-rounding-small)">
-        <Button iconType="full" type="text" onclick={() => RomController.toggleFavorite(id)}>
-          <Icon icon={isFavorite ? FavoriteOn : FavoriteOff} />
-        </Button>
-        <Button
-          type="filled"
-          iconType="left"
-          onclick={() => RomController.download(id)}
-        >
-          <Icon icon={Download} />
-          Download
-        </Button>
-        <Button iconType="full" type="filled" onclick={() => RomController.edit(id)}>
-          <Icon icon={Edit} />
-        </Button>
-      </div>
-    </div>
-    <div class="body" class:portrait>
-      {#if isLoading}
-        <div class="loading-container">
-          <LoadingSpinner /> <div class="font-headline-small">Loading Metadata...</div>
-        </div>
-      {:else if metadata.igdbId === NO_IGDB_RESULTS}
-        <div class="missing-message font-headline-small">
-          No Metadata for <b>{metadata.title ?? rom.title}</b>
-        </div>
-      {:else}
-        <RomMetadata metadata={metadata} portrait={portrait} />
-      {/if}
-    </div>
+    {/if}
   </div>
 </LibraryLoadGuard>
 
