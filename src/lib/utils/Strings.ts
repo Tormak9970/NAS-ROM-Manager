@@ -73,3 +73,14 @@ export function compareStrings(first: string, second: string) {
 
   return (2.0 * intersectionSize) / (first.length + second.length - 2);
 }
+
+/**
+ * Returns singular vs. plural based on the number of entries in a list.
+ * @param singular The singular form of the word.
+ * @param plural The plural form of the word.
+ * @param numEntries The number of entries.
+ * @returns The pluralized form of the word.
+ */
+export function pluralize(singular: string, plural: string, numEntries: number): string {
+  return numEntries === 1 ? singular : plural;
+}

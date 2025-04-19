@@ -1,65 +1,44 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
   import { routes } from "$lib/routes";
+  import { Icon } from "@component-utils";
   import MediaQuery from "@component-utils/MediaQuery.svelte";
-  import { IGDBController } from "@controllers";
+  import { SystemController } from "@controllers";
+  import { BackArrow, Edit } from "@icons";
+  import { Button } from "@interactables";
+  import { LoadingSpinner } from "@layout";
   import LibraryLoadGuard from "@layout/load-guards/LibraryLoadGuard.svelte";
-  import { romMetadata, roms, showWarningSnackbar, systems } from "@stores/State";
-  import { NO_IGDB_RESULTS } from "@types";
+  import { romsBySystem, showWarningSnackbar, systems } from "@stores/State";
+  import { GRID_LAYOUTS, pluralize } from "@utils";
+  import Cover from "@views/Cover.svelte";
+  import SystemDetails from "@views/systems/SystemDetails.svelte";
+  import SystemTag from "@views/SystemTag.svelte";
   import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();
 
-  const id = $derived(data.id);
+  const abbreviation = $derived(data.system);
 
-  const rom = $derived($roms?.[id]);
-  const metadata = $derived($romMetadata?.[id]);
-  const system = $derived($systems?.[rom?.system]);
-
-  const genres = $derived(metadata?.metadata?.metadata?.genres);
+  const system = $derived($systems[abbreviation]);
+  const romIds = $derived($romsBySystem[abbreviation])
 
   let portrait = $state(false);
-  const isFavorite = $derived(metadata?.isFavorite);
 
   let isLoading = $state(true);
 
-  async function loadMetadata() {
-    const ids = await IGDBController.searchForGame(metadata.title || rom.title, system.igdbPlatformId);
-    
-    if (ids.length > 0) {
-      const igdbId = ids[0].igdbId.toString();
-      const igdbMetadata = await IGDBController.getMetadata(igdbId);
-      
-      const metadata = $romMetadata[id];
-      metadata.igdbId = igdbId;
-      metadata.metadata = igdbMetadata;
-      
-      $romMetadata = { ...$romMetadata };
-    } else {
-      metadata.igdbId = NO_IGDB_RESULTS;
-      $romMetadata = { ...$romMetadata };
+  async function onLoad() {
+    if (!$systems[abbreviation]) {
+      $showWarningSnackbar({ message: `Couldn't find ${abbreviation} in library!` });
+      goto(routes["Systems"].path);
+      return;
     }
 
     isLoading = false;
   }
-
-  async function onLoad() {
-    if (!$roms[id]) {
-      $showWarningSnackbar({ message: `Couldn't find ${id} in library!` });
-      goto(routes["Library"].path);
-      return;
-    }
-
-    if (metadata?.igdbId === "") {
-      loadMetadata();
-    } else {
-      isLoading = false;
-    }
-  }
 </script>
 
 <svelte:head>
-	<title>{rom ? metadata?.title || rom?.title : "Loading..."}</title>
+	<title>{system ? system.name : "Loading..."}</title>
   <meta name="description" content="Your personal ROM library." />
 </svelte:head>
 
@@ -67,7 +46,7 @@
 
 <LibraryLoadGuard onLoad={onLoad}>
   <div id="system-entry">
-    <!-- {#if  !isLoading}
+    {#if  !isLoading}
       <div class="header" class:portrait>
         {#if portrait}
           <div class="back-button">
@@ -77,38 +56,28 @@
           </div>
         {/if}
         <div class="cover" style="height: {GRID_LAYOUTS.portrait.height * 1.2}px;">
-          <Cover thumbPath={metadata?.thumbPath} />
+          <Cover thumbPath={system?.thumbPath} />
         </div>
         <div class="info" class:portrait>
-          <SystemTag system={rom?.system} />
+          <SystemTag system={abbreviation} />
           <div class="title m3-font-headline-{portrait ? "small" : "medium"}">
-            {metadata?.title || rom?.title || "Loading..."}
+            {system?.name || "Loading..."}
           </div>
           <div class="header-metadata" class:portrait>
             {#if portrait}
               <div class="first-row">
-                <div>Added on {rom?.addDate}</div>•<div>{formatFileSize(rom.size)}</div>
+                <div>{romIds?.length ?? 0} {pluralize("rom", "roms", romIds?.length)}</div>•<div>{system?.patterns?.length ?? 0} {pluralize("parser", "parsers", system?.patterns?.length)}</div>
               </div>
-              <div>{genres?.join(", ") ?? "Unkown"}</div>
+              <div>Abbreviation: {system?.abbreviation}</div>
             {:else}
-              <div>Added on {rom?.addDate}</div>•<div>{formatFileSize(rom.size)}</div>•<div>{genres?.join(", ") ?? "Unkown"}</div>
+              <div>Abbreviation: {system?.abbreviation}</div>•<div>{romIds?.length ?? 0} {pluralize("rom", "roms", romIds?.length)}</div>•<div>{system?.patterns?.length ?? 0} {pluralize("parser", "parsers", system?.patterns?.length)}</div>
             {/if}
           </div>
         </div>
         <div class="controls" class:portrait style:--m3-button-shape="var(--m3-util-rounding-small)">
-          <Button iconType="full" type="text" onclick={() => RomController.toggleFavorite(id)}>
-            <Icon icon={isFavorite ? FavoriteOn : FavoriteOff} />
-          </Button>
-          <Button
-            type="filled"
-            iconType="left"
-            onclick={() => RomController.download(id)}
-          >
-            <Icon icon={Download} />
-            Download
-          </Button>
-          <Button iconType="full" type="filled" onclick={() => RomController.edit(id)}>
+          <Button iconType="left" type="filled" onclick={() => SystemController.edit(abbreviation)}>
             <Icon icon={Edit} />
+            Edit
           </Button>
         </div>
       </div>
@@ -117,15 +86,11 @@
           <div class="loading-container">
             <LoadingSpinner /> <div class="font-headline-small">Loading Metadata...</div>
           </div>
-        {:else if metadata.igdbId === NO_IGDB_RESULTS}
-          <div class="missing-message font-headline-small">
-            No Metadata for <b>{metadata.title ?? rom.title}</b>
-          </div>
         {:else}
-          <RomMetadata metadata={metadata} portrait={portrait} />
+          <SystemDetails system={system} romIds={romIds} portrait={portrait} />
         {/if}
       </div>
-    {/if} -->
+    {/if}
   </div>
 </LibraryLoadGuard>
 
@@ -223,6 +188,7 @@
   .body.portrait {
     padding: 0rem 1rem;
     width: calc(100% - 2rem);
+    /* width: 100%; */
   }
   
   .loading-container {
@@ -235,9 +201,5 @@
     gap: 20px;
 
     margin-top: 2rem;
-  }
-
-  .missing-message {
-    font-style: italic;
   }
 </style>
