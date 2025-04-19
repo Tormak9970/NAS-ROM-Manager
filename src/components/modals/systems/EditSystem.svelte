@@ -4,7 +4,7 @@
   import { scrollShadow } from "@directives";
   import { DatabaseSearch } from "@icons";
   import { Button, TextField } from "@interactables";
-  import { igdbSearchPlatformOnSelect, igdbSearchPlatformTitle, showEditSystemModal, showSearchIGDBPlatformModal, systemEditingId } from "@stores/Modals";
+  import { igdbSearchPlatformOnSelect, igdbSearchPlatformTitle, sgdbSearchOnSelect, sgdbSearchTitle, showEditSystemModal, showSearchIGDBPlatformModal, showSearchSGDBModal, systemEditingId } from "@stores/Modals";
   import { systems } from "@stores/State";
   import type { IGDBMetadataPlatform, ParserPattern, System } from "@types";
   import { asyncEvery } from "@utils";
@@ -96,6 +96,14 @@
     }
     $showSearchIGDBPlatformModal = true;
   }
+  
+  function openSGDBSearch() {
+    $sgdbSearchTitle = systemName;
+    $sgdbSearchOnSelect = (id: string) => {
+      sgdbId = id;
+    }
+    $showSearchSGDBModal = true;
+  }
 </script>
 
 <ModalBody
@@ -115,10 +123,14 @@
         <TextField
           name="IGDB Id"
           bind:value={igdbId}
+          trailingIcon={DatabaseSearch}
+          ontrailingClick={openIGDBSearch}
         />
         <TextField
           name="SGDB Id"
           bind:value={sgdbId}
+          trailingIcon={DatabaseSearch}
+          ontrailingClick={openSGDBSearch}
         />
         <TextField
           name="Abbreviation"
@@ -139,7 +151,7 @@
   {#snippet buttons()}
     <div>
       <Button type="tonal" onclick={onCancel}>Cancel</Button>
-      <Button type="tonal" onclick={onSave} disabled={!canSave}>Create</Button>
+      <Button type="tonal" onclick={onSave} disabled={!canSave}>Save</Button>
     </div>
   {/snippet}
 </ModalBody>

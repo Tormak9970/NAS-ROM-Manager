@@ -79,7 +79,7 @@
   {#snippet buttons()}
     <div>
       <Button type="tonal" onclick={onCancel}>Cancel</Button>
-      <Button type="tonal" onclick={onSave} disabled={!canSave}>Save</Button>
+      <Button type="tonal" onclick={onSave} disabled={!canSave || saving}>Save</Button>
     </div>
   {/snippet}
 </ModalBody>
