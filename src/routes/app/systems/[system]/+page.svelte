@@ -10,6 +10,7 @@
   import LibraryLoadGuard from "@layout/load-guards/LibraryLoadGuard.svelte";
   import { romsBySystem, showWarningSnackbar, systems } from "@stores/State";
   import { GRID_LAYOUTS, pluralize } from "@utils";
+  import Banner from "@views/Banner.svelte";
   import Cover from "@views/Cover.svelte";
   import SystemDetails from "@views/systems/SystemDetails.svelte";
   import SystemTag from "@views/SystemTag.svelte";
@@ -45,50 +46,53 @@
 <MediaQuery query="(max-width: 900px)" bind:matches={portrait} />
 
 <LibraryLoadGuard onLoad={onLoad}>
-  <div id="system-entry">
-    {#if  !isLoading}
-      <div class="header" class:portrait>
-        {#if portrait}
-          <div class="back-button">
-            <Button iconType="full" type="text" size="2.75rem" iconSize="1.75rem" onclick={() => window.history.back()}>
-              <Icon icon={BackArrow} />
+  <div id="system-entry" class:landscape={!portrait}>
+    {#if !isLoading}
+      <Banner src={system?.heroPath} portrait={portrait} />
+      <div class="content" class:portrait>
+        <div class="header" class:portrait>
+          {#if portrait}
+            <div class="back-button">
+              <Button iconType="full" type="text" size="2.75rem" iconSize="1.75rem" onclick={() => window.history.back()}>
+                <Icon icon={BackArrow} />
+              </Button>
+            </div>
+          {/if}
+          <div class="cover" style="height: {GRID_LAYOUTS.portrait.height * 1.2}px;">
+            <Cover thumbPath={system?.thumbPath} />
+          </div>
+          <div class="info" class:portrait>
+            <SystemTag system={abbreviation} />
+            <div class="title m3-font-headline-{portrait ? "small" : "medium"}">
+              {system?.name || "Loading..."}
+            </div>
+            <div class="header-metadata" class:portrait>
+              {#if portrait}
+                <div class="first-row">
+                  <div>{romIds?.length ?? 0} {pluralize("rom", "roms", romIds?.length)}</div>•<div>{system?.patterns?.length ?? 0} {pluralize("parser", "parsers", system?.patterns?.length)}</div>
+                </div>
+                <div>Abbreviation: {system?.abbreviation}</div>
+              {:else}
+                <div>Abbreviation: {system?.abbreviation}</div>•<div>{romIds?.length ?? 0} {pluralize("rom", "roms", romIds?.length)}</div>•<div>{system?.patterns?.length ?? 0} {pluralize("parser", "parsers", system?.patterns?.length)}</div>
+              {/if}
+            </div>
+          </div>
+          <div class="controls" class:portrait style:--m3-button-shape="var(--m3-util-rounding-small)">
+            <Button iconType="left" type="filled" onclick={() => SystemController.edit(abbreviation)}>
+              <Icon icon={Edit} />
+              Edit
             </Button>
           </div>
-        {/if}
-        <div class="cover" style="height: {GRID_LAYOUTS.portrait.height * 1.2}px;">
-          <Cover thumbPath={system?.thumbPath} />
         </div>
-        <div class="info" class:portrait>
-          <SystemTag system={abbreviation} />
-          <div class="title m3-font-headline-{portrait ? "small" : "medium"}">
-            {system?.name || "Loading..."}
-          </div>
-          <div class="header-metadata" class:portrait>
-            {#if portrait}
-              <div class="first-row">
-                <div>{romIds?.length ?? 0} {pluralize("rom", "roms", romIds?.length)}</div>•<div>{system?.patterns?.length ?? 0} {pluralize("parser", "parsers", system?.patterns?.length)}</div>
-              </div>
-              <div>Abbreviation: {system?.abbreviation}</div>
-            {:else}
-              <div>Abbreviation: {system?.abbreviation}</div>•<div>{romIds?.length ?? 0} {pluralize("rom", "roms", romIds?.length)}</div>•<div>{system?.patterns?.length ?? 0} {pluralize("parser", "parsers", system?.patterns?.length)}</div>
-            {/if}
-          </div>
+        <div class="body" class:portrait>
+          {#if isLoading}
+            <div class="loading-container">
+              <LoadingSpinner /> <div class="font-headline-small">Loading Metadata...</div>
+            </div>
+          {:else}
+            <SystemDetails system={system} romIds={romIds} portrait={portrait} />
+          {/if}
         </div>
-        <div class="controls" class:portrait style:--m3-button-shape="var(--m3-util-rounding-small)">
-          <Button iconType="left" type="filled" onclick={() => SystemController.edit(abbreviation)}>
-            <Icon icon={Edit} />
-            Edit
-          </Button>
-        </div>
-      </div>
-      <div class="body" class:portrait>
-        {#if isLoading}
-          <div class="loading-container">
-            <LoadingSpinner /> <div class="font-headline-small">Loading Metadata...</div>
-          </div>
-        {:else}
-          <SystemDetails system={system} romIds={romIds} portrait={portrait} />
-        {/if}
       </div>
     {/if}
   </div>
@@ -100,6 +104,22 @@
     height: 100%;
 
     overflow-y: scroll;
+    
+    position: relative;
+  }
+
+  #system-entry.landscape {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .content {
+    width: calc(100% - 1rem);
+    height: 100%;
+  }
+  .content.portrait {
+    width: 100%;
   }
 
   .header {
@@ -109,6 +129,7 @@
     align-items: flex-end;
 
     position: relative;
+    z-index: 2;
 
     gap: 1rem;
   }
@@ -133,7 +154,7 @@
 
     aspect-ratio: 2 / 3;
 
-    margin-top: 1rem;
+    margin-top: 0.5rem;
   }
 
   .info {
@@ -174,7 +195,6 @@
     gap: 0.5rem;
 
     margin-left: auto;
-    margin-right: 1rem;
   }
   .controls.portrait {
     margin: 0;
@@ -183,12 +203,14 @@
   .body {
     width: 100%;
     margin-top: 2rem;
+
+    position: relative;
+    z-index: 2;
   }
 
   .body.portrait {
     padding: 0rem 1rem;
     width: calc(100% - 2rem);
-    /* width: 100%; */
   }
   
   .loading-container {

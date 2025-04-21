@@ -1,5 +1,5 @@
 import type { IconifyIcon } from "@iconify/types";
-import { Dashboard, DashboardOutline, GameAsset, GameAssetOutline, Host, HostOutline, Library, LibraryOutline, Search, Settings, SettingsOutline } from "./icons";
+import { Dashboard, DashboardOutline, GameAsset, GameAssetOutline, Library, LibraryOutline, Search, Settings, SettingsOutline } from "./icons";
 
 export type Route = {
   icon: IconifyIcon;
@@ -27,12 +27,12 @@ export const routes: Record<string, Route> = {
     selectedIcon: GameAsset,
     icon: GameAssetOutline
   },
-  "Emulators": {
-    label: "Emulators",
-    path: "/app/emulators",
-    selectedIcon: Host,
-    icon: HostOutline
-  },
+  // "Emulators": {
+  //   label: "Emulators",
+  //   path: "/app/emulators",
+  //   selectedIcon: Host,
+  //   icon: HostOutline
+  // },
   "Settings": {
     label: "Settings",
     path: "/app/settings",

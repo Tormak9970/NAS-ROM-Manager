@@ -72,6 +72,7 @@ export class AppController {
           thumbPath: "",
           sgdbId: "",
           igdbId: "",
+          heroPath: "",
           metadata: null,
           isFavorite: false,
         }

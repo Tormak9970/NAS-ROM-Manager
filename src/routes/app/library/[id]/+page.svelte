@@ -11,6 +11,7 @@
   import { romMetadata, roms, showWarningSnackbar, systems } from "@stores/State";
   import { NO_IGDB_RESULTS } from "@types";
   import { formatFileSize, GRID_LAYOUTS } from "@utils";
+  import Banner from "@views/Banner.svelte";
   import Cover from "@views/Cover.svelte";
   import RomMetadata from "@views/library/details/RomMetadata.svelte";
   import SystemTag from "@views/SystemTag.svelte";
@@ -74,64 +75,67 @@
 <MediaQuery query="(max-width: 900px)" bind:matches={portrait} />
 
 <LibraryLoadGuard onLoad={onLoad}>
-  <div id="rom-entry">
-    {#if  !isLoading}
-      <div class="header" class:portrait>
-        {#if portrait}
-          <div class="back-button">
-            <Button iconType="full" type="text" size="2.75rem" iconSize="1.75rem" onclick={() => window.history.back()}>
-              <Icon icon={BackArrow} />
+  <div id="rom-entry" class:landscape={!portrait}>
+    {#if !isLoading}
+      <Banner src={metadata?.heroPath} portrait={portrait} />
+      <div class="content" class:portrait>
+        <div class="header" class:portrait>
+          {#if portrait}
+            <div class="back-button">
+              <Button iconType="full" type="text" size="2.75rem" iconSize="1.75rem" onclick={() => window.history.back()}>
+                <Icon icon={BackArrow} />
+              </Button>
+            </div>
+          {/if}
+          <div class="cover" style="height: {GRID_LAYOUTS.portrait.height * 1.2}px;">
+            <Cover thumbPath={metadata?.thumbPath} />
+          </div>
+          <div class="info" class:portrait>
+            <SystemTag system={rom?.system} />
+            <div class="title m3-font-headline-{portrait ? "small" : "medium"}">
+              {metadata?.title || rom?.title || "Loading..."}
+            </div>
+            <div class="header-metadata" class:portrait>
+              {#if portrait}
+                <div class="first-row">
+                  <div>Added on {rom?.addDate}</div>•<div>{formatFileSize(rom.size)}</div>
+                </div>
+                <div>{genres?.join(", ") ?? "Unkown"}</div>
+              {:else}
+                <div>Added on {rom?.addDate}</div>•<div>{formatFileSize(rom.size)}</div>•<div>{genres?.join(", ") ?? "Unkown"}</div>
+              {/if}
+            </div>
+          </div>
+          <div class="controls" class:portrait style:--m3-button-shape="var(--m3-util-rounding-small)">
+            <Button iconType="full" type="text" onclick={() => RomController.toggleFavorite(id)}>
+              <Icon icon={isFavorite ? FavoriteOn : FavoriteOff} />
+            </Button>
+            <Button
+              type="filled"
+              iconType="left"
+              onclick={() => RomController.download(id)}
+            >
+              <Icon icon={Download} />
+              Download
+            </Button>
+            <Button iconType="full" type="filled" onclick={() => RomController.edit(id)}>
+              <Icon icon={Edit} />
             </Button>
           </div>
-        {/if}
-        <div class="cover" style="height: {GRID_LAYOUTS.portrait.height * 1.2}px;">
-          <Cover thumbPath={metadata?.thumbPath} />
         </div>
-        <div class="info" class:portrait>
-          <SystemTag system={rom?.system} />
-          <div class="title m3-font-headline-{portrait ? "small" : "medium"}">
-            {metadata?.title || rom?.title || "Loading..."}
-          </div>
-          <div class="header-metadata" class:portrait>
-            {#if portrait}
-              <div class="first-row">
-                <div>Added on {rom?.addDate}</div>•<div>{formatFileSize(rom.size)}</div>
-              </div>
-              <div>{genres?.join(", ") ?? "Unkown"}</div>
-            {:else}
-              <div>Added on {rom?.addDate}</div>•<div>{formatFileSize(rom.size)}</div>•<div>{genres?.join(", ") ?? "Unkown"}</div>
-            {/if}
-          </div>
+        <div class="body" class:portrait>
+          {#if isLoading}
+            <div class="loading-container">
+              <LoadingSpinner /> <div class="font-headline-small">Loading Metadata...</div>
+            </div>
+          {:else if metadata.igdbId === NO_IGDB_RESULTS}
+            <div class="missing-message font-headline-small">
+              No Metadata for <b>{metadata.title ?? rom.title}</b>
+            </div>
+          {:else}
+            <RomMetadata metadata={metadata} portrait={portrait} />
+          {/if}
         </div>
-        <div class="controls" class:portrait style:--m3-button-shape="var(--m3-util-rounding-small)">
-          <Button iconType="full" type="text" onclick={() => RomController.toggleFavorite(id)}>
-            <Icon icon={isFavorite ? FavoriteOn : FavoriteOff} />
-          </Button>
-          <Button
-            type="filled"
-            iconType="left"
-            onclick={() => RomController.download(id)}
-          >
-            <Icon icon={Download} />
-            Download
-          </Button>
-          <Button iconType="full" type="filled" onclick={() => RomController.edit(id)}>
-            <Icon icon={Edit} />
-          </Button>
-        </div>
-      </div>
-      <div class="body" class:portrait>
-        {#if isLoading}
-          <div class="loading-container">
-            <LoadingSpinner /> <div class="font-headline-small">Loading Metadata...</div>
-          </div>
-        {:else if metadata.igdbId === NO_IGDB_RESULTS}
-          <div class="missing-message font-headline-small">
-            No Metadata for <b>{metadata.title ?? rom.title}</b>
-          </div>
-        {:else}
-          <RomMetadata metadata={metadata} portrait={portrait} />
-        {/if}
       </div>
     {/if}
   </div>
@@ -143,6 +147,22 @@
     height: 100%;
 
     overflow-y: scroll;
+    
+    position: relative;
+  }
+
+  #rom-entry.landscape {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .content {
+    width: calc(100% - 1rem);
+    height: 100%;
+  }
+  .content.portrait {
+    width: 100%;
   }
 
   .header {
@@ -152,6 +172,7 @@
     align-items: flex-end;
 
     position: relative;
+    z-index: 2;
 
     gap: 1rem;
   }
@@ -176,7 +197,7 @@
 
     aspect-ratio: 2 / 3;
 
-    margin-top: 1rem;
+    margin-top: 0.5rem;
   }
 
   .info {
@@ -217,7 +238,6 @@
     gap: 0.5rem;
 
     margin-left: auto;
-    margin-right: 1rem;
   }
   .controls.portrait {
     margin: 0;
@@ -226,6 +246,9 @@
   .body {
     width: 100%;
     margin-top: 2rem;
+
+    position: relative;
+    z-index: 2;
   }
 
   .body.portrait {

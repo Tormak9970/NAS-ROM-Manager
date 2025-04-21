@@ -43,6 +43,7 @@ pub struct Parser {
   pub sgdbId: String,
   pub coverPath: String,
   pub thumbPath: String,
+  pub heroPath: String,
   pub tagConfig: SystemTagConfig,
   pub patterns: Vec<ParserPattern>,
 }
@@ -66,6 +67,7 @@ pub struct ROMMetadata {
   pub title: String,
   pub coverPath: String,
   pub thumbPath: String,
+  pub heroPath: String,
   pub sgdbId: String,
   pub igdbId: String,
   pub metadata: Option<Value>,

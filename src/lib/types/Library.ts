@@ -20,6 +20,7 @@ export type System = {
   sgdbId: string;
   coverPath: string;
   thumbPath: string;
+  heroPath: string;
   igdbPlatformId: string;
   tagConfig: SystemTagConfig;
   patterns: ParserPattern[];
@@ -29,6 +30,7 @@ export type ROMMetadata = {
   title: string;
   coverPath: string;
   thumbPath: string;
+  heroPath: string;
   sgdbId: string;
   igdbId: string;
   metadata: IGDBGame | null;
