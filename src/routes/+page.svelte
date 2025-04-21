@@ -22,9 +22,8 @@
     const result = await AuthController.authenticate(user, hash);
     LogController.log("Authenticated:", result);
 
-    loading = false;
-
     if (!result) {
+      loading = false;
       $showWarningSnackbar({
         message: "Login Failed. Please Try Again"
       });
