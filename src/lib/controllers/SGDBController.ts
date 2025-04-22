@@ -10,15 +10,74 @@ import { RestController } from "./utils/RestController";
 export class SGDBController {
   private static readonly SGDB_GRID_RESULT_LIMIT = 25;
 
-  private static gridsCache: { [steamGridId: string]: SGDBImage[] } = {};
-  private static currentGridCountCache: { [steamGridId: string]: number } = {};
-  private static totalGridCountCache: { [steamGridId: string]: number } = {};
+  private static gridsCache: { [steamGridId: string]: Record<string, SGDBImage[]> } = {};
+  private static currentGridCountCache: { [steamGridId: string]: Record<string, number> } = {};
+  private static totalGridCountCache: { [steamGridId: string]: Record<string, number> } = {};
 
   /**
    * Initializes the api controller.
    */
   static async init(): Promise<void> {
     await RestController.initSGDBClient();
+  }
+
+  private static async getGridsForGame(steamGridAppId: string, gridType: "grids" | "heroes"): Promise<SGDBImage[]> {
+    if (!this.gridsCache[steamGridAppId]) {
+      this.gridsCache[steamGridAppId] = {
+        grids: [],
+        heroes: [],
+      };
+    }
+    if (!this.currentGridCountCache[steamGridAppId]) {
+      this.currentGridCountCache[steamGridAppId] = {
+        grids: 0,
+        heroes: 0,
+      };
+    }
+    if (!this.totalGridCountCache[steamGridAppId]) {
+      this.totalGridCountCache[steamGridAppId] = {
+        grids: 0,
+        heroes: 0,
+      };
+    }
+    
+    const morePagesCache = get(hasMorePagesCache);
+    if (!Object.keys(morePagesCache).includes(steamGridAppId.toString())) {
+      morePagesCache[steamGridAppId] = {
+        grids: true,
+        heroes: true,
+      };
+    }
+
+    if (!morePagesCache[steamGridAppId][gridType] && this.gridsCache[steamGridAppId][gridType]) {
+      return this.gridsCache[steamGridAppId][gridType];
+    }
+
+    let page = 0;
+
+    // * checking undefined here because 0 is falsy.
+    if (this.currentGridCountCache[steamGridAppId] !== undefined && this.totalGridCountCache[steamGridAppId] !== undefined) {
+      page = Math.max(Math.floor(this.currentGridCountCache[steamGridAppId][gridType] / this.SGDB_GRID_RESULT_LIMIT), 0);
+    }
+
+    try {
+      LogController.log(`Need to fetch ${gridType} page ${page} for ${steamGridAppId}.`);
+
+      const gridResults: GridResults = await RestController.getSGDBGridsById(steamGridAppId, page, gridType);
+      
+      this.gridsCache[steamGridAppId][gridType] = this.gridsCache[steamGridAppId][gridType].concat(gridResults.images);
+      this.currentGridCountCache[steamGridAppId][gridType] = this.gridsCache[steamGridAppId][gridType].length;
+      this.totalGridCountCache[steamGridAppId][gridType] = gridResults.total;
+      morePagesCache[steamGridAppId][gridType] = this.currentGridCountCache[steamGridAppId][gridType] !== this.totalGridCountCache[steamGridAppId][gridType];
+
+      hasMorePagesCache.set(morePagesCache);
+
+      return this.gridsCache[steamGridAppId][gridType];
+    } catch (e: any) {
+      LogController.error(`Error fetching ${gridType} for game: ${steamGridAppId}. Error: ${e.message}.`);
+      get(showWarningSnackbar)({ message: `Error fetching ${gridType} for game.` });
+      return [];
+    }
   }
 
   /**
@@ -28,42 +87,7 @@ export class SGDBController {
    * ? Logging complete.
    */
   static async getCapsulesForGame(steamGridAppId: string): Promise<SGDBImage[]> {
-    if (!this.gridsCache[steamGridAppId]) this.gridsCache[steamGridAppId] = [];
-    if (!this.currentGridCountCache[steamGridAppId]) this.currentGridCountCache[steamGridAppId] = 0;
-    if (!this.totalGridCountCache[steamGridAppId]) this.totalGridCountCache[steamGridAppId] = 0;
-    
-    const morePagesCache = get(hasMorePagesCache);
-    if (!Object.keys(morePagesCache).includes(steamGridAppId.toString())) morePagesCache[steamGridAppId] = true;
-
-    if (!morePagesCache[steamGridAppId] && this.gridsCache[steamGridAppId]) {
-      return this.gridsCache[steamGridAppId];
-    }
-
-    let page = 0;
-
-    // * checking undefined here because 0 is falsy.
-    if (this.currentGridCountCache[steamGridAppId] !== undefined && this.totalGridCountCache[steamGridAppId] !== undefined) {
-      page = Math.max(Math.floor(this.currentGridCountCache[steamGridAppId] / this.SGDB_GRID_RESULT_LIMIT), 0);
-    }
-
-    try {
-      LogController.log(`Need to fetch page ${page} for ${steamGridAppId}.`);
-
-      const gridResults: GridResults = await RestController.getSGDBGridsById(steamGridAppId, page, "grids");
-      
-      this.gridsCache[steamGridAppId] = this.gridsCache[steamGridAppId].concat(gridResults.images);
-      this.currentGridCountCache[steamGridAppId] = this.gridsCache[steamGridAppId].length;
-      this.totalGridCountCache[steamGridAppId] = gridResults.total;
-      morePagesCache[steamGridAppId] = this.currentGridCountCache[steamGridAppId] !== this.totalGridCountCache[steamGridAppId];
-
-      hasMorePagesCache.set(morePagesCache);
-
-      return this.gridsCache[steamGridAppId];
-    } catch (e: any) {
-      LogController.error(`Error fetching grids for game: ${steamGridAppId}. Error: ${e.message}.`);
-      get(showWarningSnackbar)({ message: "Error fetching grids for game." });
-      return [];
-    }
+    return await this.getGridsForGame(steamGridAppId, "grids");
   }
 
   /**
@@ -73,43 +97,7 @@ export class SGDBController {
    * ? Logging complete.
    */
   static async getHeroesForGame(steamGridAppId: string): Promise<SGDBImage[]> {
-    return [];
-    // if (!this.gridsCache[steamGridAppId]) this.gridsCache[steamGridAppId] = [];
-    // if (!this.currentGridCountCache[steamGridAppId]) this.currentGridCountCache[steamGridAppId] = 0;
-    // if (!this.totalGridCountCache[steamGridAppId]) this.totalGridCountCache[steamGridAppId] = 0;
-    
-    // const morePagesCache = get(hasMorePagesCache);
-    // if (!Object.keys(morePagesCache).includes(steamGridAppId.toString())) morePagesCache[steamGridAppId] = true;
-
-    // if (!morePagesCache[steamGridAppId] && this.gridsCache[steamGridAppId]) {
-    //   return this.gridsCache[steamGridAppId];
-    // }
-
-    // let page = 0;
-
-    // // * checking undefined here because 0 is falsy.
-    // if (this.currentGridCountCache[steamGridAppId] !== undefined && this.totalGridCountCache[steamGridAppId] !== undefined) {
-    //   page = Math.max(Math.floor(this.currentGridCountCache[steamGridAppId] / this.SGDB_GRID_RESULT_LIMIT), 0);
-    // }
-
-    // try {
-    //   LogController.log(`Need to fetch page ${page} for ${steamGridAppId}.`);
-
-    //   const gridResults: GridResults = await RestController.getSGDBGridsById(steamGridAppId, page, "heroes");
-      
-    //   this.gridsCache[steamGridAppId] = this.gridsCache[steamGridAppId].concat(gridResults.images);
-    //   this.currentGridCountCache[steamGridAppId] = this.gridsCache[steamGridAppId].length;
-    //   this.totalGridCountCache[steamGridAppId] = gridResults.total;
-    //   morePagesCache[steamGridAppId] = this.currentGridCountCache[steamGridAppId] !== this.totalGridCountCache[steamGridAppId];
-
-    //   hasMorePagesCache.set(morePagesCache);
-
-    //   return this.gridsCache[steamGridAppId];
-    // } catch (e: any) {
-    //   LogController.error(`Error fetching grids for game: ${steamGridAppId}. Error: ${e.message}.`);
-    //   get(showWarningSnackbar)({ message: "Error fetching grids for game." });
-    //   return [];
-    // }
+    return await this.getGridsForGame(steamGridAppId, "heroes");
   }
 
   /**

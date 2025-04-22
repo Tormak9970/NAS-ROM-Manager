@@ -22,6 +22,11 @@ export const GRID_LAYOUTS: Record<string, GRID_LAYOUT> = {
     height: 174,
     gap: 30,
   },
+  sgdbHero: {
+    width: 353,
+    height: 114,
+    gap: 30,
+  }
   // hero: {
   //   width: 353,
   //   height: 114,

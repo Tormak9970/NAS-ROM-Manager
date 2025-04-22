@@ -77,7 +77,7 @@
 <LibraryLoadGuard onLoad={onLoad}>
   <div id="rom-entry" class:landscape={!portrait}>
     {#if !isLoading}
-      <Hero src={metadata?.heroPath} portrait={portrait} />
+      <Hero src={metadata?.heroPath} portrait={portrait} onEdit={() => RomController.changeHero(id)} />
       <div class="content" class:portrait>
         <div class="header" class:portrait>
           {#if portrait}
@@ -175,7 +175,14 @@
     z-index: 2;
 
     gap: 1rem;
+
+    pointer-events: none;
   }
+
+  .header > * {
+    pointer-events: all;
+  }
+
   .header.portrait {
     flex-direction: column;
     align-items: center;

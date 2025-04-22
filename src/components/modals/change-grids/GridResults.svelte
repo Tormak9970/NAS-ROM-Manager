@@ -16,14 +16,14 @@
 
   let { sgdbId }: Props = $props();
 
-  const layout = $derived(GRID_LAYOUTS.sgdbGrid);
+  const layout = $derived(GRID_LAYOUTS[$changeGridsType === "Capsule" ? "sgdbGrid" : "sgdbHero"]);
   
   let gridsContainer: HTMLDivElement | undefined = $state(undefined);
 
   let isLoading = $state(true);
   let grids: SGDBImage[] = $state([]);
 
-  const hasMore = $derived(($hasMorePagesCache && $hasMorePagesCache[sgdbId]) ?? true);
+  const hasMore = $derived(($hasMorePagesCache && $hasMorePagesCache[sgdbId]?.[$changeGridsType]) ?? true);
 
   /**
    * Handles loading new grids when the user scrolls to the bottom.

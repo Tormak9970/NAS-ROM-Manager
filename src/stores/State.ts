@@ -15,7 +15,7 @@ export const showInfoSnackbar = writable<(data: ShowInfoOptions) => void>();
 export const showWarningSnackbar = writable<(data: ShowWarningOptions) => void>();
 
 export const steamGridSearchCache = writable<{ [appid: string]: SGDBGame[] }>({});
-export const hasMorePagesCache = writable<{ [steamGridId: string]: boolean }>({});
+export const hasMorePagesCache = writable<{ [steamGridId: string]: Record<string, boolean> }>({});
 
 // * Settings stores
 export const palette = writable<Palette>("Auto");

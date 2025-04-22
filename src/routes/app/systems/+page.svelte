@@ -50,9 +50,9 @@
             
             if (filtered.length) {
               const first = filtered[0];
-              const images = await RestController.cacheHero(first.url.toString(), system.abbreviation);
+              const image = await RestController.cacheHero(first.url.toString(), system.abbreviation);
               
-              system.heroPath = images[0];
+              system.heroPath = image;
             } else {
               system.heroPath = "No Grids";
             }

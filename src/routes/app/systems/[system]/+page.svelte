@@ -48,7 +48,7 @@
 <LibraryLoadGuard onLoad={onLoad}>
   <div id="system-entry" class:landscape={!portrait}>
     {#if !isLoading}
-      <Hero src={system?.heroPath} portrait={portrait} />
+      <Hero src={system?.heroPath} portrait={portrait} onEdit={() => SystemController.changeHero(abbreviation)} />
       <div class="content" class:portrait>
         <div class="header" class:portrait>
           {#if portrait}
@@ -132,7 +132,14 @@
     z-index: 2;
 
     gap: 1rem;
+
+    pointer-events: none;
   }
+
+  .header > * {
+    pointer-events: all;
+  }
+
   .header.portrait {
     flex-direction: column;
     align-items: center;
