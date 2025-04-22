@@ -47,8 +47,8 @@
 
       $romMetadata[id] = {
         title: rom.title,
-        coverPath: "",
-        thumbPath: "",
+        fullCapsulePath: "",
+        thumbCapsulePath: "",
         sgdbId: "",
         igdbId: "",
         metadata: null,

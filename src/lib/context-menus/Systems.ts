@@ -10,7 +10,11 @@ export function getSystemMenuItems(abbreviation: string): ContextMenuItem[] {
   });
   items.push({
     text: "Change Cover",
-    action: () => SystemController.changeCover(abbreviation),
+    action: () => SystemController.changeCapsule(abbreviation),
+  });
+  items.push({
+    text: "Change Banner",
+    action: () => SystemController.changeHero(abbreviation),
   });
 
   items.push({

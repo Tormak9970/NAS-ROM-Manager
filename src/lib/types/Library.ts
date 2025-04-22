@@ -18,8 +18,8 @@ export type System = {
   abbreviation: string;
   folder: string;
   sgdbId: string;
-  coverPath: string;
-  thumbPath: string;
+  fullCapsulePath: string;
+  thumbCapsulePath: string;
   heroPath: string;
   igdbPlatformId: string;
   tagConfig: SystemTagConfig;
@@ -28,8 +28,8 @@ export type System = {
 
 export type ROMMetadata = {
   title: string;
-  coverPath: string;
-  thumbPath: string;
+  fullCapsulePath: string;
+  thumbCapsulePath: string;
   heroPath: string;
   sgdbId: string;
   igdbId: string;

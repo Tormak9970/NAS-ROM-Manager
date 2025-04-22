@@ -24,48 +24,48 @@ type ROMUploadComplete = {
 export class RestController {
   private static readonly STREAM_CHUNK_SIZE = 10 * 1024 * 1024;
 
-  private static readonly COVER_BASE_URL = "http://127.0.0.1:1500/rest/covers";
+  private static readonly GRIDS_BASE_URL = "http://127.0.0.1:1500/rest/grids";
   private static readonly BASE_URL = "http://127.0.0.1:1500/rest";
 
   private static currentDownload: ReadableStreamDefaultReader<Uint8Array<ArrayBufferLike>> | null = null;
   static currentUploadId: string | null = null;
 
   /**
-   * Deletes the cover for a title.
-   * @param coverUrl The url of the full cover to delete.
-   * @param thumbUrl The url of the thumb cover to delete.
-   * @param id The id of the title whose cover is being deleted.
-   * @returns Whether the cover was successfully deleted.
+   * Deletes the capsule for a title.
+   * @param fullCapsuleUrl The url of the full capsule to delete.
+   * @param thumbCapsuleUrl The url of the thumb capsule to delete.
+   * @param id The id of the title whose capsule is being deleted.
+   * @returns Whether the capsule was successfully deleted.
    */
-  static async deleteCover(coverUrl: string, thumbUrl: string, id: string): Promise<boolean> {
-    const res = await fetch(this.BASE_URL + `/covers/${id}`, {
+  static async deleteCapsule(fullCapsuleUrl: string, thumbCapsuleUrl: string, id: string): Promise<boolean> {
+    const res = await fetch(this.BASE_URL + `/grids/capsules/${id}`, {
       method: "DELETE",
       mode: "cors",
       headers: {
         "Accept": "application/json, text/plain, */*",
         "Content-Type": "application/json",
-        "Cover-Extension": coverUrl.substring(coverUrl.lastIndexOf(".") + 1),
-        "Thumb-Extension": thumbUrl.substring(thumbUrl.lastIndexOf(".") + 1)
+        "Full-Capsule-Extension": fullCapsuleUrl.substring(fullCapsuleUrl.lastIndexOf(".") + 1),
+        "Thumb-Capsule-Extension": thumbCapsuleUrl.substring(thumbCapsuleUrl.lastIndexOf(".") + 1)
       },
     });
 
     if (res.ok) {
       return true;
     } else {
-      LogController.error(`Failed to delete covers for ${id}:`, res.statusText);
+      LogController.error(`Failed to delete capsule for ${id}:`, res.statusText);
       return false;
     }
   }
 
   /**
-   * Caches the cover for a title.
-   * @param coverUrl The url of the cover to cache.
-   * @param thumbUrl The url of the cover preview to cache.
-   * @param id The id of the title whose cover is being cached.
-   * @returns The path to the cached cover.
+   * Caches the capsule for a title.
+   * @param fullCapsuleUrl The url of the capsule to cache.
+   * @param thumbCapsuleUrl The url of the capsule preview to cache.
+   * @param id The id of the title whose capsule is being cached.
+   * @returns The path to the cached capsule.
    */
-  static async cacheCover(coverUrl: string, thumbUrl: string, id: string): Promise<[string, string]> {
-    const res = await fetch(this.BASE_URL + `/covers/${id}`, {
+  static async cacheCapsule(fullCapsuleUrl: string, thumbCapsuleUrl: string, id: string): Promise<[string, string]> {
+    const res = await fetch(this.BASE_URL + `/grids/capsules/${id}`, {
       method: "POST",
       mode: "cors",
       headers: {
@@ -73,10 +73,10 @@ export class RestController {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        coverUrl: coverUrl,
-        coverExt: coverUrl.substring(coverUrl.lastIndexOf(".") + 1),
-        thumbUrl: thumbUrl,
-        thumbExt: thumbUrl.substring(thumbUrl.lastIndexOf(".") + 1),
+        fullCapsuleUrl: fullCapsuleUrl,
+        fullCapsuleExt: fullCapsuleUrl.substring(fullCapsuleUrl.lastIndexOf(".") + 1),
+        thumbCapsuleUrl: thumbCapsuleUrl,
+        thumbCapsuleExt: thumbCapsuleUrl.substring(thumbCapsuleUrl.lastIndexOf(".") + 1),
         timeout: 5000,
       })
     });
@@ -88,12 +88,70 @@ export class RestController {
       const currentTime = new Date().getTime();
 
       return [
-        `${this.COVER_BASE_URL}/thumb/${thumb}#${currentTime}`,
-        `${this.COVER_BASE_URL}/full/${full}#${currentTime}`,
+        `${this.GRIDS_BASE_URL}/thumb/${thumb}#${currentTime}`,
+        `${this.GRIDS_BASE_URL}/full/${full}#${currentTime}`,
       ];
     } else {
-      LogController.error(`Failed to cache cover ${coverUrl}:`, res.statusText);
+      LogController.error(`Failed to cache capsule ${fullCapsuleUrl}:`, res.statusText);
       return ["", ""];
+    }
+  }
+
+  
+  /**
+   * Deletes the hero for a title.
+   * @param heroUrl The url of the hero to delete.
+   * @param id The id of the title whose hero is being deleted.
+   * @returns Whether the hero was successfully deleted.
+   */
+  static async deleteHero(heroUrl: string, id: string): Promise<boolean> {
+    const res = await fetch(this.BASE_URL + `/grids/heroes/${id}`, {
+      method: "DELETE",
+      mode: "cors",
+      headers: {
+        "Accept": "application/json, text/plain, */*",
+        "Content-Type": "application/json",
+        "Hero-Extension": heroUrl.substring(heroUrl.lastIndexOf(".") + 1),
+      },
+    });
+
+    if (res.ok) {
+      return true;
+    } else {
+      LogController.error(`Failed to delete hero for ${id}:`, res.statusText);
+      return false;
+    }
+  }
+
+  /**
+   * Caches the hero for a title.
+   * @param heroUrl The url of the hero to cache.
+   * @param id The id of the title whose hero is being cached.
+   * @returns The path to the cached hero.
+   */
+  static async cacheHero(heroUrl: string, id: string): Promise<string> {
+    const res = await fetch(this.BASE_URL + `/grids/heroes/${id}`, {
+      method: "POST",
+      mode: "cors",
+      headers: {
+        "Accept": "application/json, text/plain, */*",
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        heroUrl: heroUrl,
+        heroExt: heroUrl.substring(heroUrl.lastIndexOf(".") + 1),
+        timeout: 5000,
+      })
+    });
+
+    if (res.ok) {
+      const image = await res.text();
+      const currentTime = new Date().getTime();
+
+      return `${this.GRIDS_BASE_URL}/hero/${image}#${currentTime}`;
+    } else {
+      LogController.error(`Failed to cache hero ${heroUrl}:`, res.statusText);
+      return "";
     }
   }
 
@@ -486,13 +544,15 @@ export class RestController {
    * Gets the SGDB grids for the given game and page.
    * @param id The id of the game to get grids for.
    * @param page The results page.
+   * @param gridType The type of the grids to get.
    * @returns The list of grids.
    */
-  static async getSGDBGridsById(id: string, page: number): Promise<GridResults> {
+  static async getSGDBGridsById(id: string, page: number, gridType: "grids" | "heroes"): Promise<GridResults> {
     const res = await fetch(this.BASE_URL + "/proxy/sgdb/grids", {
       headers: {
         "SGDB-Game-Id": id,
         "SGDB-Results-Page": page.toString(),
+        "SGDB-Grid-Type": gridType
       }
     });
 

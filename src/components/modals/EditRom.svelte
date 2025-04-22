@@ -15,8 +15,9 @@
   let title = $state(metadata.title);
   let sgdbId = $state(metadata.sgdbId);
   let igdbId = $state(metadata.igdbId);
-  let coverPath = $state(metadata.coverPath);
-  let thumbPath = $state(metadata.thumbPath);
+  let fullCapsulePath = $state(metadata.fullCapsulePath);
+  let thumbCapsulePath = $state(metadata.thumbCapsulePath);
+  let heroPath = $state(metadata.heroPath);
   let isFavorite = $state(metadata.isFavorite);
   let igdbMetadata = $state(metadata.metadata);
 
@@ -26,8 +27,9 @@
   async function onSave(): Promise<void> {
     $romMetadata[$romEditingId!] = {
       title: title,
-      coverPath: coverPath,
-      thumbPath: thumbPath,
+      fullCapsulePath: fullCapsulePath,
+      thumbCapsulePath: thumbCapsulePath,
+      heroPath: heroPath,
       sgdbId: sgdbId,
       igdbId: igdbId,
       metadata: igdbMetadata,
@@ -99,7 +101,7 @@
       <Checkbox bind:checked={isFavorite} />
     </label>
     <div class="actions" style:--m3-button-shape="var(--m3-util-rounding-small)">
-      <Button type="filled" extraOptions={{ style: "flex-grow: 1" }} onclick={() => RomController.changeCover($romEditingId!)}>
+      <Button type="filled" extraOptions={{ style: "flex-grow: 1" }} onclick={() => RomController.changeCapsule($romEditingId!)}>
         Edit Cover
       </Button>
       <Button type="filled" extraOptions={{ style: "flex-grow: 1" }} iconType="left" onclick={refreshMetadata}>

@@ -1,12 +1,13 @@
 <script lang="ts">
   import { scrollShadow } from "@directives";
   import { SideSheet } from "@layout";
+  import { changeGridsType } from "@stores/Modals";
   import { showSGDBFiltersSheet } from "@stores/Sheets";
   import { dbFilters } from "@stores/State";
   import type { DBFilter } from "@types";
   import FilterSection from "./FilterSection.svelte";
   
-  const sections = $derived(Object.keys($dbFilters) as (keyof DBFilter)[]);
+  const sections = $derived(Object.keys($dbFilters[$changeGridsType]) as (keyof DBFilter)[]);
 </script>
 
 <SideSheet width={300} onclose={() => $showSGDBFiltersSheet = false}>

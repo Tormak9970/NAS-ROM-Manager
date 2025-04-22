@@ -59,8 +59,9 @@
       folder: folder,
       igdbPlatformId: igdbId,
       sgdbId: sgdbId,
-      coverPath: system.coverPath,
-      thumbPath: system.thumbPath,
+      fullCapsulePath: system.fullCapsulePath,
+      thumbCapsulePath: system.thumbCapsulePath,
+      heroPath: system.heroPath,
       tagConfig: {
         backgroundColor: tagConfigColor,
         borderColor: tagConfigColor,

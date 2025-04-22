@@ -1,7 +1,7 @@
 <script lang="ts">
   import { RestController, SGDBController } from "@controllers";
   import { VirtualGrid } from "@layout";
-  import { changeCoverId } from "@stores/Modals";
+  import { changeGridsId } from "@stores/Modals";
   import { dbFilters, libraryGridType, loadedLibrary, romMetadata } from "@stores/State";
   import { filterGrids, GRID_LAYOUTS } from "@utils";
   import Rom from "@views/library/Rom.svelte";
@@ -30,24 +30,41 @@
         for (const romId of romIds) {
           const metadata = $romMetadata[romId];
 
-          if (metadata.thumbPath === "") {
-            const grids = await SGDBController.getCoversForGame(metadata.sgdbId);
-            const filtered = filterGrids(grids, $dbFilters);
+          if (metadata.thumbCapsulePath === "") {
+            const grids = await SGDBController.getCapsulesForGame(metadata.sgdbId);
+            const filtered = filterGrids(grids, $dbFilters["Capsule"]);
             
             if (filtered.length) {
               const first = filtered[0];
-              const images = await RestController.cacheCover(first.url.toString(), first.thumb.toString(), romId);
+              const images = await RestController.cacheCapsule(first.url.toString(), first.thumb.toString(), romId);
               
-              metadata.thumbPath = images[0];
-              metadata.coverPath = images[1];
+              metadata.thumbCapsulePath = images[0];
+              metadata.fullCapsulePath = images[1];
             } else {
-              metadata.thumbPath = "No Grids";
-              metadata.coverPath = "No Grids";
+              metadata.thumbCapsulePath = "No Grids";
+              metadata.fullCapsulePath = "No Grids";
             }
 
             $romMetadata[romId] = metadata;
             saveMetadata = true;
           }
+          
+          // if (metadata.heroPath === "") {
+          //   const grids = await SGDBController.getHeroesForGame(metadata.sgdbId);
+          //   const filtered = filterGrids(grids, $dbFilters["Hero"]);
+            
+          //   if (filtered.length) {
+          //     const first = filtered[0];
+          //     const images = await RestController.cacheHero(first.url.toString(), romId);
+              
+          //     metadata.heroPath = images[0];
+          //   } else {
+          //     metadata.heroPath = "No Grids";
+          //   }
+
+          //   $romMetadata[romId] = metadata;
+          //   saveMetadata = true;
+          // }
 
           loadedKeys[romId] = true;
         }
@@ -72,7 +89,7 @@
     items={romIds}
     columnGap={layout.gap}
     rowGap={layout.gap}
-    keyFunction={(entry) => `${entry.index}|${entry.data}|${entry.data === $changeCoverId}`}
+    keyFunction={(entry) => `${entry.index}|${entry.data}|${entry.data === $changeGridsId}`}
   >
     {#snippet row(entry)}
       {#if loadedKeys[entry]}

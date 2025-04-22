@@ -98,7 +98,7 @@ impl SGDBClient {
   }
 
   /// Gets the grids for a game based on its SGDB id.
-  pub async fn get_grids_by_id(&self, id: u64, page: u16) -> Result<GridResults, String> {
+  pub async fn get_grids_by_id(&self, id: u64, page: u16, grid_type: String) -> Result<GridResults, String> {
     let mut params = HashMap::new();
 
     params.insert("types".to_string(), "static,animated".to_string());
@@ -107,7 +107,7 @@ impl SGDBClient {
     params.insert("epilepsy".to_string(), "any".to_string());
     params.insert("page".to_string(), page.to_string());
 
-    let res = self.handle_request::<Results>(format!("/grids/game/{id}"), Some(params)).await;
+    let res = self.handle_request::<Results>(format!("/{grid_type}/game/{id}"), Some(params)).await;
     if res.is_err() {
       return Err(res.err().unwrap());
     }
@@ -143,7 +143,7 @@ pub async fn init_sgdb_client(sgdb_client_store: SGDBClientStore) -> Result<impl
 }
 
 /// Gets the SGDB grids for the provided game.
-pub async fn sgdb_get_grids_by_id(sgdb_client_store: SGDBClientStore, sgdb_id: String, results_page: String) -> Result<impl Reply, Rejection> {
+pub async fn sgdb_get_grids_by_id(sgdb_client_store: SGDBClientStore, sgdb_id: String, results_page: String, grid_type: String) -> Result<impl Reply, Rejection> {
   if sgdb_client_store.client.read().await.key == "".to_string() {
     warn!("SGDB Client was not initialized before request (Get Grids)");
     return Err(warp::reject::reject());
@@ -159,7 +159,7 @@ pub async fn sgdb_get_grids_by_id(sgdb_client_store: SGDBClientStore, sgdb_id: S
     warp::reject::reject()
   })?;
 
-  let res = sgdb_client_store.client.read().await.get_grids_by_id(id, page).await;
+  let res = sgdb_client_store.client.read().await.get_grids_by_id(id, page, grid_type).await;
 
   if res.is_err() {
     warn!("SGDB Get Grids Error: {}", res.err().unwrap());

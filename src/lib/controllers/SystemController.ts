@@ -1,5 +1,5 @@
 import { WebsocketController } from "@controllers/utils/WebsocketController";
-import { changeCoverId, changeCoverOnSelect, changeCoverSearchId, loadingModalMessage, showChangeCoverModal, showEditSystemModal, showLoadingModal, systemEditingId } from "@stores/Modals";
+import { changeGridsId, changeGridsOnSelect, changeGridsSearchId, changeGridsType, loadingModalMessage, showChangeGridsModal, showEditSystemModal, showLoadingModal, systemEditingId } from "@stores/Modals";
 import { roms, romsBySystem, systems } from "@stores/State";
 import type { ParserPattern } from "@types";
 import { isValidRegex } from "@utils";
@@ -20,23 +20,44 @@ export class SystemController {
   }
 
   /**
-   * Changes the cover of a rom.
+   * Changes the capsule of a rom.
    * @param abbreviation The abbreviation of the system.
    */
-  static changeCover(abbreviation: string) {
+  static changeCapsule(abbreviation: string) {
     let searchId = get(systems)[abbreviation].sgdbId;
-    changeCoverSearchId.set(searchId)
-    changeCoverOnSelect.set((cover: string, thumb: string) => {
+    changeGridsSearchId.set(searchId);
+    changeGridsType.set("Capsule");
+    changeGridsOnSelect.set((fullCapsule?: string, thumbCapsule?: string) => {
       const systemsDict = get(systems);
       
       let system = systemsDict[abbreviation];
-      system.coverPath = cover;
-      system.thumbPath = thumb;
+      system.fullCapsulePath = fullCapsule!;
+      system.thumbCapsulePath = thumbCapsule!;
 
       systems.set({ ...systemsDict });
     });
-    changeCoverId.set(abbreviation);
-    showChangeCoverModal.set(true);
+    changeGridsId.set(abbreviation);
+    showChangeGridsModal.set(true);
+  }
+
+  /**
+   * Changes the hero of a rom.
+   * @param abbreviation The abbreviation of the system.
+   */
+  static changeHero(abbreviation: string) {
+    let searchId = get(systems)[abbreviation].sgdbId;
+    changeGridsSearchId.set(searchId);
+    changeGridsType.set("Hero");
+    changeGridsOnSelect.set((fullCapsule?: string, thumbCapsule?: string, hero?: string) => {
+      const systemsDict = get(systems);
+      
+      let system = systemsDict[abbreviation];
+      system.heroPath = hero!;
+
+      systems.set({ ...systemsDict });
+    });
+    changeGridsId.set(abbreviation);
+    showChangeGridsModal.set(true);
   }
 
   /**

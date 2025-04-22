@@ -10,8 +10,8 @@
   import LibraryLoadGuard from "@layout/load-guards/LibraryLoadGuard.svelte";
   import { romsBySystem, showWarningSnackbar, systems } from "@stores/State";
   import { GRID_LAYOUTS, pluralize } from "@utils";
-  import Banner from "@views/Banner.svelte";
-  import Cover from "@views/Cover.svelte";
+  import Capsule from "@views/Capsule.svelte";
+  import Hero from "@views/Hero.svelte";
   import SystemDetails from "@views/systems/SystemDetails.svelte";
   import SystemTag from "@views/SystemTag.svelte";
   import type { PageData } from './$types';
@@ -48,7 +48,7 @@
 <LibraryLoadGuard onLoad={onLoad}>
   <div id="system-entry" class:landscape={!portrait}>
     {#if !isLoading}
-      <Banner src={system?.heroPath} portrait={portrait} />
+      <Hero src={system?.heroPath} portrait={portrait} />
       <div class="content" class:portrait>
         <div class="header" class:portrait>
           {#if portrait}
@@ -58,8 +58,8 @@
               </Button>
             </div>
           {/if}
-          <div class="cover" style="height: {GRID_LAYOUTS.portrait.height * 1.2}px;">
-            <Cover thumbPath={system?.thumbPath} />
+          <div class="capsule" style="height: {GRID_LAYOUTS.portrait.height * 1.2}px;">
+            <Capsule thumbCapsulePath={system?.thumbCapsulePath} />
           </div>
           <div class="info" class:portrait>
             <SystemTag system={abbreviation} />
@@ -149,7 +149,7 @@
     text-align: center;
   }
 
-  .cover {
+  .capsule {
     position: relative;
 
     aspect-ratio: 2 / 3;

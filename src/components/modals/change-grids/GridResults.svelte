@@ -2,6 +2,7 @@
   import { SGDBController } from "@controllers";
   import { scrollShadow } from "@directives";
   import { InfiniteScroll } from "@layout";
+  import { changeGridsType } from "@stores/Modals";
   import { dbFilters, hasMorePagesCache } from "@stores/State";
   import type { SGDBImage } from "@types";
   import { debounce, filterGrids, GRID_LAYOUTS } from "@utils";
@@ -22,18 +23,14 @@
   let isLoading = $state(true);
   let grids: SGDBImage[] = $state([]);
 
-  $effect(() => {
-    console.log("grids:", $state.snapshot(grids));
-  });
-
   const hasMore = $derived(($hasMorePagesCache && $hasMorePagesCache[sgdbId]) ?? true);
 
   /**
    * Handles loading new grids when the user scrolls to the bottom.
    */
   async function handleLoadOnScroll() {
-    const unfilteredGrids = await SGDBController.getCoversForGame(sgdbId);
-    grids = filterGrids(unfilteredGrids, $dbFilters);
+    const unfilteredGrids = await SGDBController.getCapsulesForGame(sgdbId);
+    grids = filterGrids(unfilteredGrids, $dbFilters[$changeGridsType]);
   }
 
   async function handleResize(isOverflowing: boolean) {

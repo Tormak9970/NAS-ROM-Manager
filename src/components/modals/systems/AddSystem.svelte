@@ -64,8 +64,8 @@
       folder: folder,
       igdbPlatformId: igdbId,
       sgdbId: "",
-      coverPath: "",
-      thumbPath: "",
+      fullCapsulePath: "",
+      thumbCapsulePath: "",
       tagConfig: {
         backgroundColor: tagConfigColor,
         borderColor: tagConfigColor,

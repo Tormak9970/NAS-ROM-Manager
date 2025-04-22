@@ -11,7 +11,7 @@
   import SystemTag from "@views/SystemTag.svelte";
   import Tag from "@views/Tag.svelte";
   import { fade } from "svelte/transition";
-  import Cover from "../Cover.svelte";
+  import Capsule from "../Capsule.svelte";
 
   type RomProps = {
     romId: string;
@@ -38,12 +38,12 @@
   in:fade={{ duration: 200 }}
   use:contextMenu={{ items: menuItems }}
 >
-  {#if metadata.thumbPath === "No Grids"}
+  {#if metadata.thumbCapsulePath === "No Grids"}
     <div class="placeholder">
       <Icon icon={Landscape} height="1.5rem" width="1.5rem" />
     </div>
   {/if}
-  <Cover thumbPath={metadata.thumbPath} />
+  <Capsule thumbCapsulePath={metadata.thumbCapsulePath} />
   <div class="overlay">
     <div class="rom-info">
       <div class="title">{rom.title}</div>

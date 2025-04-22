@@ -8,7 +8,7 @@
   import SystemTag from "@views/SystemTag.svelte";
   import Tag from "@views/Tag.svelte";
   import { fade } from "svelte/transition";
-  import Cover from "../Cover.svelte";
+  import Capsule from "../Capsule.svelte";
 
   type Props = {
     abbreviation: string;
@@ -31,12 +31,12 @@
   in:fade={{ duration: 200 }}
   use:contextMenu={{ items: menuItems }}
 >
-  {#if system.thumbPath === "No Grids"}
+  {#if system.thumbCapsulePath === "No Grids"}
     <div class="placeholder">
       <Icon icon={Landscape} height="1.5rem" width="1.5rem" />
     </div>
   {/if}
-  <Cover thumbPath={system.thumbPath} />
+  <Capsule thumbCapsulePath={system.thumbCapsulePath} />
   <div class="system-tag">
     <SystemTag system={abbreviation} />
   </div>

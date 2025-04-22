@@ -68,8 +68,8 @@ export class AppController {
       if (!romEdits[id]) {
         romEdits[id] = {
           title: rom.title,
-          coverPath: "",
-          thumbPath: "",
+          fullCapsulePath: "",
+          thumbCapsulePath: "",
           sgdbId: "",
           igdbId: "",
           heroPath: "",

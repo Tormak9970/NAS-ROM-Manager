@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { selectedNewCoverGrid } from "@stores/Modals";
+  import { selectedNewGrid } from "@stores/Modals";
   import type { SGDBImage } from "@types";
   import GridImage from "./GridImage.svelte";
 
@@ -11,13 +11,13 @@
 
   let imagePath = grid.thumb.toString();
 
-  const selected = $derived($selectedNewCoverGrid?.id === grid.id);
+  const selected = $derived($selectedNewGrid?.id === grid.id);
 
   function handleClick() {
-    if ($selectedNewCoverGrid?.id === grid.id) {
-      $selectedNewCoverGrid = null;
+    if ($selectedNewGrid?.id === grid.id) {
+      $selectedNewGrid = null;
     } else {
-      $selectedNewCoverGrid = grid;
+      $selectedNewGrid = grid;
     }
   }
 </script>

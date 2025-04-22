@@ -5,7 +5,7 @@
   import { Tune } from "@icons";
   import { Button } from "@interactables";
   import { LoadingSpinner } from "@layout";
-  import { changeCoverId, changeCoverOnSelect, changeCoverSearchId, selectedNewCoverGrid, showChangeCoverModal } from "@stores/Modals";
+  import { changeGridsId, changeGridsOnSelect, changeGridsSearchId, changeGridsType, selectedNewGrid, showChangeGridsModal } from "@stores/Modals";
   import { showSGDBFiltersSheet } from "@stores/Sheets";
   import GridResults from "./GridResults.svelte";
 
@@ -13,7 +13,7 @@
   
   let saving = $state(false);
 
-  const canSave = $derived($selectedNewCoverGrid !== null);
+  const canSave = $derived($selectedNewGrid !== null);
 
   /**
    * Function to run on confirmation.
@@ -21,13 +21,22 @@
   async function onSave(): Promise<void> {
     saving = true;
 
-    const [cover, thumb] = await RestController.cacheCover(
-      $selectedNewCoverGrid!.url.toString(),
-      $selectedNewCoverGrid!.thumb.toString(),
-      $changeCoverId!.replace(/[/\\?%*:|"<> ]/g, '_')
-    )
+    if ($changeGridsType === "Capsule") {
+      const [fullCapsule, thumbCapsule] = await RestController.cacheCapsule(
+        $selectedNewGrid!.url.toString(),
+        $selectedNewGrid!.thumb.toString(),
+        $changeGridsId!.replace(/[/\\?%*:|"<> ]/g, '_')
+      )
 
-    $changeCoverOnSelect(cover, thumb);
+      $changeGridsOnSelect(fullCapsule, thumbCapsule);
+    } else {
+      const hero = await RestController.cacheHero(
+        $selectedNewGrid!.url.toString(),
+        $changeGridsId!.replace(/[/\\?%*:|"<> ]/g, '_')
+      )
+
+      $changeGridsOnSelect(undefined, undefined, hero);
+    }
 
     open = false;
   }
@@ -40,16 +49,17 @@
   }
 
   function closeEnd() {
-    $showChangeCoverModal = false;
-    $changeCoverSearchId = null;
-    $selectedNewCoverGrid = null;
-    $changeCoverId = null;
-    $changeCoverOnSelect = () => {};
+    $showChangeGridsModal = false;
+    $changeGridsType = "Capsule";
+    $changeGridsSearchId = null;
+    $selectedNewGrid = null;
+    $changeGridsId = null;
+    $changeGridsOnSelect = () => {};
   }
 </script>
 
 <ModalBody
-  headline={"Change Cover Art"}
+  headline={`Change ${$changeGridsType === "Capsule" ? "Cover" : "Banner"} Art`}
   open={open}
   oncloseend={closeEnd}
   maxWidth="50rem"
@@ -70,10 +80,10 @@
   <div class="content">
     {#if saving}
       <div class="loading-container">
-        <LoadingSpinner /> <div class="font-headline-small">Applying Cover...</div>
+        <LoadingSpinner /> <div class="font-headline-small">Applying Grid...</div>
       </div>
     {:else}
-      <GridResults sgdbId={$changeCoverSearchId!} />
+      <GridResults sgdbId={$changeGridsSearchId!} />
     {/if}
   </div>
   {#snippet buttons()}

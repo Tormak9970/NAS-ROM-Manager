@@ -4,7 +4,8 @@ export type DBFilter = {
   mimes: Record<string, boolean>;
   types: Record<string, boolean>;
   oneoftag: Record<string, boolean>;
-};
+}
+export type DBFilters = Record<string, DBFilter>;
 
 export interface SGDBGame {
   id: number;

@@ -43,11 +43,12 @@ export const systemEditingId = writable<string | null>(null);
 export const showLoadingModal = writable(false);
 export const loadingModalMessage = writable("");
 
-export const showChangeCoverModal = writable(false);
-export const changeCoverId = writable<string | null>(null);
-export const changeCoverSearchId = writable<string | null>(null);
-export const selectedNewCoverGrid = writable<SGDBImage | null>(null);
-export const changeCoverOnSelect = writable<(cover: string, thumb: string) => void>(() => {});
+export const showChangeGridsModal = writable(false);
+export const changeGridsId = writable<string | null>(null);
+export const changeGridsSearchId = writable<string | null>(null);
+export const selectedNewGrid = writable<SGDBImage | null>(null);
+export const changeGridsOnSelect = writable<(fullCapsule?: string, thumbCapsule?: string, hero?: string) => void>(() => {});
+export const changeGridsType = writable<"Capsule" | "Hero">("Capsule");
 
 export const showSearchSGDBModal = writable(false);
 export const sgdbSearchTitle = writable<string | null>(null);

@@ -1,4 +1,4 @@
-mod covers;
+mod grids;
 mod rom_download;
 mod rom_upload;
 mod types;
@@ -9,17 +9,21 @@ mod igdb;
 use std::{collections::HashMap, fs::remove_file, str::FromStr, thread};
 
 use chrono::Utc;
-use covers::{delete_cover, upload_cover};
+use grids::{delete_hero, delete_capsule, upload_hero, upload_capsule};
 use cron::Schedule;
 use igdb::{igdb_get_metadata_by_id, igdb_search_game, igdb_search_platform, init_igdb_client};
 use log::{info, warn};
 use rom_download::{delete_rom, rom_download, rom_download_complete, rom_download_get_metadata};
 use rom_upload::{prepare_rom_upload, rom_upload_cancel, rom_upload_complete, upload_rom};
 use sgdb::{init_sgdb_client, sgdb_get_grids_by_id, sgdb_search_game};
-use types::{CoverUpload, IGDBClientStore, ROMDownload, ROMUploadComplete, SGDBClientStore, StreamStore};
+use types::{HeroUpload, CapsuleUpload, IGDBClientStore, ROMDownload, ROMUploadComplete, SGDBClientStore, StreamStore};
 use warp::{http::Method, Filter};
 
-fn json_cover_upload() -> impl Filter<Extract = (CoverUpload,), Error = warp::Rejection> + Clone {
+fn json_capsule_upload() -> impl Filter<Extract = (CapsuleUpload,), Error = warp::Rejection> + Clone {
+  warp::body::content_length_limit(50 * 1024 * 1024).and(warp::body::json())
+}
+
+fn json_hero_upload() -> impl Filter<Extract = (HeroUpload,), Error = warp::Rejection> + Clone {
   warp::body::content_length_limit(50 * 1024 * 1024).and(warp::body::json())
 }
 
@@ -32,8 +36,8 @@ fn json_body_upload_complete() -> impl Filter<Extract = (ROMUploadComplete,), Er
 }
 
 /// Gets the rest api routes.
-pub fn initialize_rest_api(cover_cache_dir: String, cleanup_schedule: String) -> impl Filter<Extract = (impl warp::Reply,), Error = warp::Rejection> + Clone {
-  let cache_dir = cover_cache_dir.clone();
+pub fn initialize_rest_api(grids_cache_dir: String, cleanup_schedule: String) -> impl Filter<Extract = (impl warp::Reply,), Error = warp::Rejection> + Clone {
+  let cache_dir = grids_cache_dir.clone();
   let cache_dir_filter = warp::any().map(move || cache_dir.clone());
 
   let cors = warp::cors()
@@ -46,13 +50,15 @@ pub fn initialize_rest_api(cover_cache_dir: String, cleanup_schedule: String) ->
       "Content-Range",
       "Range",
       "Content-Type",
-      "Cover-Extension",
-      "Thumb-Extension",
+      "Full-Capsule-Extension",
+      "Thumb-Capsule-Extension",
+      "Hero-Extension",
       "File-Length",
       "Upload-Id",
       "File-Size",
       "SGDB-Game-Id",
       "SGDB-Results-Page",
+      "SGDB-Grid-Type",
       "IGDB-Game-Id",
     ])
     .allow_methods(&[
@@ -61,26 +67,42 @@ pub fn initialize_rest_api(cover_cache_dir: String, cleanup_schedule: String) ->
       Method::DELETE
     ]);
 
-  // * GET cover (rest/covers/{id}.png)
-  let cover_get_route = warp::path!("rest" / "covers" / ..)
-    .and(warp::fs::dir(cover_cache_dir))
+  // * GET grids (rest/grids/{image_file})
+  let grids_get_route = warp::path!("rest" / "grids" / ..)
+    .and(warp::fs::dir(grids_cache_dir))
     .with(&cors);
 
-  // * POST cover (rest/covers/{id})
-  let cover_upload_route = warp::path!("rest" / "covers" / String)
+  // * POST capsule (rest/grids/capsules/{id})
+  let capsule_upload_route = warp::path!("rest" / "grids" / "capsules" / String)
     .and(warp::post())
     .and(cache_dir_filter.clone())
-    .and(json_cover_upload())
-    .and_then(upload_cover)
+    .and(json_capsule_upload())
+    .and_then(upload_capsule)
     .with(&cors);
   
-  // * DELETE cover (rest/covers/{id}) (might need delete)
-  let cover_delete_route = warp::path!("rest" / "covers" / String)
+  // * DELETE capsule (rest/grids/capsules/{id})
+  let capsule_delete_route = warp::path!("rest" / "grids" / "capsules" / String)
     .and(warp::delete())
     .and(cache_dir_filter.clone())
-    .and(warp::filters::header::header("Cover-Extension"))
-    .and(warp::filters::header::header("Thumb-Extension"))
-    .and_then(delete_cover)
+    .and(warp::filters::header::header("Full-Capsule-Extension"))
+    .and(warp::filters::header::header("Thumb-Capsule-Extension"))
+    .and_then(delete_capsule)
+    .with(&cors);
+  
+  // * POST hero (rest/grids/heroes/{id})
+  let hero_upload_route = warp::path!("rest" / "grids" / "heroes" / String)
+    .and(warp::post())
+    .and(cache_dir_filter.clone())
+    .and(json_hero_upload())
+    .and_then(upload_hero)
+    .with(&cors);
+  
+  // * DELETE hero (rest/grids/heroes/{id})
+  let hero_delete_route = warp::path!("rest" / "grids" / "heroes" / String)
+    .and(warp::delete())
+    .and(cache_dir_filter.clone())
+    .and(warp::filters::header::header("Hero-Extension"))
+    .and_then(delete_hero)
     .with(&cors);
 
 
@@ -166,6 +188,7 @@ pub fn initialize_rest_api(cover_cache_dir: String, cleanup_schedule: String) ->
     .and(sgdb_client_store_filter.clone())
     .and(warp::filters::header::header("SGDB-Game-Id"))
     .and(warp::filters::header::header("SGDB-Results-Page"))
+    .and(warp::filters::header::header("SGDB-Grid-Type"))
     .and_then(sgdb_get_grids_by_id)
     .with(&cors);
   
@@ -209,9 +232,11 @@ pub fn initialize_rest_api(cover_cache_dir: String, cleanup_schedule: String) ->
     .with(&cors);
 
   
-  let http_routes = cover_get_route
-    .or(cover_upload_route)
-    .or(cover_delete_route)
+  let http_routes = grids_get_route
+    .or(capsule_upload_route)
+    .or(capsule_delete_route)
+    .or(hero_upload_route)
+    .or(hero_delete_route)
     .or(rom_download_get_metadata)
     .or(rom_download_route)
     .or(rom_download_complete_route)

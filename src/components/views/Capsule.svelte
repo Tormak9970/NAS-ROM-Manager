@@ -1,11 +1,11 @@
 <script lang="ts">
-  let { thumbPath }: { thumbPath: string } = $props();
+  let { thumbCapsulePath }: { thumbCapsulePath: string } = $props();
 </script>
 
-<div class="cover" style:--cover-url='url("{thumbPath === "No Grids" ? "" : thumbPath}")'></div>
+<div class="capsule" style:--cover-url='url("{thumbCapsulePath === "No Grids" ? "" : thumbCapsulePath}")'></div>
 
 <style>
-  .cover {
+  .capsule {
     position: absolute;
     top: 0;
     left: 0;

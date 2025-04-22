@@ -11,7 +11,11 @@ export function getRomMenuItems(romId: string, igdbId: string): ContextMenuItem[
   });
   items.push({
     text: "Change Cover",
-    action: () => RomController.changeCover(romId),
+    action: () => RomController.changeCapsule(romId),
+  });
+  items.push({
+    text: "Change Banner",
+    action: () => RomController.changeHero(romId),
   });
   items.push({
     text: "Download",

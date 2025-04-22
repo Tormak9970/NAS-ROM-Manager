@@ -41,8 +41,8 @@ pub struct Parser {
   pub igdbPlatformId: String,
   pub folder: String,
   pub sgdbId: String,
-  pub coverPath: String,
-  pub thumbPath: String,
+  pub fullCapsulePath: String,
+  pub thumbCapsulePath: String,
   pub heroPath: String,
   pub tagConfig: SystemTagConfig,
   pub patterns: Vec<ParserPattern>,
@@ -65,8 +65,8 @@ pub struct ROM {
 #[allow(non_snake_case)]
 pub struct ROMMetadata {
   pub title: String,
-  pub coverPath: String,
-  pub thumbPath: String,
+  pub fullCapsulePath: String,
+  pub thumbCapsulePath: String,
   pub heroPath: String,
   pub sgdbId: String,
   pub igdbId: String,

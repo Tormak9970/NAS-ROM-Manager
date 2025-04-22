@@ -1,7 +1,7 @@
 <script lang="ts">
   import { RestController, SGDBController } from "@controllers";
   import { VirtualGrid } from "@layout";
-  import { changeCoverId } from "@stores/Modals";
+  import { changeGridsId } from "@stores/Modals";
   import { dbFilters, libraryGridType, loadedLibrary, systems } from "@stores/State";
   import { filterGrids, GRID_LAYOUTS } from "@utils";
   import RomLoadingSkeleton from "@views/library/RomLoadingSkeleton.svelte";
@@ -26,23 +26,39 @@
         for (const systemName of systemNamesList) {
           const system = $systems[systemName];
 
-          if (system.thumbPath === "") {
-            const grids = await SGDBController.getCoversForGame(system.sgdbId);
-            const filtered = filterGrids(grids, $dbFilters);
+          if (system.thumbCapsulePath === "") {
+            const grids = await SGDBController.getCapsulesForGame(system.sgdbId);
+            const filtered = filterGrids(grids, $dbFilters["Capsule"]);
             
             if (filtered.length) {
               const first = filtered[0];
-              const images = await RestController.cacheCover(first.url.toString(), first.thumb.toString(), system.abbreviation);
+              const images = await RestController.cacheCapsule(first.url.toString(), first.thumb.toString(), system.abbreviation);
               
-              system.thumbPath = images[0];
-              system.coverPath = images[1];
+              system.thumbCapsulePath = images[0];
+              system.fullCapsulePath = images[1];
             } else {
-              system.thumbPath = "No Grids";
-              system.coverPath = "No Grids";
+              system.thumbCapsulePath = "No Grids";
+              system.fullCapsulePath = "No Grids";
             }
 
             saveMetadata = true;
           }
+          
+          // if (system.heroPath === "") {
+          //   const grids = await SGDBController.getHeroesForGame(system.sgdbId);
+          //   const filtered = filterGrids(grids, $dbFilters["Hero"]);
+            
+          //   if (filtered.length) {
+          //     const first = filtered[0];
+          //     const images = await RestController.cacheHero(first.url.toString(), system.abbreviation);
+              
+          //     system.heroPath = images[0];
+          //   } else {
+          //     system.heroPath = "No Grids";
+          //   }
+
+          //   saveMetadata = true;
+          // }
 
           systemsLoaded++;
           loadedKeys[systemName] = true;
@@ -73,7 +89,7 @@
     items={systemNamesList}
     columnGap={layout.gap}
     rowGap={layout.gap}
-    keyFunction={(entry) => `${entry.index}|${entry.data}|${entry.data === $changeCoverId}`}
+    keyFunction={(entry) => `${entry.index}|${entry.data}|${entry.data === $changeGridsId}`}
   >
     {#snippet row(entry)}
       {#if loadedKeys[entry]}

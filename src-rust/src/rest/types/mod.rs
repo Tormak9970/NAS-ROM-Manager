@@ -12,11 +12,19 @@ use super::sgdb::SGDBClient;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[allow(non_snake_case)]
-pub struct CoverUpload {
-  pub coverUrl: String,
-  pub coverExt: String,
-  pub thumbUrl: String,
-  pub thumbExt: String,
+pub struct HeroUpload {
+  pub heroUrl: String,
+  pub heroExt: String,
+  pub timeout: u64,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+#[allow(non_snake_case)]
+pub struct CapsuleUpload {
+  pub fullCapsuleUrl: String,
+  pub fullCapsuleExt: String,
+  pub thumbCapsuleUrl: String,
+  pub thumbCapsuleExt: String,
   pub timeout: u64,
 }
 

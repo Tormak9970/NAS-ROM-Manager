@@ -11,8 +11,8 @@
   import { romMetadata, roms, showWarningSnackbar, systems } from "@stores/State";
   import { NO_IGDB_RESULTS } from "@types";
   import { formatFileSize, GRID_LAYOUTS } from "@utils";
-  import Banner from "@views/Banner.svelte";
-  import Cover from "@views/Cover.svelte";
+  import Capsule from "@views/Capsule.svelte";
+  import Hero from "@views/Hero.svelte";
   import RomMetadata from "@views/library/details/RomMetadata.svelte";
   import SystemTag from "@views/SystemTag.svelte";
   import type { PageData } from './$types';
@@ -77,7 +77,7 @@
 <LibraryLoadGuard onLoad={onLoad}>
   <div id="rom-entry" class:landscape={!portrait}>
     {#if !isLoading}
-      <Banner src={metadata?.heroPath} portrait={portrait} />
+      <Hero src={metadata?.heroPath} portrait={portrait} />
       <div class="content" class:portrait>
         <div class="header" class:portrait>
           {#if portrait}
@@ -87,8 +87,8 @@
               </Button>
             </div>
           {/if}
-          <div class="cover" style="height: {GRID_LAYOUTS.portrait.height * 1.2}px;">
-            <Cover thumbPath={metadata?.thumbPath} />
+          <div class="capsule" style="height: {GRID_LAYOUTS.portrait.height * 1.2}px;">
+            <Capsule thumbCapsulePath={metadata?.thumbCapsulePath} />
           </div>
           <div class="info" class:portrait>
             <SystemTag system={rom?.system} />
@@ -192,7 +192,7 @@
     text-align: center;
   }
 
-  .cover {
+  .capsule {
     position: relative;
 
     aspect-ratio: 2 / 3;

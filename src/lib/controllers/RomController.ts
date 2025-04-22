@@ -1,4 +1,4 @@
-import { changeCoverId, changeCoverOnSelect, changeCoverSearchId, downloadProgressRom, loadingModalMessage, romEditingId, showChangeCoverModal, showDownloadProgressModal, showEditRomModal, showLoadingModal } from "@stores/Modals";
+import { changeGridsId, changeGridsOnSelect, changeGridsSearchId, changeGridsType, downloadProgressRom, loadingModalMessage, romEditingId, showChangeGridsModal, showDownloadProgressModal, showEditRomModal, showLoadingModal } from "@stores/Modals";
 import { romMetadata, roms, romsBySystem } from "@stores/State";
 import type { IGDBGame } from "@types";
 import { get } from "svelte/store";
@@ -30,23 +30,44 @@ export class RomController {
   }
 
   /**
-   * Changes the cover of a rom.
+   * Changes the capsule of a rom.
    * @param romId The id of the rom.
    */
-  static changeCover(romId: string) {
+  static changeCapsule(romId: string) {
     let searchId = get(romMetadata)[romId].sgdbId;
-    changeCoverSearchId.set(searchId)
-    changeCoverOnSelect.set((cover: string, thumb: string) => {
+    changeGridsSearchId.set(searchId);
+    changeGridsType.set("Capsule");
+    changeGridsOnSelect.set((fullCapsule?: string, thumbCapsule?: string) => {
       const metadataDict = get(romMetadata);
       
       let metadata = metadataDict[romId];
-      metadata.coverPath = cover;
-      metadata.thumbPath = thumb;
+      metadata.fullCapsulePath = fullCapsule!;
+      metadata.thumbCapsulePath = thumbCapsule!;
 
       romMetadata.set({ ...metadataDict });
     });
-    changeCoverId.set(romId);
-    showChangeCoverModal.set(true);
+    changeGridsId.set(romId);
+    showChangeGridsModal.set(true);
+  }
+
+  /**
+   * Changes the capsule of a rom.
+   * @param romId The id of the rom.
+   */
+  static changeHero(romId: string) {
+    let searchId = get(romMetadata)[romId].sgdbId;
+    changeGridsSearchId.set(searchId);
+    changeGridsType.set("Hero");
+    changeGridsOnSelect.set((fullCapsule?: string, thumbCapsule?: string, hero?: string) => {
+      const metadataDict = get(romMetadata);
+      
+      let metadata = metadataDict[romId];
+      metadata.heroPath = hero!;
+
+      romMetadata.set({ ...metadataDict });
+    });
+    changeGridsId.set(romId);
+    showChangeGridsModal.set(true);
   }
 
   /**
