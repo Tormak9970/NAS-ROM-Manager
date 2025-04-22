@@ -104,6 +104,11 @@
       <Button type="filled" extraOptions={{ style: "flex-grow: 1" }} onclick={() => RomController.changeCapsule($romEditingId!)}>
         Edit Cover
       </Button>
+      <Button type="filled" extraOptions={{ style: "flex-grow: 1" }} onclick={() => RomController.changeHero($romEditingId!)}>
+        Edit Banner
+      </Button>
+    </div>
+    <div class="actions" style:--m3-button-shape="var(--m3-util-rounding-small)">
       <Button type="filled" extraOptions={{ style: "flex-grow: 1" }} iconType="left" onclick={refreshMetadata}>
         <Icon icon={Cached} />
         Metadata

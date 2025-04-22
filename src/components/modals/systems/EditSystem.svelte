@@ -19,6 +19,9 @@
   let systemName = $state(system.name);
   let igdbId = $state(system.igdbPlatformId);
   let sgdbId = $state(system.sgdbId);
+  let fullCapsulePath = $state(system.fullCapsulePath);
+  let thumbCapsulePath = $state(system.thumbCapsulePath);
+  let heroPath = $state(system.heroPath);
   let abbreviation = $state(system.abbreviation);
   let folder = $state(system.folder);
 
@@ -59,9 +62,9 @@
       folder: folder,
       igdbPlatformId: igdbId,
       sgdbId: sgdbId,
-      fullCapsulePath: system.fullCapsulePath,
-      thumbCapsulePath: system.thumbCapsulePath,
-      heroPath: system.heroPath,
+      fullCapsulePath: fullCapsulePath,
+      thumbCapsulePath: thumbCapsulePath,
+      heroPath: heroPath,
       tagConfig: {
         backgroundColor: tagConfigColor,
         borderColor: tagConfigColor,
@@ -133,6 +136,14 @@
           trailingIcon={DatabaseSearch}
           ontrailingClick={openSGDBSearch}
         />
+        <div class="actions" style:--m3-button-shape="var(--m3-util-rounding-small)">
+          <Button type="filled" extraOptions={{ style: "flex-grow: 1" }} onclick={() => SystemController.changeCapsule($systemEditingId!)}>
+            Edit Cover
+          </Button>
+          <Button type="filled" extraOptions={{ style: "flex-grow: 1" }} onclick={() => SystemController.changeHero($systemEditingId!)}>
+            Edit Banner
+          </Button>
+        </div>
         <TextField
           name="Abbreviation"
           bind:value={abbreviation}
@@ -179,5 +190,20 @@
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
+  }
+
+  .actions {
+    width: 100%;
+
+    display: flex;
+    justify-content: space-between;
+
+    gap: 0.5rem;
+
+    margin-bottom: 0.25rem;
+  }
+
+  .actions > :global(button) {
+    width: calc(50% - 0.25rem);
   }
 </style>

@@ -49,22 +49,22 @@
             saveMetadata = true;
           }
           
-          // if (metadata.heroPath === "") {
-          //   const grids = await SGDBController.getHeroesForGame(metadata.sgdbId);
-          //   const filtered = filterGrids(grids, $dbFilters["Hero"]);
+          if (metadata.heroPath === "") {
+            const grids = await SGDBController.getHeroesForGame(metadata.sgdbId);
+            const filtered = filterGrids(grids, $dbFilters["Hero"]);
             
-          //   if (filtered.length) {
-          //     const first = filtered[0];
-          //     const images = await RestController.cacheHero(first.url.toString(), romId);
+            if (filtered.length) {
+              const first = filtered[0];
+              const images = await RestController.cacheHero(first.url.toString(), romId);
               
-          //     metadata.heroPath = images[0];
-          //   } else {
-          //     metadata.heroPath = "No Grids";
-          //   }
+              metadata.heroPath = images[0];
+            } else {
+              metadata.heroPath = "No Grids";
+            }
 
-          //   $romMetadata[romId] = metadata;
-          //   saveMetadata = true;
-          // }
+            $romMetadata[romId] = metadata;
+            saveMetadata = true;
+          }
 
           loadedKeys[romId] = true;
         }

@@ -44,21 +44,21 @@
             saveMetadata = true;
           }
           
-          // if (system.heroPath === "") {
-          //   const grids = await SGDBController.getHeroesForGame(system.sgdbId);
-          //   const filtered = filterGrids(grids, $dbFilters["Hero"]);
+          if (system.heroPath === "") {
+            const grids = await SGDBController.getHeroesForGame(system.sgdbId);
+            const filtered = filterGrids(grids, $dbFilters["Hero"]);
             
-          //   if (filtered.length) {
-          //     const first = filtered[0];
-          //     const images = await RestController.cacheHero(first.url.toString(), system.abbreviation);
+            if (filtered.length) {
+              const first = filtered[0];
+              const images = await RestController.cacheHero(first.url.toString(), system.abbreviation);
               
-          //     system.heroPath = images[0];
-          //   } else {
-          //     system.heroPath = "No Grids";
-          //   }
+              system.heroPath = images[0];
+            } else {
+              system.heroPath = "No Grids";
+            }
 
-          //   saveMetadata = true;
-          // }
+            saveMetadata = true;
+          }
 
           systemsLoaded++;
           loadedKeys[systemName] = true;
