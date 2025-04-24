@@ -5,9 +5,10 @@
 
   type Props = {
     grid: SGDBImage;
+    gridType: string
   }
 
-  let { grid }: Props = $props();
+  let { grid, gridType }: Props = $props();
 
   let imagePath = grid.thumb.toString();
 
@@ -31,6 +32,7 @@
   <GridImage
     imagePath={imagePath}
     altText="{grid.author.name}'s Grid image"
+    gridType={gridType}
     isVideo={grid.isAnimated}
   />
 </div>

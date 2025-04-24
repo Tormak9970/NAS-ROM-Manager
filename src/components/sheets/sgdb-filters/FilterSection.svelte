@@ -1,11 +1,12 @@
 <script lang="ts">
   import { Toggle } from "@interactables";
+  import { changeGridsType } from "@stores/Modals";
   import { dbFilters } from "@stores/State";
-  import type { DBFilters } from "@types";
+  import type { DBFilter } from "@types";
   import { toUpperCaseSplit } from "@utils";
 
   type Props = {
-    section: keyof DBFilters;
+    section: keyof DBFilter;
   }
 
   let { section }: Props = $props();
@@ -18,12 +19,12 @@
    * @param filter The filter to update.
    * @returns A function to update the filter.
    */
-  function updateFilters(section: keyof DBFilters, filter: string): (e: any) => void {
+  function updateFilters(section: keyof DBFilter, filter: string): (e: any) => void {
     return (e: any) => {
       const value = e.detail.value;
       const filters = $dbFilters;
 
-      filters[section][filter] = value;
+      filters[$changeGridsType][section][filter] = value;
 
       $dbFilters = { ...filters };
     }
@@ -33,11 +34,11 @@
 <div class="filter-section">
   <div class="section-label">{label}</div>
   <div class="filters">
-    {#each Object.keys($dbFilters[section]) as filter}
+    {#each Object.keys($dbFilters[$changeGridsType][section]) as filter}
       <label class="toggle-container m3-font-title-medium">
         {toUpperCaseSplit(filter)}
         <Toggle
-          checked={$dbFilters[section][filter]}
+          checked={$dbFilters[$changeGridsType][section][filter]}
           onchange={updateFilters(section, filter)}
         />
       </label>

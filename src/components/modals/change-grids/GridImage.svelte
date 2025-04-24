@@ -8,11 +8,12 @@
     imagePath: string;
     altText: string;
     isVideo: boolean;
+    gridType: string;
   }
 
-  let { imagePath, altText, isVideo = false}: Props = $props();
+  let { imagePath, altText, gridType, isVideo}: Props = $props();
   
-  const layout = $derived(GRID_LAYOUTS.sgdbGrid);
+  const layout = $derived(GRID_LAYOUTS[gridType]);
   const widthWithBorder = $derived(layout.width - 2);
   const heightWithBorder = $derived(layout.height - 2);
 

@@ -19,9 +19,6 @@
   let systemName = $state(system.name);
   let igdbId = $state(system.igdbPlatformId);
   let sgdbId = $state(system.sgdbId);
-  let fullCapsulePath = $state(system.fullCapsulePath);
-  let thumbCapsulePath = $state(system.thumbCapsulePath);
-  let heroPath = $state(system.heroPath);
   let abbreviation = $state(system.abbreviation);
   let folder = $state(system.folder);
 
@@ -62,9 +59,9 @@
       folder: folder,
       igdbPlatformId: igdbId,
       sgdbId: sgdbId,
-      fullCapsulePath: fullCapsulePath,
-      thumbCapsulePath: thumbCapsulePath,
-      heroPath: heroPath,
+      fullCapsulePath: $systems[$systemEditingId!].fullCapsulePath,
+      thumbCapsulePath: $systems[$systemEditingId!].thumbCapsulePath,
+      heroPath: $systems[$systemEditingId!].heroPath,
       tagConfig: {
         backgroundColor: tagConfigColor,
         borderColor: tagConfigColor,

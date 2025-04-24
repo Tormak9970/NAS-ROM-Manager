@@ -16,7 +16,8 @@
 
   let { sgdbId }: Props = $props();
 
-  const layout = $derived(GRID_LAYOUTS[$changeGridsType === "Capsule" ? "sgdbGrid" : "sgdbHero"]);
+  const layoutType = $derived($changeGridsType === "Capsule" ? "sgdbGrid" : "sgdbHero");
+  const layout = $derived(GRID_LAYOUTS[layoutType]);
   
   let gridsContainer: HTMLDivElement | undefined = $state(undefined);
 
@@ -29,7 +30,7 @@
    * Handles loading new grids when the user scrolls to the bottom.
    */
   async function handleLoadOnScroll() {
-    const unfilteredGrids = await SGDBController.getCapsulesForGame(sgdbId);
+    const unfilteredGrids = await SGDBController[`get${$changeGridsType === "Capsule" ? "Capsule" : "Heroe"}sForGame`](sgdbId);
     grids = filterGrids(unfilteredGrids, $dbFilters[$changeGridsType]);
   }
 
@@ -56,14 +57,14 @@
         class="game-grid"
         style="--img-width: {layout.width}px; --img-height: {layout.height}px; --gap: {layout.gap}px;">
         {#each new Array(100) as _}
-          <GridLoadingSkeleton />
+          <GridLoadingSkeleton gridType={layoutType} />
         {/each}
       </div>
     {:else}
       {#if grids.length > 0}
         <div bind:this={gridsContainer} class="game-grid" style="--img-width: {layout.width}px; --img-height: {layout.height}px; --gap: {layout.gap}px;">
           {#each grids as grid (grid.id)}
-            <Grid grid={grid} />
+            <Grid grid={grid} gridType={layoutType} />
           {/each}
         </div>
       {:else}

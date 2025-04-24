@@ -88,7 +88,9 @@
             </div>
           {/if}
           <div class="capsule" style="height: {GRID_LAYOUTS.portrait.height * 1.2}px;">
-            <Capsule thumbCapsulePath={metadata?.thumbCapsulePath} />
+            {#key metadata?.thumbCapsulePath}
+              <Capsule thumbCapsulePath={metadata?.thumbCapsulePath} />
+            {/key}
           </div>
           <div class="info" class:portrait>
             <SystemTag system={rom?.system} />

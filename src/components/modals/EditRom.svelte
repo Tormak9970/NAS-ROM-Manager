@@ -15,9 +15,6 @@
   let title = $state(metadata.title);
   let sgdbId = $state(metadata.sgdbId);
   let igdbId = $state(metadata.igdbId);
-  let fullCapsulePath = $state(metadata.fullCapsulePath);
-  let thumbCapsulePath = $state(metadata.thumbCapsulePath);
-  let heroPath = $state(metadata.heroPath);
   let isFavorite = $state(metadata.isFavorite);
   let igdbMetadata = $state(metadata.metadata);
 
@@ -27,9 +24,9 @@
   async function onSave(): Promise<void> {
     $romMetadata[$romEditingId!] = {
       title: title,
-      fullCapsulePath: fullCapsulePath,
-      thumbCapsulePath: thumbCapsulePath,
-      heroPath: heroPath,
+      fullCapsulePath: $romMetadata[$romEditingId!].fullCapsulePath,
+      thumbCapsulePath: $romMetadata[$romEditingId!].thumbCapsulePath,
+      heroPath: $romMetadata[$romEditingId!].heroPath,
       sgdbId: sgdbId,
       igdbId: igdbId,
       metadata: igdbMetadata,

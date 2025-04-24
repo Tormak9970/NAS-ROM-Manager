@@ -1,7 +1,15 @@
 <script lang="ts">
   import { GRID_LAYOUTS } from "@utils";
+
+  type Props = {
+    gridType?: string;
+  }
+
+  let {
+    gridType = "portrait"
+  }: Props = $props();
   
-  const layout = $derived(GRID_LAYOUTS.portrait);
+  const layout = $derived(GRID_LAYOUTS[gridType]);
 </script>
 
 <div

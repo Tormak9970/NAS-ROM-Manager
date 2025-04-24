@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { contextMenu, type ContextMenuItem } from "@directives";
+  import { contextMenu, type ContextMenuItem } from "@directives";
 
   type Props = {
     src: string;
@@ -18,7 +18,9 @@
 </script>
 
 <div class="hero" class:landscape={!portrait}>
-  <img src={src} alt="Banner placeholder">
+  {#key src}
+    <img src={src} alt="Banner placeholder">
+  {/key}
   <div class="fade" use:contextMenu={{ items: menuItems }}></div>
 </div>
 
