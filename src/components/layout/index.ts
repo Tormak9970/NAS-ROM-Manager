@@ -12,3 +12,6 @@ export { default as VirtualList } from "./VirtualList.svelte";
 
 export { default as LibraryLoadGuard } from "./load-guards/LibraryLoadGuard.svelte";
 
+
+export { default as CapsulePlaceholder } from "./placeholders/CapsulePlaceholder.svelte";
+export { default as HeroPlaceholder } from "./placeholders/HeroPlaceholder.svelte";

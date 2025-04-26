@@ -1,7 +1,5 @@
 <script lang="ts">
-  import { Icon } from "@component-utils";
   import { contextMenu } from "@directives";
-  import { Landscape } from "@icons";
   import { getSystemMenuItems } from "@menus";
   import { libraryGridType, romsBySystem, systems } from "@stores/State";
   import { goToSystem, GRID_LAYOUTS } from "@utils";
@@ -31,12 +29,7 @@
   in:fade={{ duration: 200 }}
   use:contextMenu={{ items: menuItems }}
 >
-  {#if system.thumbCapsulePath === "No Grids"}
-    <div class="placeholder">
-      <Icon icon={Landscape} height="1.5rem" width="1.5rem" />
-    </div>
-  {/if}
-  <Capsule thumbCapsulePath={system.thumbCapsulePath} />
+  <Capsule src={system.thumbCapsulePath} />
   <div class="system-tag">
     <SystemTag system={abbreviation} />
   </div>
@@ -62,21 +55,6 @@
     transform: scale(1.04);
     border: 1px solid rgb(var(--m3-scheme-outline));
     cursor: pointer;
-  }
-
-  .placeholder {
-    position: absolute;
-    top: 0;
-    left: 0;
-
-    width: 100%;
-    height: 100%;
-    border-radius: var(--m3-util-rounding-medium);
-
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
   }
 
   .system-tag {

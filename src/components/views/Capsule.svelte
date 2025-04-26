@@ -1,8 +1,20 @@
 <script lang="ts">
-  let { thumbCapsulePath }: { thumbCapsulePath: string } = $props();
+  import { CapsulePlaceholder } from "@layout";
+
+  let { src }: { src: string } = $props();
+  
+  let failedToLoad = $state(true);
 </script>
 
-<div class="capsule" style:--cover-url='url("{thumbCapsulePath === "No Grids" ? "" : thumbCapsulePath}")'></div>
+<div class="capsule">
+  {#key src}
+    {#if !failedToLoad && src !== "No Grids"}
+      <img src={src} alt="Capsule placeholder" onerror={() => failedToLoad = true}>
+    {:else}
+      <CapsulePlaceholder />
+    {/if}
+  {/key}
+</div>
 
 <style>
   .capsule {
@@ -13,9 +25,12 @@
     width: 100%;
     height: 100%;
     border-radius: var(--m3-util-rounding-medium);
+    overflow: hidden;
+  }
 
-    background-image: var(--cover-url);
-    background-repeat: no-repeat;
-    background-size: contain;
+  .capsule img {
+    object-fit: cover;
+    width: 100%;
+    height: 100%;
   }
 </style>

@@ -60,7 +60,7 @@
           {/if}
           <div class="capsule" style="height: {GRID_LAYOUTS.portrait.height * 1.2}px;">
             {#key system?.thumbCapsulePath}
-              <Capsule thumbCapsulePath={system?.thumbCapsulePath} />
+              <Capsule src={system?.thumbCapsulePath} />
             {/key}
           </div>
           <div class="info" class:portrait>

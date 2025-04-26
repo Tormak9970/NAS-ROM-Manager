@@ -2,7 +2,7 @@
   import { Icon } from "@component-utils";
   import { RomController } from "@controllers";
   import { contextMenu } from "@directives";
-  import { Download, FavoriteOff, FavoriteOn, Landscape } from "@icons";
+  import { Download, FavoriteOff, FavoriteOn } from "@icons";
   import { Button } from "@interactables";
   import { getRomMenuItems } from "@menus";
   import { libraryGridType, romMetadata, roms } from "@stores/State";
@@ -38,12 +38,7 @@
   in:fade={{ duration: 200 }}
   use:contextMenu={{ items: menuItems }}
 >
-  {#if metadata.thumbCapsulePath === "No Grids"}
-    <div class="placeholder">
-      <Icon icon={Landscape} height="1.5rem" width="1.5rem" />
-    </div>
-  {/if}
-  <Capsule thumbCapsulePath={metadata.thumbCapsulePath} />
+  <Capsule src={metadata.thumbCapsulePath} />
   <div class="overlay">
     <div class="rom-info">
       <div class="title">{rom.title}</div>
@@ -94,21 +89,6 @@
     transform: scale(1.04);
     border: 1px solid rgb(var(--m3-scheme-outline));
     cursor: pointer;
-  }
-
-  .placeholder {
-    position: absolute;
-    top: 0;
-    left: 0;
-
-    width: 100%;
-    height: 100%;
-    border-radius: var(--m3-util-rounding-medium);
-
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
   }
 
   .overlay {

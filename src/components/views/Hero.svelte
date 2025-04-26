@@ -1,5 +1,6 @@
 <script lang="ts">
   import { contextMenu, type ContextMenuItem } from "@directives";
+  import { HeroPlaceholder } from "@layout";
 
   type Props = {
     src: string;
@@ -8,6 +9,8 @@
   }
 
   let { src, portrait, onEdit }: Props = $props();
+
+  let failedToLoad = $state(false);
 
   const menuItems = $derived<ContextMenuItem[]>([
     {
@@ -19,7 +22,11 @@
 
 <div class="hero" class:landscape={!portrait}>
   {#key src}
-    <img src={src} alt="Banner placeholder">
+    {#if !failedToLoad && src !== "No Grids"}
+      <img src={src} alt="Banner placeholder" onerror={() => failedToLoad = true}>
+    {:else}
+      <HeroPlaceholder />
+    {/if}
   {/key}
   <div class="fade" use:contextMenu={{ items: menuItems }}></div>
 </div>
