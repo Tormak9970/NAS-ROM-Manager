@@ -16,6 +16,7 @@
 
   let systemsLoaded = $state(0);
 
+  let isLoading = $state(true);
   let loadedKeys = $state<Record<string, boolean>>({});
 
   onMount(() => {
@@ -67,6 +68,8 @@
         if (saveMetadata) {
           $systems = { ...$systems };
         }
+
+        isLoading = false;
       }
     });
   });
@@ -77,7 +80,7 @@
 </script>
 
 <svelte:head>
-	<title>Systems - NRM</title>
+	<title>{isLoading ? "Loading..." : "Systems - NRM"}</title>
   <meta name="description" content="Game systems in your library." />
 </svelte:head>
 

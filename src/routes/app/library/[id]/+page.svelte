@@ -68,7 +68,7 @@
 </script>
 
 <svelte:head>
-	<title>{rom ? metadata?.title || rom?.title : "Loading..."}</title>
+	<title>{isLoading || !rom ? "Loading..." : metadata?.title || rom?.title}</title>
   <meta name="description" content="Your personal ROM library." />
 </svelte:head>
 

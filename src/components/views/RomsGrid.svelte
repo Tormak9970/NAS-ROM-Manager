@@ -12,9 +12,10 @@
   type Props = {
     gridName: string;
     romIds: string[];
+    isLoading?: boolean;
   }
   
-  let { gridName, romIds }: Props = $props();
+  let { gridName, romIds, isLoading = $bindable(true) }: Props = $props();
   
   
   let libraryLoadUnsub: Unsubscriber;
@@ -72,6 +73,8 @@
         if (saveMetadata) {
           $romMetadata = { ...$romMetadata };
         }
+
+        isLoading = false;
       }
     });
   });

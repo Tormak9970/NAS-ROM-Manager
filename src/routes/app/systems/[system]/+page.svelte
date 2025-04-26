@@ -39,7 +39,7 @@
 </script>
 
 <svelte:head>
-	<title>{system ? system.name : "Loading..."}</title>
+	<title>{isLoading || !system ? "Loading..." : system.name}</title>
   <meta name="description" content="Your personal ROM library." />
 </svelte:head>
 
