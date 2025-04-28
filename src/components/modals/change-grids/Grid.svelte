@@ -1,6 +1,9 @@
 <script lang="ts">
+  import { Icon } from "@component-utils";
+  import { Checkmark } from "@icons";
   import { selectedNewGrid } from "@stores/Modals";
   import type { SGDBImage } from "@types";
+  import { scale } from "svelte/transition";
   import GridImage from "./GridImage.svelte";
 
   type Props = {
@@ -28,13 +31,9 @@
 <div class="grid" class:selected onclick={handleClick}>
   <div class="overlay-container">
     {#if selected}
-      <div class="overlay" class:selected>
-        <!-- When selected, scale in background to cover entire portrait, and bounce in the icon -->
-        <!-- When decelected, scale out background and icon -->
+      <div class="overlay" class:selected transition:scale={{ start: 0, duration: 200 }}>
+        <Icon icon={Checkmark} width="2.5rem" height="2.5rem" />
       </div>
-      <!-- <div class="icon-container" in:bounce>
-        
-      </div> -->
     {/if}
   </div>
 
@@ -61,12 +60,25 @@
 
   .grid:hover {
     transform: scale(1.075);
-    border: 1px solid rgb(var(--m3-scheme-outline));
     cursor: pointer;
   }
 
-  .grid.selected {
-    border: 1px solid rgb(var(--m3-scheme-primary));
+  .grid::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border: .125rem solid rgb(var(--m3-scheme-primary));
+    transition: all .2s;
+    animation: clippath 3s linear infinite;
+    border-radius: var(--m3-util-rounding-medium);
+    opacity: 0;
+    z-index: 2;
+  }
+  .grid.selected::after {
+    opacity: 1;
   }
   
   .overlay {
@@ -94,7 +106,7 @@
 
   .selected :global(svg) {
     animation: icon-select 0.5s cubic-bezier(0.64, 0.57, 0.67, 1.53);
-    color: rgb(var(--m3-scheme-on-secondary-container));
+    color: rgb(var(--m3-scheme-primary));
   }
 
   @keyframes icon-select {
@@ -112,6 +124,25 @@
     }
     100% {
       scale: 1
+    }
+  }
+
+  @keyframes clippath {
+    0%, 100% {
+      -webkit-clip-path: inset(0 0 98% 0);
+      clip-path: inset(0 0 98% 0);
+    }
+    25% {
+      -webkit-clip-path: inset(0 98% 0 0);
+      clip-path: inset(0 98% 0 0);
+    }
+    50% {
+      -webkit-clip-path: inset(98% 0 0 0);
+      clip-path: inset(98% 0 0 0);
+    }
+    75% {
+      -webkit-clip-path: inset(0 0 0 98%);
+      clip-path: inset(0 0 0 98%);
     }
   }
 </style>
