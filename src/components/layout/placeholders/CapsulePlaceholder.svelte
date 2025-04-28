@@ -3,12 +3,12 @@
   import { Landscape } from "@icons";
 </script>
 
-<div class="placeholder">
+<div class="capsule-placeholder">
   <Icon icon={Landscape} height="2rem" width="2rem" />
 </div>
 
 <style>
-  .placeholder {
+  .capsule-placeholder {
     width: 100%;
     height: 100%;
 
@@ -17,6 +17,7 @@
     justify-content: center;
     align-items: center;
 
-    /* TODO: set background and svg color */
+    background-color: rgb(var(--m3-scheme-surface-container));
+    color: rgb(var(--m3-scheme-secondary-container));
   }
 </style>

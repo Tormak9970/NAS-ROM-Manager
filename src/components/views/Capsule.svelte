@@ -3,7 +3,7 @@
 
   let { src }: { src: string } = $props();
   
-  let failedToLoad = $state(true);
+  let failedToLoad = $state(false);
 </script>
 
 <div class="capsule">
