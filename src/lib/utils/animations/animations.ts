@@ -71,3 +71,26 @@ export function sharedAxisTransition(node: Element, options: TransitionOptions &
     },
   };
 };
+
+
+// type BounceInOptions = {
+//   duration: number,
+
+// }
+
+// export function bounceIn(node: Element, options: BounceInOptions) {
+//   return {
+//     duration,
+//     css: (t, u) => {
+//       const eased = elasticOut(t);
+
+//       return `
+//         transform: scale(${eased}) rotate(${eased * 1080}deg);
+//         color: hsl(
+//           ${Math.trunc(t * 360)},
+//           ${Math.min(100, 1000 * u)}%,
+//           ${Math.min(50, 500 * u)}%
+//         );`
+//     }
+//   };
+// }
