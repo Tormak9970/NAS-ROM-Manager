@@ -4,10 +4,23 @@
   let { src }: { src: string } = $props();
   
   let failedToLoad = $state(false);
+  
+  let oldSrc = $state(src);
+  let reload = $state(false);
+
+  $effect(() => {
+    if (src !== oldSrc) {
+      oldSrc = src;
+
+      fetch(src, { cache: 'reload' }).then(() => {
+        reload = !reload;
+      });
+    }
+  })
 </script>
 
 <div class="capsule">
-  {#key src}
+  {#key `${src}|${reload}`}
     {#if !failedToLoad && src !== "No Grids"}
       <img src={src} alt="Capsule placeholder" onerror={() => failedToLoad = true}>
     {:else}

@@ -47,7 +47,7 @@ export const showChangeGridsModal = writable(false);
 export const changeGridsId = writable<string | null>(null);
 export const changeGridsSearchId = writable<string | null>(null);
 export const selectedNewGrid = writable<SGDBImage | null>(null);
-export const changeGridsOnSelect = writable<(fullCapsule?: string, thumbCapsule?: string, hero?: string) => void>(() => {});
+export const changeGridsOnSelect = writable<(fullCapsule?: string, thumbCapsule?: string, hero?: string) => Promise<void> | void>(() => {});
 export const changeGridsType = writable<"Capsule" | "Hero">("Capsule");
 
 export const showSearchSGDBModal = writable(false);

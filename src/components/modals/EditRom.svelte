@@ -1,12 +1,14 @@
 <script lang="ts">
   import { Icon, ModalBody } from "@component-utils";
-  import { RomController } from "@controllers";
+  import { RestController, RomController } from "@controllers";
   import { Cached, DatabaseSearch } from "@icons";
   import { Button, Checkbox, TextField } from "@interactables";
-  import { editIsPostUpload, igdbSearchRomOnSelect, igdbSearchRomPlatformId, igdbSearchRomTitle, romEditingId, sgdbSearchOnSelect, sgdbSearchTitle, showEditRomModal, showSearchIGDBRomModal, showSearchSGDBModal } from "@stores/Modals";
+  import { LoadingSpinner } from "@layout";
+  import { changeGridsId, changeGridsOnSelect, changeGridsSearchId, changeGridsType, editIsPostUpload, igdbSearchRomOnSelect, igdbSearchRomPlatformId, igdbSearchRomTitle, romEditingId, sgdbSearchOnSelect, sgdbSearchTitle, showChangeGridsModal, showEditRomModal, showSearchIGDBRomModal, showSearchSGDBModal } from "@stores/Modals";
   import { romMetadata, roms, systems } from "@stores/State";
 
   let open = $state(true);
+  let saving = $state(false);
 
   let rom = $roms[$romEditingId!];
   let system = $systems[rom.system];
@@ -15,6 +17,9 @@
   let title = $state(metadata.title);
   let sgdbId = $state(metadata.sgdbId);
   let igdbId = $state(metadata.igdbId);
+  let fullCapsulePath = $state(metadata.fullCapsulePath);
+  let thumbCapsulePath = $state(metadata.thumbCapsulePath);
+  let heroPath = $state(metadata.heroPath);
   let isFavorite = $state(metadata.isFavorite);
   let igdbMetadata = $state(metadata.metadata);
 
@@ -22,11 +27,33 @@
    * Function to run on confirmation.
    */
   async function onSave(): Promise<void> {
+    saving = true;
+    
+    if (fullCapsulePath !== system.fullCapsulePath) {
+      const [fullCached, thumbCached] = await RestController.cacheCapsule(
+        fullCapsulePath,
+        thumbCapsulePath,
+        $romEditingId!.replace(/[/\\?%*:|"<> ]/g, '_')
+      )
+
+      fullCapsulePath = fullCached;
+      thumbCapsulePath = thumbCached;
+    }
+    
+    if (heroPath !== system.heroPath) {
+      const heroCached = await RestController.cacheHero(
+        heroPath!,
+        $romEditingId!.replace(/[/\\?%*:|"<> ]/g, '_')
+      );
+      
+      heroPath = heroCached;
+    }
+    
     $romMetadata[$romEditingId!] = {
       title: title,
-      fullCapsulePath: $romMetadata[$romEditingId!].fullCapsulePath,
-      thumbCapsulePath: $romMetadata[$romEditingId!].thumbCapsulePath,
-      heroPath: $romMetadata[$romEditingId!].heroPath,
+      fullCapsulePath: fullCapsulePath,
+      thumbCapsulePath: thumbCapsulePath,
+      heroPath: heroPath,
       sgdbId: sgdbId,
       igdbId: igdbId,
       metadata: igdbMetadata,
@@ -71,6 +98,27 @@
     $igdbSearchRomPlatformId = system.igdbPlatformId;
     $showSearchIGDBRomModal = true;
   }
+  
+  function editCapsule() {
+    $changeGridsSearchId = $romMetadata[$romEditingId!].sgdbId;
+    $changeGridsType = "Capsule";
+    $changeGridsOnSelect = (fullCapsule?: string, thumbCapsule?: string) => {
+      fullCapsulePath = fullCapsule!;
+      thumbCapsulePath = thumbCapsule!;
+    };
+    $changeGridsId = $romEditingId!;
+    $showChangeGridsModal = true;
+  }
+
+  function editHero() {
+    $changeGridsSearchId = $romMetadata[$romEditingId!].sgdbId;
+    $changeGridsType = "Hero";
+    $changeGridsOnSelect = (fullCapsule?: string, thumbCapsule?: string, hero?: string) => {
+      heroPath = hero!;
+    };
+    $changeGridsId = $romEditingId!;
+    $showChangeGridsModal = true;
+  }
 </script>
 
 <ModalBody
@@ -80,42 +128,48 @@
   oncloseend={closeEnd}
 >
   <div class="content">
-    <TextField name="Title" bind:value={title} />
-    <TextField
-      name="SGDB Id"
-      bind:value={sgdbId}
-      trailingIcon={DatabaseSearch}
-      ontrailingClick={openSGDBSearch}
-    />
-    <TextField
-      name="IGDB Id"
-      bind:value={igdbId}
-      trailingIcon={DatabaseSearch}
-      ontrailingClick={openIGDBSearch}
-    />
-    <label>
-      <div class="m3-font-title-medium">Favorite:</div>
-      <Checkbox bind:checked={isFavorite} />
-    </label>
-    <div class="actions" style:--m3-button-shape="var(--m3-util-rounding-small)">
-      <Button type="filled" extraOptions={{ style: "flex-grow: 1" }} onclick={() => RomController.changeCapsule($romEditingId!)}>
-        Edit Cover
-      </Button>
-      <Button type="filled" extraOptions={{ style: "flex-grow: 1" }} onclick={() => RomController.changeHero($romEditingId!)}>
-        Edit Banner
-      </Button>
-    </div>
-    <div class="actions" style:--m3-button-shape="var(--m3-util-rounding-small)">
-      <Button type="filled" extraOptions={{ style: "flex-grow: 1" }} iconType="left" onclick={refreshMetadata}>
-        <Icon icon={Cached} />
-        Metadata
-      </Button>
-    </div>
+    {#if saving}
+      <div class="loading-container">
+        <LoadingSpinner /> <div class="font-headline-small">Saving Changes...</div>
+      </div>
+    {:else}
+      <TextField name="Title" bind:value={title} />
+      <TextField
+        name="SGDB Id"
+        bind:value={sgdbId}
+        trailingIcon={DatabaseSearch}
+        ontrailingClick={openSGDBSearch}
+      />
+      <TextField
+        name="IGDB Id"
+        bind:value={igdbId}
+        trailingIcon={DatabaseSearch}
+        ontrailingClick={openIGDBSearch}
+      />
+      <label>
+        <div class="m3-font-title-medium">Favorite:</div>
+        <Checkbox bind:checked={isFavorite} />
+      </label>
+      <div class="actions" style:--m3-button-shape="var(--m3-util-rounding-small)">
+        <Button type="filled" extraOptions={{ style: "flex-grow: 1" }} onclick={editCapsule}>
+          Edit Cover
+        </Button>
+        <Button type="filled" extraOptions={{ style: "flex-grow: 1" }} onclick={editHero}>
+          Edit Banner
+        </Button>
+      </div>
+      <div class="actions" style:--m3-button-shape="var(--m3-util-rounding-small)">
+        <Button type="filled" extraOptions={{ style: "flex-grow: 1" }} iconType="left" onclick={refreshMetadata}>
+          <Icon icon={Cached} />
+          Metadata
+        </Button>
+      </div>
+    {/if}
   </div>
   {#snippet buttons()}
     <div>
       <Button type="tonal" onclick={onCancel}>Cancel</Button>
-      <Button type="tonal" onclick={onSave}>Save</Button>
+      <Button type="tonal" onclick={onSave} disabled={saving}>Save</Button>
     </div>
   {/snippet}
 </ModalBody>

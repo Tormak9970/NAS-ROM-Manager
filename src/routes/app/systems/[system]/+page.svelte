@@ -4,16 +4,15 @@
   import { Icon } from "@component-utils";
   import MediaQuery from "@component-utils/MediaQuery.svelte";
   import { SystemController } from "@controllers";
-  import { BackArrow, Edit } from "@icons";
+  import { Edit } from "@icons";
   import { Button } from "@interactables";
   import { LoadingSpinner } from "@layout";
   import LibraryLoadGuard from "@layout/load-guards/LibraryLoadGuard.svelte";
   import { romsBySystem, showWarningSnackbar, systems } from "@stores/State";
-  import { GRID_LAYOUTS, pluralize } from "@utils";
-  import Capsule from "@views/Capsule.svelte";
+  import { pluralize } from "@utils";
+  import DetailsHeader from "@views/DetailsHeader.svelte";
   import Hero from "@views/Hero.svelte";
   import SystemDetails from "@views/systems/SystemDetails.svelte";
-  import SystemTag from "@views/SystemTag.svelte";
   import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();
@@ -21,7 +20,8 @@
   const abbreviation = $derived(data.system);
 
   const system = $derived($systems[abbreviation]);
-  const romIds = $derived($romsBySystem[abbreviation])
+  const heroPath = $derived($systems[abbreviation]?.heroPath);
+  const romIds = $derived($romsBySystem[abbreviation]);
 
   let portrait = $state(false);
 
@@ -48,44 +48,35 @@
 <LibraryLoadGuard onLoad={onLoad}>
   <div id="system-entry" class:landscape={!portrait}>
     {#if !isLoading}
-      <Hero src={system?.heroPath} portrait={portrait} onEdit={() => SystemController.changeHero(abbreviation)} />
+      <Hero
+        src={heroPath}
+        portrait={portrait}
+        onEdit={() => SystemController.changeHero(abbreviation)}
+      />
       <div class="content" class:portrait>
-        <div class="header" class:portrait>
-          {#if portrait}
-            <div class="back-button">
-              <Button iconType="full" type="text" size="2.75rem" iconSize="1.75rem" onclick={() => window.history.back()}>
-                <Icon icon={BackArrow} />
-              </Button>
-            </div>
-          {/if}
-          <div class="capsule" style="height: {GRID_LAYOUTS.portrait.height * 1.2}px;">
-            {#key system?.thumbCapsulePath}
-              <Capsule src={system?.thumbCapsulePath} />
-            {/key}
-          </div>
-          <div class="info" class:portrait>
-            <SystemTag system={abbreviation} />
-            <div class="title m3-font-headline-{portrait ? "small" : "medium"}">
-              {system?.name || "Loading..."}
-            </div>
-            <div class="header-metadata" class:portrait>
-              {#if portrait}
-                <div class="first-row">
-                  <div>{romIds?.length ?? 0} {pluralize("rom", "roms", romIds?.length)}</div>•<div>{system?.patterns?.length ?? 0} {pluralize("parser", "parsers", system?.patterns?.length)}</div>
-                </div>
-                <div>Abbreviation: {system?.abbreviation}</div>
-              {:else}
-                <div>Abbreviation: {system?.abbreviation}</div>•<div>{romIds?.length ?? 0} {pluralize("rom", "roms", romIds?.length)}</div>•<div>{system?.patterns?.length ?? 0} {pluralize("parser", "parsers", system?.patterns?.length)}</div>
-              {/if}
-            </div>
-          </div>
-          <div class="controls" class:portrait style:--m3-button-shape="var(--m3-util-rounding-small)">
+        <DetailsHeader
+          title={system?.name || "Loading..."}
+          capsuleSrc={system?.thumbCapsulePath}
+          system={abbreviation}
+          portrait={portrait}
+        >
+          {#snippet headerMetadata()}
+            {#if portrait}
+              <div class="first-row">
+                <div>{romIds?.length ?? 0} {pluralize("rom", "roms", romIds?.length)}</div>•<div>{system?.patterns?.length ?? 0} {pluralize("parser", "parsers", system?.patterns?.length)}</div>
+              </div>
+              <div>Abbreviation: {system?.abbreviation}</div>
+            {:else}
+              <div>Abbreviation: {system?.abbreviation}</div>•<div>{romIds?.length ?? 0} {pluralize("rom", "roms", romIds?.length)}</div>•<div>{system?.patterns?.length ?? 0} {pluralize("parser", "parsers", system?.patterns?.length)}</div>
+            {/if}
+          {/snippet}
+          {#snippet controls()}
             <Button iconType="left" type="filled" onclick={() => SystemController.edit(abbreviation)}>
               <Icon icon={Edit} />
               Edit
             </Button>
-          </div>
-        </div>
+          {/snippet}
+        </DetailsHeader>
         <div class="body" class:portrait>
           {#if isLoading}
             <div class="loading-container">
@@ -122,91 +113,6 @@
   }
   .content.portrait {
     width: 100%;
-  }
-
-  .header {
-    width: 100%;
-
-    display: flex;
-    align-items: flex-end;
-
-    position: relative;
-    z-index: 2;
-
-    gap: 1rem;
-
-    pointer-events: none;
-  }
-
-  .header > * {
-    pointer-events: all;
-  }
-
-  .header.portrait {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .back-button {
-    position: absolute;
-
-    left: 1rem;
-    top: 0.75rem;
-  }
-
-  .portrait .title {
-    text-align: center;
-  }
-
-  .capsule {
-    position: relative;
-
-    aspect-ratio: 2 / 3;
-
-    margin-top: 0.5rem;
-  }
-
-  .info {
-    display: flex;
-    flex-direction: column;
-
-    align-items: flex-start;
-  }
-
-  .info.portrait {
-    align-items: center;
-  }
-
-  .header-metadata {
-    font-size: 0.9rem;
-
-    color: rgb(var(--m3-scheme-on-surface-variant));
-
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-  }
-  .header-metadata.portrait {
-    flex-direction: column;
-    align-items: center;
-    gap: 0.25rem;
-  }
-  .first-row {
-    display: flex;
-    gap: 0.5rem;
-  }
-
-  .controls {
-    width: fit-content;
-
-    display: flex;
-
-    gap: 0.5rem;
-
-    margin-left: auto;
-  }
-  .controls.portrait {
-    margin: 0;
   }
 
   .body {

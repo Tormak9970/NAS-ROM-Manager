@@ -10,6 +10,19 @@
 
   let { src, portrait, onEdit }: Props = $props();
 
+  let oldSrc = $state(src);
+  let reload = $state(false);
+
+  $effect(() => {
+    if (src !== oldSrc) {
+      oldSrc = src;
+
+      fetch(src, { cache: 'reload' }).then(() => {
+        reload = !reload;
+      });
+    }
+  })
+
   let failedToLoad = $state(false);
 
   const menuItems = $derived<ContextMenuItem[]>([
@@ -21,7 +34,7 @@
 </script>
 
 <div class="hero" class:landscape={!portrait}>
-  {#key src}
+  {#key `${src}|${reload}`}
     {#if !failedToLoad && src !== "No Grids"}
       <img src={src} alt="Banner placeholder" onerror={() => failedToLoad = true}>
     {:else}

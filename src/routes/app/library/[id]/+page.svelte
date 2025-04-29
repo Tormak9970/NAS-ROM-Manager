@@ -4,17 +4,16 @@
   import { Icon } from "@component-utils";
   import MediaQuery from "@component-utils/MediaQuery.svelte";
   import { IGDBController, RomController } from "@controllers";
-  import { BackArrow, Download, Edit, FavoriteOff, FavoriteOn } from "@icons";
+  import { Download, Edit, FavoriteOff, FavoriteOn } from "@icons";
   import Button from "@interactables/Button.svelte";
   import { LoadingSpinner } from "@layout";
   import LibraryLoadGuard from "@layout/load-guards/LibraryLoadGuard.svelte";
   import { romMetadata, roms, showWarningSnackbar, systems } from "@stores/State";
   import { NO_IGDB_RESULTS } from "@types";
-  import { formatFileSize, GRID_LAYOUTS } from "@utils";
-  import Capsule from "@views/Capsule.svelte";
+  import { formatFileSize } from "@utils";
+  import DetailsHeader from "@views/DetailsHeader.svelte";
   import Hero from "@views/Hero.svelte";
   import RomMetadata from "@views/library/details/RomMetadata.svelte";
-  import SystemTag from "@views/SystemTag.svelte";
   import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();
@@ -23,6 +22,7 @@
 
   const rom = $derived($roms?.[id]);
   const metadata = $derived($romMetadata?.[id]);
+  const heroPath = $derived($romMetadata?.[id]?.heroPath);
   const system = $derived($systems?.[rom?.system]);
 
   const genres = $derived(metadata?.metadata?.metadata?.genres);
@@ -77,38 +77,29 @@
 <LibraryLoadGuard onLoad={onLoad}>
   <div id="rom-entry" class:landscape={!portrait}>
     {#if !isLoading}
-      <Hero src={metadata?.heroPath} portrait={portrait} onEdit={() => RomController.changeHero(id)} />
+      <Hero
+        src={heroPath}
+        portrait={portrait}
+        onEdit={() => RomController.changeHero(id)}
+      />
       <div class="content" class:portrait>
-        <div class="header" class:portrait>
-          {#if portrait}
-            <div class="back-button">
-              <Button iconType="full" type="text" size="2.75rem" iconSize="1.75rem" onclick={() => window.history.back()}>
-                <Icon icon={BackArrow} />
-              </Button>
-            </div>
-          {/if}
-          <div class="capsule" style="height: {GRID_LAYOUTS.portrait.height * 1.2}px;">
-            {#key metadata?.thumbCapsulePath}
-              <Capsule src={metadata?.thumbCapsulePath} />
-            {/key}
-          </div>
-          <div class="info" class:portrait>
-            <SystemTag system={rom?.system} />
-            <div class="title m3-font-headline-{portrait ? "small" : "medium"}">
-              {metadata?.title || rom?.title || "Loading..."}
-            </div>
-            <div class="header-metadata" class:portrait>
-              {#if portrait}
-                <div class="first-row">
-                  <div>Added on {rom?.addDate}</div>•<div>{formatFileSize(rom.size)}</div>
-                </div>
-                <div>{genres?.join(", ") ?? "Unkown"}</div>
-              {:else}
-                <div>Added on {rom?.addDate}</div>•<div>{formatFileSize(rom.size)}</div>•<div>{genres?.join(", ") ?? "Unkown"}</div>
-              {/if}
-            </div>
-          </div>
-          <div class="controls" class:portrait style:--m3-button-shape="var(--m3-util-rounding-small)">
+        <DetailsHeader
+          title={metadata?.title || rom?.title || "Loading..."}
+          capsuleSrc={metadata?.thumbCapsulePath}
+          system={rom?.system}
+          portrait={portrait}
+        >
+          {#snippet headerMetadata()}
+            {#if portrait}
+              <div class="first-row">
+                <div>Added on {rom?.addDate}</div>•<div>{formatFileSize(rom.size)}</div>
+              </div>
+              <div>{genres?.join(", ") ?? "Unkown"}</div>
+            {:else}
+              <div>Added on {rom?.addDate}</div>•<div>{formatFileSize(rom.size)}</div>•<div>{genres?.join(", ") ?? "Unkown"}</div>
+            {/if}
+          {/snippet}
+          {#snippet controls()}
             <Button iconType="full" type="text" onclick={() => RomController.toggleFavorite(id)}>
               <Icon icon={isFavorite ? FavoriteOn : FavoriteOff} />
             </Button>
@@ -123,8 +114,8 @@
             <Button iconType="full" type="filled" onclick={() => RomController.edit(id)}>
               <Icon icon={Edit} />
             </Button>
-          </div>
-        </div>
+          {/snippet}
+        </DetailsHeader>
         <div class="body" class:portrait>
           {#if isLoading}
             <div class="loading-container">
@@ -165,91 +156,6 @@
   }
   .content.portrait {
     width: 100%;
-  }
-
-  .header {
-    width: 100%;
-
-    display: flex;
-    align-items: flex-end;
-
-    position: relative;
-    z-index: 2;
-
-    gap: 1rem;
-
-    pointer-events: none;
-  }
-
-  .header > * {
-    pointer-events: all;
-  }
-
-  .header.portrait {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .back-button {
-    position: absolute;
-
-    left: 1rem;
-    top: 0.75rem;
-  }
-
-  .portrait .title {
-    text-align: center;
-  }
-
-  .capsule {
-    position: relative;
-
-    aspect-ratio: 2 / 3;
-
-    margin-top: 0.5rem;
-  }
-
-  .info {
-    display: flex;
-    flex-direction: column;
-
-    align-items: flex-start;
-  }
-
-  .info.portrait {
-    align-items: center;
-  }
-
-  .header-metadata {
-    font-size: 0.9rem;
-
-    color: rgb(var(--m3-scheme-on-surface-variant));
-
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-  }
-  .header-metadata.portrait {
-    flex-direction: column;
-    align-items: center;
-    gap: 0.25rem;
-  }
-  .first-row {
-    display: flex;
-    gap: 0.5rem;
-  }
-
-  .controls {
-    width: fit-content;
-
-    display: flex;
-
-    gap: 0.5rem;
-
-    margin-left: auto;
-  }
-  .controls.portrait {
-    margin: 0;
   }
 
   .body {

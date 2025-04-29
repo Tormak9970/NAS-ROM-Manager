@@ -5,6 +5,7 @@ import type { ParserPattern } from "@types";
 import { isValidRegex } from "@utils";
 import { get } from "svelte/store";
 import { DialogController } from "./utils/DialogController";
+import { RestController } from "./utils/RestController";
 
 /**
  * The system controller.
@@ -27,12 +28,17 @@ export class SystemController {
     let searchId = get(systems)[abbreviation].sgdbId;
     changeGridsSearchId.set(searchId);
     changeGridsType.set("Capsule");
-    changeGridsOnSelect.set((fullCapsule?: string, thumbCapsule?: string) => {
+    changeGridsOnSelect.set(async (fullCapsule?: string, thumbCapsule?: string) => {
       const systemsDict = get(systems);
-      
-      let system = systemsDict[abbreviation];
-      system.fullCapsulePath = fullCapsule!;
-      system.thumbCapsulePath = thumbCapsule!;
+
+      const [fullCached, thumbCached] = await RestController.cacheCapsule(
+        fullCapsule!,
+        thumbCapsule!,
+        abbreviation.replace(/[/\\?%*:|"<> ]/g, '_')
+      );
+
+      systemsDict[abbreviation].fullCapsulePath = fullCached;
+      systemsDict[abbreviation].thumbCapsulePath = thumbCached;
 
       systems.set({ ...systemsDict });
     });
@@ -48,11 +54,15 @@ export class SystemController {
     let searchId = get(systems)[abbreviation].sgdbId;
     changeGridsSearchId.set(searchId);
     changeGridsType.set("Hero");
-    changeGridsOnSelect.set((fullCapsule?: string, thumbCapsule?: string, hero?: string) => {
+    changeGridsOnSelect.set(async (fullCapsule?: string, thumbCapsule?: string, hero?: string) => {
       const systemsDict = get(systems);
-      
-      let system = systemsDict[abbreviation];
-      system.heroPath = hero!;
+
+      const heroCached = await RestController.cacheHero(
+        hero!,
+        abbreviation!.replace(/[/\\?%*:|"<> ]/g, '_')
+      );
+
+      systemsDict[abbreviation].heroPath = heroCached;
 
       systems.set({ ...systemsDict });
     });

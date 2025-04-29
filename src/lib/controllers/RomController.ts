@@ -37,12 +37,17 @@ export class RomController {
     let searchId = get(romMetadata)[romId].sgdbId;
     changeGridsSearchId.set(searchId);
     changeGridsType.set("Capsule");
-    changeGridsOnSelect.set((fullCapsule?: string, thumbCapsule?: string) => {
+    changeGridsOnSelect.set(async (fullCapsule?: string, thumbCapsule?: string) => {
       const metadataDict = get(romMetadata);
-      
-      let metadata = metadataDict[romId];
-      metadata.fullCapsulePath = fullCapsule!;
-      metadata.thumbCapsulePath = thumbCapsule!;
+
+      const [fullCached, thumbCached] = await RestController.cacheCapsule(
+        fullCapsule!,
+        thumbCapsule!,
+        romId.replace(/[/\\?%*:|"<> ]/g, '_')
+      )
+
+      metadataDict[romId].fullCapsulePath = fullCached!;
+      metadataDict[romId].thumbCapsulePath = thumbCached!;
 
       romMetadata.set({ ...metadataDict });
     });
@@ -58,11 +63,15 @@ export class RomController {
     let searchId = get(romMetadata)[romId].sgdbId;
     changeGridsSearchId.set(searchId);
     changeGridsType.set("Hero");
-    changeGridsOnSelect.set((fullCapsule?: string, thumbCapsule?: string, hero?: string) => {
+    changeGridsOnSelect.set(async (fullCapsule?: string, thumbCapsule?: string, hero?: string) => {
       const metadataDict = get(romMetadata);
-      
-      let metadata = metadataDict[romId];
-      metadata.heroPath = hero!;
+
+      const heroCached = await RestController.cacheHero(
+        hero!,
+        romId!.replace(/[/\\?%*:|"<> ]/g, '_')
+      );
+
+      metadataDict[romId].heroPath = heroCached;
 
       romMetadata.set({ ...metadataDict });
     });

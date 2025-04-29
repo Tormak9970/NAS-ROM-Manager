@@ -1,7 +1,6 @@
 <script lang="ts">
   import { Icon } from "@component-utils";
   import ModalBody from "@component-utils/ModalBody.svelte";
-  import { RestController } from "@controllers";
   import { Tune } from "@icons";
   import { Button } from "@interactables";
   import { LoadingSpinner } from "@layout";
@@ -22,20 +21,9 @@
     saving = true;
 
     if ($changeGridsType === "Capsule") {
-      const [fullCapsule, thumbCapsule] = await RestController.cacheCapsule(
-        $selectedNewGrid!.url.toString(),
-        $selectedNewGrid!.thumb.toString(),
-        $changeGridsId!.replace(/[/\\?%*:|"<> ]/g, '_')
-      )
-
-      $changeGridsOnSelect(fullCapsule, thumbCapsule);
+      await $changeGridsOnSelect($selectedNewGrid!.url.toString(), $selectedNewGrid!.thumb.toString());
     } else {
-      const hero = await RestController.cacheHero(
-        $selectedNewGrid!.url.toString(),
-        $changeGridsId!.replace(/[/\\?%*:|"<> ]/g, '_')
-      )
-
-      $changeGridsOnSelect(undefined, undefined, hero);
+      await $changeGridsOnSelect(undefined, undefined, $selectedNewGrid!.url.toString());
     }
 
     open = false;

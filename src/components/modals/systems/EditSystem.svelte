@@ -1,10 +1,11 @@
 <script lang="ts">
   import { ModalBody } from "@component-utils";
-  import { SystemController } from "@controllers";
+  import { RestController, SystemController } from "@controllers";
   import { scrollShadow } from "@directives";
   import { DatabaseSearch } from "@icons";
   import { Button, TextField } from "@interactables";
-  import { igdbSearchPlatformOnSelect, igdbSearchPlatformTitle, sgdbSearchOnSelect, sgdbSearchTitle, showEditSystemModal, showSearchIGDBPlatformModal, showSearchSGDBModal, systemEditingId } from "@stores/Modals";
+  import { LoadingSpinner } from "@layout";
+  import { changeGridsId, changeGridsOnSelect, changeGridsSearchId, changeGridsType, igdbSearchPlatformOnSelect, igdbSearchPlatformTitle, sgdbSearchOnSelect, sgdbSearchTitle, showChangeGridsModal, showEditSystemModal, showSearchIGDBPlatformModal, showSearchSGDBModal, systemEditingId } from "@stores/Modals";
   import { systems } from "@stores/State";
   import type { IGDBMetadataPlatform, ParserPattern, System } from "@types";
   import { asyncEvery } from "@utils";
@@ -15,11 +16,15 @@
   const system = $systems[$systemEditingId!];
 
   let open = $state(true);
+  let saving = $state(false);
 
   let systemName = $state(system.name);
   let igdbId = $state(system.igdbPlatformId);
   let sgdbId = $state(system.sgdbId);
   let abbreviation = $state(system.abbreviation);
+  let fullCapsulePath = $state(system.fullCapsulePath);
+  let thumbCapsulePath = $state(system.thumbCapsulePath);
+  let heroPath = $state(system.heroPath);
   let folder = $state(system.folder);
 
   const colors = system.tagConfig.backgroundColor.split(" ").map((color: string) => parseInt(color));
@@ -51,7 +56,27 @@
    * Function to run on confirmation.
    */
   async function onSave(): Promise<void> {
-    open = false;
+    saving = true;
+
+    if (fullCapsulePath !== system.fullCapsulePath) {
+      const [fullCached, thumbCached] = await RestController.cacheCapsule(
+        fullCapsulePath,
+        thumbCapsulePath,
+        $systemEditingId!.replace(/[/\\?%*:|"<> ]/g, '_')
+      )
+
+      fullCapsulePath = fullCached;
+      thumbCapsulePath = thumbCached;
+    }
+    
+    if (heroPath !== system.heroPath) {
+      const heroCached = await RestController.cacheHero(
+        heroPath!,
+        $systemEditingId!.replace(/[/\\?%*:|"<> ]/g, '_')
+      );
+      
+      heroPath = heroCached;
+    }
 
     const updatedParser: System = {
       name: systemName,
@@ -59,9 +84,9 @@
       folder: folder,
       igdbPlatformId: igdbId,
       sgdbId: sgdbId,
-      fullCapsulePath: $systems[$systemEditingId!].fullCapsulePath,
-      thumbCapsulePath: $systems[$systemEditingId!].thumbCapsulePath,
-      heroPath: $systems[$systemEditingId!].heroPath,
+      fullCapsulePath: fullCapsulePath,
+      thumbCapsulePath: thumbCapsulePath,
+      heroPath: heroPath,
       tagConfig: {
         backgroundColor: tagConfigColor,
         borderColor: tagConfigColor,
@@ -76,6 +101,8 @@
     }
 
     $systems = { ...$systems };
+    
+    open = false;
   }
 
   /**
@@ -105,6 +132,27 @@
     }
     $showSearchSGDBModal = true;
   }
+
+  function editCapsule() {
+    $changeGridsSearchId = $systems[$systemEditingId!].sgdbId;
+    $changeGridsType = "Capsule";
+    $changeGridsOnSelect = (fullCapsule?: string, thumbCapsule?: string) => {
+      fullCapsulePath = fullCapsule!;
+      thumbCapsulePath = thumbCapsule!;
+    };
+    $changeGridsId = abbreviation;
+    $showChangeGridsModal = true;
+  }
+
+  function editHero() {
+    $changeGridsSearchId = $systems[$systemEditingId!].sgdbId;
+    $changeGridsType = "Hero";
+    $changeGridsOnSelect = (fullCapsule?: string, thumbCapsule?: string, hero?: string) => {
+      heroPath = hero!;
+    };
+    $changeGridsId = abbreviation;
+    $showChangeGridsModal = true;
+  }
 </script>
 
 <ModalBody
@@ -113,54 +161,60 @@
   oncloseend={() => { $showEditSystemModal = false }}
 >
   <div class="content">
-    <div class="scroll-container" use:scrollShadow={{ background: "--m3-scheme-surface-container" }}>
-      <div class="fields">
-        <TextField
-          name="Name"
-          bind:value={systemName}
-          trailingIcon={DatabaseSearch}
-          ontrailingClick={openIGDBSearch}
-        />
-        <TextField
-          name="IGDB Id"
-          bind:value={igdbId}
-          trailingIcon={DatabaseSearch}
-          ontrailingClick={openIGDBSearch}
-        />
-        <TextField
-          name="SGDB Id"
-          bind:value={sgdbId}
-          trailingIcon={DatabaseSearch}
-          ontrailingClick={openSGDBSearch}
-        />
-        <div class="actions" style:--m3-button-shape="var(--m3-util-rounding-small)">
-          <Button type="filled" extraOptions={{ style: "flex-grow: 1" }} onclick={() => SystemController.changeCapsule($systemEditingId!)}>
-            Edit Cover
-          </Button>
-          <Button type="filled" extraOptions={{ style: "flex-grow: 1" }} onclick={() => SystemController.changeHero($systemEditingId!)}>
-            Edit Banner
-          </Button>
-        </div>
-        <TextField
-          name="Abbreviation"
-          bind:value={abbreviation}
-        />
-        <TextField
-          name="Folder"
-          bind:value={folder}
-        />
-        <div class="footnote">
-          Using the folder name listed on the <a href="https://emudeck.github.io/cheat-sheet/" target="_blank" rel="noreferrer noopenner">EmuDeck Wiki</a> is strongly recommended.
-        </div>
-        <TagColorInput bind:tagColor={tagColor} />
-        <PatternsInput bind:patterns={patterns} />
+    {#if saving}
+      <div class="loading-container">
+        <LoadingSpinner /> <div class="font-headline-small">Saving Changes...</div>
       </div>
-    </div>
+    {:else}
+      <div class="scroll-container" use:scrollShadow={{ background: "--m3-scheme-surface-container" }}>
+        <div class="fields">
+          <TextField
+            name="Name"
+            bind:value={systemName}
+            trailingIcon={DatabaseSearch}
+            ontrailingClick={openIGDBSearch}
+          />
+          <TextField
+            name="IGDB Id"
+            bind:value={igdbId}
+            trailingIcon={DatabaseSearch}
+            ontrailingClick={openIGDBSearch}
+          />
+          <TextField
+            name="SGDB Id"
+            bind:value={sgdbId}
+            trailingIcon={DatabaseSearch}
+            ontrailingClick={openSGDBSearch}
+          />
+          <div class="actions" style:--m3-button-shape="var(--m3-util-rounding-small)">
+            <Button type="filled" extraOptions={{ style: "flex-grow: 1" }} onclick={editCapsule}>
+              Edit Cover
+            </Button>
+            <Button type="filled" extraOptions={{ style: "flex-grow: 1" }} onclick={editHero}>
+              Edit Banner
+            </Button>
+          </div>
+          <TextField
+            name="Abbreviation"
+            bind:value={abbreviation}
+          />
+          <TextField
+            name="Folder"
+            bind:value={folder}
+          />
+          <div class="footnote">
+            Using the folder name listed on the <a href="https://emudeck.github.io/cheat-sheet/" target="_blank" rel="noreferrer noopenner">EmuDeck Wiki</a> is strongly recommended.
+          </div>
+          <TagColorInput bind:tagColor={tagColor} />
+          <PatternsInput bind:patterns={patterns} />
+        </div>
+      </div>
+    {/if}
   </div>
   {#snippet buttons()}
     <div>
       <Button type="tonal" onclick={onCancel}>Cancel</Button>
-      <Button type="tonal" onclick={onSave} disabled={!canSave}>Save</Button>
+      <Button type="tonal" onclick={onSave} disabled={!canSave || saving}>Save</Button>
     </div>
   {/snippet}
 </ModalBody>
