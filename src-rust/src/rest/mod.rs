@@ -69,7 +69,15 @@ pub fn initialize_rest_api(grids_cache_dir: String, cleanup_schedule: String) ->
 
   // * GET grids (rest/grids/{image_file})
   let grids_get_route = warp::path!("rest" / "grids" / ..)
-    .and(warp::fs::dir(grids_cache_dir))
+    .and(
+      warp::fs::dir(grids_cache_dir).map(|reply| {
+        warp::reply::with_header(
+          reply,
+          "Cache-Control",
+          "no-store"
+        )
+      })
+    )
     .with(&cors);
 
   // * POST capsule (rest/grids/capsules/{id})
