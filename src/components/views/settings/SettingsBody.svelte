@@ -14,7 +14,7 @@
   let highlight = $state(false);
 </script>
 
-<div class="settings-body"> <!-- transition:sharedAxisTransition={{ direction: "Z", leaving: false }}-->
+<div class="settings-body styled-scrollbar"> <!-- transition:sharedAxisTransition={{ direction: "Z", leaving: false }}-->
   <div class="header" class:highlight>
     <Button type="text" iconType="full" onclick={() => window.history.back()}>
       <Icon icon={BackArrow} width="20px" height="20px" />
@@ -66,7 +66,7 @@
     width: 100%;
     height: 100%;
 
-    overflow-y: scroll;
+    overflow-y: auto;
     overflow-x: hidden;
   }
 

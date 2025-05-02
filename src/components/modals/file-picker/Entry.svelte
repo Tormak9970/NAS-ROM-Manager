@@ -26,11 +26,13 @@
 
 <style>
   .entry {
-    width: 100%;
+    width: calc(100% + 8px);
 
     display: flex;
     align-items: center;
     justify-content: space-between;
+
+    margin-left: -8px;
 
     padding: 0.5rem;
 

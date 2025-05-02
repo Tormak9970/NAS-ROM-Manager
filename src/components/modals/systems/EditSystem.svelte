@@ -166,7 +166,7 @@
         <LoadingSpinner /> <div class="font-headline-small">Saving Changes...</div>
       </div>
     {:else}
-      <div class="scroll-container" use:scrollShadow={{ background: "--m3-scheme-surface-container" }}>
+      <div class="scroll-container styled-scrollbar" use:scrollShadow={{ background: "--m3-scheme-surface-container" }}>
         <div class="fields">
           <TextField
             name="Name"
@@ -229,7 +229,7 @@
     height: 100%;
     width: 100%;
 
-    overflow-y: scroll;
+    overflow-y: auto;
     overflow-x: hidden;
   }
 

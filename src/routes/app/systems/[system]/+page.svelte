@@ -46,7 +46,7 @@
 <MediaQuery query="(max-width: 900px)" bind:matches={portrait} />
 
 <LibraryLoadGuard onLoad={onLoad}>
-  <div id="system-entry" class:landscape={!portrait}>
+  <div id="system-entry" class="styled-scrollbar" class:landscape={!portrait}>
     {#if !isLoading}
       <Hero
         src={heroPath}
@@ -96,7 +96,7 @@
     width: 100%;
     height: 100%;
 
-    overflow-y: scroll;
+    overflow-y: auto;
     
     position: relative;
   }

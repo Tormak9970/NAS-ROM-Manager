@@ -13,7 +13,7 @@
 <SideSheet width={300} onclose={() => $showSGDBFiltersSheet = false}>
   <div class="label m3-font-title-large">SGDB Filters</div>
   <div class="filters-wrapper">
-    <div class="filters" use:scrollShadow={{ background: "--m3-scheme-surface-container-low" }}>
+    <div class="filters styled-scrollbar" use:scrollShadow={{ background: "--m3-scheme-surface-container-low" }}>
       <div class="filters-inner">
         {#each sections as section}
           <FilterSection section={section} />
@@ -40,7 +40,7 @@
     height: 100%;
 
     overflow-x: hidden;
-    overflow-y: scroll;
+    overflow-y: auto;
   }
 
   .filters-inner {

@@ -69,7 +69,7 @@
         <LoadingSpinner /> <div class="font-headline-small">Loading...</div>
       </div>
     {:else}
-      <div class="entries">
+      <div class="entries styled-scrollbar">
         {#each entries as entry, i (entry.id)}
           <GameTitleEntry
             name={entry.name}
@@ -112,8 +112,8 @@
     background-color: rgb(var(--m3-scheme-surface-container-lowest));
     border-radius: var(--m3-util-rounding-extra-small);
 
-    overflow: hidden;
-    overflow-y: scroll;
+    overflow-x: show;
+    overflow-y: auto;
   }
   
   .entries > :global(:last-child) {

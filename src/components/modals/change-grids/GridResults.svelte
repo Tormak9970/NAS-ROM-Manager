@@ -50,7 +50,7 @@
 
 <svelte:document onresize={debouncedResize} />
 
-<div class="scroll-container" use:scrollShadow={{ background: "--m3-scheme-surface-container" }}>
+<div class="scroll-container styled-scrollbar" use:scrollShadow={{ background: "--m3-scheme-surface-container" }}>
   <div class="grid-results">
     {#if isLoading}
       <div
@@ -86,7 +86,7 @@
     height: 100%;
     width: 100%;
 
-    overflow-y: scroll;
+    overflow-y: auto;
     overflow-x: hidden;
   }
 
