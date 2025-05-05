@@ -62,3 +62,5 @@ export const igdbSearchRomOnSelect = writable((igdbId: string) => {});
 export const showSearchIGDBPlatformModal = writable(false);
 export const igdbSearchPlatformTitle = writable<string | null>(null);
 export const igdbSearchPlatformOnSelect = writable((platform: IGDBMetadataPlatform | null) => {});
+
+export const showSearchFiltersModal = writable(false);

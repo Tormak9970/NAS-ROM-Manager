@@ -1,4 +1,5 @@
 import type { Snippet } from "svelte";
+import type { System } from "./Library";
 
 export * from "./DownloadStrategy";
 export * from "./IGDB";
@@ -67,4 +68,17 @@ export type LoadGuardProps = {
   message?: string;
   onLoad?: () => Promise<void>;
   children: Snippet<[]>;
+}
+
+export type SearchQuery = {
+  textQuery?: string;
+  systems?: System[];
+  startReleaseDate?: string;
+  endReleaseDate?: string;
+  genres?: string[];
+  publishers?: string[];
+  developers?: string[];
+  formats?: string[];
+  startSize?: string;
+  endSize?: string;
 }

@@ -1,15 +1,17 @@
 <script lang="ts">
   import { Icon } from "@component-utils";
   import { Search, Tune } from "@icons";
+  import { showSearchFiltersModal } from "@stores/Modals";
+  import { search } from "@utils";
 
   let searchValue = $state("");
 
-  function onInput(e: Event) {
-
+  function onInput() {
+    search({ textQuery: searchValue });
   }
 
   function onFilterClick() {
-
+    $showSearchFiltersModal = true;
   }
 </script>
 

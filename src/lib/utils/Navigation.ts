@@ -1,5 +1,5 @@
 import { goto } from "$app/navigation";
-import type { BackendErrorType } from "@types";
+import type { BackendErrorType, SearchQuery } from "@types";
 
 /**
  * Displays an error.
@@ -41,4 +41,12 @@ export function goToEmulator(emulator: string) {
  */
 export function goToSetting(setting: string) {
   goto(`/app/settings/${setting}`);
+}
+
+/**
+ * Navigates to the search page.
+ * @param query The search query.
+ */
+export function search(query: SearchQuery) {
+
 }
