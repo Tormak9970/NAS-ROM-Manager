@@ -97,7 +97,7 @@
   {...extraWrapperOptions}
   style:max-width={maxWidth}
 >
-  <div class="modal-body" style:--m3-util-background="var(--m3-scheme-surface-container)">
+  <div class="modal-body">
     {#if loading}
       <div class="loading-container-modal">
         <LoadingSpinner />

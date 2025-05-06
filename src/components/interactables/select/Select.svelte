@@ -112,7 +112,7 @@
 
 <style>
   :root {
-    --m3-textfield-outlined-shape: var(--m3-util-rounding-extra-small);
+    --m3-select-outlined-shape: var(--m3-util-rounding-extra-small);
   }
   .m3-container {
     position: relative;
@@ -158,7 +158,7 @@
     position: absolute;
     inset: 0;
     border: 0.0625rem solid rgb(var(--error, var(--m3-scheme-outline)));
-    border-radius: var(--m3-textfield-outlined-shape);
+    border-radius: var(--m3-select-outlined-shape);
     pointer-events: none;
     transition: all 200ms;
   }

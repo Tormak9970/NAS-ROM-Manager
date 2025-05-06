@@ -48,6 +48,13 @@
     background-color: rgb(var(--m3-scheme-surface-container-high));
   }
 
+  @supports (-moz-appearance:none) {
+    .entry {
+      width: 100%;
+      margin-left: 0;
+    }
+  }
+
   .name {
     max-width: 90%;
     overflow: hidden;
