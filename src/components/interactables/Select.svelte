@@ -1,65 +1,50 @@
-<script lang="ts" module>
-  export type ComboBoxOption = {
-    id?: string;
-    label: string;
-    value: string;
-  };
-</script>
-
 <script lang="ts">
   import { Icon } from "@component-utils";
-  import { focusOutside, shortcuts } from "@directives";
-  import { Search, UnfoldMore } from "@icons";
+  import { focusOutside, shortcuts, type ShortcutOptions } from "@directives";
+  import { Close, Search, UnfoldMore } from "@icons";
   import { onMount, tick } from 'svelte';
   import type { FormEventHandler } from 'svelte/elements';
   import { fly } from 'svelte/transition';
+
   type Props = {
-    label: string;
+    name: string;
     hideLabel?: boolean;
-    options?: ComboBoxOption[];
-    selectedOption?: ComboBoxOption | undefined;
+    options?: SelectItem[];
     placeholder?: string;
-    /**
-     * whether creating new items is allowed.
-     */
-    allowCreate?: boolean;
-    /**
-     * select first matching option on enter key.
-     */
-    defaultFirstOption?: boolean;
-    onSelect?: (option: ComboBoxOption | undefined) => void;
+    disabled?: boolean;
+    clearable?: boolean;
+    onSelect?: (option: SelectItem | undefined) => void;
     value?: string;
   }
 
   let {
-    label,
+    name,
     hideLabel = false,
     options = [],
-    selectedOption = $bindable(),
     placeholder = '',
-    allowCreate = false,
-    defaultFirstOption = false,
+    disabled = false,
+    clearable = false,
     onSelect = () => {},
     value = $bindable("")
   }: Props = $props();
 
-  /**
-   * Unique identifier for the combobox.
-   */
   const id = crypto.randomUUID();
-  /**
-   * Indicates whether or not the dropdown autocomplete list should be visible.
-   */
   let isOpen = $state(false);
-  /**
-   * Keeps track of whether the combobox is actively being used.
-   */
   let isActive = $state(false);
+  let selectedOption: SelectItem | undefined = $derived(value ? options.find((option) => option.value === value) : undefined);
+  
+  // svelte-ignore state_referenced_locally
   let searchQuery = $state(selectedOption?.label || '');
   let selectedIndex: number | undefined = $state();
   let optionRefs: HTMLElement[] = $state([]);
   let input = $state<HTMLInputElement>();
   let bounds: DOMRect | undefined = $state();
+
+  $effect(() => {
+    if (selectedIndex) {
+      value = options[selectedIndex].value
+    }
+  });
 
   const inputId = `combobox-${id}`;
   const listboxId = `listbox-${id}`;
@@ -81,13 +66,25 @@
     { threshold: 0.5 },
   );
 
+  function getScrollParent(node: any) {
+    if (node == null) {
+      return null;
+    }
+
+    if (node.scrollHeight > node.clientHeight) {
+      return node;
+    } else {
+      return getScrollParent(node.parentNode);
+    }
+  }
+
   onMount(() => {
     if (!input) {
       return;
     }
     observer.observe(input);
-    // TODO: this won't work with my setup. Need to find a different solution
-    const scrollableAncestor = input?.closest('.overflow-y-auto, .overflow-y-scroll');
+    
+    const scrollableAncestor = getScrollParent(input);
     scrollableAncestor?.addEventListener('scroll', onPositionChange);
     window.visualViewport?.addEventListener('resize', onPositionChange);
     window.visualViewport?.addEventListener('scroll', onPositionChange);
@@ -137,12 +134,12 @@
   const onInput: FormEventHandler<HTMLInputElement> = (event) => {
     openDropdown();
     searchQuery = event.currentTarget.value;
-    selectedIndex = defaultFirstOption ? 0 : undefined;
+    selectedIndex = undefined;
     optionRefs[0]?.scrollIntoView({ block: 'nearest' });
   };
 
-  let handleSelect = (option: ComboBoxOption) => {
-    selectedOption = option;
+  let handleSelect = (option: SelectItem) => {
+    value = option.value;
     searchQuery = option.label;
     onSelect(option);
     closeDropdown();
@@ -151,7 +148,7 @@
   const onClear = () => {
     input?.focus();
     selectedIndex = undefined;
-    selectedOption = undefined;
+    value = "";
     searchQuery = '';
     onSelect(selectedOption);
   };
@@ -213,23 +210,53 @@
 
   const getInputPosition = () => input?.getBoundingClientRect();
 
-  let filteredOptions = $derived.by(() => {
-    const _options = options.filter((option) => option.label.toLowerCase().includes(searchQuery.toLowerCase()));
-
-    if (allowCreate && searchQuery !== '' && _options.filter((option) => option.label === searchQuery).length === 0) {
-      _options.unshift({ label: searchQuery, value: searchQuery });
-    }
-
-    return _options;
-  });
+  let filteredOptions = $derived(options.filter((option) => option.label.toLowerCase().includes(searchQuery.toLowerCase())));
   let position = $derived(calculatePosition(bounds));
   let dropdownDirection: 'bottom' | 'top' = $derived(getComboboxDirection(bounds, visualViewport));
+
+  const inputShortcuts: ShortcutOptions[] = [
+    {
+      shortcut: { key: 'ArrowUp' },
+      onShortcut: () => {
+        openDropdown();
+        void incrementSelectedIndex(-1);
+      },
+    },
+    {
+      shortcut: { key: 'ArrowDown' },
+      onShortcut: () => {
+        openDropdown();
+        void incrementSelectedIndex(1);
+      },
+    },
+    {
+      shortcut: { key: 'ArrowDown', alt: true },
+      onShortcut: () => {
+        openDropdown();
+      },
+    },
+    {
+      shortcut: { key: 'Enter' },
+      onShortcut: () => {
+        if (selectedIndex !== undefined && filteredOptions.length > 0) {
+          handleSelect(filteredOptions[selectedIndex]);
+        }
+        closeDropdown();
+      },
+    },
+    {
+      shortcut: { key: 'Escape' },
+      onShortcut: (event) => {
+        event.stopPropagation();
+        closeDropdown();
+      },
+    },
+  ];
 </script>
 
 <svelte:window onresize={onPositionChange} />
-<label class="immich-form-label" class:sr-only={hideLabel} for={inputId}>{label}</label>
 <div
-  class="relative w-full dark:text-gray-300 text-gray-700 text-base"
+  class="select-container"
   use:focusOutside={{ onFocusOut: deactivate }}
   use:shortcuts={[
     {
@@ -241,16 +268,15 @@
     },
   ]}
 >
-  <div>
+  <div class="m3-container">
     {#if isActive}
-      <div class="absolute inset-y-0 start-0 flex items-center ps-3">
-        <div class="dark:text-immich-dark-fg/75">
-          <Icon icon={Search} />
-        </div>
+      <div class="leading">
+        <Icon icon={Search} width="1rem" height="1rem" />
       </div>
     {/if}
 
     <input
+      class="m3-font-body-medium"
       {placeholder}
       aria-activedescendant={selectedIndex || selectedIndex === 0 ? `${listboxId}-${selectedIndex}` : ''}
       aria-autocomplete="list"
@@ -258,68 +284,31 @@
       aria-expanded={isOpen}
       autocomplete="off"
       bind:this={input}
-      class:!ps-8={isActive}
-      class:!rounded-b-none={isOpen && dropdownDirection === 'bottom'}
-      class:!rounded-t-none={isOpen && dropdownDirection === 'top'}
+      class:padded-start={isActive}
+      class:flat-bottom={isOpen && dropdownDirection === 'bottom'}
+      class:flat-top={isOpen && dropdownDirection === 'top'}
       class:cursor-pointer={!isActive}
-      class="immich-form-input text-sm w-full !pe-12 transition-all"
       id={inputId}
       onfocus={activate}
       oninput={onInput}
       role="combobox"
       type="text"
       value={searchQuery}
-      use:shortcuts={[
-        {
-          shortcut: { key: 'ArrowUp' },
-          onShortcut: () => {
-            openDropdown();
-            void incrementSelectedIndex(-1);
-          },
-        },
-        {
-          shortcut: { key: 'ArrowDown' },
-          onShortcut: () => {
-            openDropdown();
-            void incrementSelectedIndex(1);
-          },
-        },
-        {
-          shortcut: { key: 'ArrowDown', alt: true },
-          onShortcut: () => {
-            openDropdown();
-          },
-        },
-        {
-          shortcut: { key: 'Enter' },
-          onShortcut: () => {
-            if (selectedIndex !== undefined && filteredOptions.length > 0) {
-              handleSelect(filteredOptions[selectedIndex]);
-            }
-            closeDropdown();
-          },
-        },
-        {
-          shortcut: { key: 'Escape' },
-          onShortcut: (event) => {
-            event.stopPropagation();
-            closeDropdown();
-          },
-        },
-      ]}
+      use:shortcuts={inputShortcuts}
     />
+    {#if !hideLabel}
+      <label class="m3-font-body-large" for={inputId}>{name}</label>
+    {/if}
 
-    <div
-      class="absolute end-0 top-0 h-full flex px-4 justify-center items-center content-between"
-      class:pe-2={selectedOption}
-      class:pointer-events-none={!selectedOption}
-    >
-      {#if selectedOption}
-        <!-- <CircleIconButton onclick={onClear} title={$t('clear_value')} icon={mdiClose} size="16" padding="2" /> -->
-      {:else if !isOpen}
+    {#if selectedOption && clearable}
+      <button onclick={onClear} class="trailing" disabled={disabled}>
+        <Icon icon={Close} />
+      </button>
+    {:else if !isOpen}
+      <div class="trailing">
         <Icon icon={UnfoldMore} />
-      {/if}
-    </div>
+      </div>
+    {/if}
   </div>
 
   <ul
@@ -327,8 +316,8 @@
     id={listboxId}
     transition:fly={{ duration: 250 }}
     class="options-list"
-    class:rounded-b-xl={dropdownDirection === 'bottom'}
-    class:rounded-t-xl={dropdownDirection === 'top'}
+    class:rounded-bottom={dropdownDirection === 'bottom'}
+    class:rounded-top={dropdownDirection === 'top'}
     class:shadow={dropdownDirection === 'bottom'}
     class:border={isOpen}
     style:top={position?.top}
@@ -349,10 +338,10 @@
           id={`${listboxId}-${0}`}
           onclick={closeDropdown}
         >
-          {allowCreate ? searchQuery : "No Results"}
+          No Results
         </li>
       {/if}
-      {#each filteredOptions as option, index (option.id || option.label)}
+      {#each filteredOptions as option, index (option.label)}
         <!-- svelte-ignore a11y_click_events_have_key_events -->
         <li
           aria-selected={index === selectedIndex}
@@ -370,33 +359,174 @@
 </div>
 
 <style>
+  :root {
+    --m3-select-outlined-shape: var(--m3-util-rounding-medium);
+  }
+
+  .select-container {
+    position: relative; 
+    width: 100%;
+  }
+
+  .m3-container {
+    position: relative;
+
+    display: flex;
+    flex-direction: column-reverse;
+  }
+  input {
+    width: 100%;
+    height: 2.9rem;
+    border: none;
+    outline: none;
+    padding: 0.75rem;
+
+    color: rgb(var(--m3-scheme-on-surface));
+    
+    border-radius: var(--m3-select-outlined-shape);
+    background-color: rgb(var(--m3-util-background, var(--m3-scheme-surface-variant)));
+
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 300ms; 
+  }
+
+  .padded-start {
+    padding-left: 2rem;
+  }
+
+  .leading {
+    display: flex;
+    align-items: center;
+    
+    position: absolute;
+    left: 0.6rem;
+    bottom: 0.3rem;
+    
+    height: 2.25rem;
+    width: 2.25rem;
+  }
+
+  .cursor-pointer {
+    cursor: pointer;
+  }
+
+  label {
+    color: rgb(var(--error, var(--m3-scheme-on-surface-variant)));
+    font-weight: bold;
+
+    transition: color 200ms;
+
+    font-size: 0.9rem;
+  }
+  .m3-container .trailing :global(svg) {
+    width: 1.4rem;
+    height: 1.4rem;
+    color: rgb(var(--m3-scheme-on-surface-variant));
+    pointer-events: none;
+  }
+  
+  .trailing {
+    position: absolute;
+    z-index: 2;
+
+    height: 2.25rem;
+    width: 2.25rem;
+    right: 0.3rem;
+    bottom: 0.3rem;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background-color: transparent;
+    border-radius: 1.125rem;
+
+    -webkit-tap-highlight-color: transparent;
+    cursor: pointer;
+    transition: all 200ms;
+  }
+
+  input:not(:disabled):hover ~ label,
+  input:not(:disabled):focus ~ label {
+    color: rgb(var(--error, var(--m3-scheme-on-surface)));
+  }
+  @media (hover: hover) {
+    button:not(:disabled):hover {
+      background-color: rgb(var(--m3-scheme-on-surface-variant) / 0.08);
+    }
+  }
+  button:focus-visible,
+  button:active {
+    background-color: rgb(var(--m3-scheme-on-surface-variant) / 0.12);
+  }
+
+  input:read-only {
+    caret-color: transparent;
+  }
+
+  input:disabled {
+    color: rgb(var(--m3-scheme-on-surface) / 0.38);
+    background-color: rgb(var(--m3-scheme-on-surface) / 0.08);
+  }
+  button:disabled {
+    pointer-events: none;
+  }
+  button.trailing:disabled :global(svg) {
+    color: rgb(var(--m3-scheme-on-surface) / 0.18);
+  }
+
   .options-list {
+    box-sizing: border-box;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
     position: fixed;
     text-align: left;
-    font-size: 0.875rem; /* text-sm in Tailwind */
+    font-size: 0.875rem;
     width: 100%;
     overflow-y: auto;
-    background-color: #2d3748; /* bg-gray-800 */
-    border-color: #1a202c; /* border-gray-900 */
+    background-color: rgb(var(--m3-scheme-surface-container-high));
     z-index: 10000;
   }
+  .border {
+    border: 1px solid rgb(var(--m3-util-background, var(--m3-scheme-surface-variant)));
+  }
+
+
+  .rounded-bottom {
+    border-bottom-left-radius: var(--m3-select-outlined-shape);
+    border-bottom-right-radius: var(--m3-select-outlined-shape);
+  }
+  .flat-bottom {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+  .rounded-top {
+    border-top-left-radius: var(--m3-select-outlined-shape);
+    border-top-right-radius: var(--m3-select-outlined-shape);
+  }
+  .flat-top {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+  }
+  .shadow {
+    box-shadow: var(--m3-util-elevation-1);
+  }
+
+
   .option {
     text-align: left;
     width: 100%;
-    padding-left: 1rem; /* 4 in Tailwind */
-    padding-right: 1rem; /* 4 in Tailwind */
-    padding-top: 0.5rem; /* 2 in Tailwind */
-    padding-bottom: 0.5rem; /* 2 in Tailwind */
+    padding: 0.5rem 1rem;
     transition: all 0.2s ease-in-out;
     cursor: pointer;
-    word-wrap: break-word; /* break-words in Tailwind */
+    word-wrap: break-word;
   }
 
-  .option:hover {
-    background-color: #374151; /* bg-gray-700 */
-  }
-
+  .option:hover,
   .option[aria-selected="true"] {
-    background-color: #374151; /* bg-gray-700 */
+    background-color: rgb(var(--m3-scheme-on-surface) / 0.08);
   }
 </style>

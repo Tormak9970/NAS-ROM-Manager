@@ -65,11 +65,13 @@
       To test and learn about RegEx, check out <a href="https://regex101.com/" target="_blank" rel="noreferrer noopenner">https://regex101.com/</a>.
     </div>
 
-    <Select
-      name="Download Strategy"
-      options={options}
-      bind:value={downloadOptionValue}
-    />
+    <div style:width="100%" style:--m3-util-background="var(--m3-scheme-surface-container)">
+      <Select
+        name="Download Strategy"
+        options={options}
+        bind:value={downloadOptionValue}
+      />
+    </div>
     <div class="footnote" style:margin-top="0.25rem">
       How roms on this system will be downloaded. "Single File" is for single file roms, "Folder" is for roms that are folders with data.
     </div>

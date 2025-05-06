@@ -17,7 +17,7 @@ export { default as MenuButton } from "./MenuButton.svelte";
 export { default as NumberField } from "./NumberField.svelte";
 export { default as PathField } from "./PathField.svelte";
 export { default as ProgressIndicator } from "./ProgressIndicator.svelte";
-export { default as Select } from "./select/Select.svelte";
+export { default as Select } from "./Select.svelte";
 export { default as Slider } from "./Slider.svelte";
 export { default as TextField } from "./TextField.svelte";
 export { default as Toggle } from "./Toggle.svelte";

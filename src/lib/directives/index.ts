@@ -3,6 +3,6 @@ export { focusOutside } from "./FocusOutside";
 export { holdEvent } from "./HoldEvent";
 export { isScrolled } from "./IsScrolled";
 export { scrollShadow } from "./ScrollShadow";
-export { shortcuts } from "./Shortcuts";
+export * from "./Shortcuts";
 export { tooltip } from "./tooltip/Tooltip";
 

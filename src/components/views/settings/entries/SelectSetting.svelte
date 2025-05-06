@@ -26,7 +26,7 @@
 
 <div class="settings-entry">
   <Card type="transparent" extraOptions={{ style: "width: 100%;" }}>
-    <div class="content" style:--m3-util-background="var(--m3-scheme-background)">
+    <div class="content">
       {#if $isLandscape}
         <div class="icon-container">
           {#if icon}
@@ -45,12 +45,7 @@
           name={label}
           options={options}
           bind:value={value}
-          extraWrapperOptions={{
-            style: "height: 3rem; min-width: 9rem;"
-          }}
-          extraOptions={{
-            style: ""
-          }}
+          hideLabel
         />
       </div>
     </div>
@@ -91,5 +86,6 @@
 
   .action-container {
     margin-left: auto;
+    width: 10rem;
   }
 </style>
