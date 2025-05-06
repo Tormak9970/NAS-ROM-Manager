@@ -55,6 +55,7 @@ export { default as ArrowDropDown } from "@ktibow/iconset-material-symbols/arrow
 export { default as ArrowDropUp } from "@ktibow/iconset-material-symbols/arrow-drop-up-rounded";
 export { default as ForwardArrow } from "@ktibow/iconset-material-symbols/arrow-forward-rounded";
 export { default as SubdirectoryArrowRight } from "@ktibow/iconset-material-symbols/subdirectory-arrow-right-rounded";
+export { default as UnfoldMore } from "@ktibow/iconset-material-symbols/unfold-more-rounded";
 
 export { default as Search } from "@ktibow/iconset-material-symbols/search-rounded";
 
