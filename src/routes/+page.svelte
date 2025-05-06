@@ -52,6 +52,9 @@
           <h2 class="header">Login</h2>
           <TextField
             name="Username"
+            extraWrapperOptions={{
+              style: "width: 100%"
+            }}
             bind:value={user}
           />
           <TextField
@@ -59,6 +62,9 @@
             trailingIcon={passwordVisible ? VisibiityOff : Visibility}
             extraOptions={{
               type: passwordVisible ? "text" : "password"
+            }}
+            extraWrapperOptions={{
+              style: "width: 100%"
             }}
             ontrailingClick={() => passwordVisible = !passwordVisible}
             bind:value={password}
