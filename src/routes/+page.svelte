@@ -122,8 +122,6 @@
 
   #login-form {
     max-width: 20rem;
-
-    --m3-util-background: var(--m3-scheme-surface-container-low);
   }
 
   .body {
