@@ -32,7 +32,7 @@
     oninput = () => {},
   }: Props = $props();
 
-  const validatePath = (value: string) => isValidWindowsPath(value) || isValidLinuxPath(value);
+  const validatePath = async (value: string) => isValidWindowsPath(value) || isValidLinuxPath(value);
 
   async function getPathFromDialog() {
     const paths = await DialogController.openFilePicker({
