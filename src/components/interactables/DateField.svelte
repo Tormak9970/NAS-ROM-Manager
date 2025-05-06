@@ -71,18 +71,19 @@ opacity: ${Math.min(t * 3, 1)};`,
 </script>
 
 <div class="m3-container" class:has-js={hasJs} class:error class:disabled bind:this={container}>
-  <input
-    type="date"
-    class="m3-font-body-large"
-    {disabled}
-    {required}
-    {readonly}
-    {id}
-    bind:value={date}
-    {...extraOptions}
-  />
-  <div class="layer"></div>
-  <label class="m3-font-body-small" for={id}>{name}</label>
+  <div class="input-wrapper">
+    <input
+      type="date"
+      class="m3-font-body-large"
+      {disabled}
+      {required}
+      {readonly}
+      {id}
+      bind:value={date}
+      {...extraOptions}
+    />
+  </div>
+  <label class="m3-font-body-large" for={id}>{name}</label>
   <button type="button" class="trailing" {disabled} onclick={() => (picker = !picker)}>
     <Icon icon={CalendarTodayOutline} />
   </button>
@@ -102,62 +103,42 @@ opacity: ${Math.min(t * 3, 1)};`,
 
 <style>
   :root {
-    --m3-datefield-outlined-shape: var(--m3-util-rounding-extra-small);
+    --m3-datefield-outlined-shape: var(--m3-util-rounding-medium);
   }
-
   .m3-container {
     position: relative;
-    
-    display: inline-flex;
-    align-items: center;
 
-    height: 3rem;
+    display: flex;
+    flex-direction: column-reverse;
+
+    height: 4.25rem;
     min-width: 15rem;
   }
+  .input-wrapper {
+    width: 100%;
+    
+    border-radius: var(--m3-datefield-outlined-shape);
+    background-color: rgb(var(--m3-util-background, var(--m3-scheme-surface-variant)));
+  }
   input {
-    position: absolute;
-    inset: 0;
     width: 100%;
     height: 100%;
     border: none;
     outline: none;
-    padding: 1rem;
-    border-radius: var(--m3-datefield-outlined-shape);
-    background-color: transparent;
+    padding: 0.6rem 0.75rem;
+
     color: rgb(var(--m3-scheme-on-surface));
+    
+    background-color: transparent;
   }
 
   label {
-    position: absolute;
-    left: 0.75rem;
-    top: 0.7rem;
     color: rgb(var(--error, var(--m3-scheme-on-surface-variant)));
-    background-color: rgb(var(--m3-util-background, var(--m3-scheme-surface)));
-    padding: 0 0.25rem;
-    pointer-events: none;
-    transition:
-      all 200ms,
-      font-size 300ms,
-      line-height 300ms,
-      letter-spacing 300ms;
-  }
-  .layer {
-    position: absolute;
-    inset: 0;
-    border: 0.0625rem solid rgb(var(--error, var(--m3-scheme-outline)));
-    border-radius: var(--m3-datefield-outlined-shape);
-    pointer-events: none;
-    transition: all 200ms;
-  }
-  .m3-container :global(svg) {
-    width: 1.5rem;
-    height: 1.5rem;
-    color: rgb(var(--m3-scheme-on-surface-variant));
-    pointer-events: none;
-  }
-  .m3-container > :global(.leading) {
-    position: relative;
-    margin-left: 0.75rem;
+    font-weight: bold;
+
+    transition: color 200ms;
+
+    font-size: 0.9rem;
   }
   .m3-container .trailing :global(svg) {
     width: 1.4rem;
@@ -173,6 +154,7 @@ opacity: ${Math.min(t * 3, 1)};`,
     height: 2.25rem;
     width: 2.25rem;
     right: 0.3rem;
+    bottom: 0.3rem;
 
     display: flex;
     align-items: center;
@@ -186,28 +168,12 @@ opacity: ${Math.min(t * 3, 1)};`,
     transition: all 200ms;
   }
 
-  input:not(:read-only):focus ~ label,
-  input:not(:placeholder-shown) ~ label {
-    top: calc(var(--m3-font-body-small-height, 1rem) * -0.5);
-    font-size: var(--m3-font-body-small-size, 0.85rem);
-    line-height: var(--m3-font-body-small-height, 1rem);
-    letter-spacing: var(--m3-font-body-small-tracking, 0.4);
-  }
-  input:hover ~ label {
+  .input-wrapper:has(> input:not(:disabled):hover) ~ label,
+  .input-wrapper:has(input:not(:disabled):focus) ~ label {
     color: rgb(var(--error, var(--m3-scheme-on-surface)));
   }
-  input:hover ~ .layer {
-    border-color: rgb(var(--error, var(--m3-scheme-on-surface)));
-  }
-  input:focus ~ label {
-    color: rgb(var(--error, var(--m3-scheme-primary)));
-  }
-  input:focus ~ .layer {
-    border-color: rgb(var(--error, var(--m3-scheme-primary)));
-    border-width: 0.125rem;
-  }
   @media (hover: hover) {
-    button:hover {
+    button:not(:disabled):hover {
       background-color: rgb(var(--m3-scheme-on-surface-variant) / 0.08);
     }
   }
@@ -219,9 +185,11 @@ opacity: ${Math.min(t * 3, 1)};`,
   .error {
     --error: var(--m3-scheme-error);
   }
-  .error > input:hover ~ label,
-  .error > input:hover ~ .layer {
+  .error > .input-wrapper:hover ~ label {
     --error: var(--m3-scheme-on-error-container);
+  }
+  .error > .input-wrapper {
+    background-color: rgb(var(--m3-scheme-tertiary-container));
   }
 
   input:read-only {
@@ -231,27 +199,21 @@ opacity: ${Math.min(t * 3, 1)};`,
   input:disabled {
     color: rgb(var(--m3-scheme-on-surface) / 0.38);
   }
-  input:disabled ~ label {
-    color: rgb(var(--m3-scheme-on-surface) / 0.38);
+  .input-wrapper:has(> input:disabled) {
+    background-color: rgb(var(--m3-scheme-on-surface) / 0.08);
   }
-  input:disabled ~ .layer {
-    border-color: rgb(var(--m3-scheme-on-surface) / 0.38);
+  button:disabled {
+    pointer-events: none;
   }
-  input:disabled ~ :global(svg) {
-    color: rgb(var(--m3-scheme-on-surface) / 0.38);
-  }
-
-  @supports (-moz-appearance: none) {
-    input {
-      padding-left: 0.75rem;
-    }
+  button.trailing:disabled :global(svg) {
+    color: rgb(var(--m3-scheme-on-surface) / 0.18);
   }
 
   .picker {
     position: absolute;
     top: calc(100% + 1rem);
     right: 0;
-    z-index: 1;
+    z-index: 3;
   }
 
   @media (min-width: 37.5rem) {
