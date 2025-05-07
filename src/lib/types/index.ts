@@ -72,7 +72,7 @@ export type LoadGuardProps = {
 
 export type SearchQuery = {
   textQuery?: string;
-  systems?: System[];
+  system?: System;
   startReleaseDate?: string;
   endReleaseDate?: string;
   genres?: string[];

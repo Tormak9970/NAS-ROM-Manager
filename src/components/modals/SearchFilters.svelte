@@ -1,22 +1,26 @@
 <script lang="ts">
   import { ModalBody } from "@component-utils";
-  import { Button } from "@interactables";
+  import { Button, DateField, Select } from "@interactables";
   import TextField from "@interactables/TextField.svelte";
   import { showSearchFiltersModal } from "@stores/Modals";
-  import { type System } from "@types";
+  import { systems } from "@stores/State";
 
   let open = $state(true);
 
   let textQuery = $state("");
-  let systems = $state<System[]>([]);
+  let filterSystem = $state<string>("");
   let startReleaseDate = $state<string>("");
   let endReleaseDate = $state<string>("");
-  let genres = $state<string[]>([]);
-  let publishers = $state<string[]>([]);
-  let developers = $state<string[]>([]);
-  let formats = $state<string[]>([]);
+  let filterGenres = $state<string[]>([]);
+  let filterPublishers = $state<string[]>([]);
+  let filterDevelopers = $state<string[]>([]);
+  let filterFormats = $state<string[]>([]);
   let startSize = $state<string>("");
   let endSize = $state<string>("");
+
+  let systemOptions: SelectItem[] = Object.entries($systems).sort().map(([key, value]) => {
+    return { label: key, value: value.abbreviation };
+  });
 
   
   function onCloseEnd() {
@@ -49,6 +53,33 @@
         style: "width: 100%;"
       }}
     />
+    <div class="search-row">
+      <!-- Systems -->
+      <Select
+        name="Systems"
+        options={systemOptions}
+        disabled={systemOptions.length === 1}
+        bind:value={filterSystem}
+      />
+    
+      <!-- formats -->
+    </div>
+    <div class="search-row">
+      <!-- genres -->
+      <!-- Developers -->
+      <!-- Publishers -->
+    </div>
+    <div class="search-row">
+      <!-- start-date -->
+        <DateField
+          name="Start Date"
+        />
+      <!-- end-date -->
+    </div>
+    <div class="search-row">
+      <!-- start-size -->
+      <!-- end-size -->
+    </div>
   </div>
   {#snippet buttons()}
     <div>

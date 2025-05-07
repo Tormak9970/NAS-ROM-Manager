@@ -88,7 +88,7 @@ export { default as EmergencyHome } from "@ktibow/iconset-material-symbols/emerg
 export { default as Help } from "@ktibow/iconset-material-symbols/help-rounded";
 
 export { default as CalendarMonth } from "@ktibow/iconset-material-symbols/calendar-month-rounded";
-export { default as CalendarTodayOutline } from "@ktibow/iconset-material-symbols/calendar-today-outline";
+export { default as CalendarToday } from "@ktibow/iconset-material-symbols/calendar-today";
 
 export { default as Draft } from "@ktibow/iconset-material-symbols/draft-rounded";
 
