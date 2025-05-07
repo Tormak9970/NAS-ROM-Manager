@@ -305,7 +305,7 @@
         <Icon icon={Close} />
       </button>
     {:else if !isOpen}
-      <div class="trailing">
+      <div class="trailing" style:pointer-events="none">
         <Icon icon={UnfoldMore} />
       </div>
     {/if}
