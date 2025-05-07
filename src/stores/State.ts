@@ -1,7 +1,7 @@
 import { DEFAULT_FILTERS } from "@models";
 import type { DBFilters, Library, Palette, ROM, ROMMetadata, SGDBGame, System, SystemTagConfig } from "@types";
 import { localStorageWritable } from "@utils";
-import { writable } from "svelte/store";
+import { derived, writable } from "svelte/store";
 
 export const requestTimeoutLength = 5000;
 
@@ -43,6 +43,30 @@ export const roms = writable<Record<string, ROM>>({});
 export const emulators = writable<Record<string, string>>({});
 
 export const romMetadata = writable<Record<string, ROMMetadata>>({});
+
+export const metadataSearchFilters = derived([ romMetadata ], ([$romMetadata]: [Record<string, ROMMetadata>]) => {
+  const filters = Object.values($romMetadata).reduce((filters: Record<string, Set<string>>, metadata: ROMMetadata) => {
+    if (metadata) {
+      if (metadata.metadata?.metadata?.genres && metadata.metadata?.metadata?.genres?.length > 0) {
+        metadata.metadata?.metadata?.genres.forEach((genre: string) => filters.genres.add(genre));
+      }
+      if (metadata.metadata?.metadata?.developers && metadata.metadata?.metadata?.developers?.length > 0) {
+        metadata.metadata?.metadata?.developers.forEach((dev: string) => filters.developers.add(dev));
+      }
+      if (metadata.metadata?.metadata?.publishers && metadata.metadata?.metadata?.publishers?.length > 0) {
+        metadata.metadata?.metadata?.publishers.forEach((pub: string) => filters.publishers.add(pub));
+      }
+    }
+    
+    return filters;
+  }, {
+    genres: new Set<string>(),
+    developers: new Set<string>(),
+    publishers: new Set<string>()
+  })
+
+  return filters;
+});
 
 export const romsBySystem = writable<Record<string, string[]>>({});
 

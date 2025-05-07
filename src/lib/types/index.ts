@@ -75,10 +75,10 @@ export type SearchQuery = {
   system?: System;
   startReleaseDate?: string;
   endReleaseDate?: string;
-  genres?: string[];
-  publishers?: string[];
-  developers?: string[];
-  formats?: string[];
+  genre?: string;
+  publisher?: string;
+  developer?: string;
+  format?: string;
   startSize?: string;
   endSize?: string;
 }
