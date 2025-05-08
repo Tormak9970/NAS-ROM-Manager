@@ -1,42 +1,45 @@
 <script lang="ts">
   import { Icon } from "@component-utils";
-  import type { IconifyIcon } from "@iconify/types";
+  import { KeyboardArrowDown, KeyboardArrowUp } from "@icons";
   import type { HTMLAttributes, HTMLInputAttributes } from "svelte/elements";
 
   type Props = {
     extraWrapperOptions?: HTMLAttributes<HTMLDivElement>;
     extraOptions?: HTMLInputAttributes;
     name: string;
-    trailingIcon?: IconifyIcon | undefined;
     disabled?: boolean;
     required?: boolean;
     error?: boolean;
     value?: string;
     onchange?: (e: Event) => void;
     oninput?: (e: Event) => void;
-    ontrailingClick?: () => void;
   }
 
   let {
     extraWrapperOptions = {},
     extraOptions = {},
     name,
-    trailingIcon = undefined,
     disabled = false,
     required = false,
     error = false,
     value = $bindable(""),
     onchange = () => {},
     oninput = () => {},
-    ontrailingClick,
   }: Props = $props();
   
   const id = crypto.randomUUID();
+
+  function increment(step: number) {
+    if (value === "") {
+      value = step.toString();
+    } else {
+      value = (parseInt(value) + step).toString();
+    }
+  }
 </script>
 
 <div
   class="m3-container"
-  class:trailing-icon={trailingIcon}
   class:error
   {...extraWrapperOptions}
 >
@@ -51,14 +54,20 @@
     {required}
     {...extraOptions}
     {onchange}
-    {oninput}
+    oninput={(e: Event) => {
+      (e.target as HTMLInputElement).value = (e.target as HTMLInputElement).value.replace(/[^0-9]/g, '');
+      oninput(e);
+    }}
   />
   <label class="m3-font-body-large" for={id}>{name}</label>
-  {#if trailingIcon}
-    <button onclick={ontrailingClick} class="trailing" disabled={disabled}>
-      <Icon icon={trailingIcon} />
+  <div class="trailing">
+    <button onclick={() => increment(1)} class="up" disabled={disabled}>
+      <Icon icon={KeyboardArrowUp} />
     </button>
-  {/if}
+    <button onclick={() => increment(-1)} class="down" disabled={disabled}>
+      <Icon icon={KeyboardArrowDown} />
+    </button>
+  </div>
 </div>
 
 <style>
@@ -85,6 +94,17 @@
     
     border-radius: var(--m3-numberfield-outlined-shape);
     background-color: rgb(var(--m3-util-background, var(--m3-scheme-surface-variant)));
+
+    -webkit-appearance: textfield;
+    -moz-appearance: textfield;
+    appearance: textfield;
+
+    padding-right: 3.25rem;
+  }
+
+  input::-webkit-inner-spin-button,
+  input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
   }
 
   label {
@@ -112,21 +132,36 @@
     position: absolute;
     z-index: 2;
 
-    height: 2.25rem;
+    height: calc(100% - 1.5rem);
     width: 2.25rem;
-    right: 0.3rem;
-    bottom: 0.3rem;
+    right: 0;
+    bottom: 0;
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
     border: none;
     background-color: transparent;
-    border-radius: 1.125rem;
 
     -webkit-tap-highlight-color: transparent;
     cursor: pointer;
     transition: all 200ms;
+
+    display: flex;
+    flex-direction: column;
+  }
+
+  button {
+    height: 50%;
+    width: 2.25rem;
+    
+    border: none;
+    background-color: transparent;
+
+    cursor: pointer;
+  }
+  .up {
+    border-top-right-radius: var(--m3-numberfield-outlined-shape);
+  }
+  .down {
+    border-bottom-right-radius: var(--m3-numberfield-outlined-shape);
   }
 
   input:not(:disabled):hover ~ label,
@@ -141,10 +176,6 @@
   button:focus-visible,
   button:active {
     background-color: rgb(var(--m3-scheme-on-surface-variant) / 0.12);
-  }
-
-  .trailing-icon > input {
-    padding-right: 3.25rem;
   }
 
   .error {
@@ -168,7 +199,7 @@
   button:disabled {
     pointer-events: none;
   }
-  button.trailing:disabled :global(svg) {
+  button:disabled :global(svg) {
     color: rgb(var(--m3-scheme-on-surface) / 0.18);
   }
 </style>

@@ -79,6 +79,4 @@ export type SearchQuery = {
   publisher?: string;
   developer?: string;
   format?: string;
-  startSize?: string;
-  endSize?: string;
 }

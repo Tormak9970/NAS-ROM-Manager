@@ -42,6 +42,16 @@ export const systems = writable<Record<string, System>>({});
 export const roms = writable<Record<string, ROM>>({});
 export const emulators = writable<Record<string, string>>({});
 
+export const romFileFormats = derived([ roms ], ([$roms]: [Record<string, ROM>]) => {
+  const formats = Object.values($roms).reduce((formats: Set<string>, rom: ROM) => {
+    formats.add(rom.format);
+    
+    return formats;
+  }, new Set<string>());
+
+  return Array.from(formats.values());
+});
+
 export const romMetadata = writable<Record<string, ROMMetadata>>({});
 
 export const metadataSearchFilters = derived([ romMetadata ], ([$romMetadata]: [Record<string, ROMMetadata>]) => {
@@ -63,7 +73,7 @@ export const metadataSearchFilters = derived([ romMetadata ], ([$romMetadata]: [
     genres: new Set<string>(),
     developers: new Set<string>(),
     publishers: new Set<string>()
-  })
+  });
 
   return filters;
 });

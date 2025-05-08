@@ -48,6 +48,7 @@ export { default as Repeat } from "@ktibow/iconset-material-symbols/repeat-round
 export { default as Shuffle } from "@ktibow/iconset-material-symbols/shuffle-rounded";
 
 export { default as KeyboardArrowDown } from "@ktibow/iconset-material-symbols/keyboard-arrow-down-rounded";
+export { default as KeyboardArrowUp } from "@ktibow/iconset-material-symbols/keyboard-arrow-up-rounded";
 export { default as MoreVert } from "@ktibow/iconset-material-symbols/more-vert";
 
 export { default as BackArrow } from "@ktibow/iconset-material-symbols/arrow-back-rounded";

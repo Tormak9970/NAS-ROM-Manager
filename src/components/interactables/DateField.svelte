@@ -227,7 +227,7 @@
     flex-direction: column-reverse;
 
     height: 4.25rem;
-    min-width: 15rem;
+    width: 100%;
   }
   .input-wrapper {
     width: 100%;

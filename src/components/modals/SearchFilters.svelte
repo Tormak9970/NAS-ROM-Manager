@@ -3,7 +3,8 @@
   import { Button, DateField, Select } from "@interactables";
   import TextField from "@interactables/TextField.svelte";
   import { showSearchFiltersModal } from "@stores/Modals";
-  import { metadataSearchFilters, systems } from "@stores/State";
+  import { metadataSearchFilters, romFileFormats, systems } from "@stores/State";
+  import { search } from "@utils";
 
   let open = $state(true);
 
@@ -15,20 +16,22 @@
   let filterPublisher = $state<string>("");
   let filterDeveloper = $state<string>("");
   let filterFormat = $state<string>("");
-  let startSize = $state<string>("");
-  let endSize = $state<string>("");
 
-  let systemOptions: SelectItem[] = Object.entries($systems).sort().map(([key, value]) => {
-    return { label: key, value: value.abbreviation };
+  let systemOptions: SelectItem[] = Object.keys($systems).sort().map((key: string) => {
+    return { label: key, value: key };
   });
 
-  let genreOptions: SelectItem[] = Object.values($metadataSearchFilters.genres).sort().map((value: string) => {
+  let fileFormatOptions: SelectItem[] = [...$romFileFormats].sort().map((format: string) => {
+    return { label: format, value: format };
+  });
+
+  let genreOptions: SelectItem[] = Array.from($metadataSearchFilters.genres.values()).sort().map((value: string) => {
     return { label: value, value: value };
   });
-  let developerOptions: SelectItem[] = Object.values($metadataSearchFilters.developers).sort().map((value) => {
+  let developerOptions: SelectItem[] = Array.from($metadataSearchFilters.developers.values()).sort().map((value) => {
     return { label: value, value: value };
   });
-  let publisherOptions: SelectItem[] = Object.values($metadataSearchFilters.publishers).sort().map((value) => {
+  let publisherOptions: SelectItem[] = Array.from($metadataSearchFilters.publishers.values()).sort().map((value) => {
     return { label: value, value: value };
   });
 
@@ -41,7 +44,16 @@
    * Function to run on confirmation.
    */
   async function onSearch(): Promise<void> {
-    // navigate to search and structure query params
+    search({
+      textQuery: textQuery,
+      system: filterSystem !== "" ? $systems[filterSystem] : undefined,
+      genre: filterGenre !== "" ? filterGenre : undefined,
+      publisher: filterPublisher !== "" ? filterPublisher : undefined,
+      developer: filterDeveloper !== "" ? filterDeveloper : undefined,
+      format: filterFormat !== "" ? filterFormat : undefined,
+      startReleaseDate: startReleaseDate,
+      endReleaseDate: endReleaseDate,
+    });
 
     open = false;
   }
@@ -54,25 +66,35 @@
   }
 </script>
 
-<ModalBody headline={"Search Filters"} open={open} oncloseend={onCloseEnd}>
+<ModalBody
+  headline={"Search Filters"}
+  open={open}
+  oncloseend={onCloseEnd}
+  maxWidth="40rem"
+>
   <div class="content">
-    <TextField
-      name="Search Query"
-      bind:value={textQuery}
-      extraWrapperOptions={{
-        style: "width: 100%;"
-      }}
-    />
     <div class="search-row">
-      <!-- Systems -->
+      <TextField
+        name="Search Query"
+        bind:value={textQuery}
+        extraWrapperOptions={{
+          style: "width: 100%;"
+        }}
+      />
+    </div>
+    <div class="search-row">
       <Select
-        name="Systems"
+        name="System"
         options={systemOptions}
         disabled={systemOptions.length === 1}
         bind:value={filterSystem}
       />
-    
-      <!-- formats -->
+      <Select
+        name="File Format"
+        options={fileFormatOptions}
+        disabled={fileFormatOptions.length === 1}
+        bind:value={filterFormat}
+      />
     </div>
     <div class="search-row">
       <Select
@@ -94,16 +116,16 @@
         bind:value={filterPublisher}
       />
     </div>
+    <div class="row-title m3-font-title-small">RELEASE DATE RANGE</div>
     <div class="search-row">
-      <!-- start-date -->
-        <DateField
-          name="Start Date"
-        />
-      <!-- end-date -->
-    </div>
-    <div class="search-row">
-      <!-- start-size -->
-      <!-- end-size -->
+      <DateField
+        name="Start Date"
+        bind:date={startReleaseDate}
+      />
+      <DateField
+        name="End Date"
+        bind:date={endReleaseDate}
+      />
     </div>
   </div>
   {#snippet buttons()}
@@ -119,10 +141,16 @@
     width: 100%;
   }
 
+  .row-title {
+    font-weight: bold;
+  }
+
   .search-row {
     width: 100%;
 
     display: flex;
     gap: 0.5rem;
+
+    margin-bottom: 1rem;
   }
 </style>
