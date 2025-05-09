@@ -48,5 +48,8 @@ export function goToSetting(setting: string) {
  * @param query The search query.
  */
 export function search(query: SearchQuery) {
+  const queryParams = new URLSearchParams(query);
+  const queryString = queryParams.toString();
 
+  goto(`/app/search?${queryString}`);
 }

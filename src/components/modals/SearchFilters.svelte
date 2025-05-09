@@ -17,8 +17,8 @@
   let filterDeveloper = $state<string>("");
   let filterFormat = $state<string>("");
 
-  let systemOptions: SelectItem[] = Object.keys($systems).sort().map((key: string) => {
-    return { label: key, value: key };
+  let systemOptions: SelectItem[] = Object.entries($systems).sort().map(([key, value]) => {
+    return { label: key, value: value.abbreviation };
   });
 
   let fileFormatOptions: SelectItem[] = [...$romFileFormats].sort().map((format: string) => {
@@ -46,7 +46,7 @@
   async function onSearch(): Promise<void> {
     search({
       textQuery: textQuery,
-      system: filterSystem !== "" ? $systems[filterSystem] : undefined,
+      system: filterSystem !== "" ? filterSystem : undefined,
       genre: filterGenre !== "" ? filterGenre : undefined,
       publisher: filterPublisher !== "" ? filterPublisher : undefined,
       developer: filterDeveloper !== "" ? filterDeveloper : undefined,

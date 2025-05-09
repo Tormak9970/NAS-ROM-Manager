@@ -5,6 +5,7 @@
   import { Icon } from "@component-utils";
   import { focusOutside, shortcuts } from "@directives";
   import { CalendarToday } from "@icons";
+  import { fly } from "svelte/transition";
   import DatePicker from "./date-picker/DatePicker.svelte";
   
   type Props = {
@@ -191,7 +192,8 @@
   }}>
     <Icon icon={CalendarToday} />
   </button>
-  <div
+  {#if isOpen}
+    <div
     class="picker"
     class:rounded-bottom={dropdownDirection === 'bottom'}
     class:rounded-top={dropdownDirection === 'top'}
@@ -200,20 +202,19 @@
     style:top={position?.top}
     style:bottom={position?.bottom}
     style:left={position?.left}
-    style:width={position?.width}
     style:max-height={position?.maxHeight}
+    transition:fly={{ y: 25, duration: 250 }}
   >
-    {#if isOpen}
-      <DatePicker
-        clearable={!required}
-        bind:date
-        onclose={closeDropdown}
-        onsetDate={(newDate: string) => {
-          date = newDate;
-        }}
-      />
-    {/if}
+    <DatePicker
+      clearable={!required}
+      bind:date
+      onclose={closeDropdown}
+      onsetDate={(newDate: string) => {
+        date = newDate;
+      }}
+    />
   </div>
+  {/if}
 </div>
 
 <style>

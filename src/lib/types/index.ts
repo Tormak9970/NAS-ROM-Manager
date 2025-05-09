@@ -1,5 +1,4 @@
 import type { Snippet } from "svelte";
-import type { System } from "./Library";
 
 export * from "./DownloadStrategy";
 export * from "./IGDB";
@@ -72,7 +71,7 @@ export type LoadGuardProps = {
 
 export type SearchQuery = {
   textQuery?: string;
-  system?: System;
+  system?: string;
   startReleaseDate?: string;
   endReleaseDate?: string;
   genre?: string;

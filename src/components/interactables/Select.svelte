@@ -311,23 +311,23 @@
     {/if}
   </div>
 
-  <ul
-    role="listbox"
-    id={listboxId}
-    transition:fly={{ duration: 250 }}
-    class="options-list"
-    class:rounded-bottom={dropdownDirection === 'bottom'}
-    class:rounded-top={dropdownDirection === 'top'}
-    class:shadow={dropdownDirection === 'bottom'}
-    class:border={isOpen}
-    style:top={position?.top}
-    style:bottom={position?.bottom}
-    style:left={position?.left}
-    style:width={position?.width}
-    style:max-height={position?.maxHeight}
-    tabindex="-1"
-  >
-    {#if isOpen}
+  {#if isOpen}
+    <ul
+      role="listbox"
+      id={listboxId}
+      transition:fly={{ y: 25, duration: 250 }}
+      class="options-list"
+      class:rounded-bottom={dropdownDirection === 'bottom'}
+      class:rounded-top={dropdownDirection === 'top'}
+      class:shadow={dropdownDirection === 'bottom'}
+      class:border={isOpen}
+      style:top={position?.top}
+      style:bottom={position?.bottom}
+      style:left={position?.left}
+      style:width={position?.width}
+      style:max-height={position?.maxHeight}
+      tabindex="-1"
+    >
       {#if filteredOptions.length === 0}
         <!-- svelte-ignore a11y_click_events_have_key_events -->
         <li
@@ -354,8 +354,8 @@
           {option.label}
         </li>
       {/each}
-    {/if}
-  </ul>
+    </ul>
+  {/if}
 </div>
 
 <style>
