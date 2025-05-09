@@ -88,12 +88,14 @@
         options={systemOptions}
         disabled={systemOptions.length === 1}
         bind:value={filterSystem}
+        clearable
       />
       <Select
         name="File Format"
         options={fileFormatOptions}
         disabled={fileFormatOptions.length === 1}
         bind:value={filterFormat}
+        clearable
       />
     </div>
     <div class="search-row">
@@ -102,18 +104,21 @@
         options={genreOptions}
         disabled={genreOptions.length <= 1}
         bind:value={filterGenre}
+        clearable
       />
       <Select
         name="Developer"
         options={developerOptions}
         disabled={developerOptions.length <= 1}
         bind:value={filterDeveloper}
+        clearable
       />
       <Select
         name="Publisher"
         options={publisherOptions}
         disabled={publisherOptions.length <= 1}
         bind:value={filterPublisher}
+        clearable
       />
     </div>
     <div class="row-title m3-font-title-small">RELEASE DATE RANGE</div>
