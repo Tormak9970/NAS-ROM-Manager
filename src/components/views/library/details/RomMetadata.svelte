@@ -53,7 +53,7 @@
     <div class="table-info">
       <TableRow
         label="Release Date"
-        value={metadata.metadata?.metadata?.firstReleaseDate ? formatDateNumber(metadata.metadata?.metadata?.firstReleaseDate) : 'Unkown'}
+        value={metadata.metadata?.metadata?.firstReleaseDate ? formatDateNumber(metadata.metadata.metadata.firstReleaseDate) : 'Unkown'}
       />
       <RelatedGameTableRow
         label="DLCs"

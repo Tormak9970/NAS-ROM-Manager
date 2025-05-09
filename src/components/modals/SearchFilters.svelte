@@ -4,6 +4,7 @@
   import TextField from "@interactables/TextField.svelte";
   import { showSearchFiltersModal } from "@stores/Modals";
   import { metadataSearchFilters, romFileFormats, systems } from "@stores/State";
+  import type { SearchQuery } from "@types";
   import { search } from "@utils";
 
   let open = $state(true);
@@ -44,16 +45,34 @@
    * Function to run on confirmation.
    */
   async function onSearch(): Promise<void> {
-    search({
-      textQuery: textQuery,
-      system: filterSystem !== "" ? filterSystem : undefined,
-      genre: filterGenre !== "" ? filterGenre : undefined,
-      publisher: filterPublisher !== "" ? filterPublisher : undefined,
-      developer: filterDeveloper !== "" ? filterDeveloper : undefined,
-      format: filterFormat !== "" ? filterFormat : undefined,
-      startReleaseDate: startReleaseDate,
-      endReleaseDate: endReleaseDate,
-    });
+    const filters: SearchQuery = {};
+
+    if (textQuery !== "") {
+      filters.textQuery = textQuery;
+    }
+    if (filterSystem !== "") {
+      filters.system = filterSystem;
+    }
+    if (filterGenre !== "") {
+      filters.genre = filterGenre;
+    }
+    if (filterPublisher !== "") {
+      filters.publisher = filterPublisher;
+    }
+    if (filterDeveloper !== "") {
+      filters.developer = filterDeveloper;
+    }
+    if (filterFormat !== "") {
+      filters.format = filterFormat;
+    }
+    if (startReleaseDate !== "") {
+      filters.startReleaseDate = startReleaseDate;
+    }
+    if (endReleaseDate !== "") {
+      filters.endReleaseDate = endReleaseDate;
+    }
+
+    search(filters);
 
     open = false;
   }
