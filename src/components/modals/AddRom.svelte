@@ -47,7 +47,7 @@
 <ModalBody
   headline="Add ROM"
   open={open}
-  oncloseend={() => { $showAddRomModal = false }}
+  onclose={() => { $showAddRomModal = false }}
 >
   <div class="content">
     <Select name="System" options={systemOptions} disabled={systemOptions.length === 1} bind:value={$addRomSystem} />

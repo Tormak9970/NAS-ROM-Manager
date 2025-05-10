@@ -1,4 +1,5 @@
 import { goto } from "$app/navigation";
+import { searchFilters } from "@stores/State";
 import type { BackendErrorType, SearchQuery } from "@types";
 
 /**
@@ -48,6 +49,7 @@ export function goToSetting(setting: string) {
  * @param query The search query.
  */
 export function search(query: SearchQuery) {
+  searchFilters.set(query);
   const queryParams = new URLSearchParams(query);
   const queryString = queryParams.toString();
 

@@ -39,10 +39,17 @@
 
 <div id="header">
   <div class="branding">
-    <img src="/logo.svg" alt="Logo" />
-    <div class="m3-font-headline-small"><i>NRM</i></div>
     {#if $isLandscape}
+      <img src="/logo.svg" alt="Logo" />
+      <div class="m3-font-headline-small"><i>NRM</i></div>
+      <div style="margin-left: 7.5rem; max-width: 50rem; width: 100%">
+        <SearchBar />
+      </div>
+    {:else if !$isLandscape && page.url.pathname.startsWith(routes["Search"].path)}
       <SearchBar />
+    {:else}
+      <img src="/logo.svg" alt="Logo" />
+      <div class="m3-font-headline-small"><i>NRM</i></div>
     {/if}
   </div>
   <div class="buttons">

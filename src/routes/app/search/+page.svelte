@@ -1,11 +1,14 @@
 <script lang="ts">
-  import { romMetadata, roms } from "@stores/State";
+  import { Icon } from "@component-utils";
+  import { CalendarToday, Category, GameAsset, Groups, Sell, SupervisorAccount } from "@icons";
+  import Button from "@interactables/Button.svelte";
+  import { showDevelopersFilterSheet, showFormatsFilterSheet, showGenresFilterSheet, showPublishersFilterSheet, showReleaseDateFilterSheet, showSystemsFilterSheet } from "@stores/Sheets";
+  import { isLandscape, romMetadata, roms } from "@stores/State";
   import type { ROM } from "@types";
   import RomsGrid from "@views/RomsGrid.svelte";
   import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();
-
 
   let isLoading = $state(true);
 
@@ -61,11 +64,63 @@
 </svelte:head>
 
 <div id="search">
-  <RomsGrid gridName="search" romIds={romIdList} bind:isLoading />
+  {#if !$isLandscape}
+    <div class="header-container">
+      <div class="header">
+        <Button type="outlined" iconType="left" onclick={() => $showSystemsFilterSheet = true}>
+          <Icon icon={GameAsset} />
+          Systems
+        </Button>
+        <Button type="outlined" iconType="left" onclick={() => $showFormatsFilterSheet = true}>
+          <Icon icon={Sell} />
+          Formats
+        </Button>
+        <Button type="outlined" iconType="left" onclick={() => $showGenresFilterSheet = true}>
+          <Icon icon={Category} />
+          Genres
+        </Button>
+        <Button type="outlined" iconType="left" onclick={() => $showDevelopersFilterSheet = true}>
+          <Icon icon={Groups} />
+          Developers
+        </Button>
+        <Button type="outlined" iconType="left" onclick={() => $showPublishersFilterSheet = true}>
+          <Icon icon={SupervisorAccount} />
+          Publisher
+        </Button>
+        <Button type="outlined" iconType="left" extraOptions={{ style: "width: 11rem"}} onclick={() => $showReleaseDateFilterSheet = true}>
+          <Icon icon={CalendarToday} />
+          Release Date
+        </Button>
+      </div>
+    </div>
+  {/if}
+  <div class="results" style:height={$isLandscape ? "100%" : "calc(100% - 4.5rem)"}>
+    <RomsGrid gridName="search" romIds={romIdList} bind:isLoading />
+  </div>
 </div>
 
 <style>
   #search {
+    width: 100%;
+    height: 100%;
+  }
+
+  .header-container {
+    width: 100%;
+    overflow-x: auto;
+    padding: 1rem 0;
+  }
+
+  .header {
+    width: fit-content;
+    
+    padding: 0 1rem;
+
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .results {
     width: 100%;
     height: 100%;
   }

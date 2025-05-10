@@ -13,7 +13,7 @@
 <ModalBody
   open={open}
   canClose={false}
-  oncloseend={closeEnd}
+  onclose={closeEnd}
 >
   <div class="content">
     <LoadingSpinner /> <div class="font-headline-small">{$loadingModalMessage}</div>

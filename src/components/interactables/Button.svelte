@@ -127,8 +127,9 @@
     border: 0.0625rem solid rgb(var(--m3-scheme-on-surface) / 0.12);
   }
   .m3-container:enabled.outlined {
-    border: 0.0625rem solid rgb(var(--m3-scheme-outline));
-    --text-color: var(--m3-scheme-primary);
+    background-color: rgb(var(--m3-scheme-surface-container));
+    border: 0.0625rem solid rgb(var(--m3-scheme-outline) / 0.12);
+    --text-color: var(--m3-scheme-on-background);
   }
 
   .m3-container.text {

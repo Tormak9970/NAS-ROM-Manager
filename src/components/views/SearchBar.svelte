@@ -2,12 +2,16 @@
   import { Icon } from "@component-utils";
   import { Search, Tune } from "@icons";
   import { showSearchFiltersModal } from "@stores/Modals";
+  import { isLandscape, searchFilters } from "@stores/State";
   import { search } from "@utils";
 
   let searchValue = $state("");
 
   function onInput() {
-    search({ textQuery: searchValue });
+    search({
+      ...$searchFilters,
+      textQuery: searchValue
+    });
   }
 
   function onFilterClick() {
@@ -25,14 +29,15 @@
     oninput={onInput}
   />
   <div class="layer"></div>
-  <button onclick={onFilterClick} class="trailing">
-    <Icon icon={Tune} />
-  </button>
+  {#if $isLandscape}
+    <button onclick={onFilterClick} class="trailing">
+      <Icon icon={Tune} />
+    </button>
+  {/if}
 </div>
 
 <style>
   .m3-container {
-    margin-left: 7.5rem;
     display: inline-flex;
     align-items: center;
     
@@ -40,7 +45,6 @@
 
     height: 3rem;
     width: 100%;
-    max-width: 50rem;
 
     --m3-textfield-outlined-shape: var(--m3-util-rounding-medium);
   }

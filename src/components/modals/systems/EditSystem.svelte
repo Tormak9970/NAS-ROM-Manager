@@ -158,7 +158,7 @@
 <ModalBody
   headline="Edit System"
   open={open}
-  oncloseend={() => { $showEditSystemModal = false }}
+  onclose={() => { $showEditSystemModal = false }}
 >
   <div class="content">
     {#if saving}

@@ -96,7 +96,7 @@
   }
 </script>
 
-<ModalBody maxWidth="25rem" open={open} headline={`Edit ${$isLandscapeRoutes ? "Desktop" : "Mobile"} Route Order`} oncloseend={() => $showEditRouteOrderModal = false}>
+<ModalBody maxWidth="25rem" open={open} headline={`Edit ${$isLandscapeRoutes ? "Desktop" : "Mobile"} Route Order`} onclose={() => $showEditRouteOrderModal = false}>
   <div>
     {#key reset}
       <div class="drag-container" style:height="{routeList.length * entryHeight}px">

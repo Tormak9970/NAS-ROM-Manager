@@ -49,7 +49,7 @@
   headline="Download Progress"
   open={open}
   canClose={false}
-  oncloseend={closeEnd}
+  onclose={closeEnd}
   extraOptions={{ style: "margin-bottom: 0rem" }}
 >
   <div class="content">

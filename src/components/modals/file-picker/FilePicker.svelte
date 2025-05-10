@@ -91,7 +91,7 @@
   }
 </script>
 
-<ModalBody headless open={open} oncloseend={onCloseEnd}>
+<ModalBody headless open={open} onclose={onCloseEnd}>
   <div class="content">
     <div class="header">
       <Button iconType="full" type="text" disabled={lastPath === currentPath} onclick={goBack}>

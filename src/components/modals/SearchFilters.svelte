@@ -100,7 +100,7 @@
 <ModalBody
   headline={"Search Filters"}
   open={open}
-  oncloseend={onCloseEnd}
+  onclose={onCloseEnd}
   maxWidth="40rem"
 >
   <div class="content">

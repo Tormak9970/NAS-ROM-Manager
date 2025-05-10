@@ -16,7 +16,6 @@
     loading?: boolean;
     headless?: boolean;
     onclose?: () => void;
-    oncloseend?: () => void;
     headlineAction?: Snippet;
     children: Snippet;
     buttons?: Snippet;
@@ -33,7 +32,6 @@
     loading = false,
     headless = false,
     onclose,
-    oncloseend,
     headlineAction,
     children,
     buttons,
@@ -66,13 +64,12 @@
     if (hideDialog) {
       hideDialog = false;
       dialog!.close();
-      oncloseend?.();
+      onclose?.();
     }
   }
 
   function onCancel(e: Event) {
     if (canClose) {
-      onclose?.();
       open = false;
     } else {
       e.preventDefault();
@@ -81,7 +78,6 @@
 
   function onClick(e: Event) {
     if (canClose && !(e.target as HTMLElement).closest(".modal-body")) {
-      onclose?.();
       open = false;
     }
   }

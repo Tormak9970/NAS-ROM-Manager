@@ -37,7 +37,7 @@
   headline={$controlledModalTitle}
   open={open}
   canClose={false}
-  oncloseend={onCloseEnd}
+  onclose={onCloseEnd}
 >
   <div class="content">
     {$controlledModalMessage}

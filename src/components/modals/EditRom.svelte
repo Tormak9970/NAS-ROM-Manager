@@ -125,7 +125,7 @@
   headline={$editIsPostUpload ? "Confirm Details" : "Edit ROM"}
   open={open}
   canClose={!$editIsPostUpload}
-  oncloseend={closeEnd}
+  onclose={closeEnd}
 >
   <div class="content">
     {#if saving}

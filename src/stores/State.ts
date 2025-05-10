@@ -1,5 +1,5 @@
 import { DEFAULT_FILTERS } from "@models";
-import type { DBFilters, Library, Palette, ROM, ROMMetadata, SGDBGame, System, SystemTagConfig } from "@types";
+import { type DBFilters, type Library, type Palette, type ROM, type ROMMetadata, type SearchQuery, type SGDBGame, type System, type SystemTagConfig } from "@types";
 import { localStorageWritable } from "@utils";
 import { derived, writable } from "svelte/store";
 
@@ -60,6 +60,13 @@ export const fileFormatsBySystem = derived([ roms ], ([$roms]: [Record<string, R
 
 export const romMetadata = writable<Record<string, ROMMetadata>>({});
 
+export const romsBySystem = writable<Record<string, string[]>>({});
+
+export const dbFilters = localStorageWritable<DBFilters>("sgdb-filters", DEFAULT_FILTERS);
+
+export const systemTagConfigs = writable<Record<string, SystemTagConfig>>({});
+
+
 export const metadataSearchFilters = derived([ romMetadata ], ([$romMetadata]: [Record<string, ROMMetadata>]) => {
   const filters = Object.values($romMetadata).reduce((filters: Record<string, Set<string>>, metadata: ROMMetadata) => {
     if (metadata) {
@@ -84,8 +91,4 @@ export const metadataSearchFilters = derived([ romMetadata ], ([$romMetadata]: [
   return filters;
 });
 
-export const romsBySystem = writable<Record<string, string[]>>({});
-
-export const dbFilters = localStorageWritable<DBFilters>("sgdb-filters", DEFAULT_FILTERS);
-
-export const systemTagConfigs = writable<Record<string, SystemTagConfig>>({});
+export const searchFilters = writable<SearchQuery>({});

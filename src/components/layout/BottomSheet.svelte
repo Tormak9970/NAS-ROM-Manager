@@ -8,6 +8,7 @@
     maxHeight?: number;
     closeThreshold?: number;
     padding?: string;
+    open: boolean;
     onclose?: () => void;
     children: Snippet;
   }
@@ -16,6 +17,7 @@
     maxHeight = 1000,
     closeThreshold = 0.4,
     padding = "0 1rem",
+    open,
     onclose,
     children,
   }: Props = $props();
@@ -34,7 +36,7 @@
   /**
    * Handles opening the sheet.
    */
-  const open = (node: HTMLDialogElement) => {
+  const openSheet = (node: HTMLDialogElement) => {
     node.inert = true;
     node.showModal();
     node.inert = false;
@@ -66,6 +68,12 @@
       onclose?.();
     }
   })
+  
+  $effect(() => {
+    if (!open) {
+      close();
+    }
+  });
 
   onMount(() => {
     actualHeight.set(Math.min(maxHeight, dialogElement!.scrollHeight));
@@ -79,7 +87,7 @@
   class="m3-container"
   class:leaving
   style:max-height="{actualHeight.current - dragHeight.current}px"
-  use:open
+  use:openSheet
   oncancel={preventDefault(close)}
   onclick={self(close)}
   bind:this={dialogElement}

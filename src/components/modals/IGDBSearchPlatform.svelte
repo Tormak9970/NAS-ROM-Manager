@@ -55,7 +55,7 @@
   }
 </script>
 
-<ModalBody headline={"IGDB Search Results"} open={open} oncloseend={onCloseEnd}>
+<ModalBody headline={"IGDB Search Results"} open={open} onclose={onCloseEnd}>
   <div class="content">
     <TextField
       name="Search Query"

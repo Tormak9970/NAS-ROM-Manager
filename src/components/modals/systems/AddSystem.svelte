@@ -101,7 +101,7 @@
 <ModalBody
   headline="Add System"
   open={open}
-  oncloseend={() => { $showAddSystemModal = false }}
+  onclose={() => { $showAddSystemModal = false }}
 >
   <div class="content">
     <div class="scroll-container styled-scrollbar" use:scrollShadow={{ background: "--m3-scheme-surface-container" }}>

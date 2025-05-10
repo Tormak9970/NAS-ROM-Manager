@@ -49,7 +49,7 @@
 <ModalBody
   headline={`Change ${$changeGridsType === "Capsule" ? "Cover" : "Banner"} Art`}
   open={open}
-  oncloseend={closeEnd}
+  onclose={closeEnd}
   maxWidth="50rem"
   extraWrapperOptions={{
     style: "width: calc(100% - 2rem);"

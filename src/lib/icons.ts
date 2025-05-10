@@ -106,3 +106,8 @@ export { default as ChevronRight } from "@ktibow/iconset-material-symbols/chevro
 export { default as DatabaseSearch } from "@ktibow/iconset-material-symbols/database-search-rounded";
 export { default as SportsEsports } from "@ktibow/iconset-material-symbols/sports-esports-rounded";
 
+export { default as Category } from "@ktibow/iconset-material-symbols/category-rounded";
+export { default as Groups } from "@ktibow/iconset-material-symbols/groups-rounded";
+export { default as Sell } from "@ktibow/iconset-material-symbols/sell";
+export { default as SupervisorAccount } from "@ktibow/iconset-material-symbols/supervisor-account-rounded";
+
