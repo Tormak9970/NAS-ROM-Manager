@@ -3,7 +3,7 @@
   import { Button, DateField, Select } from "@interactables";
   import TextField from "@interactables/TextField.svelte";
   import { showSearchFiltersModal } from "@stores/Modals";
-  import { metadataSearchFilters, romFileFormats, systems } from "@stores/State";
+  import { fileFormatsBySystem, metadataSearchFilters, systems } from "@stores/State";
   import type { SearchQuery } from "@types";
   import { search } from "@utils";
 
@@ -22,8 +22,20 @@
     return { label: key, value: value.abbreviation };
   });
 
-  let fileFormatOptions: SelectItem[] = [...$romFileFormats].sort().map((format: string) => {
-    return { label: format, value: format };
+  let systemFormatLookup: Record<string, string> = Object.entries($fileFormatsBySystem).reduce((lookup: Record<string, string>, [system, formats]) => {
+    for (const format of formats) {
+      lookup[format] = system;
+    }
+
+    return lookup;
+  }, {});
+
+  let fileFormatOptions: SelectItem[] = $derived.by(() => {
+    const availableOptions = filterSystem !== "" ? $fileFormatsBySystem[filterSystem] : Object.values($fileFormatsBySystem).flat();
+
+    return availableOptions.sort().map((format: string) => {
+      return { label: format, value: format };
+    });
   });
 
   let genreOptions: SelectItem[] = Array.from($metadataSearchFilters.genres.values()).sort().map((value: string) => {
@@ -114,6 +126,11 @@
         options={fileFormatOptions}
         disabled={fileFormatOptions.length === 1}
         bind:value={filterFormat}
+        onSelect={(option) => {
+          if (option) {
+            filterSystem = systemFormatLookup[option.value];
+          }
+        }}
         clearable
       />
     </div>

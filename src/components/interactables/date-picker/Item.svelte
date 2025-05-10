@@ -56,11 +56,14 @@
     color: rgb(var(--m3-scheme-on-surface-variant) / 0.38);
   }
   .today {
-    border: solid 0.0625rem rgb(var(--text));
-    --text: var(--m3-scheme-primary);
+    background-color: rgb(var(--m3-scheme-primary) / 0.32);
   }
   .selected {
-    background-color: rgb(var(--m3-scheme-primary)) !important;
+    background-color: rgb(var(--m3-scheme-primary));
+    --text: var(--m3-scheme-on-primary);
+  }
+  .selected:enabled:hover {
+    background-color: rgb(var(--m3-scheme-primary));
     --text: var(--m3-scheme-on-primary);
   }
 </style>

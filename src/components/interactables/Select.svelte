@@ -46,6 +46,12 @@
     }
   });
 
+  $effect(() => {
+    if (value) {
+      searchQuery = selectedOption?.label || '';
+    }
+  });
+
   const inputId = `combobox-${id}`;
   const listboxId = `listbox-${id}`;
   /**

@@ -42,14 +42,20 @@ export const systems = writable<Record<string, System>>({});
 export const roms = writable<Record<string, ROM>>({});
 export const emulators = writable<Record<string, string>>({});
 
-export const romFileFormats = derived([ roms ], ([$roms]: [Record<string, ROM>]) => {
-  const formats = Object.values($roms).reduce((formats: Set<string>, rom: ROM) => {
-    formats.add(rom.format);
+export const fileFormatsBySystem = derived([ roms ], ([$roms]: [Record<string, ROM>]) => {
+  const formats = Object.values($roms).reduce((formats: Record<string, Set<string>>, rom: ROM) => {
+    if (!formats[rom.system]) {
+      formats[rom.system] = new Set<string>();
+    }
+
+    formats[rom.system].add(rom.format);
     
     return formats;
-  }, new Set<string>());
+  }, {});
 
-  return Array.from(formats.values());
+  return Object.fromEntries(Object.entries(formats).map(([key, value]) => {
+    return [key, Array.from(value.values())]
+  }));
 });
 
 export const romMetadata = writable<Record<string, ROMMetadata>>({});
