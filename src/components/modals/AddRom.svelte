@@ -47,7 +47,6 @@
 <ModalBody
   headline="Add ROM"
   open={open}
-  canClose={false} 
   oncloseend={() => { $showAddRomModal = false }}
 >
   <div class="content">

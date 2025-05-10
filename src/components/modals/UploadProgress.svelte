@@ -51,6 +51,7 @@
         thumbCapsulePath: "",
         sgdbId: "",
         igdbId: "",
+        heroPath: "",
         metadata: null,
         isFavorite: false,
       }

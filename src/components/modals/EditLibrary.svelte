@@ -44,7 +44,7 @@
   }
 </script>
 
-<ModalBody maxWidth="24rem" headline={$isFirstSetup ? "Setup Library" : "Edit Library"} open={open} canClose={false} oncloseend={() => { $showEditLibraryModal = false }}>
+<ModalBody maxWidth="24rem" headline={$isFirstSetup ? "Setup Library" : "Edit Library"} open={open} canClose={!$isFirstSetup} oncloseend={() => { $showEditLibraryModal = false }}>
   <div class="content">
     <PathField name="Library Path" type={FileSelectionType.FOLDER} bind:value={libraryPath} />
     <TextField name="Roms Directory" bind:value={romDir} />

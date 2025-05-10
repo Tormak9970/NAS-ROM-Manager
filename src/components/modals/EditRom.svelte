@@ -124,7 +124,7 @@
 <ModalBody
   headline={$editIsPostUpload ? "Confirm Details" : "Edit ROM"}
   open={open}
-  canClose={false}
+  canClose={!$editIsPostUpload}
   oncloseend={closeEnd}
 >
   <div class="content">
