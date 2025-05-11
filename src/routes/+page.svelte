@@ -6,12 +6,27 @@
   import { rememberMe } from "@stores/Auth";
   import { showWarningSnackbar } from "@stores/State";
   import jsSHA from "jssha";
+  import { tick } from "svelte";
 
   let user = $state("");
   let password = $state("");
   let passwordVisible = $state(false);
 
+  let loginCard: HTMLDivElement | undefined = $state();
+
   let loading = $state(false);
+
+  function loginFailed() {
+    $showWarningSnackbar({
+      message: "Login Failed. Please Try Again"
+    });
+
+    loginCard!.classList.add('shake');
+
+    loginCard!.addEventListener('animationend', () => {
+      loginCard!.classList.remove('shake');
+    }, { once: true });
+  }
 
   async function signIn() {
     const shaObj = new jsSHA("SHA-256", "TEXT", { encoding: "UTF8" });
@@ -24,9 +39,8 @@
 
     if (!result) {
       loading = false;
-      $showWarningSnackbar({
-        message: "Login Failed. Please Try Again"
-      });
+      await tick();
+      loginFailed();
     }
   }
 </script>
@@ -41,7 +55,7 @@
   </div>
 {:else}
   <div class="login-form-wrapper">
-    <div id="login-form">
+    <div class="login-form" bind:this={loginCard}>
       <Card type="elevated">
         {#snippet header()}
           <div class="card-header">
@@ -120,8 +134,13 @@
     height: 2.5rem;
   }
 
-  #login-form {
+  .login-form {
     max-width: 20rem;
+
+    border-radius: var(--m3-util-rounding-medium);
+    border: 1px solid transparent;
+
+    transition: border 0.3s ease-in-out;
   }
 
   .body {
@@ -151,5 +170,11 @@
     font-size: small;
 
     color: rgb(var(--m3-scheme-surface-container));
+  }
+
+  .login-form-wrapper :global(.shake) {
+    border: 2px solid rgb(var(--m3-scheme-tertiary-container));
+
+    animation: shake 0.6s;
   }
 </style>
