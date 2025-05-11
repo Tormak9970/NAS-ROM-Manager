@@ -9,6 +9,7 @@
     name: string;
     fileExtensions?: string[];
     disabled?: boolean;
+    placeholder?: string;
     onchange?: (file: File | undefined) => void;
   }
 
@@ -18,6 +19,7 @@
     name,
     fileExtensions = [],
     disabled = false,
+    placeholder = " ",
     onchange = () => {},
   }: Props = $props();
 
@@ -46,12 +48,13 @@
   bind:this={fileElement}
 />
 <TextField
-  name={name}
+  {name}
   trailingIcon={Folder}
-  disabled={disabled}
-  readonly
-  ontrailingClick={() => fileElement.click()}
-  extraOptions={extraOptions}
-  extraWrapperOptions={extraWrapperOptions}
+  {placeholder}
   bind:value
+  ontrailingClick={() => fileElement.click()}
+  {extraOptions}
+  {extraWrapperOptions}
+  readonly
+  {disabled}
 />

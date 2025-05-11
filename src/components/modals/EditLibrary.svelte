@@ -46,10 +46,27 @@
 
 <ModalBody maxWidth="24rem" headline={$isFirstSetup ? "Setup Library" : "Edit Library"} open={open} canClose={!$isFirstSetup} onclose={() => { $showEditLibraryModal = false }}>
   <div class="content">
-    <PathField name="Library Path" type={FileSelectionType.FOLDER} bind:value={libraryPath} />
-    <TextField name="Roms Directory" bind:value={romDir} />
-    <TextField name="Emulators Directory" bind:value={emulatorDir} />
-    <TextField name="Bios Files Directory" bind:value={biosDir} />
+    <PathField
+      name="Library Path"
+      placeholder="Library root folder"
+      type={FileSelectionType.FOLDER}
+      bind:value={libraryPath}
+    />
+    <TextField
+      name="Roms Directory"
+      placeholder="Library subfolder with ROMs"
+      bind:value={romDir}
+    />
+    <TextField
+      name="Emulators Directory"
+      placeholder="Library subfolder with emulators"
+      bind:value={emulatorDir}
+    />
+    <TextField
+      name="Bios Files Directory"
+      placeholder="Library subfolder with bios files"
+      bind:value={biosDir}
+    />
   </div>
   {#snippet buttons()}
     <div>

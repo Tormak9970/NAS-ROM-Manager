@@ -1,22 +1,24 @@
 <script lang="ts">
-    import { Icon } from "@component-utils";
-    import { WebsocketController } from "@controllers";
-    import { Close } from "@icons";
-    import { Button, Select, TextField } from "@interactables";
-    import { Accordion } from "@layout";
-    import type { ParserPattern } from "@types";
-    import { isValidRegex } from "@utils";
+  import { Icon } from "@component-utils";
+  import { WebsocketController } from "@controllers";
+  import { Close } from "@icons";
+  import { Button, Select, TextField } from "@interactables";
+  import { Accordion } from "@layout";
+  import type { ParserPattern } from "@types";
+  import { isValidRegex } from "@utils";
 
   type Props = {
     label: string;
     pattern: ParserPattern;
     onDelete: () => void;
+    systemFolder: string;
   }
 
   let {
     label,
     pattern = $bindable(),
     onDelete,
+    systemFolder
   }: Props = $props();
 
   let options: SelectItem[] = [
@@ -26,7 +28,14 @@
   
   let downloadOptionValue = $state("single-file");
 
-  let parentFolder = $state("");
+  let editedManually = $state(false);
+  let parentFolder = $state(systemFolder);
+
+  $effect(() => {
+    if (!editedManually) {
+      parentFolder = systemFolder;
+    }
+  });
 
   $effect(() => {
     pattern.downloadStrategy = downloadOptionValue === "single-file" ? {
@@ -35,7 +44,7 @@
       type: "folder",
       parent: parentFolder
     }
-  })
+  });
 </script>
 
 <Accordion label={label}>
@@ -44,9 +53,10 @@
       <Icon icon={Close} />
     </Button>
   {/snippet}
-  <div class="pattern">
+  <div class="pattern" style:--m3-util-background="var(--m3-scheme-surface-container)">
     <TextField
       name="Glob"
+      placeholder="Wax Glob pattern"
       extraWrapperOptions={{ style: "width: 100%" }}
       validate={WebsocketController.isValidGlob}
       bind:value={pattern.glob}
@@ -57,6 +67,7 @@
 
     <TextField
       name="Regex"
+      placeholder="ROM title RegEx"
       extraWrapperOptions={{ style: "width: 100%" }}
       validate={async (regex: string) => isValidRegex(regex)}
       bind:value={pattern.regex}
@@ -65,13 +76,11 @@
       To test and learn about RegEx, check out <a href="https://regex101.com/" target="_blank" rel="noreferrer noopenner">https://regex101.com/</a>.
     </div>
 
-    <div style:width="100%" style:--m3-util-background="var(--m3-scheme-surface-container)">
-      <Select
-        name="Download Strategy"
-        options={options}
-        bind:value={downloadOptionValue}
-      />
-    </div>
+    <Select
+      name="Download Strategy"
+      options={options}
+      bind:value={downloadOptionValue}
+    />
     <div class="footnote" style:margin-top="0.25rem">
       How roms on this system will be downloaded. "Single File" is for single file roms, "Folder" is for roms that are folders with data.
     </div>
@@ -79,9 +88,11 @@
     {#if downloadOptionValue === "folder"}
       <TextField
         name="Parent Folder"
+        placeholder="Usually the system folder"
         extraWrapperOptions={{ style: "width: 100%" }}
         validate={async (value: string) => value !== ""}
         bind:value={parentFolder}
+        oninput={() => editedManually = true}
       />
       <div class="footnote">
         This is the parent folder of the folder that will be zipped when downloading. Its usually the system's folder.

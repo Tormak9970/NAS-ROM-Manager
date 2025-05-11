@@ -14,6 +14,7 @@
     extensions?: string[];
     name: string;
     disabled?: boolean;
+    placeholder?: string;
     value?: string;
     onchange?: (e: Event) => void;
     oninput?: (e: Event) => void;
@@ -27,6 +28,7 @@
     extensions = [],
     name,
     disabled = false,
+    placeholder = " ",
     value = $bindable("/"),
     onchange = () => {},
     oninput = () => {},
@@ -52,14 +54,15 @@
 </script>
 
 <TextField
-  name={name}
+  {name}
   trailingIcon={Folder}
-  disabled={disabled}
+  {disabled}
   validate={validatePath}
+  {placeholder}
   bind:value
   {onchange}
   {oninput}
   ontrailingClick={getPathFromDialog}
-  extraOptions={extraOptions}
-  extraWrapperOptions={extraWrapperOptions}
+  {extraOptions}
+  {extraWrapperOptions}
 />

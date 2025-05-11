@@ -51,7 +51,7 @@
 >
   <div class="content">
     <Select name="System" options={systemOptions} disabled={systemOptions.length === 1} bind:value={$addRomSystem} />
-    <FileField name="File" onchange={(value) => file = value!} />
+    <FileField name="File" placeholder="Choose a file" onchange={(value) => file = value!} />
     {#if file && isZip}
       <label>
         <div class="m3-font-title-medium">Unzip after upload:</div>

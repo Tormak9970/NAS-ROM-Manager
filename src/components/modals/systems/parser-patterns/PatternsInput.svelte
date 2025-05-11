@@ -6,10 +6,12 @@
   import Parser from "./Parser.svelte";
 
   type Props = {
+    systemFolder: string;
     patterns: ParserPattern[];
   }
 
   let {
+    systemFolder,
     patterns = $bindable()
   }: Props = $props();
 
@@ -44,6 +46,7 @@
         label={`Parser ${i + 1}`}
         bind:pattern={patterns[i]}
         onDelete={() => deleteParser(i)}
+        systemFolder={systemFolder}
       />
     {/each}
   </div>

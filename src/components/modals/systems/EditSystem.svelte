@@ -170,18 +170,21 @@
         <div class="fields">
           <TextField
             name="Name"
+            placeholder="System name"
             bind:value={systemName}
             trailingIcon={DatabaseSearch}
             ontrailingClick={openIGDBSearch}
           />
           <TextField
             name="IGDB Id"
+            placeholder="System IGDB ID"
             bind:value={igdbId}
             trailingIcon={DatabaseSearch}
             ontrailingClick={openIGDBSearch}
           />
           <TextField
             name="SGDB Id"
+            placeholder="System SGDB ID"
             bind:value={sgdbId}
             trailingIcon={DatabaseSearch}
             ontrailingClick={openSGDBSearch}
@@ -196,17 +199,19 @@
           </div>
           <TextField
             name="Abbreviation"
+            placeholder="System abbreviation (ex: GBA)"
             bind:value={abbreviation}
           />
           <TextField
             name="Folder"
+            placeholder="System folder"
             bind:value={folder}
           />
           <div class="footnote">
             Using the folder name listed on the <a href="https://emudeck.github.io/cheat-sheet/" target="_blank" rel="noreferrer noopenner">EmuDeck Wiki</a> is strongly recommended.
           </div>
           <TagColorInput bind:tagColor={tagColor} />
-          <PatternsInput bind:patterns={patterns} />
+          <PatternsInput systemFolder={folder} bind:patterns={patterns} />
         </div>
       </div>
     {/if}

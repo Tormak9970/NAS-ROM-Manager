@@ -59,6 +59,7 @@
   <div class="content">
     <TextField
       name="Search Query"
+      placeholder="Search for a game..."
       bind:value={gameTitle}
       extraWrapperOptions={{
         style: "width: 100%;"

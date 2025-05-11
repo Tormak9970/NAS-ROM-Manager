@@ -59,6 +59,7 @@
   <div class="content">
     <TextField
       name="Search Query"
+      placeholder="Search for a system..."
       bind:value={platformTitle}
       extraWrapperOptions={{
         style: "width: 100%;"

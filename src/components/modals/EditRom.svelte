@@ -133,15 +133,21 @@
         <LoadingSpinner /> <div class="font-headline-small">Saving Changes...</div>
       </div>
     {:else}
-      <TextField name="Title" bind:value={title} />
+      <TextField
+        name="Title"
+        placeholder="ROM title"
+        bind:value={title}
+      />
       <TextField
         name="SGDB Id"
+        placeholder="ROM SGDB ID"
         bind:value={sgdbId}
         trailingIcon={DatabaseSearch}
         ontrailingClick={openSGDBSearch}
       />
       <TextField
         name="IGDB Id"
+        placeholder="ROM IGDB ID"
         bind:value={igdbId}
         trailingIcon={DatabaseSearch}
         ontrailingClick={openIGDBSearch}

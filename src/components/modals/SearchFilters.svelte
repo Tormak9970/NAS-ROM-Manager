@@ -107,6 +107,7 @@
     <div class="search-row">
       <TextField
         name="Search Query"
+        placeholder="Ex: Zelda"
         bind:value={textQuery}
         extraWrapperOptions={{
           style: "width: 100%;"
@@ -116,6 +117,7 @@
     <div class="search-row">
       <Select
         name="System"
+        placeholder="Select a system"
         options={systemOptions}
         disabled={systemOptions.length === 1}
         bind:value={filterSystem}
@@ -123,6 +125,7 @@
       />
       <Select
         name="File Format"
+        placeholder="Select a file format"
         options={fileFormatOptions}
         disabled={fileFormatOptions.length === 1}
         bind:value={filterFormat}
@@ -137,6 +140,7 @@
     <div class="search-row">
       <Select
         name="Genre"
+        placeholder="Game genre"
         options={genreOptions}
         disabled={genreOptions.length <= 1}
         bind:value={filterGenre}
@@ -144,6 +148,7 @@
       />
       <Select
         name="Developer"
+        placeholder="Game developer"
         options={developerOptions}
         disabled={developerOptions.length <= 1}
         bind:value={filterDeveloper}
@@ -151,6 +156,7 @@
       />
       <Select
         name="Publisher"
+        placeholder="Game publisher"
         options={publisherOptions}
         disabled={publisherOptions.length <= 1}
         bind:value={filterPublisher}
