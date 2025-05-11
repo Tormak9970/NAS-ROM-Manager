@@ -4,7 +4,7 @@
   import Button from "@interactables/Button.svelte";
   import { showDevelopersFilterSheet, showFormatsFilterSheet, showGenresFilterSheet, showPublishersFilterSheet, showReleaseDateFilterSheet, showSystemsFilterSheet } from "@stores/Sheets";
   import { isLandscape, romMetadata, roms } from "@stores/State";
-  import type { ROM } from "@types";
+  import type { ROM, System } from "@types";
   import RomsGrid from "@views/RomsGrid.svelte";
   import type { PageData } from './$types';
 
@@ -40,14 +40,28 @@
       (!endDateRange || (!!releaseDate && releaseDate <= endDateRange));
   }
 
-  const romIdList = $derived.by(() => {
+  function filterSystem(system: System) {
+    const { textQuery } = data;
+
+    return (!textQuery || system.abbreviation.includes(textQuery) || system.name.includes(textQuery));
+  }
+
+  function filterEmulator() {
+
+  }
+
+  function filterBiosFiles() {
+
+  }
+
+  const searchResults = $derived.by(() => {
     const filteredKeys = Object.entries($roms).reduce((keys: string[], [key, value]) => {
       if (filterRom(key, value)) keys.push(key);
 
       return keys;
     }, []);
 
-    return filteredKeys.sort((a: string, b: string) => {
+    const entries = filteredKeys.sort((a: string, b: string) => {
       const metaA = $romMetadata[a];
       const metaB = $romMetadata[b];
 
@@ -56,6 +70,8 @@
 
       return a.localeCompare(b);
     });
+
+    return entries;
   });
 </script>
 
@@ -95,7 +111,7 @@
     </div>
   {/if}
   <div class="results" style:height={$isLandscape ? "100%" : "calc(100% - 4.5rem)"}>
-    <RomsGrid gridName="search" romIds={romIdList} bind:isLoading />
+    <RomsGrid gridName="search" romIds={searchResults} bind:isLoading />
   </div>
 </div>
 

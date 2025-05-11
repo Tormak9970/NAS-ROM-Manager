@@ -190,6 +190,7 @@ export async function asyncEvery<T>(array: T[], predicate: (value: T) => Promise
 export function preventDefault(handler?: (e: any) => any) {
   return function (event: Event) {
     event.preventDefault();
+    // @ts-expect-error this is used in order to allow the handler to have the full context of the event.
     handler?.call(this, event);
   };
 }
@@ -197,6 +198,7 @@ export function preventDefault(handler?: (e: any) => any) {
 export function stopPropagation(handler?: (e: any) => any) {
   return function (event: Event) {
     event.stopPropagation();
+    // @ts-expect-error this is used in order to allow the handler to have the full context of the event.
     handler?.call(this, event);
   };
 }
@@ -204,6 +206,7 @@ export function stopPropagation(handler?: (e: any) => any) {
 export function stopImmediatePropagation(handler?: (e: any) => any) {
   return function (event: Event) {
     event.stopImmediatePropagation();
+    // @ts-expect-error this is used in order to allow the handler to have the full context of the event.
     handler?.call(this, event);
   };
 }
@@ -211,6 +214,7 @@ export function stopImmediatePropagation(handler?: (e: any) => any) {
 export function self(handler: (e: any) => any) {
   return function (event: Event) {
     if (event.target === event.currentTarget) {
+      // @ts-expect-error this is used in order to allow the handler to have the full context of the event.
       handler.call(this, event);
     }
   };
