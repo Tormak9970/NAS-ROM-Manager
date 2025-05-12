@@ -234,9 +234,7 @@
   }
 
   dialog.hide {
-    visibility: hidden;
-    opacity: 0;
-    animation: dialogOut 0.4s cubic-bezier(0.05, 0.7, 0.1, 1);
+    animation: dialogOut 0.3s cubic-bezier(0.05, 0.7, 0.1, 1);
   }
 
   dialog[open] .headline {
