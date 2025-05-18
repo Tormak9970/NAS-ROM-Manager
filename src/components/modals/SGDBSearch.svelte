@@ -1,10 +1,10 @@
 <script lang="ts">
   import { ModalBody } from "@component-utils";
   import GameTitleEntry from "@component-utils/GameTitleEntry.svelte";
-  import { SGDBController } from "@controllers";
   import { Button } from "@interactables";
   import TextField from "@interactables/TextField.svelte";
   import { LoadingSpinner } from "@layout";
+  import { SGDBService } from "@services";
   import { sgdbSearchOnSelect, sgdbSearchTitle, showSearchSGDBModal } from "@stores/Modals";
   import { type SGDBGame } from "@types";
   import { debounce } from "@utils";
@@ -18,7 +18,7 @@
   let selectedId = $state("");
 
   const debouncedSearch = debounce((gameTitle: string) => {
-    SGDBController.searchForGame(gameTitle).then((results: SGDBGame[]) => {
+    SGDBService.searchForGame(gameTitle).then((results: SGDBGame[]) => {
       entries = results;
       loading = false;
     });

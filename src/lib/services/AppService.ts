@@ -3,23 +3,23 @@ import { library, loadedLibrary, romMetadata, roms, romsBySystem, systems, syste
 import type { Library, LoadResult, ROMMetadata } from "@types";
 import { hash64 } from "@utils";
 import { get } from "svelte/store";
-import { IGDBController } from "./IGDBController";
-import { SGDBController } from "./SGDBController";
-import { LogController } from "./utils/LogController";
-import { SettingsController } from "./utils/SettingsController";
-import { WebsocketController } from "./utils/WebsocketController";
+import { IGDBService } from "./IGDBService";
+import { SGDBService } from "./SGDBService";
+import { LogService } from "./utils/LogService";
+import { SettingsService } from "./utils/SettingsService";
+import { WebsocketService } from "./utils/WebsocketService";
 
 /**
- * The core app controller.
+ * The Core App Service.
  */
-export class AppController {
+export class AppService {
   /**
    * Loads the app's state.
    */
   static async load() {
-    await SettingsController.init();
-    await SGDBController.init();
-    await IGDBController.init();
+    await SettingsService.init();
+    await SGDBService.init();
+    await IGDBService.init();
     
     const lib = get(library);
     if (lib.libraryPath === "") {
@@ -29,7 +29,7 @@ export class AppController {
       await this.loadLibrary();
     }
 
-    SettingsController.registerSubs();
+    SettingsService.registerSubs();
   }
 
   private static async setStateFromLoadRes(loadRes: LoadResult, metadata: Record<string, ROMMetadata>) {
@@ -45,7 +45,7 @@ export class AppController {
 
     for (const system of loadRes.systems) {
       if (system.sgdbId === "") {
-        system.sgdbId = await SGDBController.chooseSteamGridGameId(system.abbreviation, system.name);
+        system.sgdbId = await SGDBService.chooseSteamGridGameId(system.abbreviation, system.name);
       }
 
       if (!systemMap[system.abbreviation]) {
@@ -79,7 +79,7 @@ export class AppController {
       }
 
       if (romEdits[id].sgdbId === "") {
-        romEdits[id].sgdbId = await SGDBController.chooseSteamGridGameId(id, romEdits[id].title || rom.title);
+        romEdits[id].sgdbId = await SGDBService.chooseSteamGridGameId(id, romEdits[id].title || rom.title);
       }
 
       romsSystemLUT[rom.system].push(id);
@@ -96,8 +96,8 @@ export class AppController {
     systemTagConfigs.set({ ...tagConfigs });
     
     
-    LogController.log(`Loaded ${Object.keys(systemMap).length} systems.`);
-    LogController.log(`Loaded ${Object.keys(romMap).length} ROMs.`);
+    LogService.log(`Loaded ${Object.keys(systemMap).length} systems.`);
+    LogService.log(`Loaded ${Object.keys(romMap).length} ROMs.`);
   }
 
   /**
@@ -107,12 +107,12 @@ export class AppController {
     loadingModalMessage.set("Refreshing Metadata...");
     showLoadingModal.set(true);
 
-    WebsocketController.refreshMetadata().then((metadata) => {
+    WebsocketService.refreshMetadata().then((metadata) => {
       romMetadata.set({ ...metadata });
 
       showLoadingModal.set(false);
       
-      LogController.log(`Refreshed ROM Metadata.`);
+      LogService.log(`Refreshed ROM Metadata.`);
     });
   }
   
@@ -124,10 +124,10 @@ export class AppController {
     showLoadingModal.set(true);
     loadedLibrary.set(false);
 
-    WebsocketController.updateLibrary(get(library)).then(async (loadRes) => {
-      const metadata = await WebsocketController.refreshMetadata();
+    WebsocketService.updateLibrary(get(library)).then(async (loadRes) => {
+      const metadata = await WebsocketService.refreshMetadata();
 
-      await AppController.setStateFromLoadRes(loadRes, metadata);
+      await AppService.setStateFromLoadRes(loadRes, metadata);
       loadedLibrary.set(true);
       showLoadingModal.set(false);
     });
@@ -138,10 +138,10 @@ export class AppController {
    * @param library The new library info.
    */
   static async updateLibrary(library: Library) {
-    const metadata = await WebsocketController.refreshMetadata();
-    const loadRes = await WebsocketController.updateLibrary(library);
+    const metadata = await WebsocketService.refreshMetadata();
+    const loadRes = await WebsocketService.updateLibrary(library);
 
-    await AppController.setStateFromLoadRes(loadRes, metadata);
+    await AppService.setStateFromLoadRes(loadRes, metadata);
     loadedLibrary.set(true);
   }
 
@@ -149,10 +149,10 @@ export class AppController {
    * Loads the user's libraries.
    */
   static async loadLibrary() {
-    const metadata = await WebsocketController.getMetadata();
-    const loadRes = await WebsocketController.loadLibrary();
+    const metadata = await WebsocketService.getMetadata();
+    const loadRes = await WebsocketService.loadLibrary();
 
-    await AppController.setStateFromLoadRes(loadRes, metadata);
+    await AppService.setStateFromLoadRes(loadRes, metadata);
     loadedLibrary.set(true);
   }
 
@@ -160,6 +160,6 @@ export class AppController {
    * Unloads the app's state and performs any cleanup.
    */
   static unload() {
-    SettingsController.destroy();
+    SettingsService.destroy();
   }
 }

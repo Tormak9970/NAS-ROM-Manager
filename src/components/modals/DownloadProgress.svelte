@@ -1,8 +1,8 @@
 <script lang="ts">
   import { ModalBody } from "@component-utils";
-  import { RestController } from "@controllers";
   import { Button, ProgressIndicator } from "@interactables";
   import { LoadingSpinner } from "@layout";
+  import { RestService } from "@services";
   import { downloadProgressRom, showDownloadProgressModal } from "@stores/Modals";
   import { showInfoSnackbar } from "@stores/State";
   import { formatFileSize } from "@utils";
@@ -18,7 +18,7 @@
    * Function to run on cancel.
    */
   async function onCancel(): Promise<void> {
-    RestController.cancelDownload();
+    RestService.cancelDownload();
     open = false;
   }
 
@@ -28,7 +28,7 @@
   }
 
   onMount(() => {
-    RestController.downloadRom(
+    RestService.downloadRom(
       $downloadProgressRom!,
       (size: number) => {
         fileSize = size;

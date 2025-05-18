@@ -2,14 +2,14 @@ import { changeGridsId, changeGridsOnSelect, changeGridsSearchId, changeGridsTyp
 import { romMetadata, roms, romsBySystem } from "@stores/State";
 import type { IGDBGame } from "@types";
 import { get } from "svelte/store";
-import { IGDBController } from "./IGDBController";
-import { DialogController } from "./utils/DialogController";
-import { RestController } from "./utils/RestController";
+import { IGDBService } from "./IGDBService";
+import { DialogService } from "./utils/DialogService";
+import { RestService } from "./utils/RestService";
 
 /**
- * The rom controller.
+ * The ROM Service.
  */
-export class RomController {
+export class RomService {
   /**
    * Shows the rom edit modal.
    * @param romId The id of the rom.
@@ -40,7 +40,7 @@ export class RomController {
     changeGridsOnSelect.set(async (fullCapsule?: string, thumbCapsule?: string) => {
       const metadataDict = get(romMetadata);
 
-      const [fullCached, thumbCached] = await RestController.cacheCapsule(
+      const [fullCached, thumbCached] = await RestService.cacheCapsule(
         fullCapsule!,
         thumbCapsule!,
         romId.replace(/[/\\?%*:|"<> ]/g, '_')
@@ -66,7 +66,7 @@ export class RomController {
     changeGridsOnSelect.set(async (fullCapsule?: string, thumbCapsule?: string, hero?: string) => {
       const metadataDict = get(romMetadata);
 
-      const heroCached = await RestController.cacheHero(
+      const heroCached = await RestService.cacheHero(
         hero!,
         romId!.replace(/[/\\?%*:|"<> ]/g, '_')
       );
@@ -97,7 +97,7 @@ export class RomController {
     showLoadingModal.set(true);
     loadingModalMessage.set("Refreshing ROM Metadata...");
 
-    return await IGDBController.getMetadata(igdbId).then((metadata: IGDBGame | null) => {
+    return await IGDBService.getMetadata(igdbId).then((metadata: IGDBGame | null) => {
       loadingModalMessage.set("");
       showLoadingModal.set(false);
 
@@ -110,7 +110,7 @@ export class RomController {
    * @param romId The id of the rom.
    */
   static async delete(romId: string) {
-    await DialogController.ask(
+    await DialogService.ask(
       "This Can't be Undone!",
       "Are you sure you want to delete this rom?",
       "Yes",
@@ -124,7 +124,7 @@ export class RomController {
     
       showLoadingModal.set(true);
       loadingModalMessage.set("Deleting ROM...");
-      const success = await RestController.deleteRom(rom.path);
+      const success = await RestService.deleteRom(rom.path);
       loadingModalMessage.set("");
       showLoadingModal.set(false);
       if (!success) return;

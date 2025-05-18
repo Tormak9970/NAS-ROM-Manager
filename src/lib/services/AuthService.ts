@@ -2,13 +2,13 @@ import { goto } from "$app/navigation";
 import { isSignedIn, username } from "@stores/Auth";
 import { landingPage } from "@stores/State";
 import { get } from "svelte/store";
-import { AppController } from "./AppController";
-import { WebsocketController } from "./utils/WebsocketController";
+import { AppService } from "./AppService";
+import { WebsocketService } from "./utils/WebsocketService";
 
 /**
- * The user authentication controller.
+ * The user authentication Service.
  */
-export class AuthController {
+export class AuthService {
   /**
    * Authenticates the user.
    * @param user The username to authenticate with.
@@ -16,14 +16,14 @@ export class AuthController {
    * @returns The backend's response.
    */
   static async authenticate(user: string, passwordHash: string): Promise<boolean> {
-    const success = await WebsocketController.authenticate(user, passwordHash);
+    const success = await WebsocketService.authenticate(user, passwordHash);
 
     if (success) {
       sessionStorage.setItem("hash", passwordHash);
       sessionStorage.setItem("user", user);
       username.set(user);
       isSignedIn.set(true);
-      await AppController.load();
+      await AppService.load();
 
       if (window.location.pathname === '/') {
         goto(`/${get(landingPage)}`);
@@ -41,6 +41,6 @@ export class AuthController {
     sessionStorage.removeItem("user");
     username.set("");
     isSignedIn.set(false);
-    AppController.unload();
+    AppService.unload();
   }
 }

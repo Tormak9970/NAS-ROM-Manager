@@ -19,14 +19,14 @@ import { library, roms, romsBySystem, showWarningSnackbar, systems } from "@stor
 import { BackendErrorType, type AvailableStorage, type BackendError, type FilePickerConfig, type FilePickerEntry, type Library, type LoadResult, type ROM, type ROMMetadata, type Settings, type System } from "@types";
 import { hash64, showError } from "@utils";
 import { get } from "svelte/store";
-import { LogController } from "./LogController";
+import { LogService } from "./LogService";
 
 type Response<T> = { data: T }
 
 /**
  * Handles wrapping websocket communication into an easy to use JS bindings.
  */
-export class WebsocketController {
+export class WebsocketService {
   private static ws: WebSocket;
   private static hash: string;
 
@@ -36,28 +36,28 @@ export class WebsocketController {
    * @param onLogout The callback to run when the app should log out.
    */
   static init(onOpen: () => Promise<void>, onLogout: () => void) {
-    WebsocketController.ws = new WebSocket("ws://127.0.0.1:1500/ws");
+    WebsocketService.ws = new WebSocket("ws://127.0.0.1:1500/ws");
 
-    WebsocketController.ws.addEventListener("error", (e) => {
+    WebsocketService.ws.addEventListener("error", (e) => {
       const message = `Failed to reach NRM's websocket at ws://127.0.0.1:1500/ws`;
       const fix = `Please check the backend's logs to see if there was an error, or restart the container`;
       showError(message, fix, BackendErrorType.PANIC);
     });
 
-    WebsocketController.ws.addEventListener("open", () => {
-      WebsocketController.ws.send("Hello World!");
+    WebsocketService.ws.addEventListener("open", () => {
+      WebsocketService.ws.send("Hello World!");
       onOpen();
     });
 
     // * Handles generic messages such as token expiration.
-    WebsocketController.ws.addEventListener("message", async (event) => {
+    WebsocketService.ws.addEventListener("message", async (event) => {
       const firstSpace = event.data.indexOf(" ");
       const message = event.data.substring(0, firstSpace);
       const data = event.data.substring(firstSpace + 1);
 
       switch(message) {
         case "hash_mismatch": {
-          WebsocketController.hash = "";
+          WebsocketService.hash = "";
           onLogout();
           get(showWarningSnackbar)({ message: "Something went wrong verifying your request"});
           break;
@@ -75,7 +75,7 @@ export class WebsocketController {
           break;
         }
         case "reload_library": {
-          // if (get(showUploadProgressModal) || RestController.currentUploadId) break;
+          // if (get(showUploadProgressModal) || RestService.currentUploadId) break;
 
           // const path: string = JSON.parse(data).data;
 
@@ -96,7 +96,7 @@ export class WebsocketController {
     const result = new Promise<Response<T>>((resolve, reject) => {
       const handler = (event: MessageEvent<string>) => {
         if (event.data.startsWith(message)) {
-          WebsocketController.ws.removeEventListener("message", handler);
+          WebsocketService.ws.removeEventListener("message", handler);
 
           const jsonStart = event.data.indexOf(" ") + 1;
           const data = JSON.parse(event.data.substring(jsonStart)) as Response<T>;
@@ -105,14 +105,14 @@ export class WebsocketController {
         }
       }
 
-      WebsocketController.ws.addEventListener("message", handler);
+      WebsocketService.ws.addEventListener("message", handler);
     });
 
     if (message !== "user_auth") {
-      data.passwordHash = WebsocketController.hash;
+      data.passwordHash = WebsocketService.hash;
     }
 
-    WebsocketController.ws.send(`${message} ${JSON.stringify(data)}`);
+    WebsocketService.ws.send(`${message} ${JSON.stringify(data)}`);
 
     return await result;
   }
@@ -125,11 +125,11 @@ export class WebsocketController {
    * @returns The backend's response.
    */
   static async authenticate(user: string, passwordHash: string): Promise<boolean> {
-    const res = await WebsocketController.invoke<boolean>("user_auth", { user, passwordHash});
+    const res = await WebsocketService.invoke<boolean>("user_auth", { user, passwordHash});
     const success = res.data;
 
     if (success) {
-      WebsocketController.hash = passwordHash;
+      WebsocketService.hash = passwordHash;
     }
 
     return success;
@@ -141,7 +141,7 @@ export class WebsocketController {
    * @returns The app's settings.
    */
   static async loadSettings(): Promise<Settings> {
-    const res = await WebsocketController.invoke<Settings>("load_settings", {});
+    const res = await WebsocketService.invoke<Settings>("load_settings", {});
     return res.data;
   }
 
@@ -150,7 +150,7 @@ export class WebsocketController {
    * @returns True if the write was successful, false otherwise.
    */
   static async writeSettings(): Promise<boolean> {
-    const res = await WebsocketController.invoke<boolean>("write_settings", {});
+    const res = await WebsocketService.invoke<boolean>("write_settings", {});
     return res.data;
   }
 
@@ -161,7 +161,7 @@ export class WebsocketController {
    * @returns True if the update was successful, false otherwise.
    */
   static async setSetting<T>(key: string, value: T): Promise<boolean> {
-    const res = await WebsocketController.invoke<boolean>("set_setting", { key, value });
+    const res = await WebsocketService.invoke<boolean>("set_setting", { key, value });
     return res.data;
   }
 
@@ -182,7 +182,7 @@ export class WebsocketController {
     let libraryName = null;
 
     if (!libraryName) {
-      LogController.log(`\"${path}\" did not start with a library path. Skipping...`);
+      LogService.log(`\"${path}\" did not start with a library path. Skipping...`);
       return;
     }
 
@@ -198,7 +198,7 @@ export class WebsocketController {
     }
 
     if (!systemName) {
-      LogController.log(`\"${path}\" did not contain a system. Skipping...`);
+      LogService.log(`\"${path}\" did not contain a system. Skipping...`);
       return;
     }
 
@@ -218,7 +218,7 @@ export class WebsocketController {
    * @returns The rom metadata.
    */
   static async getMetadata(): Promise<Record<string, ROMMetadata>> {
-    const res = await WebsocketController.invoke<Record<string, ROMMetadata>>("load_metadata", {});
+    const res = await WebsocketService.invoke<Record<string, ROMMetadata>>("load_metadata", {});
     return res.data;
   }
   
@@ -227,7 +227,7 @@ export class WebsocketController {
    * @returns The rom metadata.
    */
   static async refreshMetadata(): Promise<Record<string, ROMMetadata>> {
-    const res = await WebsocketController.invoke<Record<string, ROMMetadata>>("refresh_metadata", {});
+    const res = await WebsocketService.invoke<Record<string, ROMMetadata>>("refresh_metadata", {});
     return res.data;
   }
   
@@ -237,7 +237,7 @@ export class WebsocketController {
    * @returns True if the save was a success.
    */
   static async saveMetadata(data: Record<string, ROMMetadata>): Promise<boolean> {
-    const res = await WebsocketController.invoke<boolean>("save_metadata", { data });
+    const res = await WebsocketService.invoke<boolean>("save_metadata", { data });
     return res.data;
   }
   
@@ -248,7 +248,7 @@ export class WebsocketController {
    * @returns True if the save was a success.
    */
   static async saveParsers(data: Record<string, System>): Promise<boolean> {
-    const res = await WebsocketController.invoke<boolean>("save_parsers", { data });
+    const res = await WebsocketService.invoke<boolean>("save_parsers", { data });
     return res.data;
   }
 
@@ -258,7 +258,7 @@ export class WebsocketController {
    * @returns True if the delete was a success.
    */
   static async deleteParser(abbreviation: string): Promise<boolean> {
-    const res = await WebsocketController.invoke<boolean>("delete_parser", { abbreviation });
+    const res = await WebsocketService.invoke<boolean>("delete_parser", { abbreviation });
     return res.data;
   }
   
@@ -268,7 +268,7 @@ export class WebsocketController {
    * @returns The loaded library data.
    */
   static async loadLibrary(): Promise<LoadResult> {
-    const res = await WebsocketController.invoke<LoadResult>("load_library", {});
+    const res = await WebsocketService.invoke<LoadResult>("load_library", {});
     return res.data;
   }
 
@@ -278,7 +278,7 @@ export class WebsocketController {
    * @returns The loaded library data.
    */
   static async updateLibrary(library: Library): Promise<LoadResult> {
-    const res = await WebsocketController.invoke<LoadResult>("update_library", { library });
+    const res = await WebsocketService.invoke<LoadResult>("update_library", { library });
     return res.data;
   }
 
@@ -289,7 +289,7 @@ export class WebsocketController {
    * @returns The parsed rom data.
    */
   static async parseAddedRom(parser: string, romPath: string): Promise<ROM> {
-    const res = await WebsocketController.invoke<ROM>("parse_rom", { parser, romPath });
+    const res = await WebsocketService.invoke<ROM>("parse_rom", { parser, romPath });
     return res.data;
   }
   
@@ -300,7 +300,7 @@ export class WebsocketController {
    * @returns The list of entries.
    */
   static async getFilePickerEntries(path: string, config: FilePickerConfig): Promise<FilePickerEntry[]> {
-    const res = await WebsocketController.invoke<FilePickerEntry[]>("file_picker", {
+    const res = await WebsocketService.invoke<FilePickerEntry[]>("file_picker", {
       path: path,
       config: {
         showFiles: config.showFiles ?? true,
@@ -317,7 +317,7 @@ export class WebsocketController {
    * @returns The storage info.
    */
   static async getStorageInfo(): Promise<AvailableStorage> {
-    const res = await WebsocketController.invoke<AvailableStorage>("available_storage", {});
+    const res = await WebsocketService.invoke<AvailableStorage>("available_storage", {});
     return res.data;
   }
 
@@ -327,7 +327,7 @@ export class WebsocketController {
    * @returns True if the glob is valid.
    */
   static async isValidGlob(glob: string): Promise<boolean> {
-    const res = await WebsocketController.invoke<boolean>("is_valid_glob", { glob });
+    const res = await WebsocketService.invoke<boolean>("is_valid_glob", { glob });
     return res.data;
   }
 }

@@ -1,9 +1,9 @@
 <script lang="ts">
   import { Icon, ModalBody } from "@component-utils";
-  import { RestController, RomController } from "@controllers";
   import { Cached, DatabaseSearch } from "@icons";
   import { Button, Checkbox, TextField } from "@interactables";
   import { LoadingSpinner } from "@layout";
+  import { RestService, RomService } from "@services";
   import { changeGridsId, changeGridsOnSelect, changeGridsSearchId, changeGridsType, editIsPostUpload, igdbSearchRomOnSelect, igdbSearchRomPlatformId, igdbSearchRomTitle, romEditingId, sgdbSearchOnSelect, sgdbSearchTitle, showChangeGridsModal, showEditRomModal, showSearchIGDBRomModal, showSearchSGDBModal } from "@stores/Modals";
   import { romMetadata, roms, systems } from "@stores/State";
 
@@ -30,7 +30,7 @@
     saving = true;
     
     if (fullCapsulePath !== system.fullCapsulePath) {
-      const [fullCached, thumbCached] = await RestController.cacheCapsule(
+      const [fullCached, thumbCached] = await RestService.cacheCapsule(
         fullCapsulePath,
         thumbCapsulePath,
         $romEditingId!.replace(/[/\\?%*:|"<> ]/g, '_')
@@ -41,7 +41,7 @@
     }
     
     if (heroPath !== system.heroPath) {
-      const heroCached = await RestController.cacheHero(
+      const heroCached = await RestService.cacheHero(
         heroPath!,
         $romEditingId!.replace(/[/\\?%*:|"<> ]/g, '_')
       );
@@ -79,7 +79,7 @@
   }
 
   async function refreshMetadata() {
-    igdbMetadata = await RomController.refreshMetadata(igdbId);
+    igdbMetadata = await RomService.refreshMetadata(igdbId);
   }
 
   function openSGDBSearch() {

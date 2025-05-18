@@ -1,8 +1,8 @@
 <script lang="ts">
   import { ModalBody } from "@component-utils";
-  import { RestController, SGDBController, WebsocketController } from "@controllers";
   import { Button, ProgressIndicator } from "@interactables";
   import { LoadingSpinner } from "@layout";
+  import { RestService, SGDBService, WebsocketService } from "@services";
   import { editIsPostUpload, romEditingId, showEditRomModal, showUploadProgressModal, uploadProgressConfig } from "@stores/Modals";
   import { romMetadata, roms, romsBySystem, showInfoSnackbar, showWarningSnackbar } from "@stores/State";
   import { formatFileSize, hash64 } from "@utils";
@@ -18,7 +18,7 @@
    * Function to run on cancel.
    */
   async function onCancel(): Promise<void> {
-    await RestController.cancelUpload();
+    await RestService.cancelUpload();
     open = false;
   }
 
@@ -38,7 +38,7 @@
 
     step = "processing";
 
-    const rom = await WebsocketController.parseAddedRom(system, romPath);
+    const rom = await WebsocketService.parseAddedRom(system, romPath);
     const id = hash64(rom.path);
     
     if (!$romsBySystem[rom.system].includes(id)) {
@@ -57,7 +57,7 @@
       }
 
       if ($romMetadata[id].sgdbId === "") {
-        $romMetadata[id].sgdbId = await SGDBController.chooseSteamGridGameId(id, $romMetadata[id].title);
+        $romMetadata[id].sgdbId = await SGDBService.chooseSteamGridGameId(id, $romMetadata[id].title);
       }
 
       $roms = { ...$roms };
@@ -73,7 +73,7 @@
   }
 
   onMount(() => {
-    RestController.uploadRom(
+    RestService.uploadRom(
       $uploadProgressConfig!,
       () => step = "upload",
       (progress: number) => uploadProgress = progress,

@@ -18,22 +18,22 @@
 import { landingPage, landscapeViews, library, loadedSettings, palette, portraitViews, reducedMotion, romMetadata, saveMetadataAlongside, systems, themePrimaryColor, useOledPalette } from "@stores/State";
 import type { Settings } from "@types";
 import type { Unsubscriber } from "svelte/store";
-import { LogController } from "./LogController";
-import { WebsocketController } from "./WebsocketController";
+import { LogService } from "./LogService";
+import { WebsocketService } from "./WebsocketService";
 
 /**
- * The controller for settings.
+ * The Settings Service.
  */
-export class SettingsController {
+export class SettingsService {
   private static settings: Settings;
   private static subscriptions: Unsubscriber[] = [];
 
   /**
-   * Initializes the SettingsController.
+   * Initializes the SettingsService.
    */
   static async init() {
-    this.settings = await WebsocketController.loadSettings();
-    LogController.log("Finished loading settings.");
+    this.settings = await WebsocketService.loadSettings();
+    LogService.log("Finished loading settings.");
 
     await this.setStores();
     
@@ -41,7 +41,7 @@ export class SettingsController {
   }
 
   private static async writeAll(): Promise<boolean> {
-    return await WebsocketController.writeSettings();
+    return await WebsocketService.writeSettings();
   }
 
   /**
@@ -60,7 +60,7 @@ export class SettingsController {
    */
   static async set<T>(key: string, value: T): Promise<boolean> {
     this.setOnChange(key)(value);
-    return await WebsocketController.setSetting<T>(key, value);
+    return await WebsocketService.setSetting<T>(key, value);
   }
 
   private static setOnChange<T>(key: string): (value: T) => void {
@@ -74,7 +74,7 @@ export class SettingsController {
 
     return (value: T) => {
       parentObject[lastKey] = value;
-      WebsocketController.setSetting<T>(key, value);
+      WebsocketService.setSetting<T>(key, value);
     }
   }
 
@@ -115,9 +115,9 @@ export class SettingsController {
 
       reducedMotion.subscribe(this.setOnChange("accessibility.reducedMotion")),
 
-      romMetadata.subscribe(WebsocketController.saveMetadata),
+      romMetadata.subscribe(WebsocketService.saveMetadata),
 
-      systems.subscribe(WebsocketController.saveParsers),
+      systems.subscribe(WebsocketService.saveParsers),
     ];
   }
 

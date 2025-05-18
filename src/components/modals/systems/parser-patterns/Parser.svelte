@@ -1,9 +1,9 @@
 <script lang="ts">
   import { Icon } from "@component-utils";
-  import { WebsocketController } from "@controllers";
   import { Close } from "@icons";
   import { Button, Select, TextField } from "@interactables";
   import { Accordion } from "@layout";
+  import { WebsocketService } from "@services";
   import type { ParserPattern } from "@types";
   import { isValidRegex } from "@utils";
 
@@ -58,7 +58,7 @@
       name="Glob"
       placeholder="Wax Glob pattern"
       extraWrapperOptions={{ style: "width: 100%" }}
-      validate={WebsocketController.isValidGlob}
+      validate={WebsocketService.isValidGlob}
       bind:value={pattern.glob}
     />
     <div class="footnote">

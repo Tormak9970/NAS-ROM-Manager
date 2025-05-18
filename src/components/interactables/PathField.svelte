@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { DialogController } from "@controllers";
   import { Folder } from "@icons";
   import TextField from "@interactables/TextField.svelte";
+  import { DialogService } from "@services";
   import { FileSelectionType, type FilePickerFilter } from "@types";
   import { isValidLinuxPath, isValidWindowsPath } from "@utils";
   import type { HTMLAttributes, HTMLInputAttributes } from "svelte/elements";
@@ -37,7 +37,7 @@
   const validatePath = async (value: string) => isValidWindowsPath(value) || isValidLinuxPath(value);
 
   async function getPathFromDialog() {
-    const paths = await DialogController.openFilePicker({
+    const paths = await DialogService.openFilePicker({
       select: type,
       startPath: value,
       showFiles: type === FileSelectionType.FILE,

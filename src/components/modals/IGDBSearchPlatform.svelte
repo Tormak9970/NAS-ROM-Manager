@@ -1,10 +1,10 @@
 <script lang="ts">
   import { ModalBody } from "@component-utils";
   import GameTitleEntry from "@component-utils/GameTitleEntry.svelte";
-  import { IGDBController } from "@controllers";
   import { Button } from "@interactables";
   import TextField from "@interactables/TextField.svelte";
   import { LoadingSpinner } from "@layout";
+  import { IGDBService } from "@services";
   import { igdbSearchPlatformOnSelect, igdbSearchPlatformTitle, showSearchIGDBRomModal } from "@stores/Modals";
   import { type IGDBMetadataPlatform } from "@types";
   import { debounce } from "@utils";
@@ -18,7 +18,7 @@
   let selectedPlatform = $state<IGDBMetadataPlatform | null>(null);
   
   const debouncedSearch = debounce((gameTitle: string) => {
-    IGDBController.searchForPlatform(gameTitle).then((results: IGDBMetadataPlatform[]) => {
+    IGDBService.searchForPlatform(gameTitle).then((results: IGDBMetadataPlatform[]) => {
       entries = results;
       loading = false;
     });

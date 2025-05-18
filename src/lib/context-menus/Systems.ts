@@ -1,25 +1,25 @@
-import { SystemController } from "@controllers";
 import type { ContextMenuItem } from "@directives";
+import { SystemService } from "@services";
 
 export function getSystemMenuItems(abbreviation: string): ContextMenuItem[] {
   const items: ContextMenuItem[] = [];
 
   items.push({
     text: "Edit",
-    action: () => SystemController.edit(abbreviation),
+    action: () => SystemService.edit(abbreviation),
   });
   items.push({
     text: "Change Cover",
-    action: () => SystemController.changeCapsule(abbreviation),
+    action: () => SystemService.changeCapsule(abbreviation),
   });
   items.push({
     text: "Change Banner",
-    action: () => SystemController.changeHero(abbreviation),
+    action: () => SystemService.changeHero(abbreviation),
   });
 
   items.push({
     text: "Delete",
-    action: () => SystemController.delete(abbreviation),
+    action: () => SystemService.delete(abbreviation),
   });
 
   return items;

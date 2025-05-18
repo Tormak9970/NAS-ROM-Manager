@@ -2,9 +2,9 @@ import { controlledModalCancel, controlledModalCancelText, controlledModalConfir
 import type { FilePickerConfig } from "@types";
 
 /**
- * Controller class for handling dialog modals.
+ * Dialog Modal Service.
  */
-export class DialogController {
+export class DialogService {
   /**
    * Displays a message with a single button.
    * @param title The title of the dialog modal.

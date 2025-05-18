@@ -1,7 +1,7 @@
 <script>
   import { ContextMenu } from "@component-utils";
   import MediaQuery from "@component-utils/MediaQuery.svelte";
-  import { AuthController, WebsocketController } from "@controllers";
+  import { AuthService, WebsocketService } from "@services";
   import { rememberMe } from "@stores/Auth";
   import { isLandscape, loadedApp, showInfoSnackbar, showWarningSnackbar } from "@stores/State";
   import { onMount } from "svelte";
@@ -14,18 +14,18 @@
 	let { children } = $props();
 
   onMount(() => {
-    WebsocketController.init(
+    WebsocketService.init(
       async () => {
         const user = sessionStorage.getItem("user");
         const hash = sessionStorage.getItem("hash");
 
         if (user && hash && $rememberMe) {
-          await AuthController.authenticate(user, hash);
+          await AuthService.authenticate(user, hash);
         }
 
         $loadedApp = true;
       },
-      AuthController.logout
+      AuthService.logout
     );
   });
 </script>

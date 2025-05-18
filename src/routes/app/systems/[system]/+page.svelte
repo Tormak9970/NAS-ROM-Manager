@@ -3,11 +3,11 @@
   import { routes } from "$lib/routes";
   import { Icon } from "@component-utils";
   import MediaQuery from "@component-utils/MediaQuery.svelte";
-  import { SystemController } from "@controllers";
   import { Edit } from "@icons";
   import { Button } from "@interactables";
   import { LoadingSpinner } from "@layout";
   import LibraryLoadGuard from "@layout/load-guards/LibraryLoadGuard.svelte";
+  import { SystemService } from "@services";
   import { romsBySystem, showWarningSnackbar, systems } from "@stores/State";
   import { pluralize } from "@utils";
   import DetailsHeader from "@views/DetailsHeader.svelte";
@@ -51,7 +51,7 @@
       <Hero
         src={heroPath}
         portrait={portrait}
-        onEdit={() => SystemController.changeHero(abbreviation)}
+        onEdit={() => SystemService.changeHero(abbreviation)}
       />
       <div class="content" class:portrait>
         <DetailsHeader
@@ -71,7 +71,7 @@
             {/if}
           {/snippet}
           {#snippet controls()}
-            <Button iconType="left" type="filled" onclick={() => SystemController.edit(abbreviation)}>
+            <Button iconType="left" type="filled" onclick={() => SystemService.edit(abbreviation)}>
               <Icon icon={Edit} />
               Edit
             </Button>

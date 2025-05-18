@@ -3,11 +3,11 @@
   import { routes } from "$lib/routes";
   import { Icon } from "@component-utils";
   import MediaQuery from "@component-utils/MediaQuery.svelte";
-  import { IGDBController, RomController } from "@controllers";
   import { Download, Edit, FavoriteOff, FavoriteOn } from "@icons";
   import Button from "@interactables/Button.svelte";
   import { LoadingSpinner } from "@layout";
   import LibraryLoadGuard from "@layout/load-guards/LibraryLoadGuard.svelte";
+  import { IGDBService, RomService } from "@services";
   import { romMetadata, roms, showWarningSnackbar, systems } from "@stores/State";
   import { NO_IGDB_RESULTS } from "@types";
   import { formatFileSize } from "@utils";
@@ -33,11 +33,11 @@
   let isLoading = $state(true);
 
   async function loadMetadata() {
-    const ids = await IGDBController.searchForGame(metadata.title || rom.title, system.igdbPlatformId);
+    const ids = await IGDBService.searchForGame(metadata.title || rom.title, system.igdbPlatformId);
     
     if (ids.length > 0) {
       const igdbId = ids[0].igdbId.toString();
-      const igdbMetadata = await IGDBController.getMetadata(igdbId);
+      const igdbMetadata = await IGDBService.getMetadata(igdbId);
       
       const metadata = $romMetadata[id];
       metadata.igdbId = igdbId;
@@ -80,7 +80,7 @@
       <Hero
         src={heroPath}
         portrait={portrait}
-        onEdit={() => RomController.changeHero(id)}
+        onEdit={() => RomService.changeHero(id)}
       />
       <div class="content" class:portrait>
         <DetailsHeader
@@ -100,18 +100,18 @@
             {/if}
           {/snippet}
           {#snippet controls()}
-            <Button iconType="full" type="text" onclick={() => RomController.toggleFavorite(id)}>
+            <Button iconType="full" type="text" onclick={() => RomService.toggleFavorite(id)}>
               <Icon icon={isFavorite ? FavoriteOn : FavoriteOff} />
             </Button>
             <Button
               type="filled"
               iconType="left"
-              onclick={() => RomController.download(id)}
+              onclick={() => RomService.download(id)}
             >
               <Icon icon={Download} />
               Download
             </Button>
-            <Button iconType="full" type="filled" onclick={() => RomController.edit(id)}>
+            <Button iconType="full" type="filled" onclick={() => RomService.edit(id)}>
               <Icon icon={Edit} />
             </Button>
           {/snippet}

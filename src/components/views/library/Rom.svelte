@@ -1,10 +1,10 @@
 <script lang="ts">
   import { Icon } from "@component-utils";
-  import { RomController } from "@controllers";
   import { contextMenu } from "@directives";
   import { Download, FavoriteOff, FavoriteOn } from "@icons";
   import { Button } from "@interactables";
   import { getRomMenuItems } from "@menus";
+  import { RomService } from "@services";
   import { libraryGridType, romMetadata, roms } from "@stores/State";
   import type { ROMMetadata } from "@types";
   import { formatFileSize, goToROM, GRID_LAYOUTS } from "@utils";
@@ -55,7 +55,7 @@
         extraOptions={{
           style: "width: 100%;"
         }}
-        onclick={() => RomController.download(romId)}
+        onclick={() => RomService.download(romId)}
       >
         <Icon icon={Download} />
         Download
@@ -66,7 +66,7 @@
     <SystemTag system={rom.system} />
   </div>
   <div class="favorite" class:visible={isFavorite}>
-    <Button iconType="full" type="text" size="2rem" iconSize="1.25rem" onclick={() => RomController.toggleFavorite(romId)}>
+    <Button iconType="full" type="text" size="2rem" iconSize="1.25rem" onclick={() => RomService.toggleFavorite(romId)}>
       <Icon icon={isFavorite ? FavoriteOn : FavoriteOff} />
     </Button>
   </div>

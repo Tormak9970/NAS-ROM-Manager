@@ -1,7 +1,7 @@
 <script lang="ts">
   import { ModalBody } from "@component-utils";
-  import { AppController, SettingsController } from "@controllers";
   import { Button, PathField, TextField } from "@interactables";
+  import { AppService, SettingsService } from "@services";
   import { isFirstSetup, showEditLibraryModal } from "@stores/Modals";
   import { library, loadedLibrary } from "@stores/State";
   import { FileSelectionType, type Library } from "@types";
@@ -29,9 +29,9 @@
     }
 
     $loadedLibrary = false;
-    AppController.updateLibrary(newLibrary);
+    AppService.updateLibrary(newLibrary);
     $library = newLibrary;
-    SettingsController.set("library", newLibrary);
+    SettingsService.set("library", newLibrary);
 
     $isFirstSetup = false;
   }

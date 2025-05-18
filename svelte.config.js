@@ -19,7 +19,7 @@ const config = {
       "@views/*": "./src/components/views/*",
       "@component-utils": "./src/components/utils",
       "@stores/*": "./src/stores/*",
-      "@controllers": "./src/lib/controllers",
+      "@services": "./src/lib/services",
       "@models": "./src/lib/models",
       "@directives": "./src/lib/directives",
       "@menus": "./src/lib/context-menus",

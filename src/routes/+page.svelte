@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { AuthController, LogController } from "@controllers";
   import { VisibiityOff, Visibility } from "@icons";
   import { Button, Checkbox, TextField } from "@interactables";
   import { Card, LoadingSpinner } from "@layout";
+  import { AuthService, LogService } from "@services";
   import { rememberMe } from "@stores/Auth";
   import { showWarningSnackbar } from "@stores/State";
   import jsSHA from "jssha";
@@ -34,8 +34,8 @@
 
     const hash = shaObj.getHash("HEX");
     
-    const result = await AuthController.authenticate(user, hash);
-    LogController.log("Authenticated:", result);
+    const result = await AuthService.authenticate(user, hash);
+    LogService.log("Authenticated:", result);
 
     if (!result) {
       loading = false;

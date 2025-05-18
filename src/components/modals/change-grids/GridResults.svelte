@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { SGDBController } from "@controllers";
   import { scrollShadow } from "@directives";
   import { InfiniteScroll } from "@layout";
+  import { SGDBService } from "@services";
   import { changeGridsType } from "@stores/Modals";
   import { dbFilters, hasMorePagesCache } from "@stores/State";
   import type { SGDBImage } from "@types";
@@ -30,7 +30,7 @@
    * Handles loading new grids when the user scrolls to the bottom.
    */
   async function handleLoadOnScroll() {
-    const unfilteredGrids = await SGDBController[`get${$changeGridsType === "Capsule" ? "Capsule" : "Heroe"}sForGame`](sgdbId);
+    const unfilteredGrids = await SGDBService[`get${$changeGridsType === "Capsule" ? "Capsule" : "Heroe"}sForGame`](sgdbId);
     grids = filterGrids(unfilteredGrids, $dbFilters[$changeGridsType]);
   }
 

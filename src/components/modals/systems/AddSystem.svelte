@@ -1,9 +1,9 @@
 <script lang="ts">
   import { ModalBody } from "@component-utils";
-  import { SystemController } from "@controllers";
   import { scrollShadow } from "@directives";
   import { DatabaseSearch } from "@icons";
   import { Button, TextField } from "@interactables";
+  import { SystemService } from "@services";
   import { igdbSearchPlatformOnSelect, igdbSearchPlatformTitle, showAddSystemModal, showSearchIGDBPlatformModal } from "@stores/Modals";
   import { systems } from "@stores/State";
   import type { IGDBMetadataPlatform, ParserPattern, System } from "@types";
@@ -47,7 +47,7 @@
       !!folder &&
       patterns.length > 0;
 
-    asyncEvery(patterns, SystemController.validateParserPattern).then((isPatternsValid: boolean) => {
+    asyncEvery(patterns, SystemService.validateParserPattern).then((isPatternsValid: boolean) => {
       canSave = syncronousChecks && isPatternsValid;
     });
   });

@@ -3,10 +3,10 @@
   import { page } from "$app/state";
   import { routes } from "$lib/routes";
   import { Icon } from "@component-utils";
-  import { AppController, AuthController } from "@controllers";
   import type { ContextMenuItem } from "@directives";
   import { Add, Logout, Person, PlaylistAdd, Settings, Sync } from "@icons";
   import { Button, MenuButton } from "@interactables";
+  import { AppService, AuthService } from "@services";
   import { showAddRomModal, showAddSystemModal } from "@stores/Modals";
   import { isLandscape, systems } from "@stores/State";
   import SearchBar from "./SearchBar.svelte";
@@ -15,12 +15,12 @@
     {
       icon: Sync,
       text: "Reload Library",
-      action: AppController.refreshLibrary,
+      action: AppService.refreshLibrary,
     },
     {
       icon: Sync,
       text: "Metadata",
-      action: AppController.refreshMetadata,
+      action: AppService.refreshMetadata,
     },
     {
       icon: Settings,
@@ -30,7 +30,7 @@
     {
       icon: Logout,
       text: "Logout",
-      action: AuthController.logout,
+      action: AuthService.logout,
     }
   ];
 

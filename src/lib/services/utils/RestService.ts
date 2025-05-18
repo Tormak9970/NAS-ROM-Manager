@@ -3,7 +3,7 @@ import { BackendErrorType, type GridResults, type IGDBGame, type IGDBMetadataPla
 import { hash64, showError } from "@utils";
 import streamSaver from "streamsaver";
 import { get } from "svelte/store";
-import { LogController } from "./LogController";
+import { LogService } from "./LogService";
 
 type ROMDownload = {
   path: string,
@@ -19,9 +19,9 @@ type ROMUploadComplete = {
 }
 
 /**
- * The Rest api controller.
+ * The Rest API Service.
  */
-export class RestController {
+export class RestService {
   private static readonly STREAM_CHUNK_SIZE = 10 * 1024 * 1024;
 
   private static readonly GRIDS_BASE_URL = "http://127.0.0.1:1500/rest/grids";
@@ -52,7 +52,7 @@ export class RestController {
     if (res.ok) {
       return true;
     } else {
-      LogController.error(`Failed to delete capsule for ${id}:`, res.statusText);
+      LogService.error(`Failed to delete capsule for ${id}:`, res.statusText);
       return false;
     }
   }
@@ -92,7 +92,7 @@ export class RestController {
         `${this.GRIDS_BASE_URL}/full/${full}#${currentTime}`,
       ];
     } else {
-      LogController.error(`Failed to cache capsule ${fullCapsuleUrl}:`, res.statusText);
+      LogService.error(`Failed to cache capsule ${fullCapsuleUrl}:`, res.statusText);
       return ["", ""];
     }
   }
@@ -118,7 +118,7 @@ export class RestController {
     if (res.ok) {
       return true;
     } else {
-      LogController.error(`Failed to delete hero for ${id}:`, res.statusText);
+      LogService.error(`Failed to delete hero for ${id}:`, res.statusText);
       return false;
     }
   }
@@ -150,7 +150,7 @@ export class RestController {
 
       return `${this.GRIDS_BASE_URL}/hero/${image}#${currentTime}`;
     } else {
-      LogController.error(`Failed to cache hero ${heroUrl}:`, res.statusText);
+      LogService.error(`Failed to cache hero ${heroUrl}:`, res.statusText);
       return "";
     }
   }
@@ -168,7 +168,7 @@ export class RestController {
     if (res.ok) {
       return await res.json();
     } else {
-      LogController.error(`Failed to get metadata for ${data.path}:`, res.statusText);
+      LogService.error(`Failed to get metadata for ${data.path}:`, res.statusText);
       return { size: 0, path: "" };
     }
   }
@@ -192,7 +192,7 @@ export class RestController {
 
       if (!reader) return;
 
-      RestController.currentDownload = reader;
+      RestService.currentDownload = reader;
       
       while(true) {
         const {done, value} = await reader.read();
@@ -201,7 +201,7 @@ export class RestController {
           break;
         }
 
-        if (!RestController.currentDownload) {
+        if (!RestService.currentDownload) {
           writableStream.abort("User Canceled");
           break;
         }
@@ -237,7 +237,7 @@ export class RestController {
 
       if (!reader) return;
 
-      RestController.currentDownload = reader;
+      RestService.currentDownload = reader;
       
       while(true) {
         const { done, value } = await reader.read();
@@ -246,7 +246,7 @@ export class RestController {
           break;
         }
 
-        if (!RestController.currentDownload) {
+        if (!RestService.currentDownload) {
           writer.abort("User Canceled");
           break;
         }
@@ -295,7 +295,7 @@ export class RestController {
     if (res.ok) {
       return await res.text();
     } else {
-      LogController.error(`Failed to notify the backend of the completed download for ${data.path}:`, res.statusText);
+      LogService.error(`Failed to notify the backend of the completed download for ${data.path}:`, res.statusText);
       return "";
     }
   }
@@ -327,17 +327,17 @@ export class RestController {
     
 
     await this.notifyDownloadComplete(romDownloadConfig);
-    onEnd(!!RestController.currentDownload);
+    onEnd(!!RestService.currentDownload);
 
-    RestController.currentDownload = null;
+    RestService.currentDownload = null;
   }
 
   /**
    * Cancels the current download if it exists.
    */
   static async cancelDownload() {
-    if (RestController.currentDownload) {
-      RestController.currentDownload.cancel("User Canceled");
+    if (RestService.currentDownload) {
+      RestService.currentDownload.cancel("User Canceled");
     } else {
       get(showWarningSnackbar)({ message: "There is no download currently" });
     }
@@ -358,7 +358,7 @@ export class RestController {
     if (res.ok) {
       return filePath;
     } else {
-      LogController.error(`Failed to prepare upload for ${filePath}:`, res.statusText);
+      LogService.error(`Failed to prepare upload for ${filePath}:`, res.statusText);
       return "";
     }
   }
@@ -377,7 +377,7 @@ export class RestController {
     if (res.ok) {
       return await res.text();
     } else {
-      LogController.error(`Failed to notify the backend of the completed download for ${data.path}:`, res.statusText);
+      LogService.error(`Failed to notify the backend of the completed download for ${data.path}:`, res.statusText);
       return "";
     }
   }
@@ -388,7 +388,7 @@ export class RestController {
     const fileSize = file.size;
 
     while (sent < fileSize) {
-      if (!RestController.currentUploadId) break;
+      if (!RestService.currentUploadId) break;
 
       const end = Math.min(sent + this.STREAM_CHUNK_SIZE - 1, fileSize - 1);
       const range = `bytes=${sent}-${end}`;
@@ -409,7 +409,7 @@ export class RestController {
         body: data
       });
 
-      if (!response.ok && RestController.currentUploadId) {
+      if (!response.ok && RestService.currentUploadId) {
         throw new Error("Failed to send the chunk");
       }
 
@@ -441,7 +441,7 @@ export class RestController {
     onStart();
 
     const uploadId = hash64(filePath);
-    RestController.currentUploadId = uploadId;
+    RestService.currentUploadId = uploadId;
 
   
     await this.streamUpload(
@@ -452,8 +452,8 @@ export class RestController {
     );
 
 
-    if (RestController.currentUploadId) {
-      RestController.currentUploadId = null;
+    if (RestService.currentUploadId) {
+      RestService.currentUploadId = null;
 
       const finalPath = await this.uploadComplete({
         uploadId: uploadId,
@@ -471,21 +471,21 @@ export class RestController {
    * @returns True if successful, false if not.
    */
   static async cancelUpload(): Promise<boolean> {
-    if (RestController.currentUploadId) {
+    if (RestService.currentUploadId) {
       const res = await fetch(this.BASE_URL + "/roms/upload/cancel", {
         method: "POST",
         mode: "cors",
         headers: {
-          "Upload-Id": RestController.currentUploadId,
+          "Upload-Id": RestService.currentUploadId,
         },
       });
   
       if (res.ok) {
         get(showInfoSnackbar)({ message: "Upload canceled" });
-        RestController.currentUploadId = null;
+        RestService.currentUploadId = null;
         return true;
       } else {
-        LogController.error(`Failed to cancel the upload for ${RestController.currentUploadId}:`, res.statusText);
+        LogService.error(`Failed to cancel the upload for ${RestService.currentUploadId}:`, res.statusText);
       }
     } else {
       get(showWarningSnackbar)({ message: "There is no upload currently" });
@@ -511,7 +511,7 @@ export class RestController {
     if (res.ok) {
       return true;
     } else {
-      LogController.error(`Failed to delete rom ${romPath}:`, res.statusText);
+      LogService.error(`Failed to delete rom ${romPath}:`, res.statusText);
       return false;
     }
   }

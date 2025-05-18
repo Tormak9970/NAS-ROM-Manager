@@ -1,16 +1,16 @@
-import { WebsocketController } from "@controllers/utils/WebsocketController";
+import { WebsocketService } from "@services/utils/WebsocketService";
 import { changeGridsId, changeGridsOnSelect, changeGridsSearchId, changeGridsType, loadingModalMessage, showChangeGridsModal, showEditSystemModal, showLoadingModal, systemEditingId } from "@stores/Modals";
 import { roms, romsBySystem, systems } from "@stores/State";
 import type { ParserPattern } from "@types";
 import { isValidRegex } from "@utils";
 import { get } from "svelte/store";
-import { DialogController } from "./utils/DialogController";
-import { RestController } from "./utils/RestController";
+import { DialogService } from "./utils/DialogService";
+import { RestService } from "./utils/RestService";
 
 /**
  * The system controller.
  */
-export class SystemController {
+export class SystemService {
   /**
    * Shows the rom edit modal.
    * @param abbreviation The abbreviation of the system.
@@ -31,7 +31,7 @@ export class SystemController {
     changeGridsOnSelect.set(async (fullCapsule?: string, thumbCapsule?: string) => {
       const systemsDict = get(systems);
 
-      const [fullCached, thumbCached] = await RestController.cacheCapsule(
+      const [fullCached, thumbCached] = await RestService.cacheCapsule(
         fullCapsule!,
         thumbCapsule!,
         abbreviation.replace(/[/\\?%*:|"<> ]/g, '_')
@@ -57,7 +57,7 @@ export class SystemController {
     changeGridsOnSelect.set(async (fullCapsule?: string, thumbCapsule?: string, hero?: string) => {
       const systemsDict = get(systems);
 
-      const heroCached = await RestController.cacheHero(
+      const heroCached = await RestService.cacheHero(
         hero!,
         abbreviation!.replace(/[/\\?%*:|"<> ]/g, '_')
       );
@@ -75,7 +75,7 @@ export class SystemController {
    * @param abbreviation The abbreviation of the system.
    */
   static async delete(abbreviation: string) {
-    await DialogController.ask(
+    await DialogService.ask(
       "This Can't be Undone!",
       "Are you sure you want to delete this system?",
       "Yes",
@@ -88,7 +88,7 @@ export class SystemController {
     
       showLoadingModal.set(true);
       loadingModalMessage.set("Deleting System...");
-      const success = await WebsocketController.deleteParser(abbreviation);
+      const success = await WebsocketService.deleteParser(abbreviation);
       loadingModalMessage.set("");
       showLoadingModal.set(false);
       if (!success) return;
@@ -120,6 +120,6 @@ export class SystemController {
       pattern.regex !== "" &&
       (pattern.downloadStrategy.type === "single-file" || pattern.downloadStrategy.parent !== "") &&
       isValidRegex(pattern.regex) &&
-      await WebsocketController.isValidGlob(pattern.glob);
+      await WebsocketService.isValidGlob(pattern.glob);
   }
 }

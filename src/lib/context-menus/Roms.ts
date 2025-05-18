@@ -1,5 +1,5 @@
-import { RomController } from "@controllers";
 import type { ContextMenuItem } from "@directives";
+import { RomService } from "@services";
 import { NO_IGDB_RESULTS } from "@types";
 
 export function getRomMenuItems(romId: string, igdbId: string): ContextMenuItem[] {
@@ -7,31 +7,31 @@ export function getRomMenuItems(romId: string, igdbId: string): ContextMenuItem[
 
   items.push({
     text: "Edit",
-    action: () => RomController.edit(romId),
+    action: () => RomService.edit(romId),
   });
   items.push({
     text: "Change Cover",
-    action: () => RomController.changeCapsule(romId),
+    action: () => RomService.changeCapsule(romId),
   });
   items.push({
     text: "Change Banner",
-    action: () => RomController.changeHero(romId),
+    action: () => RomService.changeHero(romId),
   });
   items.push({
     text: "Download",
-    action: () => RomController.download(romId),
+    action: () => RomService.download(romId),
   });
   
   if (igdbId !== "" && igdbId !== NO_IGDB_RESULTS) {
     items.push({
       text: "Refresh Metadata",
-      action: () => RomController.refreshMetadata(romId),
+      action: () => RomService.refreshMetadata(romId),
     });
   }
 
   items.push({
     text: "Delete",
-    action: () => RomController.delete(romId),
+    action: () => RomService.delete(romId),
   });
 
   return items;

@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { RestController, SGDBController } from "@controllers";
   import { VirtualGrid } from "@layout";
+  import { RestService, SGDBService } from "@services";
   import { changeGridsId } from "@stores/Modals";
   import { dbFilters, libraryGridType, loadedLibrary, romMetadata } from "@stores/State";
   import { filterGrids, GRID_LAYOUTS } from "@utils";
@@ -32,12 +32,12 @@
           const metadata = $romMetadata[romId];
 
           if (metadata.thumbCapsulePath === "") {
-            const grids = await SGDBController.getCapsulesForGame(metadata.sgdbId);
+            const grids = await SGDBService.getCapsulesForGame(metadata.sgdbId);
             const filtered = filterGrids(grids, $dbFilters["Capsule"]);
             
             if (filtered.length) {
               const first = filtered[0];
-              const images = await RestController.cacheCapsule(first.url.toString(), first.thumb.toString(), romId);
+              const images = await RestService.cacheCapsule(first.url.toString(), first.thumb.toString(), romId);
               
               metadata.thumbCapsulePath = images[0];
               metadata.fullCapsulePath = images[1];
@@ -51,12 +51,12 @@
           }
           
           if (metadata.heroPath === "") {
-            const grids = await SGDBController.getHeroesForGame(metadata.sgdbId);
+            const grids = await SGDBService.getHeroesForGame(metadata.sgdbId);
             const filtered = filterGrids(grids, $dbFilters["Hero"]);
             
             if (filtered.length) {
               const first = filtered[0];
-              const image = await RestController.cacheHero(first.url.toString(), romId);
+              const image = await RestService.cacheHero(first.url.toString(), romId);
               
               metadata.heroPath = image;
             } else {

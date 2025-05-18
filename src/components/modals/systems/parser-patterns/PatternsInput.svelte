@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { SystemController } from "@controllers";
   import { Button } from "@interactables";
+  import { SystemService } from "@services";
   import type { ParserPattern } from "@types";
   import { asyncEvery } from "@utils";
   import Parser from "./Parser.svelte";
@@ -18,7 +18,7 @@
   let canAdd = $state(false);
 
   $effect(() => {
-    asyncEvery(patterns, SystemController.validateParserPattern).then((isValid: boolean) => {
+    asyncEvery(patterns, SystemService.validateParserPattern).then((isValid: boolean) => {
       canAdd = isValid;
     });
   });

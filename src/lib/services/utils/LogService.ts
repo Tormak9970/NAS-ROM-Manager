@@ -16,10 +16,10 @@
  */
 
 /**
- * Controller class that handles all logging done by the app.
+ * The Logger Service.
  * ! Should do no logging here.
  */
-export class LogController {
+export class LogService {
   private static APP_NAME = "NAS ROM Manager";
   private static APP_THEME_COLOR = "#73169e";
   private static APP_INFO_COLOR = "#1abc9c";
@@ -31,9 +31,9 @@ export class LogController {
    */
   static log = console.log.bind(
     globalThis.console,
-    `%c ${LogController.APP_NAME} %c INFO %c`,
-    `background: ${LogController.APP_THEME_COLOR}; color: white;`,
-    `background: ${LogController.APP_INFO_COLOR}; color: black;`,
+    `%c ${LogService.APP_NAME} %c INFO %c`,
+    `background: ${LogService.APP_THEME_COLOR}; color: white;`,
+    `background: ${LogService.APP_INFO_COLOR}; color: black;`,
     "background: transparent;"
   );
 
@@ -42,9 +42,9 @@ export class LogController {
    */
   static warn = console.warn.bind(
     globalThis.console,
-    `%c ${LogController.APP_NAME} %c WARNING %c`,
-    `background: ${LogController.APP_THEME_COLOR}; color: white;`,
-    `background: ${LogController.APP_WARN_COLOR}; color: black;`,
+    `%c ${LogService.APP_NAME} %c WARNING %c`,
+    `background: ${LogService.APP_THEME_COLOR}; color: white;`,
+    `background: ${LogService.APP_WARN_COLOR}; color: black;`,
     "background: transparent;",
   );
 
@@ -53,9 +53,9 @@ export class LogController {
    */
   static error = console.error.bind(
     globalThis.console,
-    `%c ${LogController.APP_NAME} %c ERROR %c`,
-    `background: ${LogController.APP_THEME_COLOR}; color: white;`,
-    `background: ${LogController.APP_ERROR_COLOR}; color: black;`,
+    `%c ${LogService.APP_NAME} %c ERROR %c`,
+    `background: ${LogService.APP_THEME_COLOR}; color: white;`,
+    `background: ${LogService.APP_ERROR_COLOR}; color: black;`,
     "background: transparent;"
   );
 }

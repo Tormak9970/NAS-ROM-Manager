@@ -1,10 +1,10 @@
 <script lang="ts">
   import { ModalBody } from "@component-utils";
-  import { RestController, SystemController } from "@controllers";
   import { scrollShadow } from "@directives";
   import { DatabaseSearch } from "@icons";
   import { Button, TextField } from "@interactables";
   import { LoadingSpinner } from "@layout";
+  import { RestService, SystemService } from "@services";
   import { changeGridsId, changeGridsOnSelect, changeGridsSearchId, changeGridsType, igdbSearchPlatformOnSelect, igdbSearchPlatformTitle, sgdbSearchOnSelect, sgdbSearchTitle, showChangeGridsModal, showEditSystemModal, showSearchIGDBPlatformModal, showSearchSGDBModal, systemEditingId } from "@stores/Modals";
   import { systems } from "@stores/State";
   import type { IGDBMetadataPlatform, ParserPattern, System } from "@types";
@@ -47,7 +47,7 @@
       !!folder &&
       patterns.length > 0;
 
-    asyncEvery(patterns, SystemController.validateParserPattern).then((isPatternsValid: boolean) => {
+    asyncEvery(patterns, SystemService.validateParserPattern).then((isPatternsValid: boolean) => {
       canSave = syncronousChecks && isPatternsValid;
     });
   });
@@ -59,7 +59,7 @@
     saving = true;
 
     if (fullCapsulePath !== system.fullCapsulePath) {
-      const [fullCached, thumbCached] = await RestController.cacheCapsule(
+      const [fullCached, thumbCached] = await RestService.cacheCapsule(
         fullCapsulePath,
         thumbCapsulePath,
         $systemEditingId!.replace(/[/\\?%*:|"<> ]/g, '_')
@@ -70,7 +70,7 @@
     }
     
     if (heroPath !== system.heroPath) {
-      const heroCached = await RestController.cacheHero(
+      const heroCached = await RestService.cacheHero(
         heroPath!,
         $systemEditingId!.replace(/[/\\?%*:|"<> ]/g, '_')
       );

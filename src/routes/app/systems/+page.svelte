@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { RestController, SGDBController } from "@controllers";
   import { VirtualGrid } from "@layout";
+  import { RestService, SGDBService } from "@services";
   import { changeGridsId } from "@stores/Modals";
   import { dbFilters, libraryGridType, loadedLibrary, systems } from "@stores/State";
   import { filterGrids, GRID_LAYOUTS } from "@utils";
@@ -28,12 +28,12 @@
           const system = $systems[systemName];
 
           if (system.thumbCapsulePath === "") {
-            const grids = await SGDBController.getCapsulesForGame(system.sgdbId);
+            const grids = await SGDBService.getCapsulesForGame(system.sgdbId);
             const filtered = filterGrids(grids, $dbFilters["Capsule"]);
             
             if (filtered.length) {
               const first = filtered[0];
-              const images = await RestController.cacheCapsule(first.url.toString(), first.thumb.toString(), system.abbreviation);
+              const images = await RestService.cacheCapsule(first.url.toString(), first.thumb.toString(), system.abbreviation);
               
               system.thumbCapsulePath = images[0];
               system.fullCapsulePath = images[1];
@@ -46,12 +46,12 @@
           }
           
           if (system.heroPath === "") {
-            const grids = await SGDBController.getHeroesForGame(system.sgdbId);
+            const grids = await SGDBService.getHeroesForGame(system.sgdbId);
             const filtered = filterGrids(grids, $dbFilters["Hero"]);
             
             if (filtered.length) {
               const first = filtered[0];
-              const image = await RestController.cacheHero(first.url.toString(), system.abbreviation);
+              const image = await RestService.cacheHero(first.url.toString(), system.abbreviation);
               
               system.heroPath = image;
             } else {

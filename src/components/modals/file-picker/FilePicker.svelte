@@ -1,10 +1,10 @@
 <script lang="ts">
   import { Icon, ModalBody } from "@component-utils";
-  import { WebsocketController } from "@controllers";
   import { BackArrow } from "@icons";
   import { Button } from "@interactables";
   import TextField from "@interactables/TextField.svelte";
   import { LoadingSpinner } from "@layout";
+  import { WebsocketService } from "@services";
   import { filePickerCancel, filePickerConfig, filePickerConfirm, showFilePickerModal } from "@stores/Modals";
   import { FileSelectionType, isRegEx, type FilePickerEntry } from "@types";
   import Entry from "./Entry.svelte";
@@ -36,7 +36,7 @@
 
   $effect(() => {
     loading = true;
-    WebsocketController.getFilePickerEntries(currentPath, config).then((results: FilePickerEntry[]) => {
+    WebsocketService.getFilePickerEntries(currentPath, config).then((results: FilePickerEntry[]) => {
       let filtered = results.map((entry: FilePickerEntry) => {
         return {
           name: entry.name,

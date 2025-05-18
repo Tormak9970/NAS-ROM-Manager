@@ -1,16 +1,16 @@
 import type { IGDBGame, IGDBMetadataPlatform, IGDBSearchResult } from "@types";
-import { LogController } from "./utils/LogController";
-import { RestController } from "./utils/RestController";
+import { LogService } from "./utils/LogService";
+import { RestService } from "./utils/RestService";
 
 /**
- * The igdb api controller.
+ * The IGDB API Service.
  */
-export class IGDBController {
+export class IGDBService {
   /**
-   * Initializes the api controller.
+   * Initializes the service.
    */
   static async init(): Promise<void> {
-    await RestController.initIGDBClient();
+    await RestService.initIGDBClient();
   }
 
   /**
@@ -20,10 +20,10 @@ export class IGDBController {
    */
   static async getMetadata(igdbId: string): Promise<IGDBGame | null> {
     try {
-      return await RestController.getIGDBMetadataById(igdbId);
+      return await RestService.getIGDBMetadataById(igdbId);
     } catch (e: any) {
-      LogController.warn(`IGDB Metadata Request for "${igdbId}" timed out.`);
-      LogController.warn(e.message);
+      LogService.warn(`IGDB Metadata Request for "${igdbId}" timed out.`);
+      LogService.warn(e.message);
       return null;
     }
   }
@@ -36,10 +36,10 @@ export class IGDBController {
    */
   static async searchForGame(query: string, igdbPlatformId: string): Promise<IGDBSearchResult[]> {
     try {
-      return await RestController.searchIGDBForTitle(query, igdbPlatformId);
+      return await RestService.searchIGDBForTitle(query, igdbPlatformId);
     } catch (e: any) {
-      LogController.warn(`IGDB Rom Search Request "${query}" timed out.`);
-      LogController.warn(e.message);
+      LogService.warn(`IGDB Rom Search Request "${query}" timed out.`);
+      LogService.warn(e.message);
       return [];
     }
   }
@@ -51,10 +51,10 @@ export class IGDBController {
    */
   static async searchForPlatform(query: string): Promise<IGDBMetadataPlatform[]> {
     try {
-      return await RestController.searchIGDBForPlatform(query);
+      return await RestService.searchIGDBForPlatform(query);
     } catch (e: any) {
-      LogController.warn(`IGDB Platform Search Request "${query}" timed out.`);
-      LogController.warn(e.message);
+      LogService.warn(`IGDB Platform Search Request "${query}" timed out.`);
+      LogService.warn(e.message);
       return [];
     }
   }

@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { WebsocketController } from "@controllers";
   import { ProgressIndicator } from "@interactables";
   import { Card } from "@layout";
+  import { WebsocketService } from "@services";
   import type { AvailableStorage } from "@types";
   import { formatFileSize } from "@utils";
   import { onMount } from "svelte";
@@ -14,7 +14,7 @@
   });
 
   onMount(() => {
-    WebsocketController.getStorageInfo().then((info) => {
+    WebsocketService.getStorageInfo().then((info) => {
       storageInfo = info;
     });
   });
