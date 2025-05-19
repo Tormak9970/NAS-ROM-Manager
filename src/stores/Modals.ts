@@ -66,3 +66,4 @@ export const igdbSearchPlatformOnSelect = writable((platform: IGDBMetadataPlatfo
 export const showSearchFiltersModal = writable(false);
 
 export const showUpdateModal = writable(false);
+export const showChangelogModal = writable(false);

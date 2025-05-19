@@ -1,7 +1,8 @@
 <script>
-  import { showAddRomModal, showAddSystemModal, showChangeGridsModal, showControlledModal, showDownloadProgressModal, showEditLibraryModal, showEditRomModal, showEditRouteOrderModal, showEditSystemModal, showFilePickerModal, showLoadingModal, showSearchFiltersModal, showSearchIGDBPlatformModal, showSearchIGDBRomModal, showSearchSGDBModal, showUpdateModal, showUploadProgressModal } from "@stores/Modals";
+  import { showAddRomModal, showAddSystemModal, showChangeGridsModal, showChangelogModal, showControlledModal, showDownloadProgressModal, showEditLibraryModal, showEditRomModal, showEditRouteOrderModal, showEditSystemModal, showFilePickerModal, showLoadingModal, showSearchFiltersModal, showSearchIGDBPlatformModal, showSearchIGDBRomModal, showSearchSGDBModal, showUpdateModal, showUploadProgressModal } from "@stores/Modals";
   import AddRom from "./AddRom.svelte";
   import ChangeGrids from "./change-grids/ChangeGrids.svelte";
+  import Changelog from "./Changelog.svelte";
   import Controlled from "./Controlled.svelte";
   import DownloadProgress from "./DownloadProgress.svelte";
   import EditLibrary from "./EditLibrary.svelte";
@@ -85,4 +86,8 @@
 
 {#if $showUpdateModal}
   <UpdateModal />
+{/if}
+
+{#if $showChangelogModal}
+  <Changelog />
 {/if}
