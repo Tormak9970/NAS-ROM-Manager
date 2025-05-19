@@ -1,3 +1,4 @@
+import { UpdateService } from "@services/UpdateService";
 import { isFirstSetup, loadingModalMessage, showEditLibraryModal, showLoadingModal } from "@stores/Modals";
 import { library, loadedLibrary, romMetadata, roms, romsBySystem, systems, systemTagConfigs } from "@stores/State";
 import type { Library, LoadResult, ROMMetadata } from "@types";
@@ -17,6 +18,7 @@ export class AppService {
    * Loads the app's state.
    */
   static async load() {
+    UpdateService.checkForUpdate();
     await SettingsService.init();
     await SGDBService.init();
     await IGDBService.init();

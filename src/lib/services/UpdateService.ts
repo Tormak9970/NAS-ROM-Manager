@@ -1,4 +1,8 @@
-async function checkLatestRelease(owner: string, repo: string) {
+import { showUpdateModal } from "@stores/Modals";
+import { updateManifest } from "@stores/Update";
+import { LogService } from "./utils/LogService";
+
+async function checkLatestRelease(owner: string, repo: string): Promise<Update> {
   const url = `https://api.github.com/repos/${owner}/${repo}/releases/latest`;
 
   try {
@@ -8,18 +12,57 @@ async function checkLatestRelease(owner: string, repo: string) {
     }
 
     const data = await response.json();
-    console.log("Latest release tag:", data.tag_name);
 
-    // You can compare it to a stored tag version
-    const currentTag = "v1.0.0";
-    if (data.tag_name !== currentTag) {
-      console.log("New release available:", data.tag_name);
+    if (data.tag_name !== NRM_FRONTEND_VERSION) {
+      LogService.log("New release available:", data.tag_name);
+
+      return {
+        available: true,
+        name: data.name,
+        releaseDate: data.published_at,
+        currentVersion: NRM_FRONTEND_VERSION,
+        version: data.tag_name,
+        body: data.body,
+      }
     } else {
-      console.log("No new release.");
+      LogService.log("No new release.");
+
+      return {
+        available: false,
+        name: "",
+        releaseDate: "",
+        currentVersion: "",
+        version: "",
+        body: "",
+      }
     }
   } catch (error) {
-    console.error("Error fetching release info:", error);
+    LogService.error("Error fetching release info:", error);
+    
+    return {
+      available: false,
+      name: "",
+      releaseDate: "",
+      currentVersion: "",
+      version: "",
+      body: "",
+    }
   }
 }
 
-// checkLatestRelease("owner", "repo"); // Replace with actual GitHub owner/repo
+/**
+ * The Update Notification Service.
+ */
+export class UpdateService {
+  /**
+   * Checks if there is an update available.
+   */
+  static async checkForUpdate() {
+    const releaseInfo = await checkLatestRelease("Tormak9970", "Steam-Art-Manager");
+
+    if (releaseInfo.available) {
+      updateManifest.set(releaseInfo);
+      showUpdateModal.set(true);
+    }
+  }
+}

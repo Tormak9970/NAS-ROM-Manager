@@ -111,3 +111,4 @@ export { default as Groups } from "@ktibow/iconset-material-symbols/groups-round
 export { default as Sell } from "@ktibow/iconset-material-symbols/sell";
 export { default as SupervisorAccount } from "@ktibow/iconset-material-symbols/supervisor-account-rounded";
 
+export { default as Celebration } from "@ktibow/iconset-material-symbols/celebration-rounded";

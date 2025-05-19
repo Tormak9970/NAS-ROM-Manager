@@ -33,4 +33,13 @@ type SelectItem = {
   value: string;
 }
 
+type Update = {
+  name: string;
+  version: string;
+  currentVersion: string;
+  available: boolean;
+  releaseDate: string;
+  body: string;
+}
+
 declare module "svelte-icons/md/*.svelte";

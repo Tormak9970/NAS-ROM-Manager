@@ -103,11 +103,13 @@
       <div class="action-container">
         {@render headlineAction?.()}
       </div>
-      {#if icon}
-        <Icon {icon} />
-      {/if}
       {#if !headless}
-        <p class="headline m3-font-headline-small" class:center={icon}>{headline}</p>
+        <div class="header">
+          {#if icon}
+            <Icon {icon} />
+          {/if}
+          <p class="headline m3-font-headline-small" class:center={icon}>{headline}</p>
+        </div>
       {/if}
       <div class="content m3-font-body-medium" class:headless {...extraOptions}>
         {@render children()}
@@ -165,10 +167,23 @@
     height: 1.5rem;
     margin: 0 auto 1rem auto;
   }
+  .header {
+    margin-bottom: 1rem;
+
+    display: flex;
+    align-items: center;
+
+    gap: 0.5rem;
+  }
+  .header > :global(svg) {
+    color: rgb(var(--m3-scheme-primary));
+    width: 1.5rem;
+    height: 1.5rem;
+  }
   .headline {
     color: rgb(var(--m3-scheme-on-surface));
     margin-top: 0;
-    margin-bottom: 1rem;
+    margin-bottom: 0;
   }
   .headline.center {
     text-align: center;
