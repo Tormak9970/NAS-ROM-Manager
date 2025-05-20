@@ -58,7 +58,7 @@ export class UpdateService {
    * Checks if there is an update available.
    */
   static async checkForUpdate() {
-    const releaseInfo = await checkLatestRelease("Tormak9970", "Steam-Art-Manager");
+    const releaseInfo = await checkLatestRelease("Tormak9970", "NAS-ROM-Manager");
 
     if (releaseInfo.available) {
       updateManifest.set(releaseInfo);

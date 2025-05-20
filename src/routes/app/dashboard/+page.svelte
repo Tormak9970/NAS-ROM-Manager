@@ -1,7 +1,12 @@
 <script lang="ts">
+  import { Icon } from "@component-utils";
   import { scrollShadow } from "@directives";
+  import { Celebration, ForwardArrow } from "@icons";
+  import { Button } from "@interactables";
   import { Card } from "@layout";
-  import { emulators, roms, romsBySystem, systems } from "@stores/State";
+  import { showUpdateModal } from "@stores/Modals";
+  import { emulators, isLandscape, roms, romsBySystem, systems } from "@stores/State";
+  import { updateManifest } from "@stores/Update";
   import Statistic from "@views/dashboard/Statistic.svelte";
   import StorageIndicator from "@views/dashboard/StorageIndicator.svelte";
   import SystemTagCloud from "@views/dashboard/SystemTagCloud.svelte";
@@ -60,6 +65,34 @@
         </ul>
       </div>
     </Card>
+    {#if $updateManifest?.available && !$isLandscape}
+      <Card type="outlined" extraOptions={cardOptions}>
+        <div class="card-header m3-font-title-medium">Update Available!</div>
+        <div class="body">
+          <ul>
+            <Statistic label="Version">
+              <div class="version">
+                <div>v{$updateManifest?.currentVersion}</div>
+                <Icon icon={ForwardArrow} />
+                <div>{$updateManifest?.version}</div>
+              </div>
+            </Statistic>
+            
+          </ul>
+          <div class="update-container" style:--m3-button-shape="var(--m3-util-rounding-small)">
+            <Button
+              iconType="left"
+              type="tonal"
+              extraOptions={{ style: "width: 100%" }}
+              onclick={() => $showUpdateModal = true}
+            >
+              <Icon icon={Celebration} />
+              View Details
+            </Button>
+          </div>
+        </div>
+      </Card>
+    {/if}
     <StorageIndicator extraOptions={cardOptions} />
     <div style="width: 100%; height: 0.5rem;"></div>
   </div>
@@ -111,5 +144,16 @@
     margin-top: 0.5rem;
 
     padding-left: 0;
+  }
+
+  .version {
+    display: flex;
+    align-items: center;
+
+    gap: 0.25rem;
+  }
+
+  .update-container {
+    margin-bottom: 1rem;
   }
 </style>
