@@ -11,7 +11,8 @@ services:
     restart: unless-stopped
     volumes:
     # TODO: this is just for testing. Docs should say to mount this so your stuff saves
-      - E:/:/library
+      - C:/Users/YOU/Desktop/NRM:/config/NRM
+      - emulation:/library
     env_file:
       - .env
     environment:
