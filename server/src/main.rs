@@ -30,6 +30,6 @@ async fn main() {
   let routes = websocket_route.or(rest_routes);
 
   warp::serve(routes)
-    .run(([127, 0, 0, 1], 1500))
+    .run(([0, 0, 0, 0], 1500))
     .await;
 }

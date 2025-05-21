@@ -19,6 +19,7 @@ services:
       NRM_CONFIG_DIR: /config/NRM/config
       NRM_PARSERS_DIR: /config/NRM/parsers
       RUST_LOG: info
+      # NRM_DEBUG: false
     ports:
       - 1500:1500
     healthcheck:
