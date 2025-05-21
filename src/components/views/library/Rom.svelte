@@ -25,7 +25,7 @@
   const layout = $derived(GRID_LAYOUTS[$libraryGridType]);
   const isFavorite = $derived(metadata.isFavorite);
 
-  const menuItems = $derived(getRomMenuItems(romId, metadata?.igdbId));
+  const menuItems = $derived(getRomMenuItems(romId, metadata?.sgdbId, metadata?.igdbId));
 </script>
 
 <!-- svelte-ignore a11y_click_events_have_key_events -->

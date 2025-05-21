@@ -16,7 +16,7 @@
 
   const system = $derived($systems[abbreviation]);
   const layout = $derived(GRID_LAYOUTS[$libraryGridType]);
-  const menuItems = $derived(getSystemMenuItems(abbreviation));
+  const menuItems = $derived(getSystemMenuItems(abbreviation, system?.sgdbId));
 </script>
 
 <!-- svelte-ignore a11y_click_events_have_key_events -->

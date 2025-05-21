@@ -29,24 +29,26 @@
   async function onSave(): Promise<void> {
     saving = true;
     
-    if (fullCapsulePath !== system.fullCapsulePath) {
-      const [fullCached, thumbCached] = await RestService.cacheCapsule(
-        fullCapsulePath,
-        thumbCapsulePath,
-        $romEditingId!.replace(/[/\\?%*:|"<> ]/g, '_')
-      )
+    if (sgdbId !== "" && sgdbId !== "None") {
+      if (fullCapsulePath !== metadata.fullCapsulePath) {
+        const [fullCached, thumbCached] = await RestService.cacheCapsule(
+          fullCapsulePath,
+          thumbCapsulePath,
+          $romEditingId!.replace(/[/\\?%*:|"<> ]/g, '_')
+        )
 
-      fullCapsulePath = fullCached;
-      thumbCapsulePath = thumbCached;
-    }
-    
-    if (heroPath !== system.heroPath) {
-      const heroCached = await RestService.cacheHero(
-        heroPath!,
-        $romEditingId!.replace(/[/\\?%*:|"<> ]/g, '_')
-      );
+        fullCapsulePath = fullCached;
+        thumbCapsulePath = thumbCached;
+      }
       
-      heroPath = heroCached;
+      if (heroPath !== metadata.heroPath) {
+        const heroCached = await RestService.cacheHero(
+          heroPath!,
+          $romEditingId!.replace(/[/\\?%*:|"<> ]/g, '_')
+        );
+        
+        heroPath = heroCached;
+      }
     }
     
     $romMetadata[$romEditingId!] = {

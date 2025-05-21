@@ -58,24 +58,26 @@
   async function onSave(): Promise<void> {
     saving = true;
 
-    if (fullCapsulePath !== system.fullCapsulePath) {
-      const [fullCached, thumbCached] = await RestService.cacheCapsule(
-        fullCapsulePath,
-        thumbCapsulePath,
-        $systemEditingId!.replace(/[/\\?%*:|"<> ]/g, '_')
-      )
+    if (sgdbId !== "" && sgdbId !== "None") {
+      if (fullCapsulePath !== system.fullCapsulePath) {
+        const [fullCached, thumbCached] = await RestService.cacheCapsule(
+          fullCapsulePath,
+          thumbCapsulePath,
+          $systemEditingId!.replace(/[/\\?%*:|"<> ]/g, '_')
+        )
 
-      fullCapsulePath = fullCached;
-      thumbCapsulePath = thumbCached;
-    }
-    
-    if (heroPath !== system.heroPath) {
-      const heroCached = await RestService.cacheHero(
-        heroPath!,
-        $systemEditingId!.replace(/[/\\?%*:|"<> ]/g, '_')
-      );
+        fullCapsulePath = fullCached;
+        thumbCapsulePath = thumbCached;
+      }
       
-      heroPath = heroCached;
+      if (heroPath !== system.heroPath) {
+        const heroCached = await RestService.cacheHero(
+          heroPath!,
+          $systemEditingId!.replace(/[/\\?%*:|"<> ]/g, '_')
+        );
+        
+        heroPath = heroCached;
+      }
     }
 
     const updatedParser: System = {
