@@ -27,6 +27,8 @@ RUN apt-get update && apt install -y openssl
 # copy the build artifact from the build stage
 COPY --from=build /nrm_server/target/release/nrm-server .
 
+RUN apt-get install curl ca-certificates --no-install-recommends -yqq
+
 RUN mkdir -p /config/NRM
 COPY ./parsers /config/NRM/parsers
 

@@ -1300,7 +1300,7 @@ dependencies = [
 
 [[package]]
 name = "nrm-server"
-version = "0.0.1"
+version = "1.0.0"
 dependencies = [
  "async_zip",
  "bytes",
