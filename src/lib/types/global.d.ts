@@ -2,7 +2,7 @@
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {
-  readonly NRM_BACKEND_VERSION: string;
+  readonly NRM_VERSION: string;
   readonly NRM_BUILD_DATE: string;
 }
 

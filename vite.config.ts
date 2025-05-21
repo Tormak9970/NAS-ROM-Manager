@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     port: 1420,
     watch: {
-      ignored: ["**/src-rust/**", "docs/**"],
+      ignored: ["**/server/**", "docs/**", "docker/**"],
     },
   },
 

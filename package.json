@@ -4,10 +4,10 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
-    "dev:rust": "cd ./src-rust && cargo watch -x run",
+    "dev:rust": "cd ./server && cargo watch -x run",
     "dev:svelte": "vite dev --open",
     "dev": "concurrently \"bun run dev:svelte\" \"bun run dev:rust\"",
-    "build:rust": "cd ./src-rust && cargo build",
+    "build:rust": "cd ./server && cargo build",
     "build:svelte": "vite build",
     "build": "concurrently \"bun run rust:build\" \"bun run svelte:build\"",
     "preview": "vite preview",

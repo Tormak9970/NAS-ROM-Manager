@@ -1,0 +1,47 @@
+name: nas-rom-manager
+
+services:
+  nrm-server:
+    container_name: nrm-server
+    command: ['/nrm-server']
+    image: nrm-server:latest
+    build:
+      context: ../server
+      dockerfile: ./Dockerfile
+    restart: unless-stopped
+    volumes:
+    # TODO: this is just for testing. Docs should say to mount this so your stuff saves
+      - E:/:/library
+    env_file:
+      - .env
+    environment:
+      NRM_GRIDS_CACHE_DIR: /config/NRM/covers
+      NRM_CONFIG_DIR: /config/NRM/config
+      NRM_PARSERS_DIR: /config/NRM/parsers
+      RUST_LOG: info
+    ports:
+      - 1500:1500
+    healthcheck:
+      disable: false
+
+  # nrm-web:
+  #   container_name: nrm-web
+  #   image: nrm-web:latest
+  #   # Needed for rootless docker setup, see https://github.com/moby/moby/issues/45919
+  #   # user: 0:0
+  #   build:
+  #     context: ../src
+  #   command: ['/usr/src/app/bin/nrm-web']
+  #   env_file:
+  #     - .env
+  #   ports:
+  #     - 1420:30420
+  #   volumes:
+  #     - ../web:/usr/src/app
+  #     - ../i18n:/usr/src/i18n
+  #     - ../open-api/:/usr/src/open-api/
+  #     # - ../../ui:/usr/ui
+  #     - /usr/src/app/node_modules
+  #   restart: unless-stopped
+  #   depends_on:
+  #     - nrm-server

@@ -1,6 +1,6 @@
 [package]
-name = "nas-rom-manager-backend"
-version = "1.0.0"
+name = "nrm-server"
+version = "0.0.1"
 edition = "2021"
 
 [dependencies]

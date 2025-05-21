@@ -60,7 +60,7 @@
       <div class="body">
         <ul>
           <Statistic label="Frontend Version">{NRM_FRONTEND_VERSION}</Statistic>
-          <Statistic label="Backend Version">{import.meta.env.NRM_BACKEND_VERSION}</Statistic>
+          <Statistic label="Backend Version">v{import.meta.env.NRM_VERSION}</Statistic>
           <Statistic label="Build Date">{import.meta.env.NRM_BUILD_DATE}</Statistic>
         </ul>
       </div>

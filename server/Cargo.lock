@@ -1253,36 +1253,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "nas-rom-manager-backend"
-version = "1.0.0"
-dependencies = [
- "async_zip",
- "bytes",
- "chrono",
- "cron",
- "dotenv",
- "futures",
- "futures-util",
- "json",
- "log",
- "notify",
- "phf",
- "pretty_env_logger",
- "regex",
- "reqwest",
- "rust-crypto",
- "sanitize-filename",
- "serde",
- "serde_json",
- "sysinfo",
- "tokio",
- "tokio-util",
- "urlencoding",
- "warp",
- "wax",
-]
-
-[[package]]
 name = "native-tls"
 version = "0.2.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1326,6 +1296,36 @@ dependencies = [
  "mio 0.8.11",
  "walkdir",
  "windows-sys 0.48.0",
+]
+
+[[package]]
+name = "nrm-server"
+version = "0.0.1"
+dependencies = [
+ "async_zip",
+ "bytes",
+ "chrono",
+ "cron",
+ "dotenv",
+ "futures",
+ "futures-util",
+ "json",
+ "log",
+ "notify",
+ "phf",
+ "pretty_env_logger",
+ "regex",
+ "reqwest",
+ "rust-crypto",
+ "sanitize-filename",
+ "serde",
+ "serde_json",
+ "sysinfo",
+ "tokio",
+ "tokio-util",
+ "urlencoding",
+ "warp",
+ "wax",
 ]
 
 [[package]]
