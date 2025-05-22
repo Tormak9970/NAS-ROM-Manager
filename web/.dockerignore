@@ -14,8 +14,4 @@ helm-charts
 .idea
 coverage*
 
-docs/**
 build/**
-docker/**
-readme-images/**
-server/**
