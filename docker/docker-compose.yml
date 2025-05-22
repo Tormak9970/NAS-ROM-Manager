@@ -10,9 +10,8 @@ services:
       dockerfile: ./Dockerfile
     restart: unless-stopped
     volumes:
-    # TODO: this is just for testing. Docs should say to mount this so your stuff saves
-      - C:/Users/YOU/Desktop/NRM:/config/NRM
-      - emulation:/library
+      - /YOUR/NRM/CONFIG/PATH:/config/NRM
+      - /YOUR/LIBRARY/PATH:/library
     env_file:
       - .env
     environment:
@@ -20,7 +19,7 @@ services:
       NRM_CONFIG_DIR: /config/NRM/config
       NRM_PARSERS_DIR: /config/NRM/parsers
       RUST_LOG: info
-      # NRM_DEBUG: false
+      NRM_DEBUG: false
     ports:
       - 1500:1500
     healthcheck:
