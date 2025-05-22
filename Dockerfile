@@ -28,11 +28,11 @@ RUN bun run "build:svelte"
 
 # copy production dependencies and source code into final image
 FROM base AS release
-COPY --from=install /temp/prod/node_modules node_modules
+COPY --from=install /temp/dev/node_modules node_modules
 COPY --from=prerelease /usr/src/app/build .
 COPY --from=prerelease /usr/src/app/package.json .
 
 # run the app
 USER bun
-EXPOSE 4173/tcp
-ENTRYPOINT [ "bun", "run", "preview" ]
+EXPOSE 3000/tcp
+ENTRYPOINT [ "bun", "run", "./index.js" ]

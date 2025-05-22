@@ -25,24 +25,19 @@ services:
     healthcheck:
       disable: false
 
-  # nrm-web:
-  #   container_name: nrm-web
-  #   image: nrm-web:latest
-  #   # Needed for rootless docker setup, see https://github.com/moby/moby/issues/45919
-  #   # user: 0:0
-  #   build:
-  #     context: ../src
-  #   command: ['/usr/src/app/bin/nrm-web']
-  #   env_file:
-  #     - .env
-  #   ports:
-  #     - 1420:30420
-  #   volumes:
-  #     - ../web:/usr/src/app
-  #     - ../i18n:/usr/src/i18n
-  #     - ../open-api/:/usr/src/open-api/
-  #     # - ../../ui:/usr/ui
-  #     - /usr/src/app/node_modules
-  #   restart: unless-stopped
-  #   depends_on:
-  #     - nrm-server
+  nrm-web:
+    container_name: nrm-web
+    image: nrm-web:latest
+    # Needed for rootless docker setup, see https://github.com/moby/moby/issues/45919
+    # user: 0:0
+    build:
+      context: ../
+      dockerfile: ./Dockerfile
+    command: ['/nrm-web']
+    env_file:
+      - .env
+    ports:
+      - 3000:3000
+    restart: unless-stopped
+    depends_on:
+      - nrm-server
