@@ -21,8 +21,9 @@ FROM base AS prerelease
 COPY --from=install /temp/dev/node_modules node_modules
 COPY . .
 
-# [optional] tests & build
 ENV NODE_ENV=production
+
+# [optional] tests & build
 RUN bun test
 RUN bun run "build:svelte"
 
@@ -31,6 +32,10 @@ FROM base AS release
 COPY --from=install /temp/dev/node_modules node_modules
 COPY --from=prerelease /usr/src/app/build .
 COPY --from=prerelease /usr/src/app/package.json .
+
+COPY scripts/env.sh /docker-entrypoint.d/env.sh
+RUN dos2unix /docker-entrypoint.d/env.sh
+RUN chmod +x /docker-entrypoint.d/env.sh
 
 # run the app
 USER bun

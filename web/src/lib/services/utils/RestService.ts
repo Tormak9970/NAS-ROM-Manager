@@ -24,7 +24,6 @@ type ROMUploadComplete = {
 export class RestService {
   private static readonly STREAM_CHUNK_SIZE = 10 * 1024 * 1024;
 
-  private static readonly GRIDS_BASE_URL = `http://${import.meta.env.NRM_SERVER_URL}/rest/grids`;
   private static readonly BASE_URL = `http://${import.meta.env.NRM_SERVER_URL}/rest`;
 
   private static currentDownload: ReadableStreamDefaultReader<Uint8Array<ArrayBufferLike>> | null = null;
