@@ -11,6 +11,12 @@
   let { src, portrait, onEdit }: Props = $props();
 
   let failedToLoad = $state(false);
+  
+  let url = $derived.by(() => {
+    const currentTime = new Date().getTime();
+
+    return `http://${import.meta.env.NRM_SERVER_URL}/rest/grids${src}#${currentTime}`;
+  });
 
   const menuItems = $derived<ContextMenuItem[]>([
     {
@@ -23,7 +29,7 @@
 <div class="hero" class:landscape={!portrait}>
   {#key src}
     {#if !failedToLoad && src !== "No Grids"}
-      <img src={src} alt="Banner placeholder" onerror={() => failedToLoad = true}>
+      <img src={url} alt="Banner placeholder" onerror={() => failedToLoad = true}>
     {:else}
       <HeroPlaceholder />
     {/if}

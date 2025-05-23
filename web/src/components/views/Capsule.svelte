@@ -4,12 +4,18 @@
   let { src }: { src: string } = $props();
   
   let failedToLoad = $state(false);
+
+  let url = $derived.by(() => {
+    const currentTime = new Date().getTime();
+
+    return `http://${import.meta.env.NRM_SERVER_URL}/rest/grids${src}#${currentTime}`;
+  });
 </script>
 
 <div class="capsule">
   {#key src}
     {#if !failedToLoad && src !== "No Grids"}
-      <img src={src} alt="Capsule placeholder" onerror={() => failedToLoad = true}>
+      <img src={url} alt="Capsule placeholder" onerror={() => failedToLoad = true}>
     {:else}
       <CapsulePlaceholder />
     {/if}

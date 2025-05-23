@@ -84,12 +84,10 @@ export class RestService {
     if (res.ok) {
       const images = await res.text();
       const [thumb, full] = images.split(",");
-      
-      const currentTime = new Date().getTime();
 
       return [
-        `${this.GRIDS_BASE_URL}/thumb/${thumb}#${currentTime}`,
-        `${this.GRIDS_BASE_URL}/full/${full}#${currentTime}`,
+        `/thumb/${thumb}`,
+        `/full/${full}`,
       ];
     } else {
       LogService.error(`Failed to cache capsule ${fullCapsuleUrl}:`, res.statusText);
@@ -146,9 +144,8 @@ export class RestService {
 
     if (res.ok) {
       const image = await res.text();
-      const currentTime = new Date().getTime();
 
-      return `${this.GRIDS_BASE_URL}/hero/${image}#${currentTime}`;
+      return `/hero/${image}`;
     } else {
       LogService.error(`Failed to cache hero ${heroUrl}:`, res.statusText);
       return "";
