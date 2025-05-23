@@ -36,10 +36,10 @@ export class WebsocketService {
    * @param onLogout The callback to run when the app should log out.
    */
   static init(onOpen: () => Promise<void>, onLogout: () => void) {
-    WebsocketService.ws = new WebSocket("ws://127.0.0.1:1500/ws");
+    WebsocketService.ws = new WebSocket(`ws://${import.meta.env.NRM_SERVER_URL}/ws`);
 
     WebsocketService.ws.addEventListener("error", (e) => {
-      const message = `Failed to reach NRM's websocket at ws://127.0.0.1:1500/ws`;
+      const message = `Failed to reach NRM's websocket at ws://${import.meta.env.NRM_SERVER_URL}/ws`;
       const fix = `Please check the backend's logs to see if there was an error, or restart the container`;
       showError(message, fix, BackendErrorType.PANIC);
     });

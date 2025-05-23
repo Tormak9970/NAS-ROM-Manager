@@ -4,6 +4,7 @@
 interface ImportMetaEnv {
   readonly NRM_VERSION: string;
   readonly NRM_BUILD_DATE: string;
+  readonly NRM_SERVER_URL: string;
 }
 
 interface ImportMeta {
