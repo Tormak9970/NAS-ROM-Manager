@@ -23,7 +23,7 @@
         <div>{data.fix}</div>
         <div class="notice">
           {#if data.type === BackendErrorType.PANIC.toString()}
-            This error is not recoverable and will require a page refresh or container restart.
+            This error is not recoverable and will require a navigation to the Home Page or a container restart.
           {:else}
             Go <a href={$landingPage ?? "/"}>Home</a>
           {/if}
