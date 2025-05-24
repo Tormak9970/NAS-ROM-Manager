@@ -84,7 +84,7 @@ fn extract_metadata_from_response(rom: IGDBRomResponse) -> IGDBMetadata {
   }).map(| age_rating | age_rating.to_owned().into()).collect();
 
   let websites: Vec<IGDBWebsite> = rom.websites.unwrap_or(vec![]).iter().filter_map(| website | {
-    let category = website.category.to_string();
+    let category = website.r#type.to_string();
     let website_type = IGDB_WEBSITE_TYPES.get(&category);
 
     if website_type.is_some() {
@@ -169,6 +169,7 @@ impl IGDBClient {
     let mut headers = HeaderMap::new();
 
     headers.insert(header::AUTHORIZATION, HeaderValue::try_from(format!("Bearer {token}")).unwrap());
+    info!("Bearer {token}");
     headers.insert("Client-ID", HeaderValue::try_from(self.client_id.clone()).unwrap());
     headers.insert(header::ACCEPT, HeaderValue::from_static("application/json"));
 

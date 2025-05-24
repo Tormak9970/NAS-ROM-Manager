@@ -101,7 +101,7 @@ pub const GAMES_FIELDS: [&'static str; 29] = [
   "expansions.slug",
   "expansions.name",
   "age_ratings.rating_category",
-  "websites.category",
+  "websites.type",
   "websites.url"
 ];
 
@@ -403,7 +403,7 @@ pub struct IGDBRelatedGameResponse {
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct IGDBWebsiteResponse {
-  pub category: u64,
+  pub r#type: u64,
   pub url: String,
 }
 
