@@ -76,61 +76,59 @@
 
 <LibraryLoadGuard onLoad={onLoad}>
   <div id="rom-entry" class="styled-scrollbar" class:landscape={!portrait}>
-    {#if !isLoading}
-      <Hero
-        src={heroPath}
+    <Hero
+      src={heroPath}
+      portrait={portrait}
+      onEdit={() => RomService.changeHero(id)}
+    />
+    <div class="content" class:portrait>
+      <DetailsHeader
+        title={metadata?.title || rom?.title || "Loading..."}
+        capsuleSrc={metadata?.thumbCapsulePath}
+        system={rom?.system}
         portrait={portrait}
-        onEdit={() => RomService.changeHero(id)}
-      />
-      <div class="content" class:portrait>
-        <DetailsHeader
-          title={metadata?.title || rom?.title || "Loading..."}
-          capsuleSrc={metadata?.thumbCapsulePath}
-          system={rom?.system}
-          portrait={portrait}
-        >
-          {#snippet headerMetadata()}
-            {#if portrait}
-              <div class="first-row">
-                <div>Added on {rom?.addDate}</div>•<div>{formatFileSize(rom.size)}</div>
-              </div>
-              <div>{genres?.join(", ") ?? "Unkown"}</div>
-            {:else}
-              <div>Added on {rom?.addDate}</div>•<div>{formatFileSize(rom.size)}</div>•<div>{genres?.join(", ") ?? "Unkown"}</div>
-            {/if}
-          {/snippet}
-          {#snippet controls()}
-            <Button iconType="full" type="text" onclick={() => RomService.toggleFavorite(id)}>
-              <Icon icon={isFavorite ? FavoriteOn : FavoriteOff} />
-            </Button>
-            <Button
-              type="filled"
-              iconType="left"
-              onclick={() => RomService.download(id)}
-            >
-              <Icon icon={Download} />
-              Download
-            </Button>
-            <Button iconType="full" type="filled" onclick={() => RomService.edit(id)}>
-              <Icon icon={Edit} />
-            </Button>
-          {/snippet}
-        </DetailsHeader>
-        <div class="body" class:portrait>
-          {#if isLoading}
-            <div class="loading-container">
-              <LoadingSpinner /> <div class="font-headline-small">Loading Metadata...</div>
+      >
+        {#snippet headerMetadata()}
+          {#if portrait}
+            <div class="first-row">
+              <div>Added on {rom?.addDate}</div>•<div>{formatFileSize(rom.size)}</div>
             </div>
-          {:else if metadata.igdbId === NO_IGDB_RESULTS}
-            <div class="missing-message font-headline-small">
-              No Metadata for <b>{metadata.title ?? rom.title}</b>
-            </div>
+            <div>{genres?.join(", ") ?? "Unkown"}</div>
           {:else}
-            <RomMetadata metadata={metadata} portrait={portrait} />
+            <div>Added on {rom?.addDate}</div>•<div>{formatFileSize(rom.size)}</div>•<div>{genres?.join(", ") ?? "Unkown"}</div>
           {/if}
-        </div>
+        {/snippet}
+        {#snippet controls()}
+          <Button iconType="full" type="text" onclick={() => RomService.toggleFavorite(id)}>
+            <Icon icon={isFavorite ? FavoriteOn : FavoriteOff} />
+          </Button>
+          <Button
+            type="filled"
+            iconType="left"
+            onclick={() => RomService.download(id)}
+          >
+            <Icon icon={Download} />
+            Download
+          </Button>
+          <Button iconType="full" type="filled" onclick={() => RomService.edit(id)}>
+            <Icon icon={Edit} />
+          </Button>
+        {/snippet}
+      </DetailsHeader>
+      <div class="body" class:portrait>
+        {#if isLoading}
+          <div class="loading-container">
+            <LoadingSpinner /> <div class="font-headline-small">Loading Metadata...</div>
+          </div>
+        {:else if metadata.igdbId === NO_IGDB_RESULTS}
+          <div class="missing-message font-headline-small">
+            No Metadata for <b>{metadata.title ?? rom.title}</b>
+          </div>
+        {:else}
+          <RomMetadata metadata={metadata} portrait={portrait} />
+        {/if}
       </div>
-    {/if}
+    </div>
   </div>
 </LibraryLoadGuard>
 

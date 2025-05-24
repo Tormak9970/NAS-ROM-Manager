@@ -47,47 +47,45 @@
 
 <LibraryLoadGuard onLoad={onLoad}>
   <div id="system-entry" class="styled-scrollbar" class:landscape={!portrait}>
-    {#if !isLoading}
-      <Hero
-        src={heroPath}
+    <Hero
+      src={heroPath}
+      portrait={portrait}
+      onEdit={() => SystemService.changeHero(abbreviation)}
+    />
+    <div class="content" class:portrait>
+      <DetailsHeader
+        title={system?.name || "Loading..."}
+        capsuleSrc={system?.thumbCapsulePath}
+        system={abbreviation}
         portrait={portrait}
-        onEdit={() => SystemService.changeHero(abbreviation)}
-      />
-      <div class="content" class:portrait>
-        <DetailsHeader
-          title={system?.name || "Loading..."}
-          capsuleSrc={system?.thumbCapsulePath}
-          system={abbreviation}
-          portrait={portrait}
-        >
-          {#snippet headerMetadata()}
-            {#if portrait}
-              <div class="first-row">
-                <div>{romIds?.length ?? 0} {pluralize("rom", "roms", romIds?.length)}</div>•<div>{system?.patterns?.length ?? 0} {pluralize("parser", "parsers", system?.patterns?.length)}</div>
-              </div>
-              <div>Abbreviation: {system?.abbreviation}</div>
-            {:else}
-              <div>Abbreviation: {system?.abbreviation}</div>•<div>{romIds?.length ?? 0} {pluralize("rom", "roms", romIds?.length)}</div>•<div>{system?.patterns?.length ?? 0} {pluralize("parser", "parsers", system?.patterns?.length)}</div>
-            {/if}
-          {/snippet}
-          {#snippet controls()}
-            <Button iconType="left" type="filled" onclick={() => SystemService.edit(abbreviation)}>
-              <Icon icon={Edit} />
-              Edit
-            </Button>
-          {/snippet}
-        </DetailsHeader>
-        <div class="body" class:portrait>
-          {#if isLoading}
-            <div class="loading-container">
-              <LoadingSpinner /> <div class="font-headline-small">Loading Metadata...</div>
+      >
+        {#snippet headerMetadata()}
+          {#if portrait}
+            <div class="first-row">
+              <div>{romIds?.length ?? 0} {pluralize("rom", "roms", romIds?.length)}</div>•<div>{system?.patterns?.length ?? 0} {pluralize("parser", "parsers", system?.patterns?.length)}</div>
             </div>
+            <div>Abbreviation: {system?.abbreviation}</div>
           {:else}
-            <SystemDetails system={system} romIds={romIds} portrait={portrait} />
+            <div>Abbreviation: {system?.abbreviation}</div>•<div>{romIds?.length ?? 0} {pluralize("rom", "roms", romIds?.length)}</div>•<div>{system?.patterns?.length ?? 0} {pluralize("parser", "parsers", system?.patterns?.length)}</div>
           {/if}
-        </div>
+        {/snippet}
+        {#snippet controls()}
+          <Button iconType="left" type="filled" onclick={() => SystemService.edit(abbreviation)}>
+            <Icon icon={Edit} />
+            Edit
+          </Button>
+        {/snippet}
+      </DetailsHeader>
+      <div class="body" class:portrait>
+        {#if isLoading}
+          <div class="loading-container">
+            <LoadingSpinner /> <div class="font-headline-small">Loading Metadata...</div>
+          </div>
+        {:else}
+          <SystemDetails system={system} romIds={romIds} portrait={portrait} />
+        {/if}
       </div>
-    {/if}
+    </div>
   </div>
 </LibraryLoadGuard>
 
