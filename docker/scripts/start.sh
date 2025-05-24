@@ -12,5 +12,9 @@ for i in $(env | grep "^$INJECTION_ENV_PREFIX"); do
     echo "$key=$value"
 
     find "/usr/src/app/server/chunks/" -type f -exec sed -i 's|'"${key}"'|'"${value}"'|g' {} \;
+    find "/usr/src/app/server/_app/immutable/assets/" -type f -exec sed -i 's|'"${key}"'|'"${value}"'|g' {} \;
     find "/usr/src/app/client/_app/immutable/chunks/" -type f -exec sed -i 's|'"${key}"'|'"${value}"'|g' {} \;
+    find "/usr/src/app/client/_app/immutable/assets/" -type f -exec sed -i 's|'"${key}"'|'"${value}"'|g' {} \;
 done
+
+exec bun run ./index.js

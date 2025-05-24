@@ -33,11 +33,14 @@ COPY --from=install /temp/dev/node_modules node_modules
 COPY --from=prerelease /usr/src/app/build .
 COPY --from=prerelease /usr/src/app/package.json .
 
-COPY scripts/env.sh /docker-entrypoint.d/env.sh
-RUN dos2unix /docker-entrypoint.d/env.sh
-RUN chmod +x /docker-entrypoint.d/env.sh
+RUN chmod -R 777 /usr/src/app/client
+RUN chmod -R 777 /usr/src/app/server
+
+COPY --from=scripts ./start.sh /docker-entrypoint.d/start.sh
+RUN dos2unix /docker-entrypoint.d/start.sh
+RUN chmod +x /docker-entrypoint.d/start.sh
 
 # run the app
 USER bun
 EXPOSE 3000/tcp
-ENTRYPOINT [ "bun", "run", "./index.js" ]
+ENTRYPOINT [ "/docker-entrypoint.d/start.sh" ]
