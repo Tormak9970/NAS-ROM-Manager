@@ -27,5 +27,6 @@
         "type": "single-file"
       }
     }
-  ]
+  ],
+  "biosFiles": []
 }

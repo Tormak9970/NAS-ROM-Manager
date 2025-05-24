@@ -85,8 +85,50 @@ fn validate_parser(parser: &Parser) -> bool {
   return true;
 }
 
+fn load_bios_files(library: &Library, parser: &Parser) -> Vec<String> {
+  let mut bios_files: Vec<String> = vec![];
+
+  let bios_folder = PathBuf::from(&library.libraryPath).join(&library.biosDir);
+  let bios_folder_exists = fs::exists(&bios_folder);
+  if bios_folder_exists.is_err() || !(bios_folder_exists.unwrap()) {
+    return bios_files;
+  }
+
+  let parser_bios_folder = bios_folder.join(&parser.folder);
+  let parser_bios_folder_exists = fs::exists(&parser_bios_folder);
+  if parser_bios_folder_exists.is_err() || !(parser_bios_folder_exists.unwrap()) {
+    return bios_files;
+  }
+  
+  let entries_res = read_dir(&parser_bios_folder).expect("Parser Bios Folder should have existed.");
+
+  for bios_entry_res in entries_res {
+    if bios_entry_res.is_err() {
+      continue;
+    }
+    let bios_entry = bios_entry_res.unwrap();
+    let bios_filename_os = bios_entry.file_name();
+    let bios_filename = bios_filename_os.to_str().unwrap();
+  
+    let bios_metadata_res = bios_entry.metadata();
+    if bios_metadata_res.is_err() {
+      let err = bios_metadata_res.err().unwrap();
+      warn!("Load Bios Files: Can't read metadata of bios file for parser \"{}\": {}", parser.name.clone(), err.to_string());
+      continue;
+    }
+    let bios_metadata = bios_metadata_res.unwrap();
+
+    if bios_metadata.is_file() {
+      bios_files.push(bios_filename.to_string());
+    }
+  }
+
+
+  return bios_files;
+}
+
 /// Loads a library's parsers.
-pub fn load_parsers(send_error: &ErrorSender) -> Result<HashMap<String, Parser>, ()> {
+pub fn load_parsers(library: &Library, send_error: &ErrorSender) -> Result<HashMap<String, Parser>, ()> {
   let mut parsers: HashMap<String, Parser> = HashMap::new();
 
   let parsers_path = var("NRM_PARSERS_DIR").expect("Load Parsers: Failed to get parsers directory env variable");
@@ -140,7 +182,8 @@ pub fn load_parsers(send_error: &ErrorSender) -> Result<HashMap<String, Parser>,
         return Err(());
       }
       
-      let parser: Parser = parser_res.unwrap();
+      let mut parser: Parser = parser_res.unwrap();
+      parser.biosFiles = load_bios_files(library, &parser);
 
       if validate_parser(&parser) {
         parsers.insert(parser.abbreviation.clone(), parser);

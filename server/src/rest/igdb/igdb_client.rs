@@ -169,7 +169,6 @@ impl IGDBClient {
     let mut headers = HeaderMap::new();
 
     headers.insert(header::AUTHORIZATION, HeaderValue::try_from(format!("Bearer {token}")).unwrap());
-    info!("Bearer {token}");
     headers.insert("Client-ID", HeaderValue::try_from(self.client_id.clone()).unwrap());
     headers.insert(header::ACCEPT, HeaderValue::from_static("application/json"));
 

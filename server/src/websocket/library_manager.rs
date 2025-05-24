@@ -129,7 +129,7 @@ fn load_roms(library: &Library, watcher: &Watcher, parsers: &HashMap<String, Par
 }
 
 fn load_library(library: &Library, watcher: &Watcher, send_error: &ErrorSender) -> Result<(LoadResult, HashMap<String, Parser>), ()> {
-  let parsers_res = load_parsers(send_error);
+  let parsers_res = load_parsers(library, send_error);
   if parsers_res.is_err() {
     return Err(());
   }

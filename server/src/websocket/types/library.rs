@@ -2,7 +2,6 @@ use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 
-
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct LoadResult {
   pub library: Library,
@@ -46,6 +45,7 @@ pub struct Parser {
   pub heroPath: String,
   pub tagConfig: SystemTagConfig,
   pub patterns: Vec<ParserPattern>,
+  pub biosFiles: Vec<String>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]

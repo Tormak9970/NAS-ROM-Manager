@@ -24,6 +24,7 @@ export type System = {
   igdbPlatformId: string;
   tagConfig: SystemTagConfig;
   patterns: ParserPattern[];
+  biosFiles: string[];
 }
 
 export type ROMMetadata = {
