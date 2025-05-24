@@ -12,8 +12,6 @@ services:
     volumes:
       - /YOUR/NRM/CONFIG/PATH:/config/NRM
       - /YOUR/LIBRARY/PATH:/library
-    env_file:
-      - .env
     environment:
       NRM_GRIDS_CACHE_DIR: /config/NRM/covers
       NRM_CONFIG_DIR: /config/NRM/config
