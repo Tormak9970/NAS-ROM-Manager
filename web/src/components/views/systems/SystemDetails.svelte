@@ -23,6 +23,7 @@
 </script>
 
 <div class="details" class:portrait>
+  <!-- TODO: bios files  -->
   <h2>ROMs</h2>
   {#if romIds?.length === 0}
     <div class="summary body-text">

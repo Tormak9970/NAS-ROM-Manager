@@ -34,8 +34,6 @@
       return;
     }
 
-    console.log("$systems[abbreviation]:", $systems[abbreviation]);
-
     isLoading = false;
   }
 </script>
