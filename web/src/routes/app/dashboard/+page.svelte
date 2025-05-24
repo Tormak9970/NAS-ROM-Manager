@@ -7,10 +7,12 @@
   import { showUpdateModal } from "@stores/Modals";
   import { emulators, isLandscape, roms, romsBySystem, systems } from "@stores/State";
   import { updateManifest } from "@stores/Update";
+  import { formatDate } from "@utils";
   import Statistic from "@views/dashboard/Statistic.svelte";
   import StorageIndicator from "@views/dashboard/StorageIndicator.svelte";
   import SystemTagCloud from "@views/dashboard/SystemTagCloud.svelte";
   import SystemTag from "@views/SystemTag.svelte";
+  import { onMount } from "svelte";
 
   const emulatorCount = $derived(Object.keys($emulators).length);
   const romCount = $derived(Object.keys($roms).length);
@@ -24,6 +26,13 @@
   const cardOptions = {
     style: "width: calc(100% - 2rem); max-width: 25rem;"
   }
+  
+  let formattedDate = $state<string>("")
+
+  onMount(() => {
+    const lang = "en-US";
+    formattedDate = formatDate(import.meta.env.NRM_BUILD_DATE, lang);
+  });
 </script>
 
 <svelte:head>
@@ -60,7 +69,7 @@
       <div class="body">
         <ul>
           <Statistic label="Version">{NRM_FRONTEND_VERSION}</Statistic>
-          <Statistic label="Build Date">{import.meta.env.NRM_BUILD_DATE}</Statistic>
+          <Statistic label="Build Date">{formattedDate}</Statistic>
         </ul>
       </div>
     </Card>

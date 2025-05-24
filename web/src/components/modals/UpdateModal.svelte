@@ -4,6 +4,7 @@
   import { Button } from "@interactables";
   import { showUpdateModal } from "@stores/Modals";
   import { updateManifest } from "@stores/Update";
+  import { formatDate } from "@utils";
   import MarkdownIt from "markdown-it";
   import { onMount } from "svelte";
   import { fade } from "svelte/transition";
@@ -25,15 +26,8 @@
     const dateString = $updateManifest!.releaseDate;
 
     const lang = "en-US";
-    const formatter = new Intl.DateTimeFormat(lang, {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-
-    const date = new Date(dateString);
-    formattedDate = formatter.format(date);
-  })
+    formattedDate = formatDate(dateString, lang);
+  });
 </script>
 
 <ModalBody
