@@ -2,6 +2,7 @@
   import { romMetadata } from "@stores/State";
   import type { System } from "@types";
   import RomsGrid from "@views/RomsGrid.svelte";
+  import BiosFiles from "@views/systems/BiosFiles.svelte";
 
   type Props = {
     system: System | undefined;
@@ -23,7 +24,8 @@
 </script>
 
 <div class="details" class:portrait>
-  <!-- TODO: bios files  -->
+  <h2>BIOS Files</h2>
+  <BiosFiles system={system?.folder ?? ""} biosFiles={system?.biosFiles ?? []} />
   <h2>ROMs</h2>
   {#if romIds?.length === 0}
     <div class="summary body-text">

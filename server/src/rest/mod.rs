@@ -300,34 +300,43 @@ pub fn initialize_rest_api(grids_cache_dir: String, cleanup_schedule: String) ->
     .and_then(igdb_search_platform)
     .with(&cors);
 
-  
-  let http_routes = grids_get_route
+  let grids_routes = grids_get_route
     .or(capsule_upload_route)
     .or(capsule_delete_route)
     .or(hero_upload_route)
-    .or(hero_delete_route)
-    .or(rom_download_get_metadata)
+    .or(hero_delete_route);
+  
+  let rom_routes = rom_download_get_metadata
     .or(rom_download_route)
     .or(rom_download_complete_route)
     .or(rom_upload_prepare_route)
     .or(rom_upload_route)
     .or(rom_upload_complete_route)
     .or(rom_upload_cancel_route)
-    .or(rom_delete_route)
-    .or(bios_download_get_metadata)
+    .or(rom_delete_route);
+
+  let bios_routes = bios_download_get_metadata
     .or(bios_download_route)
     .or(bios_upload_prepare_route)
     .or(bios_upload_route)
     .or(bios_upload_complete_route)
     .or(bios_upload_cancel_route)
-    .or(bios_delete_route)
-    .or(sgdb_init_route)
+    .or(bios_delete_route);
+
+  let sgdb_routes = sgdb_init_route
     .or(sgdb_get_grids_route)
-    .or(sgdb_search_game_route)
-    .or(igdb_init_route)
+    .or(sgdb_search_game_route);
+
+  let igdb_routes = igdb_init_route
     .or(igdb_get_metadata_route)
     .or(igdb_search_game_route)
     .or(igdb_search_platform_route);
+
+  let http_routes = grids_routes
+    .or(rom_routes)
+    .or(bios_routes)
+    .or(sgdb_routes)
+    .or(igdb_routes);
 
 
   let cleanup_upload_store = upload_store.clone();
