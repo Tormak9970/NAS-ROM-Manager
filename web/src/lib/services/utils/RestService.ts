@@ -152,7 +152,7 @@ export class RestService {
   }
 
 
-  private static async getMetadata(data: ROMDownload): Promise<{ size: number, path: string }> {
+  private static async getROMMetadata(data: ROMDownload): Promise<{ size: number, path: string }> {
     const res = await fetch(this.BASE_URL + `/roms/download/metadata?romPath=${encodeURIComponent(data.path)}&romParent=${encodeURIComponent(data.parent)}`, {
       method: "GET",
       mode: "cors",
@@ -260,13 +260,13 @@ export class RestService {
     window.removeEventListener("pagehide", onPageHideChange, pageHideOptions);
   }
 
-  private static async streamDownload(path: string, fileSize: number, onProgress: (progress: number) => void) {
+  private static async streamROMDownload(path: string, fileSize: number, onProgress: (progress: number) => void) {
     const backslashIndex = path.lastIndexOf("\\");
     const slashIndex = path.lastIndexOf("/");
     const startIndex = backslashIndex > slashIndex ? backslashIndex : slashIndex;
     const filename = path.substring(startIndex + 1);
     
-    const romURL = this.BASE_URL + `/roms/download?romPath=${encodeURIComponent(path)}`;
+    const romURL = this.BASE_URL + `/roms/download?filePath=${encodeURIComponent(path)}`;
 
     // @ts-expect-error This error is because we have a type package installed. The File System API is still not supported in all browsers.
     // ? See https://developer.mozilla.org/en-US/docs/Web/API/FileSystemWritableFileStream#browser_compatibility
@@ -277,7 +277,7 @@ export class RestService {
     }
   }
 
-  private static async notifyDownloadComplete(data: ROMDownload) {
+  private static async notifyROMDownloadComplete(data: ROMDownload) {
     const res = await fetch(this.BASE_URL + "/roms/download/complete", {
       method: "POST",
       mode: "cors",
@@ -314,15 +314,15 @@ export class RestService {
       parent: rom.downloadStrategy.type === "folder" ? rom.downloadStrategy.parent : "",
     }
 
-    const { size, path } = await this.getMetadata(romDownloadConfig);
+    const { size, path } = await this.getROMMetadata(romDownloadConfig);
     romDownloadConfig.path = path;
     onStart(size);
 
 
-    await this.streamDownload(path, size, onProgress);
+    await this.streamROMDownload(path, size, onProgress);
     
 
-    await this.notifyDownloadComplete(romDownloadConfig);
+    await this.notifyROMDownloadComplete(romDownloadConfig);
     onEnd(!!RestService.currentDownload);
 
     RestService.currentDownload = null;
@@ -340,10 +340,10 @@ export class RestService {
   }
 
 
-  private static async prepareUpload(libraryPath: string, romsDir: string, system: string, filename: string): Promise<string> {
+  private static async prepareROMUpload(libraryPath: string, romsDir: string, system: string, filename: string): Promise<string> {
     const filePath = `${libraryPath}/${romsDir}/${system}/${filename}`;
 
-    const res = await fetch(this.BASE_URL + `/roms/upload/prepare?romPath=${encodeURIComponent(filePath)}`, {
+    const res = await fetch(this.BASE_URL + `/roms/upload/prepare?filePath=${encodeURIComponent(filePath)}`, {
       method: "POST",
       mode: "cors",
       headers: {
@@ -359,7 +359,7 @@ export class RestService {
     }
   }
 
-  private static async uploadComplete(data: ROMUploadComplete) {
+  private static async uploadROMComplete(data: ROMUploadComplete) {
     const res = await fetch(this.BASE_URL + "/roms/upload/complete", {
       method: "POST",
       mode: "cors",
@@ -378,7 +378,7 @@ export class RestService {
     }
   }
 
-  private static async streamUpload(uploadId: string, path: string, file: File, onProgress: (progress: number) => void) {
+  private static async streamROMUpload(uploadId: string, path: string, file: File, onProgress: (progress: number) => void) {
     let sent = 0;
 
     const fileSize = file.size;
@@ -392,7 +392,7 @@ export class RestService {
 
       const data = file.slice(sent, end + 1);
 
-      const response = await fetch(this.BASE_URL + `/roms/upload?romPath=${encodeURIComponent(path)}`, {
+      const response = await fetch(this.BASE_URL + `/roms/upload?filePath=${encodeURIComponent(path)}`, {
         method: "POST",
         mode: "cors",
         headers: {
@@ -416,10 +416,7 @@ export class RestService {
 
   /**
    * Uploads a rom to the server.
-   * @param rom The rom to upload.
-   * @param filename The filename of the rom.
-   * @param reader The reader stream for the file input.
-   * @param needsUnzip Whether this rom will need to be unzipped.
+   * @param uploadConfig The rom upload config.
    * @param onStart Function to run on start.
    * @param onProgress Function to run on chunk update.
    * @param onEnd Function to run on upload complete.
@@ -433,14 +430,14 @@ export class RestService {
     const { system, file, needsUnzip } = uploadConfig;
     const lib = get(library);
     
-    const filePath = await this.prepareUpload(lib.libraryPath, lib.romDir, system, file.name);
+    const filePath = await this.prepareROMUpload(lib.libraryPath, lib.romDir, system, file.name);
     onStart();
 
     const uploadId = hash64(filePath);
     RestService.currentUploadId = uploadId;
 
   
-    await this.streamUpload(
+    await this.streamROMUpload(
       uploadId,
       filePath,
       file,
@@ -451,7 +448,7 @@ export class RestService {
     if (RestService.currentUploadId) {
       RestService.currentUploadId = null;
 
-      const finalPath = await this.uploadComplete({
+      const finalPath = await this.uploadROMComplete({
         uploadId: uploadId,
         path: filePath,
         libraryPath: lib.libraryPath,
@@ -466,7 +463,7 @@ export class RestService {
    * Cancels the current upload if one exists.
    * @returns True if successful, false if not.
    */
-  static async cancelUpload(): Promise<boolean> {
+  static async cancelROMUpload(): Promise<boolean> {
     if (RestService.currentUploadId) {
       const res = await fetch(this.BASE_URL + "/roms/upload/cancel", {
         method: "POST",
@@ -658,6 +655,232 @@ export class RestService {
       get(showWarningSnackbar)({ message: "Error getting IGDB platforms."})
 
       return [];
+    }
+  }
+  
+  private static async getBIOSMetadata(filePath: string): Promise<{ size: number, path: string }> {
+    const res = await fetch(this.BASE_URL + `/bios-files/download/metadata?filePath=${encodeURIComponent(filePath)}`, {
+      method: "GET",
+      mode: "cors",
+      headers: {
+        "Accept": "application/json, text/plain, */*",
+      }
+    });
+
+    if (res.ok) {
+      return await res.json();
+    } else {
+      LogService.error(`Failed to get metadata for ${filePath}:`, res.statusText);
+      return { size: 0, path: "" };
+    }
+  }
+
+  private static async streamBIOSDownload(path: string, fileSize: number, onProgress: (progress: number) => void) {
+    const backslashIndex = path.lastIndexOf("\\");
+    const slashIndex = path.lastIndexOf("/");
+    const startIndex = backslashIndex > slashIndex ? backslashIndex : slashIndex;
+    const filename = path.substring(startIndex + 1);
+    
+    const romURL = this.BASE_URL + `/bios-files/download?filePath=${encodeURIComponent(path)}`;
+
+    // @ts-expect-error This error is because we have a type package installed. The File System API is still not supported in all browsers.
+    // ? See https://developer.mozilla.org/en-US/docs/Web/API/FileSystemWritableFileStream#browser_compatibility
+    if (window.showSaveFilePicker) {
+      await this.downloadNative(romURL, filename, onProgress);
+    } else {
+      await this.downloadPolyfill(romURL, filename, fileSize, onProgress);
+    }
+  }
+
+
+  /**
+   * Downloads the requested bios file.
+   * @param filePath The bios file path to download.
+   * @param onStart Function to run on start.
+   * @param onProgress Function to run on chunk update.
+   * @param onEnd Function to run on download complete.
+   */
+  static async downloadBIOS(
+    filePath: string,
+    onStart: (fileSize: number) => void = () => {},
+    onProgress: (progress: number) => void = () => {},
+    onEnd: (finished: boolean) => void = () => {}
+  ): Promise<void> {
+    const { size, path } = await this.getBIOSMetadata(filePath);
+    onStart(size);
+
+
+    await this.streamBIOSDownload(path, size, onProgress);
+    
+
+    onEnd(!!RestService.currentDownload);
+
+    RestService.currentDownload = null;
+  }
+
+
+  private static async prepareBIOSUpload(libraryPath: string, biosDir: string, system: string, filename: string): Promise<string> {
+    const filePath = `${libraryPath}/${biosDir}/${system}/${filename}`;
+
+    const res = await fetch(this.BASE_URL + `/bios-files/upload/prepare?filePath=${encodeURIComponent(filePath)}`, {
+      method: "POST",
+      mode: "cors",
+      headers: {
+        "Accept": "application/json, text/plain, */*",
+      }
+    });
+
+    if (res.ok) {
+      return filePath;
+    } else {
+      LogService.error(`Failed to prepare upload for ${filePath}:`, res.statusText);
+      return "";
+    }
+  }
+
+  private static async uploadBIOSComplete(uploadId: string) {
+    const res = await fetch(this.BASE_URL + "/bios-files/upload/complete", {
+      method: "POST",
+      mode: "cors",
+      headers: {
+        "Accept": "application/json, text/plain, */*",
+        "Content-Type": "application/json",
+        "Upload-Id": uploadId
+      },
+      body: JSON.stringify({})
+    });
+
+    if (res.ok) {
+      return await res.text();
+    } else {
+      LogService.error(`Failed to notify the backend of the completed download for ${uploadId}:`, res.statusText);
+      return "";
+    }
+  }
+
+  private static async streamBIOSUpload(uploadId: string, path: string, file: File, onProgress: (progress: number) => void) {
+    let sent = 0;
+
+    const fileSize = file.size;
+
+    while (sent < fileSize) {
+      if (!RestService.currentUploadId) break;
+
+      const end = Math.min(sent + this.STREAM_CHUNK_SIZE - 1, fileSize - 1);
+      const range = `bytes=${sent}-${end}`;
+      const length = end - sent + 1;
+
+      const data = file.slice(sent, end + 1);
+
+      const response = await fetch(this.BASE_URL + `/bios-files/upload?filePath=${encodeURIComponent(path)}`, {
+        method: "POST",
+        mode: "cors",
+        headers: {
+          "Range": range,
+          "Content-Length": length.toString(),
+          "Upload-Id": uploadId,
+          "File-Size": fileSize.toString(),
+          "Content-Type": "application/octet-stream"
+        },
+        body: data
+      });
+
+      if (!response.ok && RestService.currentUploadId) {
+        throw new Error("Failed to send the chunk");
+      }
+
+      sent += length;
+      onProgress(sent);
+    }
+  }
+
+  /**
+   * Uploads a bios file to the server.
+   * @param system The system of the bios file being uploaded.
+   * @param file The bios file being uploaded.
+   * @param onStart Function to run on start.
+   * @param onProgress Function to run on chunk update.
+   * @param onEnd Function to run on upload complete.
+   */
+  static async uploadBIOS(
+    system: string,
+    file: File,
+    onStart: () => void = () => {},
+    onProgress: (progress: number) => void = () => {},
+    onEnd: (success: boolean, filePath: string) => void = () => {}
+  ) {
+    const lib = get(library);
+    
+    const filePath = await this.prepareBIOSUpload(lib.libraryPath, lib.biosDir, system, file.name);
+    onStart();
+
+    const uploadId = hash64(filePath);
+    RestService.currentUploadId = uploadId;
+
+  
+    await this.streamBIOSUpload(
+      uploadId,
+      filePath,
+      file,
+      onProgress
+    );
+
+
+    if (RestService.currentUploadId) {
+      RestService.currentUploadId = null;
+
+      const finalPath = await this.uploadBIOSComplete(uploadId);
+      onEnd(finalPath !== "", finalPath);
+    }
+  }
+
+  /**
+   * Cancels the current upload if one exists.
+   * @returns True if successful, false if not.
+   */
+  static async cancelBIOSUpload(): Promise<boolean> {
+    if (RestService.currentUploadId) {
+      const res = await fetch(this.BASE_URL + "/bios-files/upload/cancel", {
+        method: "POST",
+        mode: "cors",
+        headers: {
+          "Upload-Id": RestService.currentUploadId,
+        },
+      });
+  
+      if (res.ok) {
+        get(showInfoSnackbar)({ message: "Upload canceled" });
+        RestService.currentUploadId = null;
+        return true;
+      } else {
+        LogService.error(`Failed to cancel the upload for ${RestService.currentUploadId}:`, res.statusText);
+      }
+    } else {
+      get(showWarningSnackbar)({ message: "There is no upload currently" });
+    }
+
+    return false;
+  }
+  
+  /**
+   * Deletes a Bios File from the server.
+   * @param filePath The path of the bios file to delete.
+   * @returns Whether the delete was successful.
+   */
+  static async deleteBIOS(filePath: string): Promise<boolean> {
+    const res = await fetch(this.BASE_URL + `/bios-files/delete?filePath=${encodeURIComponent(filePath)}`, {
+      method: "DELETE",
+      mode: "cors",
+      headers: {
+        "Accept": "text/plain, */*"
+      },
+    });
+
+    if (res.ok) {
+      return true;
+    } else {
+      LogService.error(`Failed to delete bios file ${filePath}:`, res.statusText);
+      return false;
     }
   }
 }

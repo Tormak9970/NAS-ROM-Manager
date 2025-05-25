@@ -1,17 +1,12 @@
-use std::{collections::HashMap, ffi::OsStr, path::{Path, PathBuf}};
+use std::{collections::HashMap, ffi::OsStr, path::PathBuf};
 
 use log::warn;
-use serde_json::{Map, Value};
-use tokio::{fs::File, io::BufReader};
-use tokio_util::codec::{BytesCodec, FramedRead};
 use warp::{
   reject::Rejection,
-  reply::Reply,
-  http::{StatusCode, Response},
-  hyper::Body
+  reply::Reply
 };
 
-use super::{types::ROMDownload, zip::pack_zip};
+use super::{types::ROMDownload, utils::download::get_file_metadata, zip::pack_zip};
 
 /// Gets the needed metadata for downloading a rom, and zips its folder if necessary.
 pub async fn rom_download_get_metadata(query_params: HashMap<String, String>) -> Result<impl Reply, Rejection> {
@@ -56,64 +51,7 @@ pub async fn rom_download_get_metadata(query_params: HashMap<String, String>) ->
   }
 
 
-  let file = File::open(&file_path).await.map_err(|_| warp::reject())?;
-  let metadata = file.metadata().await.map_err(|_| warp::reject())?;
-  let file_size = metadata.len();
-
-  let mut map = Map::new();
-  map.insert("size".to_string(), Value::Number(file_size.into()));
-  map.insert("path".to_string(), Value::String(file_path.to_str().unwrap().to_string()));
-
-  let response = warp::http::Response::builder()
-    .status(200)
-    .header("File-Length", file_size.to_string())
-    .header("Content-Type", "text/plain")
-    .header("Access-Control-Allow-Origin", "*")
-    .body(serde_json::to_string(&map).unwrap())
-    .map_err(|_| warp::reject())?;
-
-  return Ok(response);
-}
-
-/// Handles downloading a rom.
-pub async fn rom_download(query_params: HashMap<String, String>) -> Result<impl Reply, Rejection> {
-  if !query_params.contains_key("romPath") {
-    warn!("Download ROM: Missing query param romPath");
-    return Ok(Response::builder().status(StatusCode::NOT_FOUND).body(Body::empty()).unwrap());
-  }
-  let path = query_params.get("romPath").unwrap().to_owned();
-
-
-  let file_path = Path::new(&path);
-
-  let filename = file_path.file_name().unwrap().to_str().unwrap();
-
-  let file_res = File::open(file_path).await;
-  if file_res.is_err() {
-    return Ok(Response::builder().status(StatusCode::NOT_FOUND).body(Body::empty()).unwrap());
-  }
-  let file = file_res.unwrap();
-
-  let metadata_res = file.metadata().await;
-  if metadata_res.is_err() {
-    return Ok(Response::builder().status(StatusCode::NOT_FOUND).body(Body::empty()).unwrap());
-  }
-  let metadata = metadata_res.unwrap();
-  let file_size = metadata.len();
-
-  let reader = BufReader::new(file);
-  let framed_reader = FramedRead::new(reader, BytesCodec::new());
-
-  let response = Response::builder()
-    .status(StatusCode::OK)
-    .header("Content-Length", file_size.to_string())
-    .header("Content-Type", "application/octet-stream")
-    .header("Content-Disposition", format!("attachement; filename = \"{}\"", filename))
-    .header("Access-Control-Allow-Origin", "*")
-    .body(Body::wrap_stream(framed_reader))
-    .map_err(|_| warp::reject())?;
-
-  return Ok(response);
+  return get_file_metadata(&file_path).await;
 }
 
 /// Handles cleanup after a rom download finished.

@@ -18,7 +18,7 @@
    * Function to run on cancel.
    */
   async function onCancel(): Promise<void> {
-    await RestService.cancelUpload();
+    await RestService.cancelROMUpload();
     open = false;
   }
 
