@@ -3,17 +3,17 @@
 </h1>
 
 <p align="center">
-  <a href="https://github.com/Tormak9970/svunes/releases"><img src="https://img.shields.io/github/v/release/Tormak9970/Svunes?label=version&style=flat-square" /></a>
-  <img src="https://img.shields.io/github/downloads/Tormak9970/Svunes/total?style=flat-square" />
-  <a href="https://www.gnu.org/licenses/gpl-3.0.en.html"><img src="https://img.shields.io/github/license/Tormak9970/Svunes?style=flat-square" /></a>
-  <a href="https://crowdin.com/project/tunistic"><img src="https://img.shields.io/badge/-translate-brightgreen?style=flat-square&logo=Crowdin" /></a>
+  <a href="https://github.com/Tormak9970/NAS-ROM-Manager/releases"><img src="https://img.shields.io/github/v/release/Tormak9970/NAS-ROM-Manager?label=version&style=flat-square" /></a>
+  <img src="https://img.shields.io/docker/pulls/Tormak9970/NAS-ROM-Manager?logo=Docker&style=flat-square" />
+  <a href="https://www.gnu.org/licenses/gpl-3.0.en.html"><img src="https://img.shields.io/github/license/Tormak9970/NAS-ROM-Manager?style=flat-square" /></a>
+  <!-- <a href="https://crowdin.com/project/NAS-ROM-Manager"><img src="https://img.shields.io/badge/-translate-brightgreen?style=flat-square&logo=Crowdin" /></a> -->
   <br>
   <br>
 </p>
 
 # NAS ROM Manager
 
-An offline-first music player for your music library. Allows you to make playlists, view artists/albums, and more! Made with Svelte, Tauri, Rust, and Material Design 3.
+NAS ROM Manager is a lightweight, feature rich management app for your retro game collection. Its easy to setup and use, and looks good to boot.
 
 # Configuration
 
