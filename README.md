@@ -1,5 +1,5 @@
 <h1 align="center">
-  <a name="logo" href="https://svunes.org/"><img src="./public/github-banner.png" /></a>
+  <a name="logo" href=""><img src="./web/static/Github-Social-Preview.png" /></a>
 </h1>
 
 <p align="center">
