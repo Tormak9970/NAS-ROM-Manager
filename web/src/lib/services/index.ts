@@ -1,5 +1,6 @@
 export { AppService } from "./AppService";
 export { AuthService } from "./AuthService";
+export { BiosFileService } from "./BiosFileService";
 export { IGDBService } from "./IGDBService";
 export { RomService } from "./RomService";
 export { SGDBService } from "./SGDBService";

@@ -3,7 +3,7 @@
   import { Button, ProgressIndicator } from "@interactables";
   import { LoadingSpinner } from "@layout";
   import { RestService } from "@services";
-  import { downloadProgressRom, showDownloadProgressModal } from "@stores/Modals";
+  import { downloadProgressInit, showDownloadProgressModal } from "@stores/Modals";
   import { showInfoSnackbar } from "@stores/State";
   import { formatFileSize } from "@utils";
   import { onMount } from "svelte";
@@ -24,12 +24,11 @@
 
   function closeEnd() {
     $showDownloadProgressModal = false;
-    $downloadProgressRom = null;
+    $downloadProgressInit = () => {};
   }
 
   onMount(() => {
-    RestService.downloadRom(
-      $downloadProgressRom!,
+    $downloadProgressInit(
       (size: number) => {
         fileSize = size;
         prepping = false;
@@ -55,7 +54,7 @@
   <div class="content">
     {#if prepping}
       <div class="loading-container">
-        <LoadingSpinner /> <div class="font-headline-small">Loading ROM Metadata...</div>
+        <LoadingSpinner /> <div class="font-headline-small">Loading File Metadata...</div>
       </div>
     {:else}
       <div class="download-container">

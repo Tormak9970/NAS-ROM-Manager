@@ -1,4 +1,4 @@
-import type { FilePickerConfig, IGDBMetadataPlatform, ROM, RomUploadConfig, SGDBImage } from "@types";
+import type { FilePickerConfig, IGDBMetadataPlatform, RomUploadConfig, SGDBImage } from "@types";
 import { localStorageWritable } from "@utils";
 import { writable } from "svelte/store";
 
@@ -23,7 +23,11 @@ export const showEditRouteOrderModal = writable(false);
 export const isLandscapeRoutes = writable(true);
 
 export const showDownloadProgressModal = writable(false);
-export const downloadProgressRom = writable<ROM | null>(null);
+export const downloadProgressInit = writable((
+  onStart: (fileSize: number) => void = () => {},
+  onProgress: (progress: number) => void = () => {},
+  onEnd: (finished: boolean) => void = () => {}
+) => {});
 
 export const showAddRomModal = writable(false);
 export const addRomSystem = localStorageWritable<string>("add-rom-selected-system", "");

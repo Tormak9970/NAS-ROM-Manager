@@ -5,6 +5,7 @@
   type Props = {
     extraOptions?: HTMLAttributes<HTMLDivElement> & HTMLButtonAttributes;
     type: "elevated" | "filled" | "outlined" | "transparent";
+    padding?: string;
     header?: Snippet;
     children?: Snippet;
   }
@@ -12,6 +13,7 @@
   let {
     extraOptions = {},
     type,
+    padding = "1rem",
     header,
     children,
   }: Props = $props();
@@ -19,7 +21,8 @@
 
 <div class="card-wrapper type-{type}" {...extraOptions}>
   {@render header?.()}
-  <div class="m3-container">
+  <!-- ! protip: use margin: -1rem (adjust as needed) to make images stretch to the end -->
+  <div class="m3-container" style:padding={padding}>
     {@render children?.()}
   </div>
 </div>
@@ -49,7 +52,6 @@
     flex-direction: column;
 
     position: relative;
-    padding: 1rem; /* protip: use margin: -1rem (adjust as needed) to make images stretch to the end */
 
     transition: all 200ms;
   }

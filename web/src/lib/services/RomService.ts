@@ -1,4 +1,4 @@
-import { changeGridsId, changeGridsOnSelect, changeGridsSearchId, changeGridsType, downloadProgressRom, loadingModalMessage, romEditingId, showChangeGridsModal, showDownloadProgressModal, showEditRomModal, showLoadingModal } from "@stores/Modals";
+import { changeGridsId, changeGridsOnSelect, changeGridsSearchId, changeGridsType, downloadProgressInit, loadingModalMessage, romEditingId, showChangeGridsModal, showDownloadProgressModal, showEditRomModal, showLoadingModal } from "@stores/Modals";
 import { romMetadata, roms, romsBySystem } from "@stores/State";
 import type { IGDBGame } from "@types";
 import { get } from "svelte/store";
@@ -85,7 +85,13 @@ export class RomService {
    */
   static download(romId: string) {
     const rom = get(roms)[romId];
-    downloadProgressRom.set(rom);
+    downloadProgressInit.set((
+      onStart: (fileSize: number) => void = () => {},
+      onProgress: (progress: number) => void = () => {},
+      onEnd: (finished: boolean) => void = () => {}
+    ) => {
+      RestService.downloadRom(rom, onStart, onProgress, onEnd);
+    });
     showDownloadProgressModal.set(true);
   }
 
