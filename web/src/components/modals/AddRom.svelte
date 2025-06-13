@@ -2,7 +2,7 @@
   import { ModalBody } from "@component-utils";
   import { Button, Checkbox, FileField, Select } from "@interactables";
   import { RestService, SGDBService, WebsocketService } from "@services";
-  import { addRomSystem, editIsPostUpload, romEditingId, showAddRomModal, showEditRomModal, showUploadProgressModal, uploadProgressConfig } from "@stores/Modals";
+  import { addRomSystem, showAddRomModal, showUploadProgressModal, uploadProgressConfig } from "@stores/Modals";
   import { romMetadata, roms, romsBySystem, showInfoSnackbar, systems } from "@stores/State";
   import { hash64 } from "@utils";
 
@@ -67,10 +67,6 @@
         $showInfoSnackbar({ message: "Upload complete" });
         
         closeModal();
-
-        $showEditRomModal = true;
-        $editIsPostUpload = true;
-        $romEditingId = id;
       }
     }
     
