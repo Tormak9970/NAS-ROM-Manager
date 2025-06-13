@@ -274,7 +274,7 @@ fn handle_message(
         return;
       }
 
-      let state = state_store.lock().expect("Failed to lock State Mutex.");
+      let mut state = state_store.lock().expect("Failed to lock State Mutex.");
       let rom_res = parse_added_rom(
         args.parser,
         &args.romPath,
@@ -283,6 +283,7 @@ fn handle_message(
       );
 
       if rom_res.is_ok() {
+        (*state).roms.push(rom_res.clone().unwrap());
         send(tx, "parse_rom", rom_res.unwrap());
       }
     }

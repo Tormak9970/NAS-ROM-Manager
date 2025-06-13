@@ -52,19 +52,15 @@
             title: rom.title,
             fullCapsulePath: "",
             thumbCapsulePath: "",
-            sgdbId: "",
+            sgdbId: await SGDBService.chooseSteamGridGameId(id, rom.title),
             igdbId: "",
             heroPath: "",
             metadata: null,
             isFavorite: false,
           }
 
-          if ($romMetadata[id].sgdbId === "") {
-            $romMetadata[id].sgdbId = await SGDBService.chooseSteamGridGameId(id, $romMetadata[id].title);
-          }
-
-          $roms = { ...$roms };
           $romMetadata = { ...$romMetadata };
+          $roms = { ...$roms };
           $romsBySystem = { ...$romsBySystem };
         }
 

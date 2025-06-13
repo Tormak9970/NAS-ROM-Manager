@@ -8,10 +8,13 @@
     const metaA = $romMetadata[a];
     const metaB = $romMetadata[b];
 
-    if (metaA.isFavorite && !metaB.isFavorite) return -1;
-    if (metaB.isFavorite && !metaA.isFavorite) return 1;
+    if (metaA?.isFavorite && !metaB?.isFavorite) return -1;
+    if (metaB?.isFavorite && !metaA?.isFavorite) return 1;
+    
+    const titleA = metaA?.title ?? $roms[a].title;
+    const titleB = metaB?.title ?? $roms[b].title;
 
-    return a.localeCompare(b);
+    return titleA.localeCompare(titleB);
   }));
 </script>
 
