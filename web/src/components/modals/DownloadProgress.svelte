@@ -49,7 +49,6 @@
   open={open}
   canClose={false}
   onclose={closeEnd}
-  extraOptions={{ style: "margin-bottom: 0rem" }}
 >
   <div class="content">
     {#if prepping}
@@ -65,7 +64,7 @@
   </div>
   {#snippet buttons()}
     <div>
-      <Button type="text" onclick={onCancel} warning>Cancel</Button>
+      <Button type="tonal" onclick={onCancel} warning>Cancel</Button>
     </div>
   {/snippet}
 </ModalBody>

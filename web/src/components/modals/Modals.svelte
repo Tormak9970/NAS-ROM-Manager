@@ -1,5 +1,6 @@
 <script>
-  import { showAddRomModal, showAddSystemModal, showChangeGridsModal, showChangelogModal, showControlledModal, showDownloadProgressModal, showEditLibraryModal, showEditRomModal, showEditRouteOrderModal, showEditSystemModal, showFilePickerModal, showLoadingModal, showSearchFiltersModal, showSearchIGDBPlatformModal, showSearchIGDBRomModal, showSearchSGDBModal, showUpdateModal, showUploadProgressModal } from "@stores/Modals";
+  import { showAddBiosFileModal, showAddRomModal, showAddSystemModal, showChangeGridsModal, showChangelogModal, showControlledModal, showDownloadProgressModal, showEditLibraryModal, showEditRomModal, showEditRouteOrderModal, showEditSystemModal, showFilePickerModal, showLoadingModal, showSearchFiltersModal, showSearchIGDBPlatformModal, showSearchIGDBRomModal, showSearchSGDBModal, showUpdateModal, showUploadProgressModal } from "@stores/Modals";
+  import AddBiosFile from "./AddBiosFile.svelte";
   import AddRom from "./AddRom.svelte";
   import ChangeGrids from "./change-grids/ChangeGrids.svelte";
   import Changelog from "./Changelog.svelte";
@@ -90,4 +91,8 @@
 
 {#if $showChangelogModal}
   <Changelog />
+{/if}
+
+{#if $showAddBiosFileModal}
+  <AddBiosFile />
 {/if}

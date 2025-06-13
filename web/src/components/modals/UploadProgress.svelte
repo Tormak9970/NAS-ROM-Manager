@@ -2,23 +2,22 @@
   import { ModalBody } from "@component-utils";
   import { Button, ProgressIndicator } from "@interactables";
   import { LoadingSpinner } from "@layout";
-  import { RestService, SGDBService, WebsocketService } from "@services";
-  import { editIsPostUpload, romEditingId, showEditRomModal, showUploadProgressModal, uploadProgressConfig } from "@stores/Modals";
-  import { romMetadata, roms, romsBySystem, showInfoSnackbar, showWarningSnackbar } from "@stores/State";
-  import { formatFileSize, hash64 } from "@utils";
+  import { showUploadProgressModal, uploadProgressConfig } from "@stores/Modals";
+  import { showWarningSnackbar } from "@stores/State";
+  import { formatFileSize } from "@utils";
   import { onMount } from "svelte";
 
   let open = $state(true);
   
   let step = $state<"prep" | "upload" | "processing">("prep");
   let uploadProgress = $state(0);
-  let fileSize = $uploadProgressConfig!.file.size;
+  let fileSize = $uploadProgressConfig!.config.file.size;
 
   /**
    * Function to run on cancel.
    */
   async function onCancel(): Promise<void> {
-    await RestService.cancelROMUpload();
+    await $uploadProgressConfig!.onCancel();
     open = false;
   }
 
@@ -27,57 +26,24 @@
     $uploadProgressConfig = null;
   }
 
-  async function processRom(success: boolean, romPath: string) {
+  async function processUpload(success: boolean, filePath: string) {
     if (!success) {
       $showWarningSnackbar({ message: "Upload failed with unkown error" });
       onCancel();
       return;
     }
-    
-    const { system } = $uploadProgressConfig!;
 
     step = "processing";
 
-    const rom = await WebsocketService.parseAddedRom(system, romPath);
-    const id = hash64(rom.path);
-    
-    if (!$romsBySystem[rom.system].includes(id)) {
-      $roms[id] = rom;
-      $romsBySystem[rom.system].push(id);
-
-      $romMetadata[id] = {
-        title: rom.title,
-        fullCapsulePath: "",
-        thumbCapsulePath: "",
-        sgdbId: "",
-        igdbId: "",
-        heroPath: "",
-        metadata: null,
-        isFavorite: false,
-      }
-
-      if ($romMetadata[id].sgdbId === "") {
-        $romMetadata[id].sgdbId = await SGDBService.chooseSteamGridGameId(id, $romMetadata[id].title);
-      }
-
-      $roms = { ...$roms };
-      $romMetadata = { ...$romMetadata };
-      $romsBySystem = { ...$romsBySystem };
-    }
-
-    $showInfoSnackbar({ message: "Upload complete" });
-    onCancel();
-    $showEditRomModal = true;
-    $editIsPostUpload = true;
-    $romEditingId = id;
+    await $uploadProgressConfig!.process(filePath, () => open = false);
   }
 
   onMount(() => {
-    RestService.uploadRom(
-      $uploadProgressConfig!,
+    $uploadProgressConfig!.upload(
+      $uploadProgressConfig!.config,
       () => step = "upload",
       (progress: number) => uploadProgress = progress,
-      processRom,
+      processUpload,
     );
   });
 </script>
@@ -87,7 +53,6 @@
   open={open}
   canClose={false}
   onclose={closeEnd}
-  extraOptions={{ style: "margin-bottom: 0rem" }}
 >
   <div class="content">
     {#if step === "prep"}
@@ -101,7 +66,7 @@
       </div>
     {:else}
       <div class="loading-container">
-        <LoadingSpinner /> <div class="font-headline-small">Processing ROM...</div>
+        <LoadingSpinner /> <div class="font-headline-small">Processing Upload...</div>
       </div>
     {/if}
   </div>
@@ -122,7 +87,6 @@
   }
 
   .loading-container {
-    margin: 0rem 1rem;
     margin-top: 1rem;
   }
 

@@ -1,8 +1,10 @@
 <script lang="ts">
   import { ModalBody } from "@component-utils";
   import { Button, Checkbox, FileField, Select } from "@interactables";
-  import { addRomSystem, showAddRomModal, showUploadProgressModal, uploadProgressConfig } from "@stores/Modals";
-  import { systems } from "@stores/State";
+  import { RestService, SGDBService, WebsocketService } from "@services";
+  import { addRomSystem, editIsPostUpload, romEditingId, showAddRomModal, showEditRomModal, showUploadProgressModal, uploadProgressConfig } from "@stores/Modals";
+  import { romMetadata, roms, romsBySystem, showInfoSnackbar, systems } from "@stores/State";
+  import { hash64 } from "@utils";
 
   let open = $state(true);
 
@@ -28,11 +30,54 @@
   async function onUpload(): Promise<void> {
     open = false;
 
+    const system = $addRomSystem;
+
     $uploadProgressConfig = {
-      system: $addRomSystem,
-      file: file!,
-      needsUnzip: needsUnzip
+      config: {
+        system: system,
+        file: file!,
+        needsUnzip: needsUnzip
+      },
+      onCancel: RestService.cancelROMUpload,
+      upload: RestService.uploadRom,
+      process: async (romPath, closeModal) => {
+        const rom = await WebsocketService.parseAddedRom(system, romPath);
+        const id = hash64(rom.path);
+        
+        if (!$romsBySystem[rom.system].includes(id)) {
+          $roms[id] = rom;
+          $romsBySystem[rom.system].push(id);
+
+          $romMetadata[id] = {
+            title: rom.title,
+            fullCapsulePath: "",
+            thumbCapsulePath: "",
+            sgdbId: "",
+            igdbId: "",
+            heroPath: "",
+            metadata: null,
+            isFavorite: false,
+          }
+
+          if ($romMetadata[id].sgdbId === "") {
+            $romMetadata[id].sgdbId = await SGDBService.chooseSteamGridGameId(id, $romMetadata[id].title);
+          }
+
+          $roms = { ...$roms };
+          $romMetadata = { ...$romMetadata };
+          $romsBySystem = { ...$romsBySystem };
+        }
+
+        $showInfoSnackbar({ message: "Upload complete" });
+        
+        closeModal();
+
+        $showEditRomModal = true;
+        $editIsPostUpload = true;
+        $romEditingId = id;
+      }
     }
+    
     $showUploadProgressModal = true;
   }
 

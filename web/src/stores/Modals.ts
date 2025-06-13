@@ -1,4 +1,4 @@
-import type { FilePickerConfig, IGDBMetadataPlatform, RomUploadConfig, SGDBImage } from "@types";
+import type { FilePickerConfig, IGDBMetadataPlatform, SGDBImage, UploadSettings } from "@types";
 import { localStorageWritable } from "@utils";
 import { writable } from "svelte/store";
 
@@ -35,7 +35,7 @@ export const addRomSystem = localStorageWritable<string>("add-rom-selected-syste
 export const showAddSystemModal = writable(false);
 
 export const showUploadProgressModal = writable(false);
-export const uploadProgressConfig = writable<RomUploadConfig | null>(null);
+export const uploadProgressConfig = writable<UploadSettings | null>(null);
 
 export const showEditRomModal = writable(false);
 export const editIsPostUpload = writable(false);
@@ -71,3 +71,6 @@ export const showSearchFiltersModal = writable(false);
 
 export const showUpdateModal = writable(false);
 export const showChangelogModal = writable(false);
+
+export const showAddBiosFileModal = writable(false);
+export const addBiosFileSystem = writable<string | null>(null);

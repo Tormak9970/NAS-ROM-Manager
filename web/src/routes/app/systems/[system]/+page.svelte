@@ -3,11 +3,12 @@
   import { routes } from "$lib/routes";
   import { Icon } from "@component-utils";
   import MediaQuery from "@component-utils/MediaQuery.svelte";
-  import { Edit } from "@icons";
+  import { Add, Edit } from "@icons";
   import { Button } from "@interactables";
   import { LoadingSpinner } from "@layout";
   import LibraryLoadGuard from "@layout/load-guards/LibraryLoadGuard.svelte";
   import { SystemService } from "@services";
+  import { addBiosFileSystem, showAddBiosFileModal } from "@stores/Modals";
   import { romsBySystem, showWarningSnackbar, systems } from "@stores/State";
   import { pluralize } from "@utils";
   import DetailsHeader from "@views/DetailsHeader.svelte";
@@ -70,9 +71,15 @@
           {/if}
         {/snippet}
         {#snippet controls()}
-          <Button iconType="left" type="filled" onclick={() => SystemService.edit(abbreviation)}>
+          <Button iconType="left" type="filled" onclick={() => {
+            $addBiosFileSystem = system.abbreviation;
+            $showAddBiosFileModal = true;
+          }}>
+            <Icon icon={Add} />
+            Add Bios File
+          </Button>
+          <Button iconType="full" type="filled" onclick={() => SystemService.edit(abbreviation)}>
             <Icon icon={Edit} />
-            Edit
           </Button>
         {/snippet}
       </DetailsHeader>

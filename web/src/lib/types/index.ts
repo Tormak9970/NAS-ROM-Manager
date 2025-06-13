@@ -6,10 +6,25 @@ export * from "./Library";
 export * from "./Settings";
 export * from "./SGDB";
 
-export type RomUploadConfig = {
+export type UploadConfig = {
   system: string;
   file: File;
   needsUnzip: boolean;
+}
+
+export type UploadSettings = {
+  config: UploadConfig;
+  onCancel: () => Promise<boolean>;
+  upload: (
+    uploadConfig: UploadConfig,
+    onStart?: () => void,
+    onProgress?: (progress: number) => void,
+    onEnd?: (success: boolean, filePath: string) => void
+  ) => Promise<void>;
+  process: (
+    filePath: string,
+    closeModal: () => void
+  ) => Promise<void>;
 }
 
 export type AvailableStorage = {

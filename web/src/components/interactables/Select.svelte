@@ -300,6 +300,7 @@
       role="combobox"
       type="text"
       value={searchQuery}
+      disabled={disabled}
       use:shortcuts={inputShortcuts}
     />
     {#if !hideLabel}

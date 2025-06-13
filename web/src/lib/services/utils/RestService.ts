@@ -1,5 +1,5 @@
-import { library, showInfoSnackbar, showWarningSnackbar } from "@stores/State";
-import { BackendErrorType, type GridResults, type IGDBGame, type IGDBMetadataPlatform, type IGDBSearchResult, type ROM, type RomUploadConfig, type SGDBGame } from "@types";
+import { library, showInfoSnackbar, showWarningSnackbar, systems } from "@stores/State";
+import { BackendErrorType, type GridResults, type IGDBGame, type IGDBMetadataPlatform, type IGDBSearchResult, type ROM, type SGDBGame, type UploadConfig } from "@types";
 import { hash64, showError } from "@utils";
 import streamSaver from "streamsaver";
 import { get } from "svelte/store";
@@ -422,22 +422,24 @@ export class RestService {
    * @param onEnd Function to run on upload complete.
    */
   static async uploadRom(
-    uploadConfig: RomUploadConfig,
+    uploadConfig: UploadConfig,
     onStart: () => void = () => {},
     onProgress: (progress: number) => void = () => {},
     onEnd: (success: boolean, filePath: string) => void = () => {}
   ) {
     const { system, file, needsUnzip } = uploadConfig;
     const lib = get(library);
+
+    const systemFolder = get(systems)[system].folder;
     
-    const filePath = await this.prepareROMUpload(lib.libraryPath, lib.romDir, system, file.name);
+    const filePath = await RestService.prepareROMUpload(lib.libraryPath, lib.romDir, systemFolder, file.name);
     onStart();
 
     const uploadId = hash64(filePath);
     RestService.currentUploadId = uploadId;
 
   
-    await this.streamROMUpload(
+    await RestService.streamROMUpload(
       uploadId,
       filePath,
       file,
@@ -448,11 +450,11 @@ export class RestService {
     if (RestService.currentUploadId) {
       RestService.currentUploadId = null;
 
-      const finalPath = await this.uploadROMComplete({
+      const finalPath = await RestService.uploadROMComplete({
         uploadId: uploadId,
         path: filePath,
         libraryPath: lib.libraryPath,
-        system: system,
+        system: systemFolder,
         unzip: needsUnzip,
       });
       onEnd(finalPath !== "", finalPath);
@@ -796,29 +798,31 @@ export class RestService {
 
   /**
    * Uploads a bios file to the server.
-   * @param system The system of the bios file being uploaded.
-   * @param file The bios file being uploaded.
+   * @param uploadConfig The bios upload config.
    * @param onStart Function to run on start.
    * @param onProgress Function to run on chunk update.
    * @param onEnd Function to run on upload complete.
    */
   static async uploadBIOS(
-    system: string,
-    file: File,
+    uploadConfig: UploadConfig,
     onStart: () => void = () => {},
     onProgress: (progress: number) => void = () => {},
     onEnd: (success: boolean, filePath: string) => void = () => {}
   ) {
+    const { file, system } = uploadConfig;
+    
+    const systemFolder = get(systems)[system].folder;
+
     const lib = get(library);
     
-    const filePath = await this.prepareBIOSUpload(lib.libraryPath, lib.biosDir, system, file.name);
+    const filePath = await RestService.prepareBIOSUpload(lib.libraryPath, lib.biosDir, systemFolder, file.name);
     onStart();
 
     const uploadId = hash64(filePath);
     RestService.currentUploadId = uploadId;
 
   
-    await this.streamBIOSUpload(
+    await RestService.streamBIOSUpload(
       uploadId,
       filePath,
       file,
@@ -829,7 +833,7 @@ export class RestService {
     if (RestService.currentUploadId) {
       RestService.currentUploadId = null;
 
-      const finalPath = await this.uploadBIOSComplete(uploadId);
+      const finalPath = await RestService.uploadBIOSComplete(uploadId);
       onEnd(finalPath !== "", finalPath);
     }
   }
