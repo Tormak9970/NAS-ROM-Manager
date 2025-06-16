@@ -37,13 +37,9 @@ export default defineConfig({
 
     sidebar: [
       {
-        text: "Introduction",
-        link: "/introduction"
-      },
-      {
         text: "Getting Started",
         items: [
-          { text: "Setup", link: "/getting-started/setup" },
+          { text: "Introduction", link: "/introduction" },
           { text: "Installation", link: "/getting-started/installation" },
           { text: "Configuration", link: "/getting-started/configuration" }
         ]
@@ -51,9 +47,11 @@ export default defineConfig({
       {
         text: "Features",
         items: [
-          { text: "Setup", link: "/markdown-examples" },
-          { text: "Installation", link: "/markdown-examples" },
-          { text: "Configuration", link: "/api-examples" }
+          { text: "ROMs", link: "/features/roms" },
+          { text: "ROM Metadata", link: "/features/rom-metadata" },
+          { text: "Parsers", link: "/features/parsers" },
+          { text: "BIOS Files", link: "/features/bios-files" },
+          { text: "Settings", link: "/features/settings" }
         ]
       },
       {

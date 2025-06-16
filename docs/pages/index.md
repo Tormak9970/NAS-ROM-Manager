@@ -21,16 +21,16 @@ hero:
 
 features:
   - title: Easy to Use
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+    details: A clean, readable interface makes using NRM a breeze.
   - title: Beautiful UI
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+    details: Built with love using Svelte and a custom Material 3.
   - title: Feature Rich
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+    details: Manage downloads, edit metadata and cover art, and more!
   - title: Lightweight
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+    details: Small bundle sizes and low system usage mean NRM won't bloat your server.
   - title: Reliable
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+    details: Simply built, you don't have to worry about weird edge cases.
   - title: Dockerized
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+    details: Wrapped up in Docker, NRM is easy to deploy anywhere on any hardware.
 ---
 
