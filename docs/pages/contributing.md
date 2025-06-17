@@ -10,12 +10,12 @@ Contributing to projects can be daunting, so here's a quick guide on what you ca
 
 ## Report Bugs / Issues
 
-If you run into any problems / weird behavior while using NRM, please open a Bug Report on [GitHub](https://github.com/Tormak9970/NAS-ROM-Manager/issues). This lets me know about problems I may have overlooked.
+If you run into any problems / weird behavior while using NRM, please open a Bug Report on [GitHub](https://github.com/Tormak9970/NAS-ROM-Manager/issues) (`New Issue` -> `Bug Report`). This lets me know about problems I may have overlooked.
 
 
 ## Feature Requests
 
-Got an idea for something to add to NRM? Let me know! You can open an issue on GitHub [here]([GitHub](https://github.com/Tormak9970/NAS-ROM-Manager/issues)), and follow the template to make it as easy as possible to implement.
+Got an idea for something to add to NRM? Let me know! You can open an Feature Request on GitHub [here]([GitHub](https://github.com/Tormak9970/NAS-ROM-Manager/issues)) (`New Issue` -> `Feature Request`), and follow the template to make it as easy as possible to implement.
 
 
 ## PRs / Other Contributions

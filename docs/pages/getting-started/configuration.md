@@ -16,7 +16,7 @@ There's a variety of Environment variables and Volumes you can use to to configu
 |  `SGDB_API_KEY`           |   Yes    | Your SteamGridDB API Key |
 |  `IGDB_CLIENT_ID`         |   Yes    | Your IGDB Client ID |
 |  `IGDB_CLIENT_SECRET`     |   Yes    | Your IGDB Client Secret |
-|  `UPLOAD_CLEAN_SCHEDULE`  |   No     | The interval at which NRM cleans incomplete uploads |
+|  `UPLOAD_CLEAN_SCHEDULE`  |   No     | The interval at which NRM cleans incomplete uploads. Check out [crontab.guru](https://crontab.guru/#0_3_*_*_*) for examples |
 |  `NRM_VERSION`            |   No     | The App Version |
 |  `BUILD_DATE`             |   Yes    | The date the app was built |
 
