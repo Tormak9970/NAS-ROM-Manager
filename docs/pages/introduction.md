@@ -16,4 +16,4 @@ NAS ROM Manager is a lightweight, feature rich management app for your retro gam
  - Mobile friendly design
  - Clean / themeable Interface
  - Easy, secure authentication
- - Builtin upload / download Systems, you never have to access your ROMs folder again
+ - Builtin upload / download systems, you never have to access your ROMs folder again
