@@ -2,6 +2,7 @@
   import { ModalBody } from "@component-utils";
   import { Button, ProgressIndicator } from "@interactables";
   import { LoadingSpinner } from "@layout";
+  import { UploadService } from "@services";
   import { showUploadProgressModal, uploadProgressConfig } from "@stores/Modals";
   import { showWarningSnackbar } from "@stores/State";
   import { formatFileSize } from "@utils";
@@ -17,7 +18,7 @@
    * Function to run on cancel.
    */
   async function onCancel(): Promise<void> {
-    await $uploadProgressConfig!.onCancel();
+    await UploadService.cancelUpload();
     open = false;
   }
 
@@ -39,10 +40,11 @@
   }
 
   onMount(() => {
-    $uploadProgressConfig!.upload(
+    UploadService.upload(
       $uploadProgressConfig!.config,
       () => step = "upload",
       (progress: number) => uploadProgress = progress,
+      $uploadProgressConfig!.complete,
       processUpload,
     );
   });

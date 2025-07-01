@@ -3,18 +3,7 @@ use std::{collections::HashMap, path::PathBuf};
 use log::warn;
 use warp::{reject::Rejection, reply::Reply};
 
-use super::{types::StreamStore, utils::{download::get_file_metadata, upload::prepare_file_upload}};
-
-/// Prepares for the upload of a bios file.
-pub async fn prepare_bios_file_upload(query_params: HashMap<String, String>) -> Result<impl Reply, Rejection> {
-  if !query_params.contains_key("filePath") {
-    warn!("Prepare BIOS upload: Missing query param filePath");
-    return Err(warp::reject::reject());
-  }
-
-  let path = PathBuf::from(query_params.get("filePath").unwrap().to_owned());
-  return prepare_file_upload(&path).await;
-}
+use super::{types::StreamStore, utils::{download::get_file_metadata}};
 
 /// Completes the Bios File upload.
 pub async fn bios_file_upload_complete(streams_store: StreamStore, upload_id: String) -> Result<impl Reply, Rejection> {

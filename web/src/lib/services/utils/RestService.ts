@@ -1,6 +1,6 @@
-import { library, showInfoSnackbar, showWarningSnackbar, systems } from "@stores/State";
-import { BackendErrorType, type GridResults, type IGDBGame, type IGDBMetadataPlatform, type IGDBSearchResult, type ROM, type SGDBGame, type UploadConfig } from "@types";
-import { hash64, showError } from "@utils";
+import { showWarningSnackbar } from "@stores/State";
+import { BackendErrorType, type CompletedUploadData, type GridResults, type IGDBGame, type IGDBMetadataPlatform, type IGDBSearchResult, type ROM, type SGDBGame } from "@types";
+import { showError } from "@utils";
 import streamSaver from "streamsaver";
 import { get } from "svelte/store";
 import { LogService } from "./LogService";
@@ -10,24 +10,13 @@ type ROMDownload = {
   parent: string,
 }
 
-type ROMUploadComplete = {
-  uploadId: string;
-  path: string;
-  libraryPath: string;
-  system: string;
-  unzip: boolean;
-}
-
 /**
  * The Rest API Service.
  */
 export class RestService {
-  private static readonly STREAM_CHUNK_SIZE = 10 * 1024 * 1024;
-
   private static readonly BASE_URL = `http://${import.meta.env.NRM_SERVER_URL}/rest`;
 
   private static currentDownload: ReadableStreamDefaultReader<Uint8Array<ArrayBufferLike>> | null = null;
-  static currentUploadId: string | null = null;
 
   /**
    * Deletes the capsule for a title.
@@ -339,27 +328,7 @@ export class RestService {
     }
   }
 
-
-  private static async prepareROMUpload(libraryPath: string, romsDir: string, system: string, filename: string): Promise<string> {
-    const filePath = `${libraryPath}/${romsDir}/${system}/${filename}`;
-
-    const res = await fetch(this.BASE_URL + `/roms/upload/prepare?filePath=${encodeURIComponent(filePath)}`, {
-      method: "POST",
-      mode: "cors",
-      headers: {
-        "Accept": "application/json, text/plain, */*",
-      }
-    });
-
-    if (res.ok) {
-      return filePath;
-    } else {
-      LogService.error(`Failed to prepare upload for ${filePath}:`, res.statusText);
-      return "";
-    }
-  }
-
-  private static async uploadROMComplete(data: ROMUploadComplete) {
+  static async uploadROMComplete(data: CompletedUploadData) {
     const res = await fetch(this.BASE_URL + "/roms/upload/complete", {
       method: "POST",
       mode: "cors",
@@ -376,117 +345,6 @@ export class RestService {
       LogService.error(`Failed to notify the backend of the completed download for ${data.path}:`, res.statusText);
       return "";
     }
-  }
-
-  private static async streamROMUpload(uploadId: string, path: string, file: File, onProgress: (progress: number) => void) {
-    let sent = 0;
-
-    const fileSize = file.size;
-
-    while (sent < fileSize) {
-      if (!RestService.currentUploadId) break;
-
-      const end = Math.min(sent + this.STREAM_CHUNK_SIZE - 1, fileSize - 1);
-      const range = `bytes=${sent}-${end}`;
-      const length = end - sent + 1;
-
-      const data = file.slice(sent, end + 1);
-
-      const response = await fetch(this.BASE_URL + `/roms/upload?filePath=${encodeURIComponent(path)}`, {
-        method: "POST",
-        mode: "cors",
-        headers: {
-          "Range": range,
-          "Content-Length": length.toString(),
-          "Upload-Id": uploadId,
-          "File-Size": fileSize.toString(),
-          "Content-Type": "application/octet-stream"
-        },
-        body: data
-      });
-
-      if (!response.ok && RestService.currentUploadId) {
-        throw new Error("Failed to send the chunk");
-      }
-
-      sent += length;
-      onProgress(sent);
-    }
-  }
-
-  /**
-   * Uploads a rom to the server.
-   * @param uploadConfig The rom upload config.
-   * @param onStart Function to run on start.
-   * @param onProgress Function to run on chunk update.
-   * @param onEnd Function to run on upload complete.
-   */
-  static async uploadRom(
-    uploadConfig: UploadConfig,
-    onStart: () => void = () => {},
-    onProgress: (progress: number) => void = () => {},
-    onEnd: (success: boolean, filePath: string) => void = () => {}
-  ) {
-    const { system, file, needsUnzip } = uploadConfig;
-    const lib = get(library);
-
-    const systemFolder = get(systems)[system].folder;
-    
-    const filePath = await RestService.prepareROMUpload(lib.libraryPath, lib.romDir, systemFolder, file.name);
-    onStart();
-
-    const uploadId = hash64(filePath);
-    RestService.currentUploadId = uploadId;
-
-  
-    await RestService.streamROMUpload(
-      uploadId,
-      filePath,
-      file,
-      onProgress
-    );
-
-
-    if (RestService.currentUploadId) {
-      RestService.currentUploadId = null;
-
-      const finalPath = await RestService.uploadROMComplete({
-        uploadId: uploadId,
-        path: filePath,
-        libraryPath: lib.libraryPath,
-        system: systemFolder,
-        unzip: needsUnzip,
-      });
-      onEnd(finalPath !== "", finalPath);
-    }
-  }
-
-  /**
-   * Cancels the current upload if one exists.
-   * @returns True if successful, false if not.
-   */
-  static async cancelROMUpload(): Promise<boolean> {
-    if (RestService.currentUploadId) {
-      const res = await fetch(this.BASE_URL + "/roms/upload/cancel", {
-        method: "POST",
-        mode: "cors",
-        headers: {
-          "Upload-Id": RestService.currentUploadId,
-        },
-      });
-  
-      if (res.ok) {
-        get(showInfoSnackbar)({ message: "Upload canceled" });
-        RestService.currentUploadId = null;
-        return true;
-      } else {
-        LogService.error(`Failed to cancel the upload for ${RestService.currentUploadId}:`, res.statusText);
-      }
-    } else {
-      get(showWarningSnackbar)({ message: "There is no upload currently" });
-    }
-
-    return false;
   }
   
   /**
@@ -721,33 +579,14 @@ export class RestService {
   }
 
 
-  private static async prepareBIOSUpload(libraryPath: string, biosDir: string, system: string, filename: string): Promise<string> {
-    const filePath = `${libraryPath}/${biosDir}/${system}/${filename}`;
-
-    const res = await fetch(this.BASE_URL + `/bios-files/upload/prepare?filePath=${encodeURIComponent(filePath)}`, {
-      method: "POST",
-      mode: "cors",
-      headers: {
-        "Accept": "application/json, text/plain, */*",
-      }
-    });
-
-    if (res.ok) {
-      return filePath;
-    } else {
-      LogService.error(`Failed to prepare upload for ${filePath}:`, res.statusText);
-      return "";
-    }
-  }
-
-  private static async uploadBIOSComplete(uploadId: string) {
+  static async uploadBIOSComplete(data: CompletedUploadData) {
     const res = await fetch(this.BASE_URL + "/bios-files/upload/complete", {
       method: "POST",
       mode: "cors",
       headers: {
         "Accept": "application/json, text/plain, */*",
         "Content-Type": "application/json",
-        "Upload-Id": uploadId
+        "Upload-Id": data.uploadId
       },
       body: JSON.stringify({})
     });
@@ -755,115 +594,9 @@ export class RestService {
     if (res.ok) {
       return await res.text();
     } else {
-      LogService.error(`Failed to notify the backend of the completed download for ${uploadId}:`, res.statusText);
+      LogService.error(`Failed to notify the backend of the completed download for ${data.uploadId}:`, res.statusText);
       return "";
     }
-  }
-
-  private static async streamBIOSUpload(uploadId: string, path: string, file: File, onProgress: (progress: number) => void) {
-    let sent = 0;
-
-    const fileSize = file.size;
-
-    while (sent < fileSize) {
-      if (!RestService.currentUploadId) break;
-
-      const end = Math.min(sent + this.STREAM_CHUNK_SIZE - 1, fileSize - 1);
-      const range = `bytes=${sent}-${end}`;
-      const length = end - sent + 1;
-
-      const data = file.slice(sent, end + 1);
-
-      const response = await fetch(this.BASE_URL + `/bios-files/upload?filePath=${encodeURIComponent(path)}`, {
-        method: "POST",
-        mode: "cors",
-        headers: {
-          "Range": range,
-          "Content-Length": length.toString(),
-          "Upload-Id": uploadId,
-          "File-Size": fileSize.toString(),
-          "Content-Type": "application/octet-stream"
-        },
-        body: data
-      });
-
-      if (!response.ok && RestService.currentUploadId) {
-        throw new Error("Failed to send the chunk");
-      }
-
-      sent += length;
-      onProgress(sent);
-    }
-  }
-
-  /**
-   * Uploads a bios file to the server.
-   * @param uploadConfig The bios upload config.
-   * @param onStart Function to run on start.
-   * @param onProgress Function to run on chunk update.
-   * @param onEnd Function to run on upload complete.
-   */
-  static async uploadBIOS(
-    uploadConfig: UploadConfig,
-    onStart: () => void = () => {},
-    onProgress: (progress: number) => void = () => {},
-    onEnd: (success: boolean, filePath: string) => void = () => {}
-  ) {
-    const { file, system } = uploadConfig;
-    
-    const systemFolder = get(systems)[system].folder;
-
-    const lib = get(library);
-    
-    const filePath = await RestService.prepareBIOSUpload(lib.libraryPath, lib.biosDir, systemFolder, file.name);
-    onStart();
-
-    const uploadId = hash64(filePath);
-    RestService.currentUploadId = uploadId;
-
-  
-    await RestService.streamBIOSUpload(
-      uploadId,
-      filePath,
-      file,
-      onProgress
-    );
-
-
-    if (RestService.currentUploadId) {
-      RestService.currentUploadId = null;
-
-      const finalPath = await RestService.uploadBIOSComplete(uploadId);
-      onEnd(finalPath !== "", finalPath);
-    }
-  }
-
-  /**
-   * Cancels the current upload if one exists.
-   * @returns True if successful, false if not.
-   */
-  static async cancelBIOSUpload(): Promise<boolean> {
-    if (RestService.currentUploadId) {
-      const res = await fetch(this.BASE_URL + "/bios-files/upload/cancel", {
-        method: "POST",
-        mode: "cors",
-        headers: {
-          "Upload-Id": RestService.currentUploadId,
-        },
-      });
-  
-      if (res.ok) {
-        get(showInfoSnackbar)({ message: "Upload canceled" });
-        RestService.currentUploadId = null;
-        return true;
-      } else {
-        LogService.error(`Failed to cancel the upload for ${RestService.currentUploadId}:`, res.statusText);
-      }
-    } else {
-      get(showWarningSnackbar)({ message: "There is no upload currently" });
-    }
-
-    return false;
   }
   
   /**

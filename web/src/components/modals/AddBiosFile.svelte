@@ -29,8 +29,6 @@
         file: file!,
         needsUnzip: false
       },
-      onCancel: RestService.cancelBIOSUpload,
-      upload: RestService.uploadBIOS,
       process: async (_, closeModal) => {
         $systems[system].biosFiles.push(file!.name);
         $systems = { ...$systems };
@@ -38,7 +36,8 @@
         $showInfoSnackbar({ message: "Upload complete" });
         
         closeModal();
-      }
+      },
+      complete: RestService.uploadBIOSComplete
     }
     $showUploadProgressModal = true;
   }

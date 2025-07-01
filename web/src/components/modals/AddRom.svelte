@@ -38,8 +38,6 @@
         file: file!,
         needsUnzip: needsUnzip
       },
-      onCancel: RestService.cancelROMUpload,
-      upload: RestService.uploadRom,
       process: async (romPath, closeModal) => {
         const rom = await WebsocketService.parseAddedRom(system, romPath);
         const id = hash64(rom.path);
@@ -67,7 +65,8 @@
         $showInfoSnackbar({ message: "Upload complete" });
         
         closeModal();
-      }
+      },
+      complete: RestService.uploadROMComplete
     }
     
     $showUploadProgressModal = true;

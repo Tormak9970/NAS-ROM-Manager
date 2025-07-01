@@ -1,4 +1,4 @@
-use std::{collections::HashMap, path::Path};
+use std::{collections::HashMap, path::{PathBuf}};
 
 use bytes::Buf;
 use futures::{Stream, StreamExt};
@@ -10,7 +10,14 @@ use chrono::Utc;
 use crate::rest::types::{StreamProgress, StreamStore};
 
 /// Completes a file upload
-pub async fn prepare_file_upload(file_path: &Path) -> Result<impl Reply, Rejection> {
+pub async fn prepare_file_upload(query_params: HashMap<String, String>) -> Result<impl Reply, Rejection> {
+  if !query_params.contains_key("filePath") {
+    warn!("Prepare Upload: Missing query param filePath");
+    return Err(warp::reject::reject());
+  }
+
+  let file_path = PathBuf::from(query_params.get("filePath").unwrap().to_owned());
+  
   let parent_dir = file_path.parent();
 
   if parent_dir.is_some() {

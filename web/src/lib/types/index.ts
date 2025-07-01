@@ -12,15 +12,17 @@ export type UploadConfig = {
   needsUnzip: boolean;
 }
 
+export type CompletedUploadData = {
+  uploadId: string;
+  path: string;
+  libraryPath: string;
+  system: string;
+  unzip: boolean;
+}
+
 export type UploadSettings = {
   config: UploadConfig;
-  onCancel: () => Promise<boolean>;
-  upload: (
-    uploadConfig: UploadConfig,
-    onStart?: () => void,
-    onProgress?: (progress: number) => void,
-    onEnd?: (success: boolean, filePath: string) => void
-  ) => Promise<void>;
+  complete: (data: CompletedUploadData) => Promise<string>;
   process: (
     filePath: string,
     closeModal: () => void

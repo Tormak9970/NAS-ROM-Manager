@@ -1,4 +1,4 @@
-use std::{collections::HashMap, path::PathBuf};
+use std::{path::PathBuf};
 
 use log::{info, warn};
 use tokio::fs::File;
@@ -6,18 +6,7 @@ use warp::{reject::Rejection, reply::Reply};
 
 use crate::rest::zip::unpack_zip;
 
-use super::{types::{ROMUploadComplete, StreamStore}, utils::upload::prepare_file_upload};
-
-/// Prepares for the upload of a rom
-pub async fn prepare_rom_upload(query_params: HashMap<String, String>) -> Result<impl Reply, Rejection> {
-  if !query_params.contains_key("filePath") {
-    warn!("Prepare ROM upload: Missing query param filePath");
-    return Err(warp::reject::reject());
-  }
-
-  let path = PathBuf::from(query_params.get("filePath").unwrap().to_owned());
-  return prepare_file_upload(&path).await;
-}
+use super::{types::{ROMUploadComplete, StreamStore}};
 
 /// Completes the ROM upload
 pub async fn rom_upload_complete(streams_store: StreamStore, data: ROMUploadComplete) -> Result<impl Reply, Rejection> {

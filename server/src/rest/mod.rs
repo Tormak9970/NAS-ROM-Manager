@@ -10,18 +10,20 @@ mod bios_files;
 
 use std::{collections::HashMap, fs::remove_file, str::FromStr, thread};
 
-use bios_files::{bios_file_download_get_metadata, bios_file_upload_complete, delete_bios_file, prepare_bios_file_upload};
+use bios_files::{bios_file_download_get_metadata, bios_file_upload_complete, delete_bios_file};
 use chrono::Utc;
 use grids::{delete_hero, delete_capsule, upload_hero, upload_capsule};
 use cron::Schedule;
 use igdb::{igdb_get_metadata_by_id, igdb_search_game, igdb_search_platform, init_igdb_client};
 use log::{info, warn};
 use rom_download::{delete_rom, rom_download_complete, rom_download_get_metadata};
-use rom_upload::{prepare_rom_upload, rom_upload_complete};
+use rom_upload::{rom_upload_complete};
 use sgdb::{init_sgdb_client, sgdb_get_grids_by_id, sgdb_search_game};
 use types::{HeroUpload, CapsuleUpload, IGDBClientStore, ROMDownload, ROMUploadComplete, SGDBClientStore, StreamStore};
 use utils::{download::download_file, upload::{upload_cancel, upload_file}};
 use warp::{http::Method, Filter};
+
+use crate::rest::utils::upload::prepare_file_upload;
 
 fn json_capsule_upload() -> impl Filter<Extract = (CapsuleUpload,), Error = warp::Rejection> + Clone {
   warp::body::content_length_limit(50 * 1024 * 1024).and(warp::body::json())
@@ -143,23 +145,6 @@ pub fn initialize_rest_api(grids_cache_dir: String, cleanup_schedule: String) ->
   let upload_store = StreamStore::new();
   let filter_upload_store = upload_store.clone();
   let upload_store_filter = warp::any().map(move || filter_upload_store.clone());
-  
-  // * POST Prepare ROM Upload (rest/roms/upload/prepare)
-  let rom_upload_prepare_route = warp::path!("rest" / "roms" / "upload" / "prepare")
-    .and(warp::post())
-    .and(warp::query::<HashMap<String, String>>())
-    .and_then(prepare_rom_upload)
-    .with(&cors);
-  
-  // * POST ROM (rest/roms/upload)
-  let rom_upload_route = warp::path!("rest" / "roms" / "upload")
-    .and(warp::post())
-    .and(warp::filters::body::stream())
-    .and(upload_store_filter.clone())
-    .and(warp::query::<HashMap<String, String>>())
-    .and(warp::filters::header::headers_cloned())
-    .and_then(upload_file)
-    .with(&cors);
 
   // * POST ROM (rest/roms/upload/complete)
   let rom_upload_complete_route = warp::path!("rest" / "roms" / "upload" / "complete")
@@ -167,14 +152,6 @@ pub fn initialize_rest_api(grids_cache_dir: String, cleanup_schedule: String) ->
     .and(upload_store_filter.clone())
     .and(json_body_upload_complete())
     .and_then(rom_upload_complete)
-    .with(&cors);
-
-  // * POST ROM (rest/roms/upload/complete)
-  let rom_upload_cancel_route = warp::path!("rest" / "roms" / "upload" / "cancel")
-    .and(warp::post())
-    .and(upload_store_filter.clone())
-    .and(warp::filters::header::header("Upload-Id"))
-    .and_then(upload_cancel)
     .with(&cors);
   
 
@@ -200,24 +177,6 @@ pub fn initialize_rest_api(grids_cache_dir: String, cleanup_schedule: String) ->
     .and_then(download_file)
     .with(&cors);
 
-
-  // * POST Prepare BIOS Upload (rest/bios-files/upload/prepare)
-  let bios_upload_prepare_route = warp::path!("rest" / "bios-files" / "upload" / "prepare")
-    .and(warp::post())
-    .and(warp::query::<HashMap<String, String>>())
-    .and_then(prepare_bios_file_upload)
-    .with(&cors);
-  
-  // * POST BIOS (rest/bios-files/upload)
-  let bios_upload_route = warp::path!("rest" / "bios-files" / "upload")
-    .and(warp::post())
-    .and(warp::filters::body::stream())
-    .and(upload_store_filter.clone())
-    .and(warp::query::<HashMap<String, String>>())
-    .and(warp::filters::header::headers_cloned())
-    .and_then(upload_file)
-    .with(&cors);
-
   // * POST BIOS (rest/bios-files/upload/complete)
   let bios_upload_complete_route = warp::path!("rest" / "bios-files" / "upload" / "complete")
     .and(warp::post())
@@ -226,20 +185,38 @@ pub fn initialize_rest_api(grids_cache_dir: String, cleanup_schedule: String) ->
     .and_then(bios_file_upload_complete)
     .with(&cors);
 
-  // * POST BIOS (rest/bios-files/upload/complete)
-  let bios_upload_cancel_route = warp::path!("rest" / "bios-files" / "upload" / "cancel")
-    .and(warp::post())
-    .and(upload_store_filter)
-    .and(warp::filters::header::header("Upload-Id"))
-    .and_then(upload_cancel)
-    .with(&cors);
-
 
   // * DELETE BIOS (rest/bios-files)
   let bios_delete_route = warp::path!("rest" / "bios-files" / "delete")
     .and(warp::delete())
     .and(warp::query::<HashMap<String, String>>())
     .and_then(delete_bios_file)
+    .with(&cors);
+
+  
+  // * PREPARE FILE (rest/upload/prepare)
+  let upload_prepare_route = warp::path!("rest" / "upload" / "prepare")
+    .and(warp::post())
+    .and(warp::query::<HashMap<String, String>>())
+    .and_then(prepare_file_upload)
+    .with(&cors);
+  
+  // * POST FILE (rest/upload)
+  let upload_route = warp::path!("rest" / "upload")
+    .and(warp::post())
+    .and(warp::filters::body::stream())
+    .and(upload_store_filter.clone())
+    .and(warp::query::<HashMap<String, String>>())
+    .and(warp::filters::header::headers_cloned())
+    .and_then(upload_file)
+    .with(&cors);
+  
+  // * CANCEL FILE (rest/upload/cancel)
+  let upload_cancel_route = warp::path!("rest" / "upload" / "cancel")
+    .and(warp::post())
+    .and(upload_store_filter.clone())
+    .and(warp::filters::header::header("Upload-Id"))
+    .and_then(upload_cancel)
     .with(&cors);
 
 
@@ -300,6 +277,10 @@ pub fn initialize_rest_api(grids_cache_dir: String, cleanup_schedule: String) ->
     .and_then(igdb_search_platform)
     .with(&cors);
 
+  let upload_routes = upload_prepare_route
+    .or(upload_route)
+    .or(upload_cancel_route);
+
   let grids_routes = grids_get_route
     .or(capsule_upload_route)
     .or(capsule_delete_route)
@@ -309,18 +290,12 @@ pub fn initialize_rest_api(grids_cache_dir: String, cleanup_schedule: String) ->
   let rom_routes = rom_download_get_metadata
     .or(rom_download_route)
     .or(rom_download_complete_route)
-    .or(rom_upload_prepare_route)
-    .or(rom_upload_route)
     .or(rom_upload_complete_route)
-    .or(rom_upload_cancel_route)
     .or(rom_delete_route);
 
   let bios_routes = bios_download_get_metadata
     .or(bios_download_route)
-    .or(bios_upload_prepare_route)
-    .or(bios_upload_route)
     .or(bios_upload_complete_route)
-    .or(bios_upload_cancel_route)
     .or(bios_delete_route);
 
   let sgdb_routes = sgdb_init_route
@@ -333,6 +308,7 @@ pub fn initialize_rest_api(grids_cache_dir: String, cleanup_schedule: String) ->
     .or(igdb_search_platform_route);
 
   let http_routes = grids_routes
+    .or(upload_routes)
     .or(rom_routes)
     .or(bios_routes)
     .or(sgdb_routes)
