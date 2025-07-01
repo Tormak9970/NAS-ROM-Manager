@@ -46,7 +46,11 @@
       (progress: number) => uploadProgress = progress,
       $uploadProgressConfig!.complete,
       processUpload,
-    );
+    ).then((isCanceled: boolean) => {
+      if (isCanceled) {
+        open = false;
+      }
+    });
   });
 </script>
 

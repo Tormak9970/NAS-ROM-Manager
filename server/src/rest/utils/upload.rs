@@ -17,6 +17,21 @@ pub async fn prepare_file_upload(query_params: HashMap<String, String>) -> Resul
   }
 
   let file_path = PathBuf::from(query_params.get("filePath").unwrap().to_owned());
+
+  let exists_res = tokio::fs::try_exists(&file_path).await;
+
+  let exists = exists_res.is_err() || exists_res.ok().unwrap();
+
+  if exists {
+    let response = warp::http::Response::builder()
+      .status(200)
+      .header("Content-Type", "text/plain")
+      .header("Access-Control-Allow-Origin", "*")
+      .body(format!("{}", exists))
+      .map_err(|_| warp::reject())?;
+
+    return Ok(response);
+  }
   
   let parent_dir = file_path.parent();
 
@@ -32,7 +47,14 @@ pub async fn prepare_file_upload(query_params: HashMap<String, String>) -> Resul
     warp::reject::reject()
   })?;
 
-  return Ok(warp::reply::with_header("success", "Access-Control-Allow-Origin", "*"));
+  let response = warp::http::Response::builder()
+    .status(200)
+    .header("Content-Type", "text/plain")
+    .header("Access-Control-Allow-Origin", "*")
+    .body(format!("{}", exists))
+    .map_err(|_| warp::reject())?;
+
+  return Ok(response);
 }
 
 /// Handles an upload stream

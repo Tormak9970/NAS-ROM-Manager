@@ -1,3 +1,4 @@
+import { DialogService } from "@services/utils/DialogService";
 import { library, showInfoSnackbar, showWarningSnackbar, systems } from "@stores/State";
 import type { CompletedUploadData, UploadConfig } from "@types";
 import { hash64 } from "@utils";
@@ -23,6 +24,19 @@ export class UploadService {
     });
 
     if (res.ok) {
+      const fileExists = await res.text() === "false";
+      if (fileExists) {
+        const shouldContinue = await DialogService.ask(
+          "Warning!",
+          "A file with that name already exists, are you sure you want to upload?",
+          "Yes",
+          "No",
+          true
+        );
+
+        return shouldContinue ? filePath : "canceled";
+      }
+
       return filePath;
     } else {
       LogService.error(`Failed to prepare upload for ${filePath}:`, res.statusText);
@@ -73,6 +87,7 @@ export class UploadService {
    * @param onProgress Function to run on chunk update.
    * @param onComplete Function to run on upload complete.
    * @param onEnd Function to run on after the upload has fully finished.
+   * @returns True if the upload was canceled by a duplicate filename, false if not.
    */
   static async upload(
     uploadConfig: UploadConfig,
@@ -87,6 +102,12 @@ export class UploadService {
     const systemFolder = get(systems)[system].folder;
     
     const filePath = await UploadService.prepareUpload(lib.libraryPath, lib.biosDir, systemFolder, file.name);
+
+    if (filePath === "canceled") {
+      await UploadService.cancelUpload();
+      return true;
+    }
+
     onStart();
 
     const uploadId = hash64(filePath);
@@ -114,6 +135,8 @@ export class UploadService {
 
       onEnd(finalPath !== "", finalPath);
     }
+
+    return false;
   }
 
   /**
