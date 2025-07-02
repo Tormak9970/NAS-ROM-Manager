@@ -11,6 +11,23 @@ export class UploadService {
   private static readonly BASE_URL = `http://${import.meta.env.NRM_SERVER_URL}/rest`;
 
   static currentUploadId: string | null = null;
+  
+  static async prepareReplace(filePath: string): Promise<string> {
+    const res = await fetch(UploadService.BASE_URL + `/upload/replace/prepare?filePath=${encodeURIComponent(filePath)}`, {
+      method: "POST",
+      mode: "cors",
+      headers: {
+        "Accept": "application/json, text/plain, */*",
+      }
+    });
+
+    if (res.ok) {
+      return filePath;
+    } else {
+      LogService.error(`Failed to prepare replace for ${filePath}:`, res.statusText);
+      return "";
+    }
+  }
 
   static async prepareUpload(libraryPath: string, dir: string, system: string, filename: string): Promise<string> {
     const filePath = `${libraryPath}/${dir}/${system}/${filename}`;
@@ -28,15 +45,14 @@ export class UploadService {
       const fileExists = body === "true";
 
       if (fileExists) {
-        const shouldContinue = await DialogService.ask(
+        await DialogService.message(
           "Warning!",
-          "A file with that name already exists, are you sure you want to upload?",
-          "Yes",
-          "No",
+          "A file with that filename already exists. Please rename the file and try again.",
+          "Ok",
           true
         );
 
-        return shouldContinue ? filePath : "canceled";
+        return "canceled";
       }
 
       return filePath;
@@ -89,6 +105,7 @@ export class UploadService {
    * @param onProgress Function to run on chunk update.
    * @param onComplete Function to run on upload complete.
    * @param onEnd Function to run on after the upload has fully finished.
+   * @param isReplace If true, a file is being replaced.
    * @returns True if the upload was canceled by a duplicate filename, false if not.
    */
   static async upload(
@@ -96,14 +113,21 @@ export class UploadService {
     onStart: () => void = () => {},
     onProgress: (progress: number) => void = () => {},
     onComplete: (data: CompletedUploadData) => Promise<string>,
-    onEnd: (success: boolean, filePath: string) => void = () => {}
+    onEnd: (success: boolean, filePath: string) => void = () => {},
+    isReplace = false
   ) {
     const { uploadFolder, file, system, needsUnzip } = uploadConfig;
     const lib = get(library);
     
     const systemFolder = get(systems)[system].folder;
-    
-    const filePath = await UploadService.prepareUpload(lib.libraryPath, uploadFolder, systemFolder, file.name);
+
+    let filePath = "";
+
+    if (isReplace) {
+      filePath = await UploadService.prepareReplace(uploadConfig.path!);
+    } else {
+      filePath = await UploadService.prepareUpload(lib.libraryPath, uploadFolder, systemFolder, file.name);
+    }
 
     if (filePath === "canceled") {
       return true;

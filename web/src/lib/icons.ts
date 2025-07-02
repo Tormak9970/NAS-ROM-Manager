@@ -87,6 +87,7 @@ export { default as Tune } from "@ktibow/iconset-material-symbols/tune-rounded";
 export { default as Download } from "@ktibow/iconset-material-symbols/download-rounded";
 export { default as EmergencyHome } from "@ktibow/iconset-material-symbols/emergency-home-rounded";
 export { default as Help } from "@ktibow/iconset-material-symbols/help-rounded";
+export { default as Upload } from "@ktibow/iconset-material-symbols/upload-rounded";
 
 export { default as CalendarMonth } from "@ktibow/iconset-material-symbols/calendar-month-rounded";
 export { default as CalendarToday } from "@ktibow/iconset-material-symbols/calendar-today";
@@ -112,3 +113,4 @@ export { default as Sell } from "@ktibow/iconset-material-symbols/sell";
 export { default as SupervisorAccount } from "@ktibow/iconset-material-symbols/supervisor-account-rounded";
 
 export { default as Celebration } from "@ktibow/iconset-material-symbols/celebration-rounded";
+

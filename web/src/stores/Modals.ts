@@ -74,3 +74,11 @@ export const showChangelogModal = writable(false);
 
 export const showAddBiosFileModal = writable(false);
 export const addBiosFileSystem = writable<string | null>(null);
+
+export const showReplaceRomModal = writable(false);
+export const replaceRomSystem = writable<string | null>(null);
+export const replaceRomId = writable<string | null>(null);
+
+export const showReplaceBiosFileModal = writable(false);
+export const replaceBiosFileSystem = writable<string | null>(null);
+export const replaceBiosFilePath = writable<string | null>(null);

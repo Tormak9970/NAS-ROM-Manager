@@ -1,5 +1,5 @@
 <script>
-  import { showAddBiosFileModal, showAddRomModal, showAddSystemModal, showChangeGridsModal, showChangelogModal, showControlledModal, showDownloadProgressModal, showEditLibraryModal, showEditRomModal, showEditRouteOrderModal, showEditSystemModal, showFilePickerModal, showLoadingModal, showSearchFiltersModal, showSearchIGDBPlatformModal, showSearchIGDBRomModal, showSearchSGDBModal, showUpdateModal, showUploadProgressModal } from "@stores/Modals";
+  import { showAddBiosFileModal, showAddRomModal, showAddSystemModal, showChangeGridsModal, showChangelogModal, showControlledModal, showDownloadProgressModal, showEditLibraryModal, showEditRomModal, showEditRouteOrderModal, showEditSystemModal, showFilePickerModal, showLoadingModal, showReplaceBiosFileModal, showReplaceRomModal, showSearchFiltersModal, showSearchIGDBPlatformModal, showSearchIGDBRomModal, showSearchSGDBModal, showUpdateModal, showUploadProgressModal } from "@stores/Modals";
   import AddBiosFile from "./AddBiosFile.svelte";
   import AddRom from "./AddRom.svelte";
   import ChangeGrids from "./change-grids/ChangeGrids.svelte";
@@ -13,6 +13,8 @@
   import IgdbSearchPlatform from "./IGDBSearchPlatform.svelte";
   import IGDBSearchRom from "./IGDBSearchRom.svelte";
   import Loading from "./Loading.svelte";
+  import ReplaceBiosFile from "./ReplaceBiosFile.svelte";
+  import ReplaceRom from "./ReplaceRom.svelte";
   import SearchFilters from "./SearchFilters.svelte";
   import SGDBSearch from "./SGDBSearch.svelte";
   import AddSystem from "./systems/AddSystem.svelte";
@@ -95,4 +97,12 @@
 
 {#if $showAddBiosFileModal}
   <AddBiosFile />
+{/if}
+
+{#if $showReplaceRomModal}
+  <ReplaceRom />
+{/if}
+
+{#if $showReplaceBiosFileModal}
+  <ReplaceBiosFile />
 {/if}

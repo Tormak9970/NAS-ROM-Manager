@@ -25,7 +25,7 @@
 
 <div class="details" class:portrait>
   <h2>BIOS Files</h2>
-  <BiosFiles system={system?.folder ?? ""} biosFiles={system?.biosFiles ?? []} />
+  <BiosFiles system={system} />
   <h2>ROMs</h2>
   {#if romIds?.length === 0}
     <div class="summary body-text">

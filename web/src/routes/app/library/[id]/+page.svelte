@@ -3,12 +3,12 @@
   import { routes } from "$lib/routes";
   import { Icon } from "@component-utils";
   import MediaQuery from "@component-utils/MediaQuery.svelte";
-  import { Download, Edit, FavoriteOff, FavoriteOn } from "@icons";
+  import { Download, Edit, FavoriteOff, FavoriteOn, Upload } from "@icons";
   import Button from "@interactables/Button.svelte";
   import { LoadingSpinner } from "@layout";
   import LibraryLoadGuard from "@layout/load-guards/LibraryLoadGuard.svelte";
   import { IGDBService, RomService } from "@services";
-  import { romMetadata, roms, showWarningSnackbar, systems } from "@stores/State";
+  import { isLandscape, romMetadata, roms, showWarningSnackbar, systems } from "@stores/State";
   import { NO_IGDB_RESULTS } from "@types";
   import { formatFileSize } from "@utils";
   import DetailsHeader from "@views/DetailsHeader.svelte";
@@ -102,13 +102,30 @@
           <Button iconType="full" type="text" onclick={() => RomService.toggleFavorite(id)}>
             <Icon icon={isFavorite ? FavoriteOn : FavoriteOff} />
           </Button>
+          {#if $isLandscape}
+            <Button
+              type="filled"
+              iconType="left"
+              onclick={() => RomService.download(id)}
+            >
+              <Icon icon={Download} />
+              Download
+            </Button>
+          {:else}
+            <Button
+              type="filled"
+              iconType="full"
+              onclick={() => RomService.download(id)}
+            >
+              <Icon icon={Download} />
+            </Button>
+          {/if}
           <Button
             type="filled"
-            iconType="left"
-            onclick={() => RomService.download(id)}
+            iconType="full"
+            onclick={() => RomService.replaceFile(id)}
           >
-            <Icon icon={Download} />
-            Download
+            <Icon icon={Upload} />
           </Button>
           <Button iconType="full" type="filled" onclick={() => RomService.edit(id)}>
             <Icon icon={Edit} />

@@ -23,7 +23,7 @@ use types::{HeroUpload, CapsuleUpload, IGDBClientStore, ROMDownload, ROMUploadCo
 use utils::{download::download_file, upload::{upload_cancel, upload_file}};
 use warp::{http::Method, Filter};
 
-use crate::rest::utils::upload::prepare_file_upload;
+use crate::rest::utils::upload::{prepare_file_replace, prepare_file_upload};
 
 fn json_capsule_upload() -> impl Filter<Extract = (CapsuleUpload,), Error = warp::Rejection> + Clone {
   warp::body::content_length_limit(50 * 1024 * 1024).and(warp::body::json())
@@ -201,6 +201,14 @@ pub fn initialize_rest_api(grids_cache_dir: String, cleanup_schedule: String) ->
     .and_then(prepare_file_upload)
     .with(&cors);
   
+  
+  // * PREPARE REPLACE FILE (rest/upload/replace/prepare)
+  let upload_replace_prepare_route = warp::path!("rest" / "upload" / "replace" / "prepare")
+    .and(warp::post())
+    .and(warp::query::<HashMap<String, String>>())
+    .and_then(prepare_file_replace)
+    .with(&cors);
+  
   // * POST FILE (rest/upload)
   let upload_route = warp::path!("rest" / "upload")
     .and(warp::post())
@@ -278,6 +286,7 @@ pub fn initialize_rest_api(grids_cache_dir: String, cleanup_schedule: String) ->
     .with(&cors);
 
   let upload_routes = upload_prepare_route
+    .or(upload_replace_prepare_route)
     .or(upload_route)
     .or(upload_cancel_route);
 

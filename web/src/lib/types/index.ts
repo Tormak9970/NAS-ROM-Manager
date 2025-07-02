@@ -10,6 +10,7 @@ export type UploadConfig = {
   uploadFolder: string;
   system: string;
   file: File;
+  path?: string;
   needsUnzip: boolean;
 }
 
@@ -28,6 +29,7 @@ export type UploadSettings = {
     filePath: string,
     closeModal: () => void
   ) => Promise<void>;
+  isReplace?: boolean;
 }
 
 export type AvailableStorage = {

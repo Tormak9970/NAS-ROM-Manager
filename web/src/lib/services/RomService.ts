@@ -1,4 +1,4 @@
-import { changeGridsId, changeGridsOnSelect, changeGridsSearchId, changeGridsType, downloadProgressInit, loadingModalMessage, romEditingId, showChangeGridsModal, showDownloadProgressModal, showEditRomModal, showLoadingModal } from "@stores/Modals";
+import { changeGridsId, changeGridsOnSelect, changeGridsSearchId, changeGridsType, downloadProgressInit, loadingModalMessage, replaceRomId, replaceRomSystem, romEditingId, showChangeGridsModal, showDownloadProgressModal, showEditRomModal, showLoadingModal, showReplaceRomModal } from "@stores/Modals";
 import { romMetadata, roms, romsBySystem } from "@stores/State";
 import type { IGDBGame } from "@types";
 import { get } from "svelte/store";
@@ -93,6 +93,19 @@ export class RomService {
       RestService.downloadRom(rom, onStart, onProgress, onEnd);
     });
     showDownloadProgressModal.set(true);
+  }
+
+  /**
+   * Replaces a rom's file.
+   * @param romId The id of the rom.
+   */
+  static replaceFile(romId: string) {
+    const rom = get(roms)[romId];
+
+    replaceRomId.set(romId);
+    replaceRomSystem.set(rom.system);
+
+    showReplaceRomModal.set(true);
   }
 
   /**

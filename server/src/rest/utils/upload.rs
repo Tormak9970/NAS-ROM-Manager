@@ -9,7 +9,7 @@ use chrono::Utc;
 
 use crate::rest::types::{StreamProgress, StreamStore};
 
-/// Completes a file upload
+/// Prepares a file upload
 pub async fn prepare_file_upload(query_params: HashMap<String, String>) -> Result<impl Reply, Rejection> {
   if !query_params.contains_key("filePath") {
     warn!("Prepare Upload: Missing query param filePath");
@@ -55,6 +55,32 @@ pub async fn prepare_file_upload(query_params: HashMap<String, String>) -> Resul
     .map_err(|_| warp::reject())?;
 
   return Ok(response);
+}
+
+/// Prepares a file replace
+pub async fn prepare_file_replace(query_params: HashMap<String, String>) -> Result<impl Reply, Rejection> {
+  if !query_params.contains_key("filePath") {
+    warn!("Prepare Upload: Missing query param filePath");
+    return Err(warp::reject::reject());
+  }
+
+  let file_path = PathBuf::from(query_params.get("filePath").unwrap().to_owned());
+  
+  let parent_dir = file_path.parent();
+
+  if parent_dir.is_some() {
+    tokio::fs::create_dir_all(parent_dir.unwrap()).await.map_err(|e| {
+      warn!("Error creating parent directory: {}", e);
+      warp::reject::reject()
+    })?;
+  }
+  
+  tokio::fs::File::create(&file_path).await.map_err(|e| {
+    warn!("Error creating file: {}", e);
+    warp::reject::reject()
+  })?;
+
+  return Ok(warp::reply::with_header("success", "Access-Control-Allow-Origin", "*"));
 }
 
 /// Handles an upload stream
