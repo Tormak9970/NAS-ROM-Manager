@@ -7,6 +7,7 @@ export * from "./Settings";
 export * from "./SGDB";
 
 export type UploadConfig = {
+  uploadFolder: string;
   system: string;
   file: File;
   needsUnzip: boolean;

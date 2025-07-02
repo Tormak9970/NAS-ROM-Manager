@@ -15,7 +15,7 @@ export class UploadService {
   static async prepareUpload(libraryPath: string, dir: string, system: string, filename: string): Promise<string> {
     const filePath = `${libraryPath}/${dir}/${system}/${filename}`;
 
-    const res = await fetch(this.BASE_URL + `/upload/prepare?filePath=${encodeURIComponent(filePath)}`, {
+    const res = await fetch(UploadService.BASE_URL + `/upload/prepare?filePath=${encodeURIComponent(filePath)}`, {
       method: "POST",
       mode: "cors",
       headers: {
@@ -24,7 +24,9 @@ export class UploadService {
     });
 
     if (res.ok) {
-      const fileExists = await res.text() === "false";
+      const body = await res.text();
+      const fileExists = body === "true";
+
       if (fileExists) {
         const shouldContinue = await DialogService.ask(
           "Warning!",
@@ -58,7 +60,7 @@ export class UploadService {
 
       const data = file.slice(sent, end + 1);
 
-      const response = await fetch(this.BASE_URL + `/upload?filePath=${encodeURIComponent(path)}`, {
+      const response = await fetch(UploadService.BASE_URL + `/upload?filePath=${encodeURIComponent(path)}`, {
         method: "POST",
         mode: "cors",
         headers: {
@@ -96,15 +98,14 @@ export class UploadService {
     onComplete: (data: CompletedUploadData) => Promise<string>,
     onEnd: (success: boolean, filePath: string) => void = () => {}
   ) {
-    const { file, system, needsUnzip } = uploadConfig;
+    const { uploadFolder, file, system, needsUnzip } = uploadConfig;
     const lib = get(library);
     
     const systemFolder = get(systems)[system].folder;
     
-    const filePath = await UploadService.prepareUpload(lib.libraryPath, lib.biosDir, systemFolder, file.name);
+    const filePath = await UploadService.prepareUpload(lib.libraryPath, uploadFolder, systemFolder, file.name);
 
     if (filePath === "canceled") {
-      await UploadService.cancelUpload();
       return true;
     }
 
@@ -145,7 +146,7 @@ export class UploadService {
    */
   static async cancelUpload(): Promise<boolean> {
     if (UploadService.currentUploadId) {
-      const res = await fetch(this.BASE_URL + "/upload/cancel", {
+      const res = await fetch(UploadService.BASE_URL + "/upload/cancel", {
         method: "POST",
         mode: "cors",
         headers: {

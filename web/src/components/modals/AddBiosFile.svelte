@@ -3,7 +3,7 @@
   import { Button, FileField, Select } from "@interactables";
   import { RestService } from "@services";
   import { addBiosFileSystem, showAddBiosFileModal, showUploadProgressModal, uploadProgressConfig } from "@stores/Modals";
-  import { showInfoSnackbar, systems } from "@stores/State";
+  import { library, showInfoSnackbar, systems } from "@stores/State";
 
   let open = $state(true);
   
@@ -25,6 +25,7 @@
 
     $uploadProgressConfig = {
       config: {
+        uploadFolder: $library.biosDir,
         system: system,
         file: file!,
         needsUnzip: false

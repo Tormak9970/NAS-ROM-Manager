@@ -26,7 +26,7 @@ export class RestService {
    * @returns Whether the capsule was successfully deleted.
    */
   static async deleteCapsule(fullCapsuleUrl: string, thumbCapsuleUrl: string, id: string): Promise<boolean> {
-    const res = await fetch(this.BASE_URL + `/grids/capsules/${id}`, {
+    const res = await fetch(RestService.BASE_URL + `/grids/capsules/${id}`, {
       method: "DELETE",
       mode: "cors",
       headers: {
@@ -53,7 +53,7 @@ export class RestService {
    * @returns The path to the cached capsule.
    */
   static async cacheCapsule(fullCapsuleUrl: string, thumbCapsuleUrl: string, id: string): Promise<[string, string]> {
-    const res = await fetch(this.BASE_URL + `/grids/capsules/${id}`, {
+    const res = await fetch(RestService.BASE_URL + `/grids/capsules/${id}`, {
       method: "POST",
       mode: "cors",
       headers: {
@@ -91,7 +91,7 @@ export class RestService {
    * @returns Whether the hero was successfully deleted.
    */
   static async deleteHero(heroUrl: string, id: string): Promise<boolean> {
-    const res = await fetch(this.BASE_URL + `/grids/heroes/${id}`, {
+    const res = await fetch(RestService.BASE_URL + `/grids/heroes/${id}`, {
       method: "DELETE",
       mode: "cors",
       headers: {
@@ -116,7 +116,7 @@ export class RestService {
    * @returns The path to the cached hero.
    */
   static async cacheHero(heroUrl: string, id: string): Promise<string> {
-    const res = await fetch(this.BASE_URL + `/grids/heroes/${id}`, {
+    const res = await fetch(RestService.BASE_URL + `/grids/heroes/${id}`, {
       method: "POST",
       mode: "cors",
       headers: {
@@ -142,7 +142,7 @@ export class RestService {
 
 
   private static async getROMMetadata(data: ROMDownload): Promise<{ size: number, path: string }> {
-    const res = await fetch(this.BASE_URL + `/roms/download/metadata?romPath=${encodeURIComponent(data.path)}&romParent=${encodeURIComponent(data.parent)}`, {
+    const res = await fetch(RestService.BASE_URL + `/roms/download/metadata?romPath=${encodeURIComponent(data.path)}&romParent=${encodeURIComponent(data.parent)}`, {
       method: "GET",
       mode: "cors",
       headers: {
@@ -255,19 +255,19 @@ export class RestService {
     const startIndex = backslashIndex > slashIndex ? backslashIndex : slashIndex;
     const filename = path.substring(startIndex + 1);
     
-    const romURL = this.BASE_URL + `/roms/download?filePath=${encodeURIComponent(path)}`;
+    const romURL = RestService.BASE_URL + `/roms/download?filePath=${encodeURIComponent(path)}`;
 
     // @ts-expect-error This error is because we have a type package installed. The File System API is still not supported in all browsers.
     // ? See https://developer.mozilla.org/en-US/docs/Web/API/FileSystemWritableFileStream#browser_compatibility
     if (window.showSaveFilePicker) {
-      await this.downloadNative(romURL, filename, onProgress);
+      await RestService.downloadNative(romURL, filename, onProgress);
     } else {
-      await this.downloadPolyfill(romURL, filename, fileSize, onProgress);
+      await RestService.downloadPolyfill(romURL, filename, fileSize, onProgress);
     }
   }
 
   private static async notifyROMDownloadComplete(data: ROMDownload) {
-    const res = await fetch(this.BASE_URL + "/roms/download/complete", {
+    const res = await fetch(RestService.BASE_URL + "/roms/download/complete", {
       method: "POST",
       mode: "cors",
       headers: {
@@ -303,15 +303,15 @@ export class RestService {
       parent: rom.downloadStrategy.type === "folder" ? rom.downloadStrategy.parent : "",
     }
 
-    const { size, path } = await this.getROMMetadata(romDownloadConfig);
+    const { size, path } = await RestService.getROMMetadata(romDownloadConfig);
     romDownloadConfig.path = path;
     onStart(size);
 
 
-    await this.streamROMDownload(path, size, onProgress);
+    await RestService.streamROMDownload(path, size, onProgress);
     
 
-    await this.notifyROMDownloadComplete(romDownloadConfig);
+    await RestService.notifyROMDownloadComplete(romDownloadConfig);
     onEnd(!!RestService.currentDownload);
 
     RestService.currentDownload = null;
@@ -329,7 +329,7 @@ export class RestService {
   }
 
   static async uploadROMComplete(data: CompletedUploadData) {
-    const res = await fetch(this.BASE_URL + "/roms/upload/complete", {
+    const res = await fetch(RestService.BASE_URL + "/roms/upload/complete", {
       method: "POST",
       mode: "cors",
       headers: {
@@ -353,7 +353,7 @@ export class RestService {
    * @returns Whether the delete was successful.
    */
   static async deleteRom(romPath: string): Promise<boolean> {
-    const res = await fetch(this.BASE_URL + `/roms/delete?romPath=${encodeURIComponent(romPath)}`, {
+    const res = await fetch(RestService.BASE_URL + `/roms/delete?romPath=${encodeURIComponent(romPath)}`, {
       method: "DELETE",
       mode: "cors",
       headers: {
@@ -375,7 +375,7 @@ export class RestService {
    * @returns True if the client was initialized.
    */
   static async initSGDBClient(): Promise<boolean> {
-    const res = await fetch(this.BASE_URL + "/proxy/sgdb/init", {
+    const res = await fetch(RestService.BASE_URL + "/proxy/sgdb/init", {
       method: "POST",
       mode: "cors",
     });
@@ -401,7 +401,7 @@ export class RestService {
    * @returns The list of grids.
    */
   static async getSGDBGridsById(id: string, page: number, gridType: "grids" | "heroes"): Promise<GridResults> {
-    const res = await fetch(this.BASE_URL + "/proxy/sgdb/grids", {
+    const res = await fetch(RestService.BASE_URL + "/proxy/sgdb/grids", {
       headers: {
         "SGDB-Game-Id": id,
         "SGDB-Results-Page": page.toString(),
@@ -428,7 +428,7 @@ export class RestService {
    * @returns The search results.
    */
   static async searchSGDBForTitle(query: string): Promise<SGDBGame[]> {
-    const res = await fetch(this.BASE_URL + `/proxy/sgdb/search?query=${encodeURIComponent(query)}`);
+    const res = await fetch(RestService.BASE_URL + `/proxy/sgdb/search?query=${encodeURIComponent(query)}`);
 
     if (res.ok) {
       return await res.json();
@@ -445,7 +445,7 @@ export class RestService {
    * @returns True if the client was initialized.
    */
   static async initIGDBClient(): Promise<boolean> {
-    const res = await fetch(this.BASE_URL + "/proxy/igdb/init", {
+    const res = await fetch(RestService.BASE_URL + "/proxy/igdb/init", {
       method: "POST",
       mode: "cors",
     });
@@ -469,7 +469,7 @@ export class RestService {
    * @returns The list of grids.
    */
   static async getIGDBMetadataById(id: string): Promise<IGDBGame | null> {
-    const res = await fetch(this.BASE_URL + "/proxy/igdb/metadata", {
+    const res = await fetch(RestService.BASE_URL + "/proxy/igdb/metadata", {
       headers: {
         "IGDB-Game-Id": id,
       }
@@ -490,7 +490,7 @@ export class RestService {
    * @returns The best match for the search.
    */
   static async searchIGDBForTitle(query: string, igdbPlatformId: string): Promise<IGDBSearchResult[]> {
-    const res = await fetch(this.BASE_URL + `/proxy/igdb/search/games?query=${encodeURIComponent(query)}&platform-id=${igdbPlatformId}`);
+    const res = await fetch(RestService.BASE_URL + `/proxy/igdb/search/games?query=${encodeURIComponent(query)}&platform-id=${igdbPlatformId}`);
 
     if (res.ok) {
       return await res.json();
@@ -507,7 +507,7 @@ export class RestService {
    * @returns The best match for the search.
    */
   static async searchIGDBForPlatform(query: string): Promise<IGDBMetadataPlatform[]> {
-    const res = await fetch(this.BASE_URL + `/proxy/igdb/search/platforms?query=${encodeURIComponent(query)}`);
+    const res = await fetch(RestService.BASE_URL + `/proxy/igdb/search/platforms?query=${encodeURIComponent(query)}`);
 
     if (res.ok) {
       return await res.json();
@@ -519,7 +519,7 @@ export class RestService {
   }
   
   private static async getBIOSMetadata(filePath: string): Promise<{ size: number, path: string }> {
-    const res = await fetch(this.BASE_URL + `/bios-files/download/metadata?filePath=${encodeURIComponent(filePath)}`, {
+    const res = await fetch(RestService.BASE_URL + `/bios-files/download/metadata?filePath=${encodeURIComponent(filePath)}`, {
       method: "GET",
       mode: "cors",
       headers: {
@@ -541,14 +541,14 @@ export class RestService {
     const startIndex = backslashIndex > slashIndex ? backslashIndex : slashIndex;
     const filename = path.substring(startIndex + 1);
     
-    const romURL = this.BASE_URL + `/bios-files/download?filePath=${encodeURIComponent(path)}`;
+    const romURL = RestService.BASE_URL + `/bios-files/download?filePath=${encodeURIComponent(path)}`;
 
     // @ts-expect-error This error is because we have a type package installed. The File System API is still not supported in all browsers.
     // ? See https://developer.mozilla.org/en-US/docs/Web/API/FileSystemWritableFileStream#browser_compatibility
     if (window.showSaveFilePicker) {
-      await this.downloadNative(romURL, filename, onProgress);
+      await RestService.downloadNative(romURL, filename, onProgress);
     } else {
-      await this.downloadPolyfill(romURL, filename, fileSize, onProgress);
+      await RestService.downloadPolyfill(romURL, filename, fileSize, onProgress);
     }
   }
 
@@ -566,11 +566,11 @@ export class RestService {
     onProgress: (progress: number) => void = () => {},
     onEnd: (finished: boolean) => void = () => {}
   ): Promise<void> {
-    const { size, path } = await this.getBIOSMetadata(filePath);
+    const { size, path } = await RestService.getBIOSMetadata(filePath);
     onStart(size);
 
 
-    await this.streamBIOSDownload(path, size, onProgress);
+    await RestService.streamBIOSDownload(path, size, onProgress);
     
 
     onEnd(!!RestService.currentDownload);
@@ -580,7 +580,7 @@ export class RestService {
 
 
   static async uploadBIOSComplete(data: CompletedUploadData) {
-    const res = await fetch(this.BASE_URL + "/bios-files/upload/complete", {
+    const res = await fetch(RestService.BASE_URL + "/bios-files/upload/complete", {
       method: "POST",
       mode: "cors",
       headers: {
@@ -605,7 +605,7 @@ export class RestService {
    * @returns Whether the delete was successful.
    */
   static async deleteBIOS(filePath: string): Promise<boolean> {
-    const res = await fetch(this.BASE_URL + `/bios-files/delete?filePath=${encodeURIComponent(filePath)}`, {
+    const res = await fetch(RestService.BASE_URL + `/bios-files/delete?filePath=${encodeURIComponent(filePath)}`, {
       method: "DELETE",
       mode: "cors",
       headers: {

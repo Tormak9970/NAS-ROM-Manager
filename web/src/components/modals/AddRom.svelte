@@ -3,7 +3,7 @@
   import { Button, Checkbox, FileField, Select } from "@interactables";
   import { RestService, SGDBService, WebsocketService } from "@services";
   import { addRomSystem, showAddRomModal, showUploadProgressModal, uploadProgressConfig } from "@stores/Modals";
-  import { romMetadata, roms, romsBySystem, showInfoSnackbar, systems } from "@stores/State";
+  import { library, romMetadata, roms, romsBySystem, showInfoSnackbar, systems } from "@stores/State";
   import { hash64 } from "@utils";
 
   let open = $state(true);
@@ -34,6 +34,7 @@
 
     $uploadProgressConfig = {
       config: {
+        uploadFolder: $library.romDir,
         system: system,
         file: file!,
         needsUnzip: needsUnzip
