@@ -7,6 +7,7 @@ mod sgdb;
 mod igdb;
 mod utils;
 mod bios_files;
+mod rom_extras;
 
 use std::{collections::HashMap, fs::remove_file, str::FromStr, thread};
 
@@ -23,7 +24,7 @@ use types::{HeroUpload, CapsuleUpload, IGDBClientStore, ROMDownload, ROMUploadCo
 use utils::{download::download_file, upload::{upload_cancel, upload_file}};
 use warp::{http::Method, Filter};
 
-use crate::rest::utils::upload::{prepare_file_replace, prepare_file_upload};
+use crate::rest::{rom_extras::{delete_rom_extra, rom_extra_download_get_metadata, rom_extra_upload_complete}, utils::upload::{prepare_file_replace, prepare_file_upload}};
 
 fn json_capsule_upload() -> impl Filter<Extract = (CapsuleUpload,), Error = warp::Rejection> + Clone {
   warp::body::content_length_limit(50 * 1024 * 1024).and(warp::body::json())
@@ -185,12 +186,41 @@ pub fn initialize_rest_api(grids_cache_dir: String, cleanup_schedule: String) ->
     .and_then(bios_file_upload_complete)
     .with(&cors);
 
-
   // * DELETE BIOS (rest/bios-files)
   let bios_delete_route = warp::path!("rest" / "bios-files" / "delete")
     .and(warp::delete())
     .and(warp::query::<HashMap<String, String>>())
     .and_then(delete_bios_file)
+    .with(&cors);
+
+  
+  // * GET ROM Extras Metadata (rest/rom-extras/download/metadata)
+  let rom_extras_download_get_metadata = warp::path!("rest" / "rom-extras" / "download" / "metadata")
+    .and(warp::get())
+    .and(warp::query::<HashMap<String, String>>())
+    .and_then(rom_extra_download_get_metadata)
+    .with(&cors);
+
+  // * GET ROM Extras (rest/rom-extras/download)
+  let rom_extras_download_route = warp::path!("rest" / "rom-extras" / "download")
+    .and(warp::get())
+    .and(warp::query::<HashMap<String, String>>())
+    .and_then(download_file)
+    .with(&cors);
+
+  // * POST ROM Extras (rest/rom-extras/upload/complete)
+  let rom_extras_upload_complete_route = warp::path!("rest" / "rom-extras" / "upload" / "complete")
+    .and(warp::post())
+    .and(upload_store_filter.clone())
+    .and(warp::filters::header::header("Upload-Id"))
+    .and_then(rom_extra_upload_complete)
+    .with(&cors);
+
+  // * DELETE ROM Extras (rest/rom-extras)
+  let rom_extras_delete_route = warp::path!("rest" / "rom-extras" / "delete")
+    .and(warp::delete())
+    .and(warp::query::<HashMap<String, String>>())
+    .and_then(delete_rom_extra)
     .with(&cors);
 
   
@@ -307,6 +337,12 @@ pub fn initialize_rest_api(grids_cache_dir: String, cleanup_schedule: String) ->
     .or(bios_upload_complete_route)
     .or(bios_delete_route);
 
+  
+  let rom_extras_routes = rom_extras_download_get_metadata
+    .or(rom_extras_download_route)
+    .or(rom_extras_upload_complete_route)
+    .or(rom_extras_delete_route);
+
   let sgdb_routes = sgdb_init_route
     .or(sgdb_get_grids_route)
     .or(sgdb_search_game_route);
@@ -320,6 +356,7 @@ pub fn initialize_rest_api(grids_cache_dir: String, cleanup_schedule: String) ->
     .or(upload_routes)
     .or(rom_routes)
     .or(bios_routes)
+    .or(rom_extras_routes)
     .or(sgdb_routes)
     .or(igdb_routes);
 

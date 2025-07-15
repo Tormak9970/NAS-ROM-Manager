@@ -620,4 +620,107 @@ export class RestService {
       return false;
     }
   }
+  
+  private static async getROMExtraMetadata(filePath: string): Promise<{ size: number, path: string }> {
+    const res = await fetch(RestService.BASE_URL + `/rom-extras/download/metadata?filePath=${encodeURIComponent(filePath)}`, {
+      method: "GET",
+      mode: "cors",
+      headers: {
+        "Accept": "application/json, text/plain, */*",
+      }
+    });
+
+    if (res.ok) {
+      return await res.json();
+    } else {
+      LogService.error(`Failed to get metadata for ${filePath}:`, res.statusText);
+      return { size: 0, path: "" };
+    }
+  }
+
+  private static async streamROMExtraDownload(path: string, fileSize: number, onProgress: (progress: number) => void) {
+    const backslashIndex = path.lastIndexOf("\\");
+    const slashIndex = path.lastIndexOf("/");
+    const startIndex = backslashIndex > slashIndex ? backslashIndex : slashIndex;
+    const filename = path.substring(startIndex + 1);
+    
+    const romURL = RestService.BASE_URL + `/rom-extras/download?filePath=${encodeURIComponent(path)}`;
+
+    // @ts-expect-error This error is because we have a type package installed. The File System API is still not supported in all browsers.
+    // ? See https://developer.mozilla.org/en-US/docs/Web/API/FileSystemWritableFileStream#browser_compatibility
+    if (window.showSaveFilePicker) {
+      await RestService.downloadNative(romURL, filename, onProgress);
+    } else {
+      await RestService.downloadPolyfill(romURL, filename, fileSize, onProgress);
+    }
+  }
+
+
+  /**
+   * Downloads the requested ROM Extras file.
+   * @param filePath The ROM Extras file path to download.
+   * @param onStart Function to run on start.
+   * @param onProgress Function to run on chunk update.
+   * @param onEnd Function to run on download complete.
+   */
+  static async downloadROMExtra(
+    filePath: string,
+    onStart: (fileSize: number) => void = () => {},
+    onProgress: (progress: number) => void = () => {},
+    onEnd: (finished: boolean) => void = () => {}
+  ): Promise<void> {
+    const { size, path } = await RestService.getROMExtraMetadata(filePath);
+    onStart(size);
+
+
+    await RestService.streamROMExtraDownload(path, size, onProgress);
+    
+
+    onEnd(!!RestService.currentDownload);
+
+    RestService.currentDownload = null;
+  }
+
+
+  static async uploadROMExtraComplete(data: CompletedUploadData) {
+    const res = await fetch(RestService.BASE_URL + "/rom-extras/upload/complete", {
+      method: "POST",
+      mode: "cors",
+      headers: {
+        "Accept": "application/json, text/plain, */*",
+        "Content-Type": "application/json",
+        "Upload-Id": data.uploadId
+      },
+      body: JSON.stringify({})
+    });
+
+    if (res.ok) {
+      return await res.text();
+    } else {
+      LogService.error(`Failed to notify the backend of the completed download for ${data.uploadId}:`, res.statusText);
+      return "";
+    }
+  }
+  
+  /**
+   * Deletes a ROM Extras File from the server.
+   * @param filePath The path of the ROM Extras file to delete.
+   * @returns Whether the delete was successful.
+   */
+  static async deleteROMExtra(filePath: string): Promise<boolean> {
+    const res = await fetch(RestService.BASE_URL + `/rom-extras/delete?filePath=${encodeURIComponent(filePath)}`, {
+      method: "DELETE",
+      mode: "cors",
+      headers: {
+        "Accept": "text/plain, */*"
+      },
+    });
+
+    if (res.ok) {
+      return true;
+    } else {
+      LogService.error(`Failed to delete bios file ${filePath}:`, res.statusText);
+      return false;
+    }
+  }
 }
