@@ -3,10 +3,13 @@ use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
+#[allow(non_snake_case)]
 pub struct LoadResult {
   pub library: Library,
   pub roms: Vec<ROM>,
   pub systems: Vec<Parser>,
+  pub dlcs: HashMap<String, Vec<String>>,
+  pub updates: HashMap<String, Vec<String>>,
 }
 
 #[derive(Clone, Debug)]
@@ -15,6 +18,8 @@ pub struct StateStore {
   pub roms: Vec<ROM>,
   pub parsers: HashMap<String, Parser>,
   pub metadata: HashMap<String, ROMMetadata>,
+  pub updates: HashMap<String, Vec<String>>,
+  pub dlcs: HashMap<String, Vec<String>>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -81,6 +86,8 @@ pub struct Library {
   pub romDir: String,
   pub emulatorDir: String,
   pub biosDir: String,
+  pub dlcDir: String,
+  pub updateDir: String,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]

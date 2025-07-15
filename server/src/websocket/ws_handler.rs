@@ -129,7 +129,9 @@ fn handle_message(
         send(tx, "load_library", LoadResult {
           library: state.library.clone(),
           roms: state.roms.clone(),
-          systems: state.parsers.clone().into_values().collect()
+          systems: state.parsers.clone().into_values().collect(),
+          dlcs: state.dlcs.clone(),
+          updates: state.updates.clone(),
         });
 
         return;

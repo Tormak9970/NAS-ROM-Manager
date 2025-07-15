@@ -12,6 +12,8 @@
   let romDir = $state($library.romDir || "roms");
   let emulatorDir = $state($library.emulatorDir || "emulators");
   let biosDir = $state($library.biosDir || "bios");
+  let dlcDir = $state($library.dlcDir || "dlc");
+  let updateDir = $state($library.updateDir || "update");
 
   const canSave = $derived(!!libraryPath && !!romDir && !!emulatorDir && !!biosDir);
 
@@ -25,7 +27,9 @@
       libraryPath: libraryPath,
       romDir: romDir,
       emulatorDir: emulatorDir,
-      biosDir: biosDir
+      biosDir: biosDir,
+      dlcDir: biosDir,
+      updateDir: biosDir,
     }
 
     $loadedLibrary = false;
@@ -66,6 +70,16 @@
       name="Bios Files Directory"
       placeholder="Library subfolder with bios files"
       bind:value={biosDir}
+    />
+    <TextField
+      name="DLCs Directory"
+      placeholder="Library subfolder with ROM DLC files"
+      bind:value={dlcDir}
+    />
+    <TextField
+      name="Updates Directory"
+      placeholder="Library subfolder with ROM update files"
+      bind:value={updateDir}
     />
   </div>
   {#snippet buttons()}

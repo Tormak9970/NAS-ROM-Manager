@@ -31,7 +31,9 @@ pub fn initialize_websocket_api() -> impl Filter<Extract = (impl warp::Reply,), 
     library: get_default_settings().library,
     roms: vec![],
     parsers: HashMap::new(),
-    metadata: HashMap::new()
+    metadata: HashMap::new(),
+    dlcs: HashMap::new(),
+    updates: HashMap::new()
   }));
 
 

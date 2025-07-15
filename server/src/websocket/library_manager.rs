@@ -12,7 +12,6 @@ use super::{parsers::load_parsers, types::{
 }};
 use super::watcher::Watcher;
 
-
 fn load_rom(parser: &Parser, pattern: &ParserPattern, path: PathBuf) -> ROM {
   let path_str = path.to_str().unwrap().to_string();
   let metadata = fs::metadata(&path).expect("Failed to read ROM metadata");
@@ -128,6 +127,120 @@ fn load_roms(library: &Library, watcher: &Watcher, parsers: &HashMap<String, Par
   return Ok(roms);
 }
 
+
+fn load_platform_extras(dict: &mut HashMap<String, Vec<String>>, path: PathBuf) {
+  let entries_res = read_dir(&path);
+  for dir_entry_res in entries_res.unwrap() {
+    if dir_entry_res.is_err() {
+      continue;
+    }
+    let dir_entry = dir_entry_res.unwrap();
+    let rom_id_os = dir_entry.file_name();
+    let rom_id = rom_id_os.to_str().unwrap().to_owned();
+
+    let dir_metadata_res = dir_entry.metadata();
+    if dir_metadata_res.is_err() {
+      let err = dir_metadata_res.err().unwrap();
+      warn!("Load Platform Extras: Can't read metadata of directory \"{}\": {}", rom_id, err.to_string());
+      continue;
+    }
+    let dir_metadata = dir_metadata_res.unwrap();
+
+    if dir_metadata.is_dir() {
+      let extra_entries_res = read_dir(&dir_entry.path());
+      for extra_entry_res in extra_entries_res.unwrap() {
+        if extra_entry_res.is_err() {
+          continue;
+        }
+
+        let extra_entry = extra_entry_res.unwrap();
+        let extra_filename_os = extra_entry.file_name();
+        let extra_filename = extra_filename_os.to_str().unwrap();
+
+        let extra_metadata_res = extra_entry.metadata();
+        if extra_metadata_res.is_err() {
+          continue;
+        }
+        let extra_metadata = extra_metadata_res.unwrap();
+
+        if extra_metadata.is_file() {
+          if dict.contains_key(&rom_id) {
+            dict.get_mut(&rom_id).unwrap().push(extra_filename.to_string());
+          } else {
+            let extras = vec![extra_filename.to_string()];
+
+            dict.insert(rom_id.clone(), extras);
+          }
+        }
+      }
+    }
+  }
+}
+
+fn load_extra(path: PathBuf, send_error: &ErrorSender) -> Result<HashMap<String, Vec<String>>, ()> {
+  let mut dict: HashMap<String, Vec<String>> = HashMap::new();
+
+  let exists_res = fs::exists(&path);
+  if exists_res.is_err() {
+    let err = exists_res.err().unwrap();
+    
+    send_error(
+      format!("Failed to load extras: {}", err.to_string()),
+      String::from("Please double check that there your extras directory is readable."),
+      crate::websocket::types::BackendErrorType::WARN
+    );
+
+    return Err(());
+  }
+
+  if !exists_res.ok().unwrap() {
+    return Ok(dict);
+  }
+
+  let entries_res = read_dir(&path);
+  for dir_entry_res in entries_res.unwrap() {
+    if dir_entry_res.is_err() {
+      continue;
+    }
+    let dir_entry = dir_entry_res.unwrap();
+    let dir_name_os = dir_entry.file_name();
+    let dir_name = dir_name_os.to_str().unwrap().to_owned();
+
+    let dir_metadata_res = dir_entry.metadata();
+    if dir_metadata_res.is_err() {
+      let err = dir_metadata_res.err().unwrap();
+      warn!("Load Extras: Can't read metadata of directory \"{}\": {}", dir_name, err.to_string());
+      continue;
+    }
+    let dir_metadata = dir_metadata_res.unwrap();
+
+    if dir_metadata.is_dir() {
+      let rom_extras_path = dir_entry.path();
+      load_platform_extras(&mut dict, rom_extras_path);
+    }
+  }
+
+  return Ok(dict);
+}
+
+fn load_extras(library: &Library, send_error: &ErrorSender) -> Result<(HashMap<String, Vec<String>>, HashMap<String, Vec<String>>), ()> {
+  let dlcs_path = PathBuf::from(&library.libraryPath).join(&library.dlcDir);
+  let dlcs_res = load_extra(dlcs_path, send_error);
+  if dlcs_res.is_err() {
+    return Err(());
+  }
+  let dlcs = dlcs_res.unwrap();
+  
+  let updates_path = PathBuf::from(&library.libraryPath).join(&library.updateDir);
+  let updates_res = load_extra(updates_path, send_error);
+  if updates_res.is_err() {
+    return Err(());
+  }
+  let updates = updates_res.unwrap();
+
+  return Ok((dlcs, updates));
+}
+
 fn load_library(library: &Library, watcher: &Watcher, send_error: &ErrorSender) -> Result<(LoadResult, HashMap<String, Parser>), ()> {
   let parsers_res = load_parsers(library, send_error);
   if parsers_res.is_err() {
@@ -141,12 +254,25 @@ fn load_library(library: &Library, watcher: &Watcher, send_error: &ErrorSender) 
   if roms_res.is_err() {
     return Err(());
   }
+  
+  let roms_res = load_roms(library, watcher, &parsers, &send_error);
+  if roms_res.is_err() {
+    return Err(());
+  }
+  
+  let extras_res = load_extras(library, send_error);
+  if extras_res.is_err() {
+    return Err(());
+  }
+  let extras = extras_res.unwrap();
 
   return Ok((
     LoadResult {
       library: library.to_owned(),
       roms: roms_res.unwrap(),
       systems,
+      dlcs: extras.0,
+      updates: extras.1
     },
     parsers
   ));

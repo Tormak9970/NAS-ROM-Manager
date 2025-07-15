@@ -31,6 +31,8 @@ pub fn get_default_settings() -> Settings {
       romDir: "roms".to_string(),
       emulatorDir: "emulators".to_string(),
       biosDir: "bios".to_string(),
+      dlcDir: "dlcs".to_string(),
+      updateDir: "updates".to_string(),
     }
   };
 }

@@ -53,6 +53,8 @@ export type LoadResult = {
   library: Library;
   roms: ROM[];
   systems: System[];
+  dlcs: Record<string, string[]>;
+  updates: Record<string, string[]>;
 }
 
 export type Library = {
@@ -60,6 +62,8 @@ export type Library = {
   romDir: string;
   emulatorDir: string;
   biosDir: string;
+  dlcDir: string;
+  updateDir: string;
 }
 
 export type Collection = {
