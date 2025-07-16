@@ -36,11 +36,15 @@ export const library = writable<Library>({
   libraryPath: "",
   romDir: "roms",
   emulatorDir: "emulators",
-  biosDir: "bios"
+  biosDir: "bios",
+  dlcDir: "dlcs",
+  updateDir: "updates",
 });
 export const systems = writable<Record<string, System>>({});
 export const roms = writable<Record<string, ROM>>({});
 export const emulators = writable<Record<string, string>>({});
+export const romDLCs = writable<Record<string, string[]>>({});
+export const romUpdates = writable<Record<string, string[]>>({});
 
 export const fileFormatsBySystem = derived([ roms ], ([$roms]: [Record<string, ROM>]) => {
   const formats = Object.values($roms).reduce((formats: Record<string, Set<string>>, rom: ROM) => {

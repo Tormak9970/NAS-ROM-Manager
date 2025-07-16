@@ -142,7 +142,7 @@
             No Metadata for <b>{metadata.title ?? rom.title}</b>
           </div>
         {:else}
-          <RomMetadata metadata={metadata} portrait={portrait} />
+          <RomMetadata system={system} romId={id} metadata={metadata} portrait={portrait} />
         {/if}
       </div>
     </div>

@@ -29,8 +29,8 @@ export class UploadService {
     }
   }
 
-  static async prepareUpload(libraryPath: string, dir: string, system: string, filename: string): Promise<string> {
-    const filePath = `${libraryPath}/${dir}/${system}/${filename}`;
+  static async prepareUpload(libraryPath: string, dir: string, system: string, filename: string, romId?: string): Promise<string> {
+    const filePath = `${libraryPath}/${dir}/${system}${romId ? "/" + romId : ""}/${filename}`;
 
     const res = await fetch(UploadService.BASE_URL + `/upload/prepare?filePath=${encodeURIComponent(filePath)}`, {
       method: "POST",
@@ -116,7 +116,7 @@ export class UploadService {
     onEnd: (success: boolean, filePath: string) => void = () => {},
     isReplace = false
   ) {
-    const { uploadFolder, file, system, needsUnzip } = uploadConfig;
+    const { uploadFolder, romId, file, system, needsUnzip } = uploadConfig;
     const lib = get(library);
     
     const systemFolder = get(systems)[system].folder;
@@ -126,7 +126,7 @@ export class UploadService {
     if (isReplace) {
       filePath = await UploadService.prepareReplace(uploadConfig.path!);
     } else {
-      filePath = await UploadService.prepareUpload(lib.libraryPath, uploadFolder, systemFolder, file.name);
+      filePath = await UploadService.prepareUpload(lib.libraryPath, uploadFolder, systemFolder, file.name, romId);
     }
 
     if (filePath === "canceled") {

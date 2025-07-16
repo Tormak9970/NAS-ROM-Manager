@@ -1,17 +1,21 @@
 <script lang="ts">
-  import { IGDB_WEBSITE_TYPES, type ROMMetadata } from "@types";
+  import { IGDB_WEBSITE_TYPES, type ROMMetadata, type System } from "@types";
   import { formatDateNumber } from "@utils";
   import AgeRating from "@views/library/details/AgeRating.svelte";
   import RelatedGameTableRow from "@views/library/details/RelatedGameTableRow.svelte";
   import WebsiteLink from "@views/library/details/WebsiteLink.svelte";
+  import DlCs from "@views/library/DLCs.svelte";
+  import Updates from "@views/library/Updates.svelte";
   import TableRow from "./TableRow.svelte";
 
   type Props = {
+    romId: string;
+    system: System;
     metadata: ROMMetadata;
     portrait: boolean;
   }
 
-  let { metadata, portrait }: Props = $props();
+  let { romId, system, metadata, portrait }: Props = $props();
 
   const ageRatings = $derived(metadata.metadata?.metadata?.ageRatings ?? []);
   const websites = $derived(metadata.metadata?.metadata?.websites ?? []);
@@ -19,6 +23,8 @@
 
 <div class="details metadata" class:portrait>
   <div class="text-info">
+    <Updates romId={romId} system={system} />
+    <DlCs romId={romId} system={system} />
     <div>
       <h2>Overview</h2>
       <div class="summary body-text">{metadata.metadata?.summary ?? "No overview was available"}</div>

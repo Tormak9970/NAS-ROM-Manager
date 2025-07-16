@@ -1,15 +1,12 @@
 <script lang="ts">
   import { ModalBody } from "@component-utils";
-  import { Button, FileField, Select } from "@interactables";
+  import { Button, FileField } from "@interactables";
   import { RestService } from "@services";
-  import { addBiosFileSystem, showAddBiosFileModal, showUploadProgressModal, uploadProgressConfig } from "@stores/Modals";
-  import { library, showInfoSnackbar, systems } from "@stores/State";
+  import { replaceExtraFilePath, replaceExtraFileRomId, replaceExtraFileSystem, replaceExtraFileType, showReplaceExtraFileModal, showUploadProgressModal, uploadProgressConfig } from "@stores/Modals";
+  import { library, showInfoSnackbar } from "@stores/State";
+  import { ExtraFileType } from "@types";
 
   let open = $state(true);
-  
-  let systemOptions: SelectItem[] = Object.entries($systems).sort().map(([key, value]) => {
-    return { label: key, value: value.abbreviation };
-  });
 
   let file = $state<File | null>(null);
 
@@ -21,25 +18,25 @@
   async function onUpload(): Promise<void> {
     open = false;
     
-    const fileName = file!.name;
-    const system = $addBiosFileSystem!;
+    const system = $replaceExtraFileSystem!;
+    const romId = $replaceExtraFileRomId!;
+    const isDLC = $replaceExtraFileType === ExtraFileType.DLC;
 
     $uploadProgressConfig = {
       config: {
-        uploadFolder: $library.biosDir,
+        uploadFolder: $library[isDLC ? "dlcDir" : "updateDir"],
+        romId: romId,
         system: system,
         file: file!,
-        needsUnzip: false
+        needsUnzip: false,
+        path: $replaceExtraFilePath!
       },
       process: async (_, closeModal) => {
-        $systems[system].biosFiles.push(fileName);
-        $systems = { ...$systems };
-
-        $showInfoSnackbar({ message: "Upload complete" });
-        
+        $showInfoSnackbar({ message: "Replaced file" });
         closeModal();
       },
-      complete: RestService.uploadBIOSComplete
+      complete: RestService.uploadROMExtraComplete,
+      isReplace: true,
     }
     $showUploadProgressModal = true;
   }
@@ -53,15 +50,17 @@
 </script>
 
 <ModalBody
-  headline="Add Bios File"
+  headline={`Replace ${$replaceExtraFileType === ExtraFileType.DLC ? "DLC" : "Update"} File`}
   open={open}
   onclose={() => {
-    $showAddBiosFileModal = false;
-    $addBiosFileSystem = null;
+    $showReplaceExtraFileModal = false;
+    $replaceExtraFileType = ExtraFileType.DLC;
+    $replaceExtraFileSystem = null;
+    $replaceExtraFileRomId = null;
+    $replaceExtraFilePath = null;
   }}
 >
   <div class="content">
-    <Select name="System" options={systemOptions} disabled bind:value={$addBiosFileSystem!} />
     <FileField name="File" placeholder="Choose a file" onchange={(value) => file = value!} />
   </div>
   {#snippet buttons()}

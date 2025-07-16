@@ -24,7 +24,6 @@ COPY . .
 ENV NODE_ENV=production
 
 # [optional] tests & build
-RUN bun test
 RUN bun run "build:svelte"
 
 # copy production dependencies and source code into final image

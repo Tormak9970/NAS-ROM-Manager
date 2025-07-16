@@ -330,4 +330,28 @@ export class WebsocketService {
     const res = await WebsocketService.invoke<boolean>("is_valid_glob", { glob });
     return res.data;
   }
+  
+  /**
+   * Adds a new extra file to the backend cache.
+   * @param fileType The ExtraFileType.
+   * @param romId The rom id of the associated rom.
+   * @param filename The file's name.
+   * @returns True if the file was added.
+   */
+  static async addExtraFileToCache(fileType: string, romId: string, filename: string): Promise<boolean> {
+    const res = await WebsocketService.invoke<boolean>("add_extra_file", { fileType, romId, filename });
+    return res.data;
+  }
+  
+  /**
+   * Removes an extra file from the backend cache.
+   * @param fileType The ExtraFileType.
+   * @param romId The rom id of the associated rom.
+   * @param filename The file's name.
+   * @returns True if the file was removed.
+   */
+  static async removeExtraFileFromCache(fileType: string, romId: string, filename: string): Promise<boolean> {
+    const res = await WebsocketService.invoke<boolean>("delete_extra_file", { fileType, romId, filename });
+    return res.data;
+  }
 }

@@ -72,6 +72,7 @@
         borderColor: tagConfigColor,
       },
       patterns: patterns,
+      biosFiles: []
     }
 
     $systems[abbreviation] = newParser;

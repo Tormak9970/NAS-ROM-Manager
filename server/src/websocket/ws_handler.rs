@@ -1,32 +1,16 @@
 use futures_util::{SinkExt, StreamExt};
 use warp::filters::ws::{Message, WebSocket};
 use wax::Glob;
-use std::sync::{Arc, Mutex};
+use std::{sync::{Arc, Mutex}};
 use tokio::sync::broadcast;
 use sysinfo::{DiskRefreshKind, Disks};
 
 use crate::websocket::{
-  auth::authenticate_user,
-  library_manager::{parse_library, parse_added_rom},
-  settings::{load_settings, set_setting, write_settings},
-  types::{
+  auth::authenticate_user, file_picker::get_entries, library_manager::{parse_added_rom, parse_library}, settings::{load_settings, set_setting, write_settings}, types::{
     args::{
-      AuthArgs,
-      ModifyLibraryArgs,
-      SetSettingArgs,
-      SimpleArgs,
-      ParseRomArgs,
-      FilePickerArgs,
-      MetadataArgs
-    },
-    library::StateStore,
-    settings::Settings,
-    ErrorSender,
-    AvailableStorage
-  },
-  utils::{check_hash, send, get_error_sender},
-  watcher::Watcher,
-  file_picker::get_entries
+      AuthArgs, FilePickerArgs, MetadataArgs, ModifyExtraFileArgs, ModifyLibraryArgs, ParseRomArgs, SetSettingArgs, SimpleArgs
+    }, library::StateStore, settings::Settings, AvailableStorage, ErrorSender
+  }, utils::{check_hash, get_error_sender, send}, watcher::Watcher
 };
 
 use super::{metadata::{load_metadata, write_metadata}, parsers::{delete_parser, write_parsers}, types::{args::{DeleteParserArgs, GlobArgs, ParsersArgs}, library::LoadResult}};
@@ -268,6 +252,71 @@ fn handle_message(
         (*state).parsers.remove(&args.abbreviation);
         send(tx, "delete_parser", success);
       }
+    }
+    "add_extra_file" => {
+      let args: ModifyExtraFileArgs = serde_json::from_str(data).unwrap();
+      let valid = check_hash(args.passwordHash, tx.clone());
+      if !valid {
+        return;
+      }
+      
+      let mut state = state_store.lock().expect("Failed to lock State Mutex.");
+      let mut state_map;
+
+      if (&args.fileType).eq_ignore_ascii_case("dlc") {
+        state_map = (*state).dlcs.clone();
+      } else {
+        state_map = (*state).updates.clone();
+      }
+
+      if state_map.contains_key(&args.romId) {
+        let files_list: &mut Vec<String> = state_map.get_mut(&args.romId).unwrap();
+
+        files_list.push((&args.filename).to_owned());
+      } else {
+        let new_list = vec![(&args.filename).to_owned()];
+        state_map.insert((&args.romId).clone(), new_list);
+      }
+      
+      if (&args.fileType).eq_ignore_ascii_case("dlc") {
+        (*state).dlcs = state_map;
+      } else {
+        (*state).updates = state_map;
+      }
+
+      send(tx, "add_extra_file", true);
+    }
+    "delete_extra_file" => {
+      let args: ModifyExtraFileArgs = serde_json::from_str(data).unwrap();
+      let valid = check_hash(args.passwordHash, tx.clone());
+      if !valid {
+        return;
+      }
+      
+      let mut state = state_store.lock().expect("Failed to lock State Mutex.");
+      let mut state_map;
+
+      if (&args.fileType).eq_ignore_ascii_case("dlc") {
+        state_map = (*state).dlcs.clone();
+      } else {
+        state_map = (*state).updates.clone();
+      }
+
+      if state_map.contains_key(&args.romId) {
+        let files_list: &mut Vec<String> = state_map.get_mut(&args.romId).unwrap();
+
+        if let Some(index) = files_list.iter().position(|value| (*value).eq_ignore_ascii_case(&args.filename)) {
+            files_list.remove(index);
+        }
+      }
+      
+      if (&args.fileType).eq_ignore_ascii_case("dlc") {
+        (*state).dlcs = state_map;
+      } else {
+        (*state).updates = state_map;
+      }
+
+      send(tx, "delete_extra_file", true);
     }
     "parse_rom" => {
       let args: ParseRomArgs = serde_json::from_str(data).unwrap();

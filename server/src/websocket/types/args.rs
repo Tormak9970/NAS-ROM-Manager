@@ -77,3 +77,12 @@ pub struct GlobArgs {
   pub passwordHash: String,
   pub glob: String,
 }
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+#[allow(non_snake_case)]
+pub struct ModifyExtraFileArgs {
+  pub passwordHash: String,
+  pub fileType: String,
+  pub romId: String,
+  pub filename: String,
+}

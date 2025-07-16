@@ -6,12 +6,18 @@ export * from "./Library";
 export * from "./Settings";
 export * from "./SGDB";
 
+export enum ExtraFileType {
+  DLC = "dlc",
+  UPDATE = "update"
+}
+
 export type UploadConfig = {
   uploadFolder: string;
   system: string;
   file: File;
   path?: string;
   needsUnzip: boolean;
+  romId?: string;
 }
 
 export type CompletedUploadData = {

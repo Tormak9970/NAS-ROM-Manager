@@ -1,6 +1,6 @@
 import { UpdateService } from "@services/UpdateService";
 import { isFirstSetup, loadingModalMessage, showEditLibraryModal, showLoadingModal } from "@stores/Modals";
-import { library, loadedLibrary, romMetadata, roms, romsBySystem, systems, systemTagConfigs } from "@stores/State";
+import { library, loadedLibrary, romDLCs, romMetadata, roms, romsBySystem, romUpdates, systems, systemTagConfigs } from "@stores/State";
 import type { Library, LoadResult, ROMMetadata } from "@types";
 import { hash64 } from "@utils";
 import { get } from "svelte/store";
@@ -44,6 +44,9 @@ export class AppService {
 
 
     library.set(loadRes.library);
+
+    romDLCs.set(loadRes.dlcs);
+    romUpdates.set(loadRes.updates);
 
     for (const system of loadRes.systems) {
       if (system.sgdbId === "") {

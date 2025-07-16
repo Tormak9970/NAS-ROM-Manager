@@ -1,4 +1,4 @@
-import type { FilePickerConfig, IGDBMetadataPlatform, SGDBImage, UploadSettings } from "@types";
+import { ExtraFileType, type FilePickerConfig, type IGDBMetadataPlatform, type SGDBImage, type UploadSettings } from "@types";
 import { localStorageWritable } from "@utils";
 import { writable } from "svelte/store";
 
@@ -82,3 +82,14 @@ export const replaceRomId = writable<string | null>(null);
 export const showReplaceBiosFileModal = writable(false);
 export const replaceBiosFileSystem = writable<string | null>(null);
 export const replaceBiosFilePath = writable<string | null>(null);
+
+export const showAddExtraFileModal = writable(false);
+export const addExtraFileType = writable<ExtraFileType>(ExtraFileType.DLC);
+export const addExtraFileSystem = writable<string | null>(null);
+export const addExtraFileRomId = writable<string | null>(null);
+
+export const showReplaceExtraFileModal = writable(false);
+export const replaceExtraFileType = writable<ExtraFileType>(ExtraFileType.DLC);
+export const replaceExtraFileSystem = writable<string | null>(null);
+export const replaceExtraFileRomId = writable<string | null>(null);
+export const replaceExtraFilePath = writable<string | null>(null);
